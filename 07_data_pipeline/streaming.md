@@ -19,27 +19,20 @@ Producer(s)              Broker / Router           Consumer(s)
 +-----------+          +-----------------+       +-------------+
                               |
                         Globus Transfer
-                              |
                               v
-                       +-------------+
-                       | ALCF Compute|
-                       | (Polaris /  |
-                       |  Aurora)    |
-                       +-------------+
+                       +--------------+
+                       | ALCF Compute |
+                       +--------------+
 ```
 
 ### Design Principles
 
-1. **Fan-out** -- A single data source feeds multiple consumers simultaneously
-   (e.g., live display, disk writer, real-time processing).
+1. **Fan-out** -- A single data source feeds multiple consumers simultaneously.
 2. **Back-pressure** -- Slow consumers do not block the detector; the broker
    drops or queues frames according to configured policy.
-3. **Zero-copy** -- ZMQ and shared-memory transports avoid unnecessary copies on
-   the local node.
+3. **Zero-copy** -- ZMQ and shared-memory transports avoid unnecessary copies.
 
 ## ZeroMQ (ZMQ) Streaming
-
-### Architecture
 
 ZMQ provides the primary low-latency path for frame-level streaming within the
 beamline network.
@@ -57,9 +50,9 @@ Each ZMQ message is a multi-part envelope:
 
 ```
 Part 0:  Topic string     ("detector.eiger.frame")
-Part 1:  Header (JSON)    {"frame_id": 42, "timestamp": "...", "shape": [2070,2167], "dtype": "uint16"}
+Part 1:  Header (JSON)    {"frame_id": 42, "shape": [2070,2167], "dtype": "uint16"}
 Part 2:  Data blob         (raw pixel bytes, optionally LZ4-compressed)
-Part 3:  Metadata (JSON)   {"energy_keV": 12.0, "angle_deg": 45.3, ...}
+Part 3:  Metadata (JSON)   {"energy_keV": 12.0, "angle_deg": 45.3}
 ```
 
 ### Performance
@@ -73,52 +66,28 @@ Part 3:  Metadata (JSON)   {"energy_keV": 12.0, "angle_deg": 45.3, ...}
 PV Access (pvAccess) is the EPICS v7 network protocol, providing structured
 data transport with intrinsic type safety and monitoring semantics.
 
-### Use Cases
-
-- **NTNDArray**: Transmits detector frames as Normative Type ND arrays, enabling
-  EPICS-native consumers (e.g., CSS displays, archiver appliance).
-- **NTScalar / NTTable**: Streams scalar and tabular metadata (motor positions,
-  beam intensity) alongside image data.
-
-### Configuration
+- **NTNDArray**: Transmits detector frames as Normative Type ND arrays for
+  EPICS-native consumers (CSS displays, archiver appliance).
+- **NTScalar / NTTable**: Streams scalar and tabular metadata alongside images.
 
 ```yaml
 pva_gateway:
-  listen_interface: "10.0.0.0/16"      # beamline subnet
+  listen_interface: "10.0.0.0/16"
   server_addresses:
     - "ioc-det-eiger:5075"
     - "ioc-det-jungfrau:5075"
-  access_security: "pva_access.acf"
-  max_array_bytes: 50000000             # 50 MB limit per PV
+  max_array_bytes: 50000000
 ```
 
-### Limitations
-
-PV Access is optimized for control-system semantics (monitors, puts, RPCs)
-rather than bulk data transport. For sustained multi-GB/s throughput, ZMQ is
-preferred; PV Access handles metadata and lower-rate image streams.
+PV Access is optimized for control-system semantics rather than bulk transport.
+For sustained multi-GB/s throughput, ZMQ is preferred.
 
 ## Globus Data Transfer
 
 ### APS to ALCF Connection
 
-Bulk data transfer between the Advanced Photon Source (APS) and the Argonne
-Leadership Computing Facility (ALCF) uses Globus with dedicated DTN nodes.
-
-```
-APS Beamline Storage (GPFS)
-    |
-    v
-APS Data Transfer Node (DTN)
-    |--- 100 Gbps ESnet link ---
-    v
-ALCF Data Transfer Node (DTN)
-    |
-    v
-ALCF Eagle / Grand filesystem
-```
-
-### Transfer Configuration
+Bulk data transfer between APS and ALCF uses Globus with dedicated DTN nodes
+connected via a 100 Gbps ESnet link.
 
 | Parameter | Value |
 |---|---|
@@ -144,14 +113,14 @@ ALCF Eagle / Grand filesystem
 
 ## Monitoring and Observability
 
-All streaming components emit metrics to a centralized monitoring stack:
+All streaming components emit metrics to a centralized Grafana stack:
 
 | Metric | Source | Dashboard |
 |---|---|---|
-| Frame rate (fps) | ZMQ publisher | Grafana: Detector Throughput |
-| Transfer rate (Gbps) | Globus activity log | Grafana: Data Movers |
-| Consumer lag (frames) | ZMQ broker | Grafana: Stream Health |
-| PV update rate (Hz) | pvAccess gateway | Grafana: EPICS Metrics |
+| Frame rate (fps) | ZMQ publisher | Detector Throughput |
+| Transfer rate (Gbps) | Globus activity log | Data Movers |
+| Consumer lag (frames) | ZMQ broker | Stream Health |
+| PV update rate (Hz) | pvAccess gateway | EPICS Metrics |
 
 Alerts fire when consumer lag exceeds 100 frames or transfer rate drops below
 10 Gbps, indicating a bottleneck that may impact real-time processing.
