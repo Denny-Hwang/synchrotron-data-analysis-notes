@@ -29,28 +29,18 @@ system for live feedback.
 
 ## Background & Motivation
 
-Ptychography is a coherent diffraction imaging technique that recovers both amplitude
-and phase of a specimen at spatial resolution beyond the focusing optic limit. The
-technique has become a workhorse at synchrotron nanoprobe beamlines, but its
-reconstruction poses a severe computational bottleneck: conventional iterative
-algorithms (ePIE, difference map, RAAR) require 100--500 iterations per scan position,
-each involving forward and inverse Fourier transforms with constraint projections.
-At modern detector frame rates (1--10 kHz), the gap between data acquisition and
-reconstruction throughput prevents real-time feedback.
+Ptychography recovers both amplitude and phase of a specimen from overlapping coherent
+diffraction patterns at resolution beyond the focusing optic limit. Conventional
+iterative algorithms (ePIE, difference map, RAAR) require 100--500 iterations per
+scan position, creating a severe bottleneck at modern detector frame rates (1--10 kHz).
+The APS-U will deliver 100--500x more coherent flux, pushing data rates to 10+ GB/s
+and making this gap untenable for experiments requiring real-time feedback.
 
-This computational gap becomes critical in the context of the APS Upgrade (APS-U),
-which will deliver 100--500x more coherent flux and push data rates to 10+ GB/s per
-beamline. Without real-time reconstruction capability, experiments cannot adapt scan
-parameters (overlap, dwell time, scan path) based on live-reconstructed images,
-forcing conservative pre-planned scan strategies that waste beam time on redundant
-or uninteresting regions.
-
-Prior work by Guan et al. (PtychoNet, 2019) demonstrated that CNNs could approximate
-iterative ptychographic reconstruction with ~90% speed improvement, but deployment
-remained on conventional GPU servers with significant data transfer latency. This
-paper takes the critical next step: deploying optimized neural networks on edge
-compute hardware physically co-located with the detector, connected via RDMA and
-ZMQ streaming, to achieve true real-time operation at the beamline.
+Prior work by Guan et al. (PtychoNet, 2019) demonstrated CNN-based ptychographic
+reconstruction with ~90% speedup, but deployment on conventional GPU servers retained
+significant data-transfer latency. This paper takes the critical next step: deploying
+optimized neural networks on edge compute hardware co-located with the detector,
+connected via RDMA and ZMQ streaming, to achieve true real-time operation.
 
 ---
 
@@ -82,29 +72,21 @@ ZMQ streaming, to achieve true real-time operation at the beamline.
    data with iteratively reconstructed ground truth to bridge the sim-to-real
    domain gap.
 
-3. **Edge GPU deployment (NVIDIA Jetson AGX Orin)**: The trained PyTorch model is
-   quantized to FP16 precision and compiled with TensorRT for the Jetson platform.
-   TensorRT performs layer fusion, kernel auto-tuning, and memory optimization for
-   the ARM-based GPU architecture. Inference achieves approximately 0.5 ms per
-   diffraction pattern.
+3. **Edge GPU deployment (NVIDIA Jetson AGX Orin)**: The model is quantized to FP16
+   and compiled with TensorRT, achieving ~0.5 ms per diffraction pattern via layer
+   fusion and kernel auto-tuning for the ARM-based GPU architecture.
 
-4. **FPGA deployment (Xilinx Alveo U250)**: The model is further quantized to INT8
-   fixed-point representation and synthesized onto the FPGA fabric using Xilinx
-   Vitis AI. The dataflow architecture pipelines convolutional operations across
-   FPGA resources, achieving approximately 0.3 ms per pattern at significantly
-   lower power consumption than the GPU path.
+4. **FPGA deployment (Xilinx Alveo U250)**: Further quantized to INT8 and synthesized
+   via Xilinx Vitis AI with a pipelined dataflow architecture, achieving ~0.3 ms
+   per pattern at significantly lower power consumption than the GPU path.
 
-5. **Streaming pipeline**: Data flows directly from the Eiger area detector via
-   RDMA (Remote Direct Memory Access) to the edge device, bypassing the beamline
-   control workstation entirely. ZeroMQ (ZMQ) message queues handle data
-   distribution and reconstructed image collection. Reconstructed phase images are
-   streamed via ZMQ PUB/SUB to a visualization dashboard and to the Bluesky-based
-   beamline control system for potential adaptive scan decisions.
+5. **Streaming pipeline**: Data flows from the Eiger detector via RDMA to the edge
+   device, bypassing the control workstation. ZMQ PUB/SUB streams reconstructed
+   phase images to a visualization dashboard and Bluesky control system for
+   adaptive scan decisions.
 
-6. **Iterative refinement option**: The CNN output can optionally seed a small
-   number of ePIE iterations (5--10 instead of the standard 200+) for higher
-   fidelity when the latency budget permits, implementing the hybrid approach
-   pioneered by PtychoNet.
+6. **Iterative refinement option**: The CNN output can optionally seed 5--10 ePIE
+   iterations (instead of 200+) for higher fidelity when latency permits.
 
 ### Pipeline
 
@@ -166,23 +148,17 @@ refinement of selected frames.
 
 ## Strengths
 
-- Demonstrates real-time ptychographic reconstruction at kHz rates on edge hardware,
-  which is a prerequisite for adaptive scanning at APS-U data rates and represents
-  a critical milestone for the field.
+- Demonstrates kHz-rate ptychographic reconstruction on edge hardware -- a critical
+  milestone and prerequisite for adaptive scanning at APS-U data rates.
 - Edge deployment eliminates the network bottleneck: data never leaves the beamline
-  hutch for initial reconstruction, reducing latency by orders of magnitude compared
-  to HPC-based workflows.
-- FPGA implementation achieves competitive throughput at 5--7x lower power than
-  server-class GPUs, important for sustainable 24/7 facility operations across
-  dozens of beamlines.
-- The hybrid CNN + few-iteration ePIE approach provides a continuously tunable
-  quality/speed tradeoff suited to different experimental priorities and latency
-  budgets.
-- ZMQ streaming integration provides a clean interface to existing beamline control
-  infrastructure (Bluesky/Ophyd), facilitating adoption without major control
-  system redesign.
-- Validated on experimental ptychographic data at two APS beamlines, not just
-  simulations, demonstrating practical deployability.
+  hutch, reducing latency by orders of magnitude vs. HPC-based workflows.
+- FPGA achieves 5--7x lower power than server GPUs, important for sustainable 24/7
+  multi-beamline operations.
+- Hybrid CNN + few-iteration ePIE provides continuously tunable quality/speed
+  tradeoff suited to different experimental priorities.
+- ZMQ streaming provides clean integration with existing Bluesky/Ophyd control
+  infrastructure without major redesign.
+- Validated on experimental data at two APS beamlines, not just simulations.
 
 ---
 
