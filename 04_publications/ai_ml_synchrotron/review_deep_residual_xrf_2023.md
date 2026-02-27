@@ -16,33 +16,57 @@
 
 ## TL;DR
 
-This paper applies a deep residual network to achieve 2--4x effective spatial
-resolution enhancement of synchrotron X-ray fluorescence elemental maps by learning
-the mapping from coarse-step survey scans to fine-step ground truth. Trained on paired
-low-resolution/high-resolution XRF scans acquired at APS 2-ID-E, the network enables
-researchers to perform faster coarse scans while computationally recovering fine
-spatial detail, effectively decoupling scan time from effective resolution.
+This paper applies a deep residual network to achieve 2-4x effective spatial
+resolution enhancement of synchrotron X-ray fluorescence elemental maps by
+learning the mapping from coarse-step survey scans to fine-step ground truth.
+Trained on paired low-resolution/high-resolution XRF scans acquired at APS
+2-ID-E, the network enables researchers to perform faster coarse scans while
+computationally recovering fine spatial detail, effectively decoupling scan time
+from effective resolution. The multi-element architecture processes all elemental
+channels jointly, preserving inter-element spatial correlations that are
+scientifically critical for interpreting elemental associations in materials and
+biological specimens.
 
 ---
 
 ## Background & Motivation
 
-Synchrotron X-ray fluorescence microscopy maps elemental distributions at sub-micron
-resolution by raster-scanning a focused X-ray beam across a specimen and detecting
-characteristic fluorescence emission. Achieving the finest spatial resolution requires
-dense scanning with small step sizes, but scan time scales quadratically with
-resolution improvement in two dimensions: a 2x resolution enhancement requires 4x more
-scan positions. For large-area surveys, dose-sensitive biological specimens, or in-situ
-time-series experiments, this tradeoff forces researchers to choose between spatial
-detail and practical scan duration.
+Synchrotron X-ray fluorescence microscopy maps elemental distributions at
+sub-micron resolution by raster-scanning a focused X-ray beam across a specimen
+and detecting characteristic fluorescence emission. The technique is used across
+materials science, environmental science, biology, and cultural heritage for
+trace-element analysis at concentrations down to parts-per-million sensitivity.
 
-Classical interpolation (bilinear, bicubic) and deconvolution cannot recover true
-sub-pixel information lost during coarse sampling. Super-resolution deep learning
-offers the potential to computationally recover fine-scale features from coarse XRF
-maps by learning the statistical mapping from paired training data. The specific
-challenge is that XRF signals are physically constrained (non-negative elemental
-concentrations, inter-element spatial correlations) and hallucinated features could
-lead to incorrect scientific conclusions about trace element distributions.
+**The resolution-time tradeoff** is fundamental and severe: scan time scales
+**quadratically** with resolution improvement in two dimensions. A 2x resolution
+enhancement (halving the step size in both x and y) requires 4x more scan
+positions and thus 4x more time. A 4x enhancement requires 16x more positions.
+For a typical large-area survey covering 100x100 micrometers at 100 nm step
+size, a single scan takes several hours. At 50 nm step size, it would take an
+entire 8-hour shift.
+
+This quadratic scaling creates practical tensions across multiple use cases:
+- **Large-area surveys** need coarse steps for time efficiency but sacrifice
+  spatial detail needed to resolve subcellular or sub-grain features.
+- **In-situ time-series experiments** are limited to coarse spatial sampling
+  because each time point must be acquired quickly to track dynamic processes.
+- **Dose-sensitive samples** impose total radiation exposure constraints that
+  limit the total number of pixels that can be measured at useful signal levels.
+
+**Limitations of classical upsampling**:
+- Bilinear and bicubic interpolation can only smooth existing pixel data,
+  producing blurry images without any genuine sub-pixel spatial information.
+- Deconvolution methods assume a known PSF and can sharpen existing features
+  but cannot resolve structures smaller than the sampling step.
+- Compressed sensing approaches require specific sampling patterns and sparsity
+  assumptions that may not hold for complex biological or geological specimens.
+
+**Deep learning super-resolution** offers a fundamentally different approach:
+by learning the statistical relationship between coarse and fine elemental maps
+from paired training data, a neural network can predict plausible high-resolution
+features from coarse measurements. The XRF-specific challenge is that
+hallucinated features in elemental maps could lead to incorrect scientific
+conclusions, demanding careful validation.
 
 ---
 
@@ -55,50 +79,40 @@ lead to incorrect scientific conclusions about trace element distributions.
 | **Data source** | Paired coarse/fine XRF scans acquired at APS beamline 2-ID-E |
 | **Sample type** | Biological cells (HeLa), geological thin sections, battery cathode materials |
 | **Data dimensions** | Coarse: 64x64 to 128x128 pixel maps; Fine: 256x256 to 512x512 pixels |
-| **Elements** | Multi-element simultaneous maps: Fe, Zn, Cu, Ca, S, P, K |
-| **Preprocessing** | Per-element normalization; paired registration via fiducial markers |
+| **Elements** | Multi-element simultaneous maps: Fe, Zn, Cu, Ca, S, P, K (7 channels) |
+| **Preprocessing** | Per-element normalization; paired spatial registration via fiducial markers; data augmentation (random crops, flips, rotations, intensity scaling) |
 
 ### Model / Algorithm
 
-1. **Architecture**: Deep residual network with 16 residual blocks in the feature
-   extraction backbone. Each residual block contains two 3x3 convolutional layers
-   with batch normalization and ReLU activation, connected by a skip (identity)
-   connection. The network operates on the coarse input upsampled to the target
-   resolution via bicubic interpolation, learning residual corrections to the
-   bicubic baseline. Sub-pixel shuffle layers (PixelShuffle) perform the final
-   spatial upsampling by the target factor (2x or 4x). The multi-element channels
-   are processed jointly, allowing the network to exploit inter-element spatial
-   correlations.
+**Architecture**: Deep residual network with 16 residual blocks in the feature
+extraction backbone. Each block: two 3x3 Conv2D layers with batch normalization
+and ReLU, connected by a skip (identity) connection. The network operates on the
+coarse input **upsampled to the target resolution via bicubic interpolation** and
+learns **residual corrections** to the bicubic baseline. Sub-pixel shuffle layers
+(PixelShuffle) perform the final upsampling by the target factor (2x or 4x). All
+elemental channels are processed jointly through shared convolutional layers,
+allowing the network to exploit inter-element spatial correlations.
 
-2. **Loss function**: Composite loss combining pixel-wise L1 loss (for overall
-   fidelity) and a gradient-domain loss computed as the L1 difference between Sobel
-   edge maps of the prediction and ground truth. The gradient-domain term is weighted
-   at 0.1 relative to the pixel loss and specifically preserves sharp elemental
-   boundaries (cell membranes, grain boundaries) that carry the most scientifically
-   relevant information.
+**Loss function**: Composite loss combining:
+- **Pixel-wise L1 loss** for overall fidelity (weight 1.0)
+- **Gradient-domain loss**: L1 difference of Sobel edge maps between prediction
+  and ground truth (weight 0.1), specifically preserving sharp elemental
+  boundaries that carry the most scientific information
 
-3. **Training details**: Adam optimizer with initial learning rate 1e-4 and cosine
-   annealing schedule. Batch size 32, training for 300 epochs on a single NVIDIA
-   A100 GPU (~6 hours). Data augmentation includes random cropping (64x64 patches
-   from larger maps), flipping, 90-degree rotations, and intensity scaling that
-   preserves relative concentration ratios across elements.
-
-4. **Evaluation metrics**: Peak signal-to-noise ratio (PSNR), structural similarity
-   index (SSIM), and a domain-specific metric -- elemental boundary sharpness
-   quantified as the full-width at half-maximum (FWHM) of intensity profiles across
-   Fe/Zn interfaces in biological specimens.
+**Training**: Adam optimizer, learning rate 1e-4 with cosine annealing, batch
+size 32, 300 epochs on a single NVIDIA A100 GPU (~6 hours). Augmentation via
+random 64x64 patch cropping, flipping, 90-degree rotations, and intensity
+scaling preserving relative concentration ratios across elements.
 
 ### Pipeline
 
 ```
-Coarse XRF scan (large step) --> Bicubic upsampling to target grid
-    --> Deep residual network (residual correction) --> Super-resolved elemental maps
-    --> (Optional) ROI identification for targeted high-resolution rescan
+Coarse XRF scan (e.g., 500 nm step)
+  --> Bicubic upsampling to target grid (e.g., 125 nm)
+  --> Deep residual network (16 blocks, residual correction)
+  --> Super-resolved multi-element maps
+  --> (Optional) ROI identification for targeted high-resolution rescan
 ```
-
-The pipeline is designed for integration into a two-stage experimental workflow:
-fast coarse survey with AI-enhanced resolution, followed by targeted fine scanning
-only in regions of interest identified from the super-resolved maps.
 
 ---
 
@@ -114,23 +128,19 @@ only in regions of interest identified from the super-resolved maps.
 | Boundary FWHM at 4x                     | 200 nm effective (from 500 nm coarse sampling)       |
 | Inference time                          | ~50 ms per 256x256 multi-element map on A100         |
 | Comparison vs. SRCNN                    | +1.4 dB PSNR, +0.03 SSIM advantage                  |
-| Scan time reduction                     | 4--16x (corresponding to 2x and 4x resolution factor) |
+| Scan time reduction                     | 4-16x (2x and 4x resolution factors)                |
 
 ### Key Figures
 
-- **Figure 2**: Network architecture diagram showing the 16-block residual backbone,
-  sub-pixel shuffle upsampling, and multi-element input/output structure with shared
-  feature extraction.
-- **Figure 3**: Visual comparison of bicubic interpolation, SRCNN, deep residual
-  network, and ground truth for Fe and Zn channels in a HeLa cell specimen at 4x
-  upsampling. The deep residual network recovers subcellular elemental boundaries
-  that bicubic and SRCNN fail to resolve.
-- **Figure 5**: Elemental boundary FWHM analysis across Fe/Zn interfaces, showing
-  that the network achieves effective resolution significantly better than the
-  coarse sampling step size.
-- **Table 2**: Per-element PSNR and SSIM breakdown demonstrating consistent
-  improvement across all measured elements, with heavier elements (Fe, Zn, Cu)
-  showing slightly larger gains than lighter elements (S, P).
+- **Figure 2**: Network architecture diagram showing the 16-block residual
+  backbone, sub-pixel shuffle upsampling, and multi-element I/O structure.
+- **Figure 3**: Visual comparison of bicubic, SRCNN, deep residual network, and
+  ground truth for Fe and Zn in HeLa cells at 4x upsampling. The deep residual
+  network recovers subcellular boundaries that other methods miss.
+- **Figure 5**: Boundary FWHM analysis across Fe/Zn interfaces, quantifying
+  effective resolution improvement beyond the coarse sampling step.
+- **Table 2**: Per-element metrics showing consistent gains, with heavier
+  elements (Fe, Zn, Cu) benefiting slightly more than lighter ones (S, P).
 
 ---
 
@@ -141,114 +151,102 @@ only in regions of interest identified from the super-resolved maps.
 | **Code**       | GitHub repository linked in supplementary materials                   |
 | **Data**       | Paired XRF datasets available on Argonne data repository              |
 | **License**    | Apache 2.0                                                            |
-| **Reproducibility Score** | **3 / 5** -- Code and some paired data publicly available; full training dataset not deposited; retraining on new sample types requires APS beamline access for additional paired acquisitions. |
+
+**Reproducibility Score**: **3 / 5** -- Code and some paired data publicly
+available. Full training dataset not deposited. Retraining on new sample types
+requires APS beamline access for paired coarse/fine acquisitions.
 
 ---
 
 ## Strengths
 
-- Directly addresses a real and universal operational tradeoff (scan time vs.
-  spatial resolution) that limits XRF microscopy throughput at every synchrotron
-  facility worldwide.
-- Multi-element architecture processes all elemental channels jointly through
-  shared feature extraction, preserving inter-element spatial correlations (e.g.,
-  co-localization of Fe and Zn in biological structures) that independent
-  single-channel super-resolution would miss.
-- The gradient-domain loss component is physically well-motivated: elemental
-  boundaries (cell membranes, grain boundaries, phase interfaces) carry the most
-  scientifically important information in XRF maps.
-- Demonstrated on real synchrotron data spanning biological, geological, and
-  materials science specimens, showing cross-domain applicability.
-- Fast inference (~50 ms per map) enables near-real-time deployment during
-  beamline operations, compatible with interactive survey workflows.
+- **Addresses a universal operational tradeoff** (scan time vs. resolution) that
+  limits XRF microscopy throughput at every synchrotron facility worldwide. The
+  4-16x scan time reduction is immediately impactful.
+- **Multi-element joint processing**: Shared feature extraction across all
+  elemental channels preserves inter-element spatial correlations (e.g., Fe-Zn
+  co-localization in biological structures) that single-channel super-resolution
+  would destroy.
+- **Gradient-domain loss** is physically well-motivated: elemental boundaries
+  (cell membranes, grain boundaries, phase interfaces) are the most
+  scientifically important features in XRF maps.
+- **Cross-domain demonstration**: Validated on biological, geological, and
+  battery materials, showing broad applicability.
+- **Fast inference** (~50 ms/map) enables near-real-time deployment during
+  beamline operations.
+- **Domain-relevant resolution metric**: The FWHM boundary analysis provides a
+  more meaningful resolution assessment than generic PSNR/SSIM for XRF science.
 
 ---
 
 ## Limitations & Gaps
 
-- Requires paired coarse/fine training data acquired from the same specimen and
-  region, which is expensive to collect and introduces a bootstrapping problem:
-  you need fine scans to train a model that avoids fine scans.
-- The 4x super-resolution at 500 nm input step approaches the information-theoretic
-  limit of what can be recovered from the coarse measurement; some "recovered" fine
-  features may be hallucinated from learned statistical priors rather than genuinely
-  present in the coarse data.
-- No uncertainty quantification: the network produces point estimates without per-
-  pixel confidence maps, making it impossible for users to distinguish genuine
-  recovered features from plausible but incorrect hallucinations.
-- Self-absorption effects and detector efficiency variations across emission
-  energies are not explicitly modeled; the network implicitly absorbs these effects
-  but may not generalize to substantially different experimental geometries or
-  photon energies.
-- Evaluation limited to one beamline (APS 2-ID-E); cross-facility and cross-
-  beamline generalization is uncharacterized.
+- **Paired training data requirement**: Collecting matched coarse/fine scans is
+  expensive and creates a bootstrapping problem. Self-supervised or unpaired
+  alternatives would lower this barrier.
+- **Hallucination risk at 4x**: At 4x super-resolution from 500 nm input, some
+  predicted fine features may be statistical inferences rather than genuine
+  structures. No mechanism exists to flag potentially hallucinated features.
+- **No uncertainty quantification**: Point estimates without confidence maps make
+  it impossible to distinguish reliably recovered vs. potentially hallucinated
+  features -- a critical gap for scientific applications.
+- **Self-absorption not explicitly modeled**: Implicitly absorbed by the network
+  but may not generalize across different experimental geometries or energies.
+- **Single-beamline evaluation**: Only APS 2-ID-E; cross-facility generalization
+  is uncharacterized.
+- **2D only**: Not extended to 3D XRF tomography or confocal XRF imaging.
 
 ---
 
 ## Relevance to eBERlight
 
-This work directly supports eBERlight's scan efficiency and intelligent surveying
-objectives:
+This work directly supports eBERlight's scan efficiency objectives:
 
-- **Faster surveys**: eBERlight can deploy coarse XRF scans for initial large-area
-  overviews and apply deep residual super-resolution to computationally enhance
-  resolution, reducing total scan time by 4--16x without sacrificing elemental
-  spatial detail.
-- **Adaptive resolution pipeline**: eBERlight's scan planner could chain coarse scan
-  -> AI super-resolution -> ROI identification -> targeted fine rescan, combining
-  this work with the ROI-Finder approach for an intelligent two-stage survey
-  workflow.
-- **Quality assurance layer**: Pairing super-resolution with uncertainty estimation
-  would allow eBERlight to automatically flag regions where computational
-  enhancement is unreliable and physical high-resolution rescanning is warranted.
-- **Training data automation**: eBERlight's automated data collection infrastructure
-  can systematically generate paired coarse/fine datasets across diverse sample
-  types during routine operations, building increasingly robust super-resolution
-  models over time.
-- **Applicable beamlines**: APS 2-ID-E, 2-ID-D, and other XRF-capable endstations
-  at APS-U.
-- **Priority**: High -- directly enables eBERlight's core mission of intelligent,
-  efficient synchrotron experiments.
+- **Applicable beamlines**: APS 2-ID-E, 2-ID-D, and other XRF endstations at
+  APS-U.
+- **Faster surveys**: Deploy coarse scans with AI-enhanced resolution for 4-16x
+  scan time reduction.
+- **Adaptive pipeline integration**: Chain coarse scan -> super-resolution ->
+  ROI-Finder -> targeted rescan for an intelligent two-stage workflow.
+- **Training data automation**: eBERlight's automated collection infrastructure
+  can systematically generate paired datasets during routine operations.
+- **Priority**: **High** -- directly enables eBERlight's core mission of
+  intelligent, efficient synchrotron experiments.
 
 ---
 
 ## Actionable Takeaways
 
-1. **Retrain on APS-U data**: Collect paired coarse/fine XRF datasets during APS-U
-   2-ID commissioning across multiple sample types and retrain the deep residual
-   network with APS-U-specific detector and optics characteristics.
-2. **Add uncertainty quantification**: Implement Monte Carlo dropout or evidential
-   deep learning to produce per-pixel confidence maps alongside super-resolved
-   elemental maps, enabling automated quality control.
-3. **Hallucination benchmarking**: Develop a test suite using known-structure phantoms
-   and standards to systematically evaluate hallucination rates at 2x and 4x
-   upsampling factors and establish trust boundaries.
-4. **Self-supervised alternatives**: Explore CycleGAN or contrastive learning
-   approaches that reduce or eliminate the need for perfectly paired training data,
-   lowering the barrier to deployment on new sample types.
-5. **Pipeline integration**: Chain coarse scan -> super-resolution -> ROI-Finder
-   -> targeted rescan into a unified eBERlight XRF survey pipeline with Bluesky
-   orchestration.
+1. **Retrain on APS-U data**: Collect paired coarse/fine datasets during APS-U
+   2-ID commissioning and retrain with facility-specific characteristics.
+2. **Add uncertainty quantification**: Implement MC-dropout or evidential deep
+   learning for per-pixel confidence maps.
+3. **Hallucination benchmarking**: Use known-structure phantoms to quantify
+   hallucination rates at 2x and 4x and establish trust boundaries.
+4. **Self-supervised alternatives**: Explore CycleGAN or contrastive approaches
+   to reduce paired data requirements.
+5. **Pipeline integration**: Chain super-resolution -> ROI-Finder -> targeted
+   rescan into a unified eBERlight XRF workflow via Bluesky orchestration.
 
 ---
 
-## BibTeX Citation
+## Notes & Discussion
 
-```bibtex
-@article{zhang2023xrf_superres,
-  title     = {Resolution Enhancement for {X}-Ray Fluorescence Microscopy
-               via Deep Residual Networks},
-  author    = {Zhang, Yanqi and Chen, Si and Peng, Tao and Deng, Junjing
-               and Jacobsen, Chris and Vogt, Stefan},
-  journal   = {npj Computational Materials},
-  volume    = {9},
-  pages     = {86},
-  year      = {2023},
-  publisher = {Nature Publishing Group},
-  doi       = {10.1038/s41524-023-00995-9}
-}
-```
+This paper naturally chains with the two XRF clustering reviews in this archive:
+super-resolved maps serve as higher-quality input for ROI-Finder
+(`review_roi_finder_2022.md`) or GMM clustering (`review_xrf_gmm_2013.md`).
+The full eBERlight XRF workflow would be: coarse scan -> super-resolution ->
+clustering/ROI identification -> targeted fine rescan. The multi-element joint
+processing is a genuine architectural advantage, implicitly encoding domain
+knowledge about elemental co-localization patterns.
 
 ---
 
-*Reviewed for the eBERlight Research Archive, 2026-02-27.*
+## Review Metadata
+
+| Field | Value |
+|-------|-------|
+| **Reviewed by** | eBERlight AI/ML Team |
+| **Review date** | 2025-10-17 |
+| **Last updated** | 2025-10-17 |
+| **Tags** | XRF, super-resolution, deep-residual-network, resolution-enhancement, multi-element |
