@@ -36,21 +36,13 @@ scan positions. For large-area surveys, dose-sensitive biological specimens, or 
 time-series experiments, this tradeoff forces researchers to choose between spatial
 detail and practical scan duration.
 
-Classical interpolation methods (bilinear, bicubic) and deconvolution approaches
-cannot recover true sub-pixel elemental information lost during coarse sampling --
-they can only smooth or sharpen existing pixel data without adding genuine spatial
-frequency content. Super-resolution deep learning, which has demonstrated remarkable
-success in optical and electron microscopy, offers the potential to computationally
-recover high-frequency spatial features from coarse XRF maps by learning the
-statistical mapping between coarse and fine elemental distributions from paired
-training data.
-
-The specific challenge for XRF super-resolution, compared to natural image
-super-resolution, is that XRF signals are physically constrained (elemental
-concentrations must be non-negative, spatially correlated across elements sharing
-chemical phases, and consistent with X-ray physics), and hallucinated features in
-elemental maps could lead to incorrect scientific conclusions about trace element
-distributions or chemical speciation.
+Classical interpolation (bilinear, bicubic) and deconvolution cannot recover true
+sub-pixel information lost during coarse sampling. Super-resolution deep learning
+offers the potential to computationally recover fine-scale features from coarse XRF
+maps by learning the statistical mapping from paired training data. The specific
+challenge is that XRF signals are physically constrained (non-negative elemental
+concentrations, inter-element spatial correlations) and hallucinated features could
+lead to incorrect scientific conclusions about trace element distributions.
 
 ---
 

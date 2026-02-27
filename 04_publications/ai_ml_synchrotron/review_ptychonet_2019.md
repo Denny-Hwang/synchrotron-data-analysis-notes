@@ -37,21 +37,14 @@ pixel count. At modern synchrotron beamlines acquiring thousands of diffraction
 patterns per second, iterative reconstruction cannot keep pace with data acquisition,
 creating a growing bottleneck that prevents real-time feedback during experiments.
 
-Prior work had demonstrated deep learning for optical phase retrieval and holographic
-reconstruction, but extension to X-ray ptychography presented distinct challenges:
-far-field diffraction patterns have intensity dynamic ranges spanning several orders
-of magnitude, the phase retrieval problem is inherently ill-posed for individual
-patterns without overlap constraints, and real experimental data contain partial
-coherence effects and probe variations absent from simple simulations. PtychoNet was
-among the first architectures designed specifically for X-ray ptychographic phase
-retrieval, proposing a CNN that amortizes the iterative computation into a single
-forward pass.
-
-The broader impact is significant: if CNN-based reconstruction can match iterative
-quality at a fraction of the cost, it unlocks real-time adaptive scanning where the
-reconstruction informs scan path adjustments mid-experiment -- a capability essential
-for the high-brightness, high-data-rate regime of fourth-generation synchrotrons such
-as APS-U.
+Prior work had demonstrated deep learning for optical phase retrieval, but extension
+to X-ray ptychography presented distinct challenges: far-field diffraction patterns
+span several orders of magnitude in intensity, the problem is ill-posed for individual
+patterns, and experimental data contain partial coherence effects absent from simple
+simulations. PtychoNet was among the first architectures designed specifically for
+X-ray ptychography, proposing a CNN that amortizes the iterative computation into a
+single forward pass -- a capability essential for real-time adaptive scanning at
+fourth-generation synchrotrons such as APS-U.
 
 ---
 

@@ -10,47 +10,119 @@
 | **Year**           | 2020                                                                                   |
 | **DOI**            | [10.1364/JOSAA.375595](https://doi.org/10.1364/JOSAA.375595)                           |
 | **Beamline**       | APS 2-BM (synchrotron micro-tomography)                                                |
+| **Modality**       | Synchrotron X-ray Tomography (micro-CT)                                                |
 
 ---
 
 ## TL;DR
 
 TomoGAN applies a conditional generative adversarial network to denoise low-dose
-synchrotron X-ray tomographic reconstructions, achieving image quality comparable to
-full-dose scans while enabling a 4--10x reduction in radiation exposure or acquisition
-time.
+synchrotron X-ray tomographic reconstructions, achieving image quality comparable
+to full-dose scans while enabling a 4-10x reduction in radiation exposure or
+acquisition time. The adversarial training strategy -- using a PatchGAN
+discriminator combined with pixel-wise L1 and VGG perceptual losses -- produces
+results with superior perceptual quality and edge preservation compared to
+classical denoising methods (BM3D) or CNNs trained with MSE loss alone.
 
 ---
 
 ## Background & Motivation
 
-Synchrotron X-ray micro-tomography delivers 3D structural imaging at micron to sub-micron
-resolution, but high photon fluence is required for adequate signal-to-noise ratio (SNR),
-which can damage radiation-sensitive samples (biological tissue, polymers, batteries) and
-limits temporal resolution for in-situ experiments. Reducing dose degrades reconstructed
-image quality through amplified Poisson noise and streak artifacts. Classical denoising
-filters (median, BM3D, non-local means) trade spatial resolution for noise suppression.
-TomoGAN was designed to learn the mapping from low-dose to high-dose tomographic slices
-using adversarial training, preserving structural detail that classical filters blur.
+Synchrotron X-ray micro-tomography at beamlines such as APS 2-BM delivers 3D
+structural imaging at micron to sub-micron resolution. The technique acquires
+hundreds to thousands of projection images at different rotation angles, which
+are computationally reconstructed into a 3D volume.
+
+**The dose-quality tradeoff** is fundamental to tomography:
+
+- **Radiation damage**: Biological tissues, polymers, hydrated materials, and
+  battery electrodes are all radiation-sensitive. High X-ray doses can alter the
+  very structures being imaged, introducing artifacts that compromise scientific
+  conclusions. For in-situ experiments tracking material evolution, cumulative
+  dose across multiple time points further constrains per-scan dose budgets.
+- **Throughput**: At high-throughput beamlines processing dozens of samples per
+  day, reducing per-sample dose enables shorter scans and higher sample
+  throughput -- a direct capacity multiplier.
+- **Temporal resolution**: For time-resolved (4D) tomography tracking dynamic
+  processes (crack propagation, foam collapse, battery cycling), shorter exposure
+  times enable finer temporal sampling at the cost of noisier individual frames.
+
+**Prior denoising approaches**:
+
+- Classical spatial filters (median, Gaussian, bilateral) suppress noise but
+  indiscriminately blur structural edges, destroying the fine details that
+  tomography is designed to reveal.
+- BM3D is a strong patch-based method but is computationally expensive (~5 s per
+  2D slice) and not optimized for the specific noise characteristics of
+  tomographic reconstructions (structured streak artifacts, not just i.i.d.
+  Gaussian noise).
+- CNNs trained with mean squared error (MSE) produce smooth results that
+  maximize PSNR but systematically over-smooth fine textures, grain boundaries,
+  and pore edges -- features that are often the primary targets of tomographic
+  analysis.
+- GANs offer a qualitatively different training paradigm: the adversarial loss
+  encourages the generator to produce images whose statistics are
+  indistinguishable from the real data distribution, preserving texture and
+  high-frequency content that MSE-trained networks discard.
 
 ---
 
 ## Method
 
-1. **Data collection**: Paired low-dose and high-dose sinograms acquired at APS 2-BM by
-   varying exposure time per projection (factor of 4x and 10x reduction).
-2. **Reconstruction**: Both dose levels reconstructed via filtered back-projection (FBP)
-   using TomoPy, yielding paired noisy/clean 2D slice images.
-3. **Network architecture**: Generator is a U-Net-style encoder-decoder with skip
-   connections (4 downsampling/upsampling blocks). Discriminator is a PatchGAN
-   classifier operating on 70x70 pixel patches.
-4. **Loss function**: Weighted combination of pixel-wise L1 loss, adversarial loss
-   (binary cross-entropy), and perceptual loss (VGG-16 feature matching) to balance
-   fidelity, sharpness, and perceptual quality.
-5. **Training**: Trained on ~10,000 paired slice images (512x512 pixels). Augmentation
-   via random flips and rotations. Adam optimizer, learning rate 2e-4, batch size 16,
-   ~200 epochs on 4 NVIDIA V100 GPUs.
-6. **Inference**: Single forward pass per slice; ~15 ms per 512x512 image on one GPU.
+### Data
+
+| Item | Details |
+|------|---------|
+| **Data source** | Beamline 2-BM, APS; paired low-dose/high-dose acquisitions |
+| **Sample type** | Shale rock, metal foam, mouse brain tissue |
+| **Data dimensions** | 2D reconstructed slices, 2048x2048 pixels; training patches 512x512 |
+| **Preprocessing** | Tomographic reconstruction via FBP/gridrec (TomoPy); low-dose data generated by both dose reduction (shorter exposures) and Poisson noise injection; random cropping, flipping, and rotation augmentation |
+
+### Model / Algorithm
+
+**Generator**: U-Net-style encoder-decoder with skip connections. Four
+downsampling blocks (Conv2D -> BatchNorm -> LeakyReLU, stride-2 convolutions)
+reduce spatial resolution while increasing feature channels. Bottleneck uses
+dense convolutional blocks for feature extraction. Four upsampling blocks with
+transposed convolutions and skip connections from corresponding encoder layers
+restore resolution. Single-channel output via tanh activation.
+
+**Discriminator**: PatchGAN architecture that classifies each 70x70 pixel patch
+as real or generated, rather than making a single whole-image prediction. This
+encourages preservation of local texture and high-frequency detail. Architecture
+uses strided convolutions with BatchNorm and LeakyReLU, producing a spatial map
+of real/fake probabilities.
+
+**Composite loss function**:
+
+```
+L_total = lambda_adv * L_adversarial + lambda_pix * L_pixel + lambda_perc * L_perceptual
+```
+
+- L_adversarial: Binary cross-entropy from the PatchGAN discriminator
+- L_pixel: L1 loss between denoised output and high-dose ground truth
+- L_perceptual: Feature-matching loss in VGG-16 feature space (conv3_3 layer),
+  preserving perceptual similarity
+- Typical weights: lambda_adv = 0.01, lambda_pix = 1.0, lambda_perc = 0.1
+
+**Training**: Adam optimizer, learning rate 2e-4, batch size 16, ~200 epochs.
+Trained on ~10,000 paired slice patches. Hardware: 4x NVIDIA V100 GPUs, ~8 hours
+training wall time. Alternating generator/discriminator updates with 1:1 ratio.
+
+### Pipeline
+
+```
+High-dose projection data
+  --> Dose reduction (shorter exposure or Poisson noise injection)
+  --> Tomographic reconstruction (FBP/gridrec via TomoPy)
+  --> Noisy reconstructed slices
+  --> TomoGAN generator (single forward pass)
+  --> Denoised reconstructed slices
+  --> (Optional) segmentation or quantitative analysis
+```
+
+At inference, each 2D slice is processed independently. Full volume denoising is
+achieved by processing all slices in parallel batches on GPU.
 
 ---
 
@@ -64,7 +136,19 @@ using adversarial training, preserving structural detail that classical filters 
 | Edge preservation (Sobel metric)    | 92% edge fidelity retained at 4x dose reduction       |
 | Inference time                      | ~15 ms per 512x512 slice (single V100)                |
 | Comparison vs. BM3D                 | +1.8 dB PSNR, +0.06 SSIM advantage                   |
+| Comparison vs. CNN (MSE only)       | +0.8 dB PSNR, visually sharper edges                  |
 | Training time                       | ~8 hours on 4x V100                                   |
+
+### Key Figures
+
+- **Figure 3**: Side-by-side visual comparison of denoised results from BM3D,
+  CNN (MSE), and TomoGAN on shale rock data, showing TomoGAN's superior
+  preservation of grain boundary sharpness and pore morphology.
+- **Figure 5**: PSNR and SSIM as a function of dose reduction factor (1x to 20x),
+  demonstrating graceful degradation with a practical sweet spot at 4-10x.
+- **Figure 7**: Zoomed-in regions highlighting texture preservation -- TomoGAN
+  maintains the grainy texture of rock matrix while MSE-CNN produces an unnaturally
+  smooth appearance.
 
 ---
 
@@ -75,36 +159,59 @@ using adversarial training, preserving structural detail that classical filters 
 | **Code**       | [github.com/zhengchun/TomoGAN](https://github.com/zhengchun/TomoGAN) |
 | **Data**       | Paired datasets hosted at Argonne (Globus endpoint)                   |
 | **License**    | MIT                                                                    |
-| **Reproducibility Score** | **4 / 5** -- Code and data publicly available; training requires multi-GPU resources but is well-documented. |
+
+**Reproducibility Score**: **4 / 5** -- Code and data publicly available; training
+requires multi-GPU resources but is well-documented. GAN training is inherently
+sensitive to hyperparameters, so exact reproduction of metrics may require tuning,
+but the general approach is fully reproducible.
 
 ---
 
 ## Strengths
 
-- Achieves 4--10x dose reduction while maintaining structural fidelity, directly
-  enabling faster or less damaging experiments.
-- Adversarial + perceptual loss combination preserves fine edges and textures that
-  pure L1/L2 losses would smooth away.
-- Fast inference (~15 ms/slice) is compatible with real-time reconstruction pipelines.
-- Open-source code with publicly accessible paired training data lowers the barrier
-  to adoption at other facilities.
-- Demonstrated on real synchrotron data (not just simulations), increasing practical
-  credibility.
+- **Perceptual quality preservation**: The adversarial + perceptual loss
+  combination preserves fine edges and textures that pure L1/L2 losses smooth
+  away. This is not just cosmetic -- texture preservation is scientifically
+  important for porosity analysis, grain boundary characterization, and
+  morphological segmentation.
+- **Significant dose reduction**: 4-10x dose reduction has major practical
+  implications for radiation-sensitive samples, high-throughput workflows, and
+  time-resolved imaging.
+- **Fast inference**: ~15 ms/slice is compatible with real-time reconstruction
+  pipelines, enabling on-the-fly denoising during data acquisition.
+- **Real synchrotron data**: Validated on actual beamline data from APS 2-BM
+  across multiple sample types, not just simulations.
+- **Open source with data**: Code, pre-trained models, and training data are
+  publicly available, setting a high reproducibility standard.
+- **Multi-loss training strategy**: The three-component loss avoids the extremes
+  of over-smoothing (MSE alone) or training instability (adversarial alone).
 
 ---
 
 ## Limitations & Gaps
 
-- Requires matched low-dose/high-dose paired data for training, which is expensive to
-  collect and may not generalize across sample types or beamline configurations.
-- Evaluated primarily on FBP reconstructions; interaction with iterative reconstruction
-  methods (MBIR, SIRT) is not explored.
-- GAN training is inherently unstable; no analysis of failure modes, hallucination
-  artifacts, or mode collapse is provided.
-- No uncertainty quantification: the network provides a point estimate without
-  confidence intervals on the denoised output.
-- 2D slice-by-slice processing ignores 3D spatial continuity, potentially introducing
-  inter-slice inconsistencies.
+- **Hallucination risk**: GANs can generate plausible-looking but physically
+  incorrect structural details. In scientific imaging, this is a critical concern:
+  the network could invent grain boundaries, pore structures, or inclusions that
+  do not exist in the sample. The paper does not rigorously characterize
+  hallucination frequency or provide detection methods.
+- **Mode collapse potential**: GAN training is inherently unstable and prone to
+  mode collapse. While the multi-loss formulation mitigates this, careful
+  monitoring and hyperparameter tuning are still required. No analysis of failure
+  cases is provided.
+- **Slice-by-slice processing**: Each 2D slice is denoised independently, with no
+  inter-slice consistency enforcement. This can produce flickering artifacts in 3D
+  renderings and z-direction inconsistencies that affect 3D segmentation.
+- **Paired training data requirement**: Training requires matched (noisy, clean)
+  image pairs, which must be generated by either noise simulation or by acquiring
+  data at multiple dose levels -- both of which are costly and may not perfectly
+  represent real low-dose conditions.
+- **Limited cross-sample generalization**: Performance degrades on morphologically
+  novel sample types not represented in training. Each new material class may
+  require retraining or fine-tuning.
+- **No uncertainty quantification**: TomoGAN produces a single denoised output
+  with no per-pixel confidence estimates, making it impossible to distinguish
+  reliably recovered features from plausible hallucinations.
 
 ---
 
@@ -112,31 +219,64 @@ using adversarial training, preserving structural detail that classical filters 
 
 TomoGAN is directly relevant to the BER program's dose-optimization and throughput goals:
 
-- **Dose-adaptive scanning**: The BER program's scan planner could use TomoGAN to maintain
-  image quality while reducing dose in radiation-sensitive regions, enabling
-  heterogeneous dose allocation across a sample.
-- **Real-time pipeline integration**: The ~15 ms inference time fits within the BER program's
-  latency budget for streaming reconstruction at APS-U frame rates.
+- **Applicable beamlines**: All tomography beamlines at APS, including 2-BM,
+  32-ID, and any partner beamlines performing micro-CT. Also potentially
+  applicable to ptychographic tomography data.
+- **Dose-adaptive scanning**: The BER program's scan planner could use TomoGAN to
+  maintain image quality while reducing dose in radiation-sensitive regions,
+  enabling heterogeneous dose allocation across a sample.
+- **Real-time pipeline integration**: The ~15 ms inference time fits within
+  the BER program's latency budget for streaming reconstruction at APS-U frame rates.
+  Integration with Bluesky/Tiled as a post-reconstruction callback is
+  straightforward.
 - **Training data generation**: The BER program could automate collection of paired dose
   datasets during commissioning runs to build facility-specific TomoGAN models.
 - **Uncertainty extension**: Coupling TomoGAN with Monte Carlo dropout or ensemble
-  methods could provide pixel-wise uncertainty maps for the BER program's decision engine.
+  methods could provide pixel-wise uncertainty maps for the program's automated
+  quality control.
+- **Priority**: **High** -- denoising is a ubiquitous need, and TomoGAN represents
+  a well-validated approach with Argonne pedigree. Deployment should be accompanied
+  by hallucination detection protocols.
 
 ---
 
 ## Actionable Takeaways
 
-1. **Deploy for APS-U tomography**: Retrain TomoGAN on APS-U 2-BM commissioning data
-   and benchmark against updated detector noise profiles.
+1. **Deploy for APS-U tomography**: Retrain TomoGAN on APS-U 2-BM commissioning
+   data and benchmark against updated detector noise profiles.
 2. **Add uncertainty**: Implement MC-dropout or deep ensemble variants to produce
-   confidence maps alongside denoised outputs.
-3. **3D extension**: Extend the architecture to 3D convolutional blocks or use 2.5D
-   (multi-slice) input to enforce inter-slice consistency.
+   confidence maps alongside denoised outputs, flagging potentially hallucinated
+   features.
+3. **3D extension**: Extend the architecture to 2.5D (multi-slice input) or full
+   3D convolutional blocks to enforce inter-slice consistency.
 4. **Self-supervised alternative**: Explore Noise2Noise or Noise2Void training
-   strategies that eliminate the need for paired high-dose ground truth.
+   strategies that eliminate the need for paired high-dose ground truth, reducing
+   retraining cost for new sample types.
 5. **Integrate with Bluesky**: Package TomoGAN inference as a Bluesky callback for
-   on-the-fly denoising during live reconstruction at BER program beamlines.
+   on-the-fly denoising during live reconstruction at APS BER beamlines.
+6. **Hallucination benchmarking**: Develop a test suite using known-structure
+   phantoms to quantify hallucination rates at different dose reduction levels.
 
 ---
 
-*Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*
+## Notes & Discussion
+
+TomoGAN is one of the most cited deep learning papers in the synchrotron
+tomography community and has been widely adopted as a benchmark for AI-based
+denoising. Its Argonne pedigree (developed at APS with real 2-BM data) makes it
+particularly relevant to the APS BER program. The full-stack pipeline paper reviewed in
+`review_fullstack_dl_tomo_2023.md` provides the broader context for where
+TomoGAN-style denoising fits within the complete tomographic workflow, and the
+real-time HPC pipeline in `review_realtime_uct_hpc_2020.md` demonstrates how
+TomoGAN has been integrated into streaming analysis systems.
+
+---
+
+## Review Metadata
+
+| Field | Value |
+|-------|-------|
+| **Reviewed by** | APS BER AI/ML Team |
+| **Review date** | 2025-10-16 |
+| **Last updated** | 2025-10-16 |
+| **Tags** | tomography, GAN, denoising, dose-reduction, deep-learning, real-time |
