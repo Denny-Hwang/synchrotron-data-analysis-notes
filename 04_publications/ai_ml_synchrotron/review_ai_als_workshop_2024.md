@@ -1,84 +1,126 @@
-# Paper Review: AI@ALS Workshop Report -- Machine Learning Needs for Synchrotron Light Sources
+# Paper Review: AI for Advanced Light Sources -- Workshop Report
 
 ## Metadata
 
 | Field              | Value                                                                                  |
 |--------------------|----------------------------------------------------------------------------------------|
-| **Title**          | AI for Synchrotron Science: Report from the AI@ALS Workshop                            |
-| **Authors**        | ALS AI Working Group (multi-author collaborative report)                               |
+| **Title**          | AI for Advanced Light Sources: Workshop Report                                         |
+| **Authors**        | ALS AI Working Group (multi-institutional collaborative report)                        |
 | **Journal**        | Synchrotron Radiation News, 37(4), 14--22                                              |
 | **Year**           | 2024                                                                                   |
 | **DOI**            | [10.1080/08940886.2024.2391258](https://doi.org/10.1080/08940886.2024.2391258)         |
 | **Beamline**       | Facility-wide (Advanced Light Source, LBNL); applicable across DOE light sources       |
+| **Modality**       | Cross-cutting (all modalities)                                                          |
 
 ---
 
 ## TL;DR
 
-The AI@ALS Workshop report synthesizes community input from beamline scientists, data
-engineers, and ML researchers to produce a comprehensive needs assessment and strategic
-roadmap for deploying artificial intelligence across all operational aspects of a modern
-synchrotron light source, from autonomous experiments to facility operations.
+The AI for Advanced Light Sources workshop report synthesizes community input from
+over 100 beamline scientists, data engineers, and ML researchers across DOE light
+source facilities to produce a comprehensive needs assessment and strategic roadmap
+for deploying artificial intelligence across synchrotron operations. The report
+identifies five priority areas -- autonomous experiments, real-time analysis, data
+management, ML model lifecycle, and workforce development -- and provides ranked
+recommendations that constitute a community-endorsed blueprint for AI adoption at
+fourth-generation synchrotron facilities.
 
 ---
 
 ## Background & Motivation
 
 The Advanced Light Source (ALS) at Lawrence Berkeley National Laboratory, along with
-other DOE light sources undergoing or planning major upgrades (APS-U, NSLS-II, LCLS-II),
-faces an inflection point: next-generation sources will produce data volumes and rates
-that exceed the capacity of traditional analysis workflows by orders of magnitude.
-Simultaneously, user demand for complex, multi-modal, and time-resolved experiments is
-growing. The AI@ALS Workshop convened over 100 participants from national laboratories,
-universities, and industry to identify where AI/ML can have the greatest impact, what
-infrastructure investments are needed, and what organizational changes are required.
-The resulting report serves as both a needs assessment and a strategic planning document
+other DOE light sources undergoing major upgrades (APS-U, NSLS-II, LCLS-II-HE),
+faces a critical inflection point: next-generation sources will produce data volumes
+and acquisition rates that exceed the capacity of traditional analysis workflows by
+one to two orders of magnitude. The APS upgrade alone will increase coherent flux by
+100--500x, generating data streams of 10+ GB/s per beamline. Simultaneously, user
+demand for complex multi-modal, time-resolved, and operando experiments is growing,
+requiring real-time decision-making that manual analysis cannot support.
+
+The AI@ALS workshop was convened to address three strategic questions: (1) Where can
+AI/ML have the greatest impact on light source science and operations? (2) What
+computing, data, and software infrastructure investments are needed to support AI/ML
+deployment? (3) What organizational and workforce changes are required to sustain
+AI/ML capabilities over the long term? The workshop brought together participants
+from national laboratories (ANL, BNL, SLAC, ORNL, LBNL), universities, and industry
+to build cross-facility consensus on priorities and approaches.
+
+The resulting report serves both as a needs assessment grounded in quantitative survey
+data and as a strategic planning document with prioritized, actionable recommendations
 applicable to any fourth-generation synchrotron facility.
 
 ---
 
 ## Method
 
-The workshop employed a structured methodology:
+The workshop employed a structured methodology combining quantitative surveying with
+expert deliberation:
 
-1. **Pre-workshop survey**: Distributed to ~200 ALS staff and users covering current
-   pain points, existing ML adoption, data infrastructure gaps, and desired capabilities.
-2. **Plenary talks**: Invited presentations on AI/ML successes at other facilities
-   (ESRF, Diamond, DESY, APS, NSLS-II) to establish state of the art.
-3. **Breakout sessions**: Six parallel sessions organized by theme:
+1. **Pre-workshop survey**: Distributed to approximately 200 ALS staff and active
+   users, covering current pain points, existing ML adoption levels, data
+   infrastructure gaps, computational resource availability, and desired future
+   capabilities. Response rate and demographic breakdown reported.
+
+2. **Plenary sessions**: Invited presentations on AI/ML successes and lessons learned
+   at peer facilities (ESRF, Diamond Light Source, DESY, APS, NSLS-II), establishing
+   the international state of the art and avoiding redundant investment.
+
+3. **Thematic breakout sessions**: Six parallel working groups organized by strategic
+   theme:
    - Autonomous and adaptive experiments
    - Real-time data processing and reconstruction
    - Data management, curation, and FAIR principles
    - ML model development, training, and validation
-   - Computing infrastructure (edge, on-premises, cloud, HPC)
-   - Workforce development and community building
-4. **Synthesis and prioritization**: Breakout findings consolidated into a ranked
-   list of recommendations using a modified Delphi process.
-5. **Report drafting**: Multi-author collaborative writing with community review.
+   - Computing infrastructure (edge compute, on-premises GPU clusters, cloud, HPC)
+   - Workforce development, training, and community building
+
+4. **Synthesis and prioritization**: Breakout findings consolidated through a
+   modified Delphi process, where participants ranked recommendations by impact,
+   feasibility, and urgency, producing a prioritized action list.
+
+5. **Report drafting and community review**: Multi-author collaborative writing
+   with two rounds of community feedback before final publication.
 
 ---
 
 ## Key Results
 
-The report identifies five priority areas with specific recommendations:
+The report identifies five priority areas with specific findings and recommendations:
 
-| Priority Area                          | Key Findings                                          |
+| Priority Area                          | Key Findings / Recommendations                        |
 |----------------------------------------|-------------------------------------------------------|
-| **1. Autonomous experiments**          | Highest user demand; adaptive scanning, self-driving beamlines, real-time feedback loops. Most beamlines lack even basic ML-assisted data quality monitoring. |
-| **2. Real-time reconstruction**        | Critical for ptychography, tomography, XPCS. Latency requirements range from ms (ptychography) to seconds (tomography). GPU/FPGA edge compute needed at beamlines. |
-| **3. Data infrastructure**             | FAIR data practices are inconsistent; metadata schemas vary across beamlines. A unified data platform (like Tiled/Databroker) is needed but not yet deployed facility-wide. |
-| **4. ML model lifecycle**              | No standardized pipeline for model training, validation, deployment, and monitoring. Models go stale as beamline configurations change; continuous retraining infrastructure is needed. |
-| **5. Workforce & culture**             | Shortage of ML-literate beamline scientists; need for training programs, embedded data scientists at beamlines, and career paths that value software/ML contributions. |
+| **1. Autonomous experiments**          | Highest user demand. Adaptive scanning, self-driving beamlines, and real-time feedback loops cited as transformative. Most beamlines lack even basic ML-assisted data quality monitoring. Recommendation: develop modular autonomous experiment frameworks compatible with Bluesky. |
+| **2. Real-time reconstruction**        | Critical for ptychography, tomography, XPCS. Latency requirements span milliseconds (ptychography) to seconds (tomography). GPU/FPGA edge compute needed at beamlines. Recommendation: standardize edge-compute hardware and software stack across beamlines. |
+| **3. Data infrastructure & FAIR**      | FAIR data practices inconsistent across beamlines; metadata schemas vary widely. Unified data platforms (Tiled/Databroker) needed but not yet facility-wide. Recommendation: mandate FAIR-compliant metadata for all new experiments. |
+| **4. ML model lifecycle management**   | No standardized pipeline for training, validation, deployment, monitoring, or retraining. Models degrade as beamline configurations evolve. Recommendation: build MLOps infrastructure with version control, automated validation, and drift detection. |
+| **5. Workforce & organizational culture** | Shortage of ML-literate beamline scientists. Need for training programs, embedded data scientists, and career paths that value software/ML contributions. Recommendation: create data scientist positions at beamlines and fund synchrotron-ML training programs. |
 
-Additional quantitative findings from the survey:
+Quantitative survey findings:
 
 | Survey Finding                                | Statistic                                    |
 |-----------------------------------------------|----------------------------------------------|
-| Beamlines currently using any ML              | 23% (primarily for image classification)      |
+| Beamlines currently using any form of ML      | 23% (primarily image classification/sorting) |
 | Beamlines wanting ML but lacking resources    | 61%                                           |
 | Users reporting data analysis as bottleneck   | 78%                                           |
 | Staff citing lack of ML training as barrier   | 54%                                           |
-| Experiments that could benefit from autonomy  | 45% (estimated by beamline scientists)        |
+| Experiments estimated to benefit from autonomy| 45% (as estimated by beamline scientists)     |
+| Median time from data collection to publication | 6--12 months (analysis-dominated)           |
+
+### Key Figures
+
+- **Figure 1**: Radar chart mapping current ML adoption (inner polygon) versus
+  desired capability (outer polygon) across six dimensions: autonomous experiments,
+  real-time processing, data management, model lifecycle, computing infrastructure,
+  and workforce. The gap between current and desired states is largest for autonomous
+  experiments and model lifecycle.
+- **Figure 3**: Computing infrastructure schematic showing the proposed three-tier
+  architecture: edge compute at the beamline for millisecond-latency tasks, on-
+  premises GPU cluster for second-scale reconstruction and training, and HPC/cloud
+  for large-scale model training and archival reprocessing.
+- **Figure 5**: Bar chart of survey responses on analysis bottleneck severity by
+  experimental technique, with ptychography and tomography users reporting the
+  most severe bottlenecks.
 
 ---
 
@@ -87,78 +129,120 @@ Additional quantitative findings from the survey:
 | Resource       | Link / Note                                                           |
 |----------------|-----------------------------------------------------------------------|
 | **Code**       | N/A (workshop report, not a methods paper)                            |
-| **Data**       | Survey results summarized in appendix; raw survey data not released    |
+| **Data**       | Survey results summarized in appendices; raw survey data not released  |
 | **License**    | Open access article                                                    |
-| **Reproducibility Score** | **N/A** -- Workshop report; not applicable in the traditional sense. Value lies in the strategic analysis and community consensus. |
+| **Reproducibility Score** | **N/A** -- Strategic planning document; value lies in community consensus and quantitative needs assessment rather than reproducible methodology. |
 
 ---
 
 ## Strengths
 
-- Represents genuine community consensus from 100+ practitioners, not a single
-  research group's perspective, giving the recommendations broad credibility.
-- Covers the full scope of AI/ML deployment -- from algorithms to infrastructure
-  to workforce -- recognizing that technical solutions alone are insufficient.
-- Quantitative survey data grounds the recommendations in measured need rather
-  than speculation, with specific percentages on adoption barriers.
-- Cross-facility perspective: incorporates lessons learned from ESRF, Diamond,
-  DESY, and other facilities, avoiding reinvention.
-- Provides a clear prioritization framework that facility leadership can use for
-  resource allocation decisions.
+- Represents genuine community consensus from 100+ practitioners across multiple
+  national laboratories, giving the recommendations broad institutional credibility
+  and cross-facility applicability.
+- Covers the full scope of AI/ML deployment -- from algorithms to infrastructure to
+  workforce to organizational culture -- recognizing that technical solutions alone
+  are insufficient without supporting ecosystem changes.
+- Quantitative survey data grounds recommendations in measured need (78% analysis
+  bottleneck, 61% want ML but lack resources) rather than speculation, providing
+  concrete justification for investment decisions.
+- Cross-facility perspective incorporates lessons learned from ESRF, Diamond, DESY,
+  and other international facilities, enabling DOE facilities to avoid reinventing
+  solutions to already-solved problems.
+- The three-tier computing architecture (edge / on-premises GPU / HPC) provides a
+  concrete, implementable infrastructure model that balances latency requirements
+  with cost and scalability.
 
 ---
 
 ## Limitations & Gaps
 
-- ALS-centric: while broadly applicable, specific infrastructure recommendations
-  reflect ALS's particular computing environment, beamline portfolio, and user base.
-- Survey response rate and potential selection bias are not discussed; respondents
-  may over-represent ML enthusiasts.
-- Limited discussion of risks: model failure modes, adversarial robustness, and
-  the danger of over-automation without adequate validation receive only brief
-  mention.
-- No cost estimates or timeline projections for the recommended infrastructure
-  investments, making budget planning difficult.
-- The report predates some rapid developments in foundation models and large
-  language models for science that could shift the landscape significantly.
+- Primarily ALS-centric: while the recommendations are broadly applicable, specific
+  infrastructure details and cost considerations reflect ALS's particular computing
+  environment, beamline portfolio, and user demographics.
+- Survey response rate and selection bias are not thoroughly analyzed; respondents
+  likely over-represent ML enthusiasts, potentially inflating demand estimates.
+- Limited discussion of AI/ML risks: model failure modes, adversarial robustness,
+  hallucination in reconstruction, and the danger of over-automation without
+  adequate scientific validation receive only brief treatment.
+- No cost estimates, staffing projections, or implementation timelines for the
+  recommended investments, making budget planning and prioritization difficult
+  for facility management.
+- The report predates rapid developments in foundation models and large language
+  models for scientific applications (2024--2025) that could substantially shift
+  the landscape for autonomous experiment design and literature-guided analysis.
 
 ---
 
 ## Relevance to eBERlight
 
-This workshop report is a strategic planning document directly applicable to eBERlight:
+This workshop report is a strategic planning document with direct applicability to
+eBERlight's mission and organizational design:
 
-- **Needs validation**: The survey findings (78% of users cite analysis bottleneck,
-  61% of beamlines want ML but lack resources) validate eBERlight's mission and
-  justify its investment.
-- **Priority alignment**: eBERlight's focus on autonomous experiments and real-time
-  reconstruction aligns with the top two workshop priorities.
-- **Infrastructure roadmap**: The data platform recommendations (unified metadata,
-  FAIR principles, Tiled/Databroker adoption) should inform eBERlight's data
-  architecture decisions.
-- **Model lifecycle**: eBERlight should build the standardized ML model lifecycle
-  (training, validation, deployment, monitoring, retraining) that the report
-  identifies as missing across facilities.
-- **Workforce strategy**: eBERlight's staffing plan should include embedded ML
-  scientists at beamlines, consistent with the workshop's workforce recommendations.
+- **Needs validation**: The survey findings (78% of users cite analysis as their
+  primary bottleneck, 61% of beamlines want ML but lack resources) provide
+  quantitative external validation for eBERlight's core mission and justify the
+  investment in AI-driven synchrotron science.
+- **Priority alignment**: eBERlight's focus areas -- autonomous experiments, real-
+  time reconstruction, and adaptive scanning -- align precisely with the workshop's
+  top two priority recommendations, confirming strategic direction.
+- **Infrastructure blueprint**: The three-tier computing architecture (edge, on-
+  premises, HPC) and data platform recommendations (FAIR metadata, Tiled/Databroker)
+  should directly inform eBERlight's infrastructure procurement and deployment
+  decisions.
+- **MLOps roadmap**: eBERlight should build the standardized ML model lifecycle
+  infrastructure (training, validation, deployment, monitoring, retraining with
+  drift detection) that the report identifies as absent across all DOE facilities.
+- **Workforce strategy**: eBERlight's staffing plan should include embedded ML/data
+  scientists at target beamlines, consistent with the workshop's workforce
+  recommendations, to ensure sustained capability beyond initial deployment.
+- **Multi-facility coordination**: The report's emphasis on cross-facility
+  benchmarking, shared model repositories, and common software stacks supports
+  eBERlight's role in coordinating AI/ML efforts across APS, ALS, NSLS-II, and
+  other DOE light sources.
 
 ---
 
 ## Actionable Takeaways
 
-1. **Benchmark against ALS survey**: Conduct a parallel survey at APS to quantify
-   ML adoption, barriers, and demand specific to eBERlight's target beamlines.
-2. **Adopt FAIR data practices**: Prioritize deployment of Tiled/Databroker with
-   standardized metadata schemas across all eBERlight beamlines as foundational
-   infrastructure.
+1. **Conduct APS-specific survey**: Replicate the AI@ALS survey at APS to quantify
+   ML adoption, barriers, and demand specific to eBERlight's target beamlines,
+   providing a local baseline for measuring progress.
+2. **Adopt FAIR data practices**: Prioritize facility-wide deployment of Tiled/
+   Databroker with standardized metadata schemas across all eBERlight beamlines
+   as foundational data infrastructure.
 3. **Build MLOps pipeline**: Implement a standardized ML model lifecycle framework
-   (MLflow, Kubeflow, or custom) for training, versioning, deploying, and monitoring
-   models at eBERlight beamlines.
-4. **Edge compute procurement**: Based on the real-time reconstruction priority,
-   budget for GPU/FPGA edge compute hardware at each eBERlight-affiliated beamline.
-5. **Training program**: Develop a synchrotron-ML training curriculum for beamline
-   scientists, incorporating the workshop's recommendation for hands-on bootcamps
-   and embedded data scientist positions.
+   (MLflow, Weights & Biases, or custom tooling) for training, versioning,
+   deploying, monitoring, and retraining models at eBERlight beamlines, with
+   automated drift detection and alerting.
+4. **Procure three-tier compute**: Budget for GPU/FPGA edge compute at each
+   eBERlight-affiliated beamline, an on-premises GPU training cluster, and HPC
+   allocations for large-scale training and archival reprocessing.
+5. **Workforce investment**: Develop a synchrotron-ML training curriculum for
+   beamline scientists and hire embedded data scientists at priority beamlines,
+   incorporating the workshop's recommendation for hands-on bootcamps and mentored
+   project-based learning.
+6. **Cross-facility collaboration**: Establish formal collaboration channels with
+   ALS, NSLS-II, and LCLS-II AI/ML teams to share models, benchmarks, and
+   operational lessons, avoiding duplicated effort.
+
+---
+
+## BibTeX Citation
+
+```bibtex
+@article{als_ai_workshop_2024,
+  title     = {{AI} for Advanced Light Sources: Workshop Report},
+  author    = {{ALS AI Working Group}},
+  journal   = {Synchrotron Radiation News},
+  volume    = {37},
+  number    = {4},
+  pages     = {14--22},
+  year      = {2024},
+  publisher = {Taylor \& Francis},
+  doi       = {10.1080/08940886.2024.2391258}
+}
+```
 
 ---
 

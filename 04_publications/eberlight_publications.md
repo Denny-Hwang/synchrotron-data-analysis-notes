@@ -2,12 +2,11 @@
 
 ## Overview
 
-The eBERlight (Embedded Beamline Engineering and Research with Light) program
-launched in **October 2023** at the Advanced Photon Source (APS), Argonne
-National Laboratory. As a relatively new initiative coinciding with the APS
-Upgrade (APS-U) era, the program's earliest publications are emerging from
-**commissioning activities**, initial beamline characterization, and
-proof-of-concept AI/ML integrations performed during the first operational
+The eBERlight program launched in **October 2023** at the Advanced Photon Source
+(APS), Argonne National Laboratory. As a relatively new initiative coinciding
+with the APS Upgrade (APS-U) era, the program's earliest publications are
+emerging from **commissioning activities**, initial beamline characterization,
+and proof-of-concept AI/ML integrations performed during the first operational
 cycles.
 
 This document provides a high-level overview of eBERlight-attributed

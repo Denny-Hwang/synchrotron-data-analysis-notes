@@ -1,17 +1,16 @@
-# AI/ML for Synchrotron Science --- Curated Paper Reviews
+# AI/ML for Synchrotron Science -- Curated Paper Reviews
 
 ## Overview
 
 This directory contains in-depth reviews of key publications at the intersection
-of artificial intelligence / machine learning and synchrotron X-ray science.
+of artificial intelligence, machine learning, and synchrotron X-ray science.
 Each review follows the standardized template defined in
 `../template_paper_review.md` and includes an explicit assessment of relevance
-to the eBERlight program.
+to the eBERlight program at the Advanced Photon Source (APS).
 
-The collection spans foundational methods (2013--2019), mature techniques
-(2020--2022), and cutting-edge developments (2023--2024), providing a
-comprehensive landscape of AI/ML capabilities applicable to beamline science at
-the Advanced Photon Source.
+The collection spans foundational methods (2013-2019), mature techniques
+(2020-2022), and cutting-edge developments (2023-2024), providing a
+comprehensive landscape of AI/ML capabilities applicable to beamline science.
 
 ---
 
@@ -19,12 +18,12 @@ the Advanced Photon Source.
 
 ### Denoising & Dose Reduction
 
-Methods that reduce noise in synchrotron data, enabling lower radiation doses or
-faster acquisitions while preserving image quality.
+Methods that reduce noise in synchrotron data, enabling lower radiation doses
+or faster acquisitions while preserving image quality.
 
 | Review | Paper | Key Contribution |
 |--------|-------|------------------|
-| `review_tomogan_2020.md` | Liu et al., JOSA A (2020) | GAN-based denoising for synchrotron tomography; 4--10x dose reduction |
+| `review_tomogan_2020.md` | Liu et al., JOSA A (2020) | GAN-based denoising for synchrotron tomography; 4-10x dose reduction |
 | `review_realtime_uct_hpc_2020.md` | McClure et al., SMC (2020) | End-to-end AI+HPC workflow including denoising for micro-CT |
 
 ### Segmentation & Clustering
@@ -66,7 +65,7 @@ measurements beyond the physical limits of the optics or detector.
 
 | Review | Paper | Key Contribution |
 |--------|-------|------------------|
-| `review_deep_residual_xrf_2023.md` | npj Comp. Mater. (2023) | 2--4x effective resolution improvement for XRF via deep residual networks |
+| `review_deep_residual_xrf_2023.md` | npj Comp. Mater. (2023) | 2-4x effective resolution improvement for XRF via deep residual networks |
 
 ### Multimodal, Survey & Infrastructure
 
@@ -91,10 +90,10 @@ across multiple modalities or facility-wide infrastructure.
 | 4 | `review_realtime_uct_hpc_2020.md` | McClure | 2020 | Micro-CT |
 | 5 | `review_roi_finder_2022.md` | Chowdhury | 2022 | XRF |
 | 6 | `review_ai_edge_ptychography_2023.md` | Babu | 2023 | Ptychography |
-| 7 | `review_fullstack_dl_tomo_2023.md` | --- | 2023 | Tomography |
-| 8 | `review_deep_residual_xrf_2023.md` | --- | 2023 | XRF |
+| 7 | `review_fullstack_dl_tomo_2023.md` | Wang | 2023 | Tomography |
+| 8 | `review_deep_residual_xrf_2023.md` | Zhang | 2023 | XRF |
 | 9 | `review_ai_nerd_2024.md` | Horwath | 2024 | XPCS |
-| 10 | `review_ai_als_workshop_2024.md` | --- | 2024 | Multi-modal |
+| 10 | `review_ai_als_workshop_2024.md` | ALS Working Group | 2024 | Multi-modal |
 
 ---
 
@@ -103,33 +102,37 @@ across multiple modalities or facility-wide infrastructure.
 For readers new to AI/ML in synchrotron science, the following reading order
 provides a logical progression:
 
-1. **`review_ai_als_workshop_2024.md`** --- Start with the broad survey to
+1. **`review_ai_als_workshop_2024.md`** -- Start with the broad survey to
    understand the landscape of ML needs at a modern light source.
 
-2. **`review_fullstack_dl_tomo_2023.md`** --- Read the full-stack pipeline
+2. **`review_fullstack_dl_tomo_2023.md`** -- Read the full-stack pipeline
    vision to understand how individual methods fit into an end-to-end workflow.
 
-3. **`review_tomogan_2020.md`** and **`review_ptychonet_2019.md`** --- Study
+3. **`review_tomogan_2020.md`** and **`review_ptychonet_2019.md`** -- Study
    two foundational deep learning approaches (denoising and reconstruction).
 
-4. **`review_roi_finder_2022.md`** and **`review_xrf_gmm_2013.md`** --- Explore
+4. **`review_roi_finder_2022.md`** and **`review_xrf_gmm_2013.md`** -- Explore
    clustering and segmentation methods for XRF, from classical to modern.
 
 5. **`review_ai_edge_ptychography_2023.md`** and
-   **`review_realtime_uct_hpc_2020.md`** --- Examine real-time and edge
+   **`review_realtime_uct_hpc_2020.md`** -- Examine real-time and edge
    computing approaches.
 
-6. **`review_deep_residual_xrf_2023.md`** --- Resolution enhancement as a
+6. **`review_deep_residual_xrf_2023.md`** -- Resolution enhancement as a
    complementary capability.
 
-7. **`review_ai_nerd_2024.md`** --- Unsupervised methods for dynamics, the
+7. **`review_ai_nerd_2024.md`** -- Unsupervised methods for dynamics at the
    cutting edge.
 
 ---
 
 ## Cross-References
 
-- `../template_paper_review.md` --- Review template
-- `../eberlight_publications.md` --- eBERlight program publications
-- `../../03_ai_ml_methods/` --- Background on AI/ML techniques
-- `../../05_tools_and_code/` --- Software tools referenced in reviews
+- `../template_paper_review.md` -- Review template
+- `../eberlight_publications.md` -- eBERlight program publications
+- `../../03_ai_ml_methods/` -- Background on AI/ML techniques
+- `../../05_tools_and_code/` -- Software tools referenced in reviews
+
+---
+
+_Last updated: 2025-Q4_
