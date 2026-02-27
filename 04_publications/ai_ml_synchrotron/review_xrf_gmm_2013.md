@@ -108,31 +108,31 @@ that better reflect the continuous nature of elemental gradients in cells.
 
 ---
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
-This paper is relevant to eBERlight in several respects:
+This paper is relevant to the BER program in several respects:
 
 - **Baseline clustering method**: GMM soft clustering provides a natural comparison
-  point for any neural-network-based XRF segmentation eBERlight develops.
+  point for any neural-network-based XRF segmentation the BER program develops.
 - **Uncertainty maps**: The posterior probability outputs from GMMs could feed into
-  eBERlight's adaptive scanning framework, directing the next scan to regions of
+  the BER program's adaptive scanning framework, directing the next scan to regions of
   high assignment uncertainty.
 - **Biological XRF use case**: Malaria-infected cells represent a class of
-  heterogeneous biological specimens that eBERlight's intelligent scanning should
+  heterogeneous biological specimens that the BER program's intelligent scanning should
   handle well, making this a potential validation case.
-- **Poisson-aware extensions**: eBERlight could extend this approach using Poisson
+- **Poisson-aware extensions**: The BER program could extend this approach using Poisson
   mixture models or variational autoencoders that respect photon-counting statistics.
 
 ---
 
 ## Actionable Takeaways
 
-1. **Implement GMM baseline**: Add scikit-learn-based GMM clustering to eBERlight's
+1. **Implement GMM baseline**: Add scikit-learn-based GMM clustering to the BER program's
    XRF analysis toolkit as a baseline segmentation method.
 2. **Uncertainty-guided scanning**: Use GMM posterior entropy maps to guide adaptive
-   dwell-time allocation in eBERlight's scan planner.
+   dwell-time allocation in the BER program's scan planner.
 3. **Benchmark on biological samples**: Obtain cryo-XRF data of infected cells at
-   NSLS-II to validate eBERlight's segmentation against GMM-derived compartments.
+   NSLS-II to validate the BER program's segmentation against GMM-derived compartments.
 4. **Noise model upgrade**: Replace Gaussian likelihood with Poisson or negative
    binomial to better match photon-counting XRF statistics.
 5. **Community data request**: Reach out to the authors about depositing the original
@@ -140,4 +140,4 @@ This paper is relevant to eBERlight in several respects:
 
 ---
 
-*Reviewed for the eBERlight Research Archive, 2026-02-27.*
+*Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*

@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 - MIT License
 
 #### Phase 2: Program Overview (01_program_overview/)
-- eBERlight mission, history, and research domains
+- BER program mission, history, and research domains
 - APS facility specs and APS-U upgrade details
 - 15 beamline profiles organized by technique
 - Partner facility descriptions (EMSL, JGI, NEON, HFIR, ALCF, CNM)
@@ -33,7 +33,7 @@ All notable changes to this project will be documented in this file.
 
 #### Phase 5: Publication Archive (04_publications/)
 - Paper review template
-- eBERlight publications overview
+- BER program publications overview
 - 10 detailed paper reviews covering ROI-Finder, TomoGAN, XRF GMM, AI-NERD, PtychoNet, AI@Edge ptychography, deep residual XRF, full-stack DL tomo, real-time µCT HPC, AI@ALS workshop
 
 #### Phase 6: Tools & Code Reverse Engineering (05_tools_and_code/)
@@ -64,4 +64,4 @@ All notable changes to this project will be documented in this file.
 #### Phase 9: References & Utilities (08_references/)
 - BibTeX bibliography with 20+ entries
 - Glossary of synchrotron science terms (A-Z)
-- Useful links: eBERlight, APS, partner facilities, tools, datasets, tutorials
+- Useful links: APS BER program, partner facilities, tools, datasets, tutorials

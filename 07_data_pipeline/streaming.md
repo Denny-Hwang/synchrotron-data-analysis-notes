@@ -3,7 +3,7 @@
 ## Overview
 
 Once frames leave the detector and pass through the Area Detector framework,
-they must be transported to processing nodes with minimal latency. The eBERlight
+they must be transported to processing nodes with minimal latency. The BER program
 pipeline employs three complementary streaming technologies -- ZeroMQ (ZMQ),
 PV Access, and Globus -- each suited to different latency and bandwidth regimes.
 

@@ -8,7 +8,7 @@ images, flat-field and dark-field references, rotation angles, and experimental 
 in a standardized hierarchy that is directly consumed by reconstruction tools such as
 **TomoPy** and **TomocuPy**.
 
-At eBERlight beamlines (e.g., 2-BM, 7-BM, 32-ID), a single tomography scan captures
+At APS BER beamlines (e.g., 2-BM, 7-BM, 32-ID), a single tomography scan captures
 hundreds to thousands of projections as the sample rotates through 180 or 360 degrees.
 
 ## Data Exchange HDF5 Hierarchy

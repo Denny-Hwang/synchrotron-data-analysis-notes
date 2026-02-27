@@ -1,13 +1,12 @@
-# eBERlight Research Archive
+# Synchrotron Data Analysis Notes
 
-Comprehensive archive and analysis of the [eBERlight](https://eberlight.aps.anl.gov) program
+Personal study notes on synchrotron X-ray data analysis and AI/ML methods
 at Argonne National Laboratory's Advanced Photon Source (APS).
 
-## What is eBERlight?
+## About
 
-**e**nabling **B**iological and **E**nvironmental **R**esearch with **light** — a DOE BER program
-providing integrated X-ray capabilities for biological and environmental science at the
-upgraded APS (500× brighter X-rays since 2024).
+Notes covering the DOE BER program's integrated X-ray capabilities for biological
+and environmental science at the upgraded APS (500× brighter X-rays since 2024).
 
 ## Repository Structure
 
@@ -31,6 +30,6 @@ upgraded APS (500× brighter X-rays since 2024).
 
 ## Related Resources
 
-- [eBERlight Website](https://eberlight.aps.anl.gov)
+- [APS BER Program](https://eberlight.aps.anl.gov)
 - [APS GitHub Organization](https://github.com/AdvancedPhotonSource)
 - [ROI-Finder](https://github.com/arshadzahangirchowdhury/ROI-Finder)

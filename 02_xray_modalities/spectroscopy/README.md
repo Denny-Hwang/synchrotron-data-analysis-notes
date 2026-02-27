@@ -63,7 +63,7 @@ Sample
             (for dilute samples, preferred for environmental)
 ```
 
-### eBERlight Beamlines
+### APS BER Beamlines
 
 | Beamline | Energy Range | Mode | Specialty |
 |----------|-------------|------|-----------|
@@ -99,7 +99,7 @@ Sample
 | µ-XANES imaging stack | 0.5–10 GB |
 | Full experiment dataset | 0.1–10 GB |
 
-## eBERlight Applications
+## APS BER Applications
 
 - **Soil science**: Fe/Mn redox speciation, P bonding environment, S species identification
 - **Environmental chemistry**: As(III)/As(V) speciation, Cr(III)/Cr(VI), U speciation in waste

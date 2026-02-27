@@ -193,29 +193,29 @@ only in regions of interest identified from the super-resolved maps.
 
 ---
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
-This work directly supports eBERlight's scan efficiency and intelligent surveying
+This work directly supports the BER program's scan efficiency and intelligent surveying
 objectives:
 
-- **Faster surveys**: eBERlight can deploy coarse XRF scans for initial large-area
+- **Faster surveys**: The BER program can deploy coarse XRF scans for initial large-area
   overviews and apply deep residual super-resolution to computationally enhance
   resolution, reducing total scan time by 4--16x without sacrificing elemental
   spatial detail.
-- **Adaptive resolution pipeline**: eBERlight's scan planner could chain coarse scan
+- **Adaptive resolution pipeline**: The BER program's scan planner could chain coarse scan
   -> AI super-resolution -> ROI identification -> targeted fine rescan, combining
   this work with the ROI-Finder approach for an intelligent two-stage survey
   workflow.
 - **Quality assurance layer**: Pairing super-resolution with uncertainty estimation
-  would allow eBERlight to automatically flag regions where computational
+  would allow the BER program to automatically flag regions where computational
   enhancement is unreliable and physical high-resolution rescanning is warranted.
-- **Training data automation**: eBERlight's automated data collection infrastructure
+- **Training data automation**: The BER program's automated data collection infrastructure
   can systematically generate paired coarse/fine datasets across diverse sample
   types during routine operations, building increasingly robust super-resolution
   models over time.
 - **Applicable beamlines**: APS 2-ID-E, 2-ID-D, and other XRF-capable endstations
   at APS-U.
-- **Priority**: High -- directly enables eBERlight's core mission of intelligent,
+- **Priority**: High -- directly enables the BER program's core mission of intelligent,
   efficient synchrotron experiments.
 
 ---
@@ -235,7 +235,7 @@ objectives:
    approaches that reduce or eliminate the need for perfectly paired training data,
    lowering the barrier to deployment on new sample types.
 5. **Pipeline integration**: Chain coarse scan -> super-resolution -> ROI-Finder
-   -> targeted rescan into a unified eBERlight XRF survey pipeline with Bluesky
+   -> targeted rescan into a unified BER program XRF survey pipeline with Bluesky
    orchestration.
 
 ---
@@ -259,4 +259,4 @@ objectives:
 
 ---
 
-*Reviewed for the eBERlight Research Archive, 2026-02-27.*
+*Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*

@@ -68,7 +68,7 @@ Detector (2 kHz) → Edge GPU/FPGA → CNN Inference → Live Reconstruction
     └── 0.5 ms/frame ──────────────────────────── Display update
 ```
 
-### Significance for eBERlight
+### Significance for APS BER Program
 - Enables feedback during experiments (not just post-hoc analysis)
 - Experimentalist sees reconstruction quality in real-time
 - Can abort or adjust scan parameters immediately

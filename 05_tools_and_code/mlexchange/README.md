@@ -8,7 +8,7 @@ provides beamline scientists with a low-barrier interface for training,
 deploying, and running ML models on experimental data without writing code.
 
 The platform is designed to be facility-agnostic and is being evaluated for
-adoption at the Advanced Photon Source (APS) as part of the eBERlight
+adoption at the Advanced Photon Source (APS) as part of the BER program
 initiative.
 
 ## Key Features
@@ -25,7 +25,7 @@ initiative.
 - **REST API** -- all GUI actions are backed by a REST API, enabling
   programmatic access and pipeline integration.
 
-## Relevance to APS / eBERlight
+## Relevance to APS / BER Program
 
 - XRF map segmentation and denoising are natural MLExchange use cases.
 - The microservice architecture can be deployed on APS computing

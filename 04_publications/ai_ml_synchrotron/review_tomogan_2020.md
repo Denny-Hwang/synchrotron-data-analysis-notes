@@ -108,19 +108,19 @@ using adversarial training, preserving structural detail that classical filters 
 
 ---
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
-TomoGAN is directly relevant to eBERlight's dose-optimization and throughput goals:
+TomoGAN is directly relevant to the BER program's dose-optimization and throughput goals:
 
-- **Dose-adaptive scanning**: eBERlight's scan planner could use TomoGAN to maintain
+- **Dose-adaptive scanning**: The BER program's scan planner could use TomoGAN to maintain
   image quality while reducing dose in radiation-sensitive regions, enabling
   heterogeneous dose allocation across a sample.
-- **Real-time pipeline integration**: The ~15 ms inference time fits within eBERlight's
+- **Real-time pipeline integration**: The ~15 ms inference time fits within the BER program's
   latency budget for streaming reconstruction at APS-U frame rates.
-- **Training data generation**: eBERlight could automate collection of paired dose
+- **Training data generation**: The BER program could automate collection of paired dose
   datasets during commissioning runs to build facility-specific TomoGAN models.
 - **Uncertainty extension**: Coupling TomoGAN with Monte Carlo dropout or ensemble
-  methods could provide pixel-wise uncertainty maps for eBERlight's decision engine.
+  methods could provide pixel-wise uncertainty maps for the BER program's decision engine.
 
 ---
 
@@ -135,8 +135,8 @@ TomoGAN is directly relevant to eBERlight's dose-optimization and throughput goa
 4. **Self-supervised alternative**: Explore Noise2Noise or Noise2Void training
    strategies that eliminate the need for paired high-dose ground truth.
 5. **Integrate with Bluesky**: Package TomoGAN inference as a Bluesky callback for
-   on-the-fly denoising during live reconstruction at eBERlight beamlines.
+   on-the-fly denoising during live reconstruction at BER program beamlines.
 
 ---
 
-*Reviewed for the eBERlight Research Archive, 2026-02-27.*
+*Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*

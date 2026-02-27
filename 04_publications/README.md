@@ -1,9 +1,9 @@
-# 04 Publications -- eBERlight Research Archive
+# 04 Publications -- Synchrotron Data Analysis Notes
 
 ## Purpose
 
 This directory houses curated paper reviews, publication tracking, and reference
-materials that inform the eBERlight program's AI/ML strategy for synchrotron
+materials that inform the BER program's AI/ML strategy for synchrotron
 science. Every review follows a standardized template so that insights can be
 quickly cross-referenced and applied to beamline development at the Advanced
 Photon Source (APS).
@@ -15,7 +15,7 @@ Photon Source (APS).
 | Step | What to read | Why |
 |------|-------------|-----|
 | 1 | `template_paper_review.md` | Understand the review format before diving in |
-| 2 | `eberlight_publications.md` | See what eBERlight itself has published so far |
+| 2 | `ber_program_publications.md` | See what the BER program has published so far |
 | 3 | `ai_ml_synchrotron/README.md` | Get the lay of the land for AI/ML papers |
 | 4 | Individual reviews (below) | Deep-dive into specific methods and results |
 
@@ -27,7 +27,7 @@ Photon Source (APS).
 |------|-------------|
 | `README.md` | This index (you are here) |
 | `template_paper_review.md` | Standardized template for all paper reviews |
-| `eberlight_publications.md` | Tracker for eBERlight-attributed publications (2023-2025) |
+| `ber_program_publications.md` | Tracker for BER program-attributed publications (2023-2025) |
 | `ai_ml_synchrotron/` | Curated review collection -- AI/ML applied to synchrotron science |
 
 ---
@@ -96,7 +96,7 @@ The review template (`template_paper_review.md`) standardizes:
 - **Data & Code Availability** -- links, reproducibility score (1-5)
 - **Strengths** -- what the paper does well
 - **Limitations & Gaps** -- where it falls short or what is missing
-- **Relevance to eBERlight** -- direct applicability to our program
+- **Relevance to APS BER Program** -- direct applicability to our program
 - **Actionable Takeaways** -- concrete next steps for the team
 
 ---
@@ -116,5 +116,5 @@ To add a new review:
 
 ## Maintainers
 
-- eBERlight AI/ML team, Argonne National Laboratory
+- APS BER program AI/ML team, Argonne National Laboratory
 - Last updated: 2025-Q4

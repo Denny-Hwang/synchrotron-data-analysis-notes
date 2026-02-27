@@ -155,7 +155,7 @@ Transitions between clusters indicate dynamical phase changes
 4. **Physical interpretation**: Clusters need expert interpretation
 5. **Validation**: Difficult to validate without ground truth labels
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
 ### APS-U XPCS (12-ID-E)
 - Post-upgrade XPCS generates massive datasets (millions of frames)

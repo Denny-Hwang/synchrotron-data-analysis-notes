@@ -107,34 +107,34 @@ an objective, reproducible, and rapid recommendation system for this workflow bo
 
 ---
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
 ROI-Finder directly addresses the scan-strategy optimization problem central to
-eBERlight's goal of intelligent beamline automation. The PCA + clustering approach
+the BER program's goal of intelligent beamline automation. The PCA + clustering approach
 could serve as:
 
-- A baseline comparison for eBERlight's more advanced RL/Bayesian-optimization-based
+- A baseline comparison for the BER program's more advanced RL/Bayesian-optimization-based
   scan planners.
 - A feeder module: ROI-Finder's ranked candidates could initialize the prior for
-  eBERlight's adaptive sampling algorithms.
+  the BER program's adaptive sampling algorithms.
 - A template for integrating classical ML pipelines into the Bluesky/Tiled data
-  infrastructure that eBERlight targets.
+  infrastructure that the BER program targets.
 
 ---
 
 ## Actionable Takeaways
 
 1. **Benchmark baseline**: Integrate ROI-Finder as the "classical ML baseline" in
-   eBERlight's scan-planning evaluation suite.
+   the BER program's scan-planning evaluation suite.
 2. **Auto-k selection**: Extend fuzzy k-means with silhouette-based or gap-statistic-based
-   automatic cluster number selection before deploying at eBERlight beamlines.
+   automatic cluster number selection before deploying at BER program beamlines.
 3. **Format adapter**: Write a thin HDF5 adapter to ingest NSLS-II/APS-U XRF data
    formats into ROI-Finder's pipeline.
-4. **Hybrid approach**: Feed ROI-Finder cluster maps into eBERlight's Bayesian
+4. **Hybrid approach**: Feed ROI-Finder cluster maps into the BER program's Bayesian
    optimization loop as informative spatial priors.
-5. **Latency target**: The < 60 s runtime sets a useful reference point; eBERlight's
+5. **Latency target**: The < 60 s runtime sets a useful reference point; the BER program's
    DL-based alternatives should aim for comparable or faster inference.
 
 ---
 
-*Reviewed for the eBERlight Research Archive, 2026-02-27.*
+*Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*

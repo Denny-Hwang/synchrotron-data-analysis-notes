@@ -44,7 +44,7 @@ When the RunEngine executes a scan plan, ophyd translates high-level commands
 | **Bluesky Queue Server** | Remote job queue for unattended operation |
 | **Tiled** | Data access service (REST API + Python client) |
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
 - APS-U beamlines are adopting Bluesky/EPICS as the standard control stack.
 - Automated XRF scanning and tomographic data collection can be defined as

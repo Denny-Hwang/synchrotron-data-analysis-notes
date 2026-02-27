@@ -4,7 +4,7 @@
 
 This document catalogues and categorises the open-source repositories
 maintained by the Advanced Photon Source (APS) and related groups on GitHub.
-The goal is to map the existing software landscape so the eBERlight project
+The goal is to map the existing software landscape so the APS BER project
 can identify reusable components, integration points, and gaps.
 
 ## GitHub Organisations Surveyed

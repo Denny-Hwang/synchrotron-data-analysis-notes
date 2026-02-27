@@ -206,28 +206,28 @@ refinement of selected frames.
 
 ---
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
-This paper is a cornerstone reference for eBERlight's real-time feedback architecture
+This paper is a cornerstone reference for the BER program's real-time feedback architecture
 and edge compute strategy:
 
 - **Latency benchmark**: The < 5 ms end-to-end latency establishes the performance
-  target for eBERlight's real-time decision-making loop at coherent imaging beamlines,
+  target for the BER program's real-time decision-making loop at coherent imaging beamlines,
   demonstrating that millisecond-scale feedback is technically achievable.
-- **Edge compute model**: eBERlight can adopt the same Jetson Orin / FPGA edge
+- **Edge compute model**: The BER program can adopt the same Jetson Orin / FPGA edge
   deployment architecture for other modalities requiring millisecond inference:
   XRF spectral fitting, XANES classification, diffraction pattern indexing.
-- **Adaptive ptychography**: With real-time phase images available, eBERlight's
+- **Adaptive ptychography**: With real-time phase images available, the BER program's
   scan planner can dynamically adjust overlap ratios, skip redundant positions, or
   zoom into features of interest mid-scan, maximizing information gained per unit
   beam time.
 - **APS-U readiness**: The demonstrated 2--3 kHz throughput is well-matched to
   expected APS-U ptychography frame rates at 26-ID and 2-ID-D, confirming that
   the approach scales to upgraded source conditions.
-- **ZMQ integration**: The ZMQ-based streaming architecture aligns with eBERlight's
+- **ZMQ integration**: The ZMQ-based streaming architecture aligns with the BER program's
   planned Bluesky/Tiled data infrastructure, enabling straightforward integration
   of edge-reconstructed images into the experimental control loop.
-- **Priority**: Critical -- this is the most directly relevant work for eBERlight's
+- **Priority**: Critical -- this is the most directly relevant work for the BER program's
   edge-AI ptychography deployment.
 
 ---
@@ -235,13 +235,13 @@ and edge compute strategy:
 ## Actionable Takeaways
 
 1. **Procure edge hardware**: Acquire NVIDIA Jetson Orin modules and Xilinx Alveo
-   boards for eBERlight beamline hutches at APS-U ptychography endstations (26-ID,
+   boards for BER program beamline hutches at APS-U ptychography endstations (26-ID,
    2-ID-D), with rack integration and cooling solutions.
 2. **Retrain on APS-U probe**: Generate APS-U-specific training data using measured
    probe functions, coherence properties, and detector characteristics from early
    commissioning, then fine-tune the pretrained model via transfer learning.
 3. **ZMQ/Bluesky integration**: Integrate the detector-to-edge RDMA pipeline with
-   eBERlight's Bluesky/Tiled data infrastructure for seamless live reconstruction,
+   the BER program's Bluesky/Tiled data infrastructure for seamless live reconstruction,
    visualization, and adaptive scan control.
 4. **Extend to ptycho-tomo**: Develop a 3D extension that reconstructs ptychographic
    tomography volumes in streaming mode by accumulating CNN-reconstructed projections
@@ -251,7 +251,7 @@ and edge compute strategy:
    triggers fallback to full reconstruction when CNN output quality degrades below
    a user-defined threshold.
 6. **Cross-modality edge deployment**: Use this work as the template for deploying
-   edge inference for XRF, XPCS, and tomographic reconstruction at other eBERlight
+   edge inference for XRF, XPCS, and tomographic reconstruction at other BER program
    beamlines.
 
 ---
@@ -277,4 +277,4 @@ and edge compute strategy:
 
 ---
 
-*Reviewed for the eBERlight Research Archive, 2026-02-27.*
+*Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*

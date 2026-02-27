@@ -117,28 +117,28 @@ groups similar dynamics without human supervision.
 
 ---
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
-AI-NERD is highly relevant to eBERlight's autonomous experiment goals:
+AI-NERD is highly relevant to the BER program's autonomous experiment goals:
 
-- **Real-time dynamics monitoring**: The < 30 s runtime allows eBERlight to embed
+- **Real-time dynamics monitoring**: The < 30 s runtime allows the BER program to embed
   AI-NERD into a live XPCS feedback loop, triggering scan parameter changes when
   a new dynamic regime is detected.
 - **Adaptive experiment steering**: When AI-NERD detects a regime transition,
-  eBERlight's decision engine could automatically adjust temperature ramp rates,
+  the BER program's decision engine could automatically adjust temperature ramp rates,
   sample positions, or detector settings to capture the transition in detail.
 - **Model-free baselines**: AI-NERD's unsupervised fingerprints provide a
-  complementary signal to eBERlight's parametric analysis pipelines, serving as
+  complementary signal to the BER program's parametric analysis pipelines, serving as
   a cross-check for model fitting.
 - **APS-U readiness**: Extending AI-NERD to handle the higher data rates from
-  APS-U coherent beamlines (8-ID, 12-ID) is a natural eBERlight development target.
+  APS-U coherent beamlines (8-ID, 12-ID) is a natural BER program development target.
 
 ---
 
 ## Actionable Takeaways
 
 1. **Integrate into XPCS pipeline**: Deploy AI-NERD as a Bluesky callback at APS
-   8-ID-I for live dynamic regime classification during eBERlight commissioning runs.
+   8-ID-I for live dynamic regime classification during BER program commissioning runs.
 2. **Automate hyperparameters**: Develop a Bayesian optimization wrapper for UMAP
    n_neighbors and HDBSCAN min_cluster_size, tuned on representative XPCS datasets.
 3. **Event-mode extension**: Adapt the g2 preprocessing to handle multi-tau
@@ -147,9 +147,9 @@ AI-NERD is highly relevant to eBERlight's autonomous experiment goals:
    autoencoder that encodes physically meaningful latent variables (relaxation
    time, stretching exponent) alongside the manifold embedding.
 5. **Cross-modal transfer**: Test AI-NERD's UMAP+HDBSCAN framework on other
-   time-series modalities at eBERlight beamlines (e.g., in-situ SAXS kinetics,
+   time-series modalities at BER program beamlines (e.g., in-situ SAXS kinetics,
    XANES time series).
 
 ---
 
-*Reviewed for the eBERlight Research Archive, 2026-02-27.*
+*Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*

@@ -1,4 +1,4 @@
-# Paper Review Template -- eBERlight Research Archive
+# Paper Review Template -- Synchrotron Data Analysis Notes
 
 > Copy this file, rename to `review_<short_descriptor>_<year>.md`, and fill in
 > every section. Do not leave sections blank; write "N/A" if truly not
@@ -131,9 +131,9 @@ _Bullet list of weaknesses, missing elements, or open questions:_
 
 ---
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
-_How does this work connect to eBERlight's mission and beamlines?_
+_How does this work connect to the BER program's mission and beamlines?_
 
 - **Applicable beamlines**: _List specific beamlines or modalities_
 - **Integration potential**: _How could this be adopted or adapted?_
@@ -143,7 +143,7 @@ _How does this work connect to eBERlight's mission and beamlines?_
 
 ## Actionable Takeaways
 
-_Concrete next steps for the eBERlight team:_
+_Concrete next steps for the team:_
 
 1. _Action item 1_
 2. _Action item 2_

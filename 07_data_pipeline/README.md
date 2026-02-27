@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The eBERlight data pipeline spans the full lifecycle of synchrotron experimental
+The APS BER data pipeline spans the full lifecycle of synchrotron experimental
 data, from photon detection at the beamline to curated datasets stored in
 long-term archives. The pipeline is designed around five principal stages:
 **Acquisition**, **Streaming**, **Processing**, **Analysis**, and **Storage**.
@@ -107,6 +107,6 @@ flowchart LR
 
 | Date | Author | Change |
 |---|---|---|
-| 2025-06-15 | eBERlight Team | Initial pipeline specification |
-| 2025-09-01 | eBERlight Team | Added Globus streaming path |
-| 2025-12-10 | eBERlight Team | Updated GPU strategy for ALCF Aurora |
+| 2025-06-15 | APS BER Team | Initial pipeline specification |
+| 2025-09-01 | APS BER Team | Added Globus streaming path |
+| 2025-12-10 | APS BER Team | Updated GPU strategy for ALCF Aurora |

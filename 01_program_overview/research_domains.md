@@ -1,6 +1,6 @@
-# eBERlight Research Domains
+# Research Domains
 
-eBERlight supports seven interconnected research domains in biological and environmental
+The BER program supports seven interconnected research domains in biological and environmental
 science. Each domain leverages specific X-ray techniques and benefits from the APS-U
 upgrade's enhanced capabilities.
 
@@ -210,5 +210,5 @@ graph TD
     GEO <-->|Fluid-rock interactions| ENV
 ```
 
-eBERlight's strength lies in connecting these domains — the same X-ray techniques and
+The program's strength lies in connecting these domains — the same X-ray techniques and
 beamlines serve multiple research communities, enabling cross-disciplinary discoveries.

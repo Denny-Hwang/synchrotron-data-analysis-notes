@@ -2,7 +2,7 @@
 
 ## Overview
 
-Data acquisition is the first stage of the eBERlight pipeline. It encompasses
+Data acquisition is the first stage of the APS data pipeline. It encompasses
 the physical detectors that convert X-ray photons into digital signals, the
 EPICS IOC layer that orchestrates hardware, and the Area Detector framework
 that packages raw frames with metadata for downstream consumption.

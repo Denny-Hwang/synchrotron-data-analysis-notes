@@ -43,7 +43,7 @@ Sample (on XY scanning stage)
     └──→ Diffraction detector (optional) → Ptychography/XRD
 ```
 
-### eBERlight Beamlines
+### APS BER Beamlines
 
 | Beamline | Optics | Beam Size | Energy Range | Specialty |
 |----------|--------|-----------|-------------|-----------|
@@ -79,7 +79,7 @@ Sample (on XY scanning stage)
 | Fitted elemental maps | 10–500 MB |
 | Multi-ROI experiment | 1–100 GB total |
 
-## eBERlight Applications
+## APS BER Applications
 
 - **Microbiology**: Single-cell elemental analysis, trace metal quantification in bacteria
 - **Plant science**: Nutrient distribution in root cross-sections, seed micronutrient mapping

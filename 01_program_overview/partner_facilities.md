@@ -1,6 +1,6 @@
 # Partner Facilities
 
-eBERlight's scientific impact is amplified through partnerships with complementary
+The BER program's scientific impact is amplified through partnerships with complementary
 DOE user facilities and national research infrastructure. These partnerships enable
 multimodal characterization — studying the same systems across multiple length scales
 and analytical techniques.
@@ -9,7 +9,7 @@ and analytical techniques.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        eBERlight (APS)                          │
+│                      APS BER Program                            │
 │              X-ray: structure, composition, dynamics             │
 └──────────┬──────────┬──────────┬──────────┬──────────┬──────────┘
            │          │          │          │          │
@@ -36,7 +36,7 @@ and analytical techniques.
 - **Electron Microscopy**: Cryo-EM, environmental TEM
 - **Computational**: Molecular dynamics, quantum chemistry
 
-### Synergy with eBERlight
+### Synergy with APS
 - APS provides elemental distribution (XRF) → EMSL provides molecular identification (MS)
 - Complementary length scales: APS (nm–µm structure) + EMSL (molecular-level)
 - Joint proposals through FICUS enable combined experiments on same samples
@@ -58,7 +58,7 @@ and analytical techniques.
 - **Functional Genomics**: Gene expression analysis, pathway reconstruction
 - **Synthetic Biology**: DNA synthesis and engineering
 
-### Synergy with eBERlight
+### Synergy with APS
 - APS provides structural/elemental data → JGI provides genomic/functional data
 - **Use case**: Rhizosphere microbiome — APS maps nutrient element distribution near roots while
   JGI sequences the microbial community to identify functional roles
@@ -80,7 +80,7 @@ and analytical techniques.
 - **Biogeochemistry**: Soil, water, atmospheric chemistry monitoring
 - **Biodiversity**: Organism sampling, environmental DNA
 
-### Synergy with eBERlight
+### Synergy with APS
 - NEON provides ecosystem-scale context → APS provides microscale characterization
 - **Use case**: Carbon cycling — NEON measures ecosystem CO₂ flux while APS characterizes
   the nanoscale structure of soil organic matter controlling decomposition
@@ -102,7 +102,7 @@ and analytical techniques.
 - **Bio-SANS**: Small-angle neutron scattering for biological macromolecules
 - **Deuterium Labeling**: Contrast matching for multi-component systems
 
-### Synergy with eBERlight
+### Synergy with APS
 - X-rays (APS) are sensitive to electron density → Neutrons (HFIR) are sensitive to light elements (H, D)
 - **Use case**: Protein-membrane interactions — APS crystallography for protein structure +
   HFIR neutron scattering for lipid bilayer organization
@@ -124,7 +124,7 @@ and analytical techniques.
 - **AI/ML Training**: Large-scale deep learning model training
 - **Data Analysis**: Massive parallel data processing
 
-### Synergy with eBERlight
+### Synergy with APS
 - **Critical infrastructure**: Located on same ANL campus as APS
 - Low-latency, high-bandwidth connection enables real-time analysis during experiments
 - **Use case**: Real-time tomographic reconstruction — data streams from APS to ALCF for
@@ -148,7 +148,7 @@ and analytical techniques.
 - **Electron Microscopy**: Aberration-corrected TEM/STEM
 - **Theory & Modeling**: Nanoscale simulations
 
-### Synergy with eBERlight
+### Synergy with APS
 - CNM fabricates specialized sample environments and X-ray optics for APS
 - **Use case**: Custom microfluidic devices for in-situ XRF measurements of live cells
 - Complementary nanoscale imaging (electron microscopy) to validate APS measurements
@@ -168,8 +168,8 @@ and analytical techniques.
 - **Sample Preparation**: Crystal harvesting, cryo-cooling
 - **Mail-in Service**: Remote crystal screening and optimization
 
-### Synergy with eBERlight
-- Provides crystal samples directly to eBERlight crystallography beamlines (21-ID)
+### Synergy with APS
+- Provides crystal samples directly to BER program crystallography beamlines (21-ID)
 - Streamlines structural biology pipeline from protein to structure
 - Reduces beam time waste by pre-screening crystal quality
 
@@ -179,7 +179,7 @@ and analytical techniques.
 
 ```mermaid
 graph LR
-    A[Single FICUS Proposal] --> B[eBERlight / APS]
+    A[Single FICUS Proposal] --> B[APS BER Program]
     A --> C[EMSL]
     A --> D[JGI]
     A --> E[NEON]

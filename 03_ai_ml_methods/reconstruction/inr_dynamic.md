@@ -216,7 +216,7 @@ class DynamicINR(nn.Module):
         return self.mlp(encoded)  # (batch, 1) attenuation values
 ```
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
 ### Key Applications
 - **In-situ tomography**: Track wetting/drying, reaction fronts, root growth

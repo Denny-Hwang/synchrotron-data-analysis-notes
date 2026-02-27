@@ -96,7 +96,7 @@ Sample
               └── Records speckle patterns as function of time
 ```
 
-### eBERlight Beamlines
+### APS BER Beamlines
 
 | Beamline | Technique | Energy | Detector | Specialty |
 |----------|-----------|--------|----------|-----------|
@@ -140,7 +140,7 @@ Sample
 | Processed 1D profiles | ~100 KB each |
 | Correlation functions | ~1 MB |
 
-## eBERlight Applications
+## APS BER Applications
 
 - **Structural biology**: Protein solution structure and conformational states (SAXS)
 - **Soil science**: Soil aggregate nanostructure (USAXS/SAXS)

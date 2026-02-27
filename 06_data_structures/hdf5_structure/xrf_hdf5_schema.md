@@ -7,7 +7,7 @@ X-ray Fluorescence (XRF) microscopy data at APS is processed primarily by **MAPS
 HDF5 structure. Each HDF5 file contains fitted elemental maps, raw spectra, calibration
 data, and scan metadata for a single raster scan.
 
-A typical XRF dataset at eBERlight beamlines (2-ID-D, 2-ID-E) consists of:
+A typical XRF dataset at APS BER beamlines (2-ID-D, 2-ID-E) consists of:
 - A 2D raster scan over the sample surface
 - Full energy-dispersive spectra at each pixel
 - Fitted elemental concentration maps

@@ -22,7 +22,7 @@ in-situ) state.
 | **Edge enhancement** | Free-space propagation | Interfaces, boundaries | Enhanced |
 | **Grating-based** | Talbot interferometry | Quantitative phase | New capabilities |
 
-### Variants at eBERlight
+### Variants at APS
 
 | Variant | Resolution | FOV | Scan Time | Application |
 |---------|-----------|-----|-----------|-------------|
@@ -52,7 +52,7 @@ Optical magnification (objective lens)
 Camera (sCMOS: PCO Edge 5.5, Grasshopper, Oryx)
 ```
 
-### eBERlight Beamlines
+### APS BER Beamlines
 - **2-BM-A**: Workhorse µCT, fast tomography, environmental cells, 10–40 keV
 - **7-BM-B**: Broad energy range (6–80 keV), dual-energy capabilities
 - **32-ID-B/C**: Transmission X-ray microscope (TXM), zone-plate optics, nano-CT
@@ -86,7 +86,7 @@ Camera (sCMOS: PCO Edge 5.5, Grasshopper, Oryx)
 | Reconstructed volume (16-bit) | 8–128 GB (2048³ to 4096³ voxels) |
 | Time series (4D) | 100 GB – 10 TB |
 
-## eBERlight Applications
+## APS BER Applications
 
 - **Soil science**: 3D pore network analysis, aggregate structure, root-soil interface
 - **Plant science**: Root system architecture in soil, vasculature structure
