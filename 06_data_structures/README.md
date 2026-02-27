@@ -10,7 +10,7 @@ and systematic exploratory data analysis (EDA) before any machine learning or ad
 processing is attempted.
 
 This directory provides a comprehensive guide to synchrotron data formats, schemas for
-each eBERlight modality, scaling projections for post-APS-U operations, and hands-on
+each modality, scaling projections for post-APS-U operations, and hands-on
 EDA notebooks.
 
 ## Why Data Structure Matters

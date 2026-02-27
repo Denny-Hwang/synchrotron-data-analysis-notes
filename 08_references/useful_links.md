@@ -1,12 +1,12 @@
 # Useful Links
 
-## eBERlight Program
+## APS BER Program
 
 | Resource | URL |
 |----------|-----|
-| eBERlight Website | [https://eberlight.aps.anl.gov](https://eberlight.aps.anl.gov) |
-| eBERlight Techniques | [https://eberlight.aps.anl.gov/techniques](https://eberlight.aps.anl.gov/techniques) |
-| eBERlight User Program | [https://eberlight.aps.anl.gov/eberlight-user-program](https://eberlight.aps.anl.gov/eberlight-user-program) |
+| APS BER Website | [https://eberlight.aps.anl.gov](https://eberlight.aps.anl.gov) |
+| APS BER Techniques | [https://eberlight.aps.anl.gov/techniques](https://eberlight.aps.anl.gov/techniques) |
+| APS BER User Program | [https://eberlight.aps.anl.gov/eberlight-user-program](https://eberlight.aps.anl.gov/eberlight-user-program) |
 | BER Structural Biology Portal | [https://www.berstructuralbioportal.org/eberlight/](https://www.berstructuralbioportal.org/eberlight/) |
 
 ## APS Facility

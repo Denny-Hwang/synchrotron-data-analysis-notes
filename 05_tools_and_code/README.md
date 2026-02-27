@@ -2,7 +2,7 @@
 
 ## Overview
 
-This section analyzes the key open-source software tools used in eBERlight and the
+This section analyzes the key open-source software tools used in the BER program and the
 broader APS synchrotron science ecosystem. Each tool is examined for architecture,
 strengths, limitations, and improvement opportunities.
 

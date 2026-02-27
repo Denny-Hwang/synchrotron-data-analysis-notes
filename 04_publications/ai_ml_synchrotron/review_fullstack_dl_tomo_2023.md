@@ -125,28 +125,28 @@ The paper surveys and categorizes DL methods for four pipeline stages:
 
 ---
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
-This review serves as an architectural blueprint for eBERlight's tomography pipeline:
+This review serves as an architectural blueprint for the BER program's tomography pipeline:
 
-- **Pipeline design**: eBERlight should adopt the full-stack DL philosophy, building
+- **Pipeline design**: The BER program should adopt the full-stack DL philosophy, building
   modular but jointly optimizable stages from sinogram to segmentation.
 - **Module selection**: The survey's benchmarking summaries help prioritize which
   DL modules to implement first (denoising and segmentation show the largest gains).
 - **Self-supervised priority**: Given the difficulty of collecting paired data at
   APS-U during early commissioning, self-supervised methods (Noise2Void, learned
   reconstruction without clean references) should be prioritized.
-- **Benchmark infrastructure**: eBERlight should contribute APS-U datasets to
+- **Benchmark infrastructure**: The BER program should contribute APS-U datasets to
   TomoBank to enable the cross-facility benchmarking the review advocates.
 
 ---
 
 ## Actionable Takeaways
 
-1. **Adopt modular full-stack architecture**: Design eBERlight's tomography pipeline
+1. **Adopt modular full-stack architecture**: Design the BER program's tomography pipeline
    with standardized tensor interfaces between stages, enabling future joint training.
 2. **Start with denoising + segmentation**: These stages show the largest marginal
-   gains; deploy U-Net-based modules as initial eBERlight tomography capabilities.
+   gains; deploy U-Net-based modules as initial BER program tomography capabilities.
 3. **Build APS-U benchmark suite**: Collect and curate paired/unpaired tomographic
    datasets during APS-U commissioning for training and cross-facility benchmarking.
 4. **Self-supervised first**: Prioritize Noise2Void and Noise2Noise implementations
@@ -156,4 +156,4 @@ This review serves as an architectural blueprint for eBERlight's tomography pipe
 
 ---
 
-*Reviewed for the eBERlight Research Archive, 2026-02-27.*
+*Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*

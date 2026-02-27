@@ -2,7 +2,7 @@
 
 ## Overview
 
-Ptychographic datasets at APS eBERlight beamlines (e.g., 2-ID-D, 26-ID) are stored using
+Ptychographic datasets at APS BER beamlines (e.g., 2-ID-D, 26-ID) are stored using
 the **CXI (Coherent X-ray Imaging)** format, an HDF5-based convention developed by the
 CXIDB community for coherent diffraction experiments. The format captures diffraction
 patterns, scan positions, probe information, and detector geometry in a standardized

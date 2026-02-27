@@ -67,7 +67,7 @@ organisation, language, and a brief description.
 
 ## Notes
 
-- Repositories listed are those most relevant to the eBERlight project scope
+- Repositories listed are those most relevant to the BER program scope
   (XRF, tomography, ML, beamline control).
 - Some repositories span categories (e.g., `tike` bridges data analysis and
   AI).

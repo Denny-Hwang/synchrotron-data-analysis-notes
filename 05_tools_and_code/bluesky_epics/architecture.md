@@ -105,7 +105,7 @@ a ZMQ-based service.
 - The server executes plans sequentially (or with configurable concurrency).
 - Status and results are accessible via REST API or the `bluesky-widgets` GUI.
 
-## Integration Pattern for eBERlight
+## Integration Pattern for APS
 
 1. **Data collection** -- Bluesky plan executes an XRF raster scan via EPICS
    motors and areaDetector.

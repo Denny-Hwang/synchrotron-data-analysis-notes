@@ -1,6 +1,6 @@
 # X-ray Modalities
 
-This section documents the six primary X-ray modalities used in the eBERlight program.
+This section documents the six primary X-ray modalities used in the APS BER program.
 Each modality exploits different X-ray–matter interactions to reveal complementary
 aspects of sample structure and composition.
 

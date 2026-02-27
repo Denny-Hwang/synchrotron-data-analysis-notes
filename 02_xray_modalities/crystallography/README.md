@@ -12,7 +12,7 @@ produced when X-rays interact with a crystal lattice.
 - Each diffraction spot intensity encodes structural information
 - Phase problem: intensities are measured but phases must be determined computationally
 
-### Variants at eBERlight
+### Variants at APS
 
 | Variant | Description | Crystal Size | Data Collection |
 |---------|-------------|-------------|-----------------|
@@ -39,7 +39,7 @@ Goniometer + Crystal ──→ Diffraction pattern ──→ Pixel Array Detecto
 Cryo-stream (100 K)
 ```
 
-### eBERlight Beamlines
+### APS BER Beamlines
 - **21-ID-D**: Tunable energy (6.5–20 keV), EIGER 16M, automated sample changer
 - **21-ID-F**: Fixed energy (12.7 keV), high-throughput screening
 - **21-ID-G**: Tunable, serial crystallography capabilities
@@ -68,7 +68,7 @@ Cryo-stream (100 K)
 | Processed structure factors | 10–100 MB |
 | Final PDB model | 1–10 MB |
 
-## eBERlight Applications
+## APS BER Applications
 
 - **Structural enzymology**: Enzyme structures relevant to carbon/nitrogen cycling in soils
 - **Metalloprotein structures**: Iron-sulfur clusters, manganese centers, zinc fingers

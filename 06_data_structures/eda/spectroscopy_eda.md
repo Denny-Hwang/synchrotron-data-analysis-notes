@@ -8,7 +8,7 @@ the absorption coefficient as a function of incident photon energy across an ele
 absorption edge. EDA for spectroscopy data focuses on verifying edge alignment, assessing
 noise levels, checking normalization quality, and identifying spectral outliers.
 
-At eBERlight beamlines, spectroscopy data may be collected as:
+At APS BER beamlines, spectroscopy data may be collected as:
 - **Point spectra** -- Single-location energy scans (1D: energy vs. absorption)
 - **Spectral imaging** -- XANES stacks where a full image is collected at each energy
   point (3D: energy x rows x cols)

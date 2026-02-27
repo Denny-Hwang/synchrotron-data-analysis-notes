@@ -115,16 +115,16 @@ Xilinx Alveo for FPGA) directly at the beamline.
 
 ---
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
-This paper is a cornerstone reference for eBERlight's real-time feedback architecture:
+This paper is a cornerstone reference for the BER program's real-time feedback architecture:
 
 - **Latency requirements**: The < 5 ms end-to-end latency establishes the benchmark
-  for eBERlight's real-time decision-making loop at coherent imaging beamlines.
-- **Edge compute strategy**: eBERlight can adopt the same Jetson Orin / FPGA edge
+  for the BER program's real-time decision-making loop at coherent imaging beamlines.
+- **Edge compute strategy**: The BER program can adopt the same Jetson Orin / FPGA edge
   deployment model for other modalities (XRF spectral fitting, XANES classification)
   where millisecond-scale inference is needed.
-- **Adaptive ptychography**: With real-time phase images available, eBERlight's
+- **Adaptive ptychography**: With real-time phase images available, the BER program's
   scan planner can adjust overlap ratios, skip redundant positions, or zoom into
   features of interest mid-scan.
 - **APS-U readiness**: The 2--3 kHz throughput is well-matched to expected APS-U
@@ -135,11 +135,11 @@ This paper is a cornerstone reference for eBERlight's real-time feedback archite
 ## Actionable Takeaways
 
 1. **Procure edge hardware**: Acquire NVIDIA Jetson Orin modules and Xilinx Alveo
-   boards for eBERlight beamline hutches at APS-U ptychography endstations.
+   boards for BER program beamline hutches at APS-U ptychography endstations.
 2. **Retrain on APS-U probe**: Generate APS-U-specific training data using measured
    probe functions and coherence properties from commissioning.
 3. **Streaming integration**: Integrate the detector-to-edge RDMA pipeline with
-   eBERlight's Bluesky/Tiled data infrastructure for seamless live reconstruction.
+   the BER program's Bluesky/Tiled data infrastructure for seamless live reconstruction.
 4. **Extend to ptycho-tomo**: Develop a 3D extension that reconstructs ptychographic
    tomography volumes in streaming mode by accumulating CNN-reconstructed projections.
 5. **Quality monitoring**: Implement online NRMSE tracking that triggers fallback
@@ -148,4 +148,4 @@ This paper is a cornerstone reference for eBERlight's real-time feedback archite
 
 ---
 
-*Reviewed for the eBERlight Research Archive, 2026-02-27.*
+*Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*

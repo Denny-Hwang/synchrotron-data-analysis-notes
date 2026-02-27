@@ -118,7 +118,7 @@ then transition to open access under CC-BY 4.0 licensing.
 
 ## DOI Assignment
 
-1. PI requests DOI via the eBERlight data portal.
+1. PI requests DOI via the APS BER data portal.
 2. Metadata is validated against DataCite schema.
 3. DOI is minted through Argonne's DataCite membership.
 4. Landing page is created on Petrel with download links.

@@ -8,7 +8,7 @@ enables faster acquisitions, higher spatial resolution, and new experimental mod
 but it also drives a dramatic increase in data generation rates and total volumes that
 fundamentally changes how data must be managed, stored, and processed.
 
-This document quantifies the data scale challenge facing eBERlight and the broader APS
+This document quantifies the data scale challenge facing the BER program and the broader APS
 user community.
 
 ## Detector Technology Evolution
@@ -85,7 +85,7 @@ user community.
 | Metric | Pre-APS-U (2023) | Post-APS-U (2025+) |
 |--------|-------------------|---------------------|
 | Operating days per year | 200 | 200 |
-| Active beamlines (eBERlight) | 12 | 15 |
+| Active beamlines (BER program) | 12 | 15 |
 | Avg daily volume per beamline | 300 GB | 15 TB |
 | **Annual raw data** | **720 TB** | **45 PB** |
 | Processed / derived data | 200 TB | 15 PB |
@@ -116,7 +116,7 @@ analyze it in real time:
 | ALCF Eagle | 100 PB | 650 GB/s aggregate | HPC processing |
 | Tape archive (HPSS) | 500+ PB | Batch transfer | Long-term archival |
 
-## Implications for eBERlight
+## Implications for the BER Program
 
 ### Data Management
 
@@ -150,7 +150,7 @@ Post-APS-U processing demands for a single beamline:
 
 ## Summary
 
-The APS-U upgrade increases eBERlight data volumes by **50--200x** depending on modality.
+The APS-U upgrade increases BER program data volumes by **50--200x** depending on modality.
 Annual facility-wide storage needs grow from approximately 1 PB to 60 PB. This scale
 demands automated data pipelines, GPU-accelerated processing, intelligent data reduction
 at the edge, and AI/ML-driven analysis to maintain the pace of scientific discovery.

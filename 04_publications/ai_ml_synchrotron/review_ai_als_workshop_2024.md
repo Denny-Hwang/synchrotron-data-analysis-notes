@@ -174,31 +174,31 @@ Quantitative survey findings:
 
 ---
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
 This workshop report is a strategic planning document with direct applicability to
-eBERlight's mission and organizational design:
+the BER program's mission and organizational design:
 
 - **Needs validation**: The survey findings (78% of users cite analysis as their
   primary bottleneck, 61% of beamlines want ML but lack resources) provide
-  quantitative external validation for eBERlight's core mission and justify the
+  quantitative external validation for the BER program's core mission and justify the
   investment in AI-driven synchrotron science.
-- **Priority alignment**: eBERlight's focus areas -- autonomous experiments, real-
+- **Priority alignment**: The BER program's focus areas -- autonomous experiments, real-
   time reconstruction, and adaptive scanning -- align precisely with the workshop's
   top two priority recommendations, confirming strategic direction.
 - **Infrastructure blueprint**: The three-tier computing architecture (edge, on-
   premises, HPC) and data platform recommendations (FAIR metadata, Tiled/Databroker)
-  should directly inform eBERlight's infrastructure procurement and deployment
+  should directly inform the BER program's infrastructure procurement and deployment
   decisions.
-- **MLOps roadmap**: eBERlight should build the standardized ML model lifecycle
+- **MLOps roadmap**: The BER program should build the standardized ML model lifecycle
   infrastructure (training, validation, deployment, monitoring, retraining with
   drift detection) that the report identifies as absent across all DOE facilities.
-- **Workforce strategy**: eBERlight's staffing plan should include embedded ML/data
+- **Workforce strategy**: The BER program's staffing plan should include embedded ML/data
   scientists at target beamlines, consistent with the workshop's workforce
   recommendations, to ensure sustained capability beyond initial deployment.
 - **Multi-facility coordination**: The report's emphasis on cross-facility
   benchmarking, shared model repositories, and common software stacks supports
-  eBERlight's role in coordinating AI/ML efforts across APS, ALS, NSLS-II, and
+  the BER program's role in coordinating AI/ML efforts across APS, ALS, NSLS-II, and
   other DOE light sources.
 
 ---
@@ -206,17 +206,17 @@ eBERlight's mission and organizational design:
 ## Actionable Takeaways
 
 1. **Conduct APS-specific survey**: Replicate the AI@ALS survey at APS to quantify
-   ML adoption, barriers, and demand specific to eBERlight's target beamlines,
+   ML adoption, barriers, and demand specific to the BER program's target beamlines,
    providing a local baseline for measuring progress.
 2. **Adopt FAIR data practices**: Prioritize facility-wide deployment of Tiled/
-   Databroker with standardized metadata schemas across all eBERlight beamlines
+   Databroker with standardized metadata schemas across all BER program beamlines
    as foundational data infrastructure.
 3. **Build MLOps pipeline**: Implement a standardized ML model lifecycle framework
    (MLflow, Weights & Biases, or custom tooling) for training, versioning,
-   deploying, monitoring, and retraining models at eBERlight beamlines, with
+   deploying, monitoring, and retraining models at BER program beamlines, with
    automated drift detection and alerting.
 4. **Procure three-tier compute**: Budget for GPU/FPGA edge compute at each
-   eBERlight-affiliated beamline, an on-premises GPU training cluster, and HPC
+   BER program-affiliated beamline, an on-premises GPU training cluster, and HPC
    allocations for large-scale training and archival reprocessing.
 5. **Workforce investment**: Develop a synchrotron-ML training curriculum for
    beamline scientists and hire embedded data scientists at priority beamlines,
@@ -246,4 +246,4 @@ eBERlight's mission and organizational design:
 
 ---
 
-*Reviewed for the eBERlight Research Archive, 2026-02-27.*
+*Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*

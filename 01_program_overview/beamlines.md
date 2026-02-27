@@ -1,6 +1,6 @@
-# eBERlight Beamlines
+# BER Program Beamlines
 
-eBERlight operates **15 beamlines** at the Advanced Photon Source, organized into five
+The BER program operates **15 beamlines** at the Advanced Photon Source, organized into five
 technique categories. Each beamline is optimized for specific experimental modalities
 relevant to biological and environmental research.
 
@@ -115,7 +115,7 @@ relevant to biological and environmental research.
 
 ## Post APS-U Enhancements
 
-All eBERlight beamlines benefit from APS-U improvements:
+All BER program beamlines benefit from APS-U improvements:
 
 - **Crystallography**: Smaller, more intense beams enable microcrystallography and faster serial data collection
 - **Imaging**: Higher coherence enables phase-contrast tomography as routine capability

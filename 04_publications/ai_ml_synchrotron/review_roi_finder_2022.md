@@ -218,42 +218,42 @@ sufficient for testing the pipeline.
 
 ---
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
 ROI-Finder directly addresses the scan-strategy optimization problem central to
-eBERlight's goal of intelligent beamline automation:
+the BER program's goal of intelligent beamline automation:
 
 - **Applicable beamlines**: Any XRF microprobe beamline at APS, including upgraded
   sector 2 beamlines (2-ID-E, 2-ID-D) and the Bionanoprobe (9-ID). Also applicable
   to micro-XRD beamlines using survey-then-target workflows.
 - **Baseline for autonomous scanning**: ROI-Finder's ranked candidates could
-  initialize the prior for eBERlight's adaptive sampling algorithms (Bayesian
+  initialize the prior for the BER program's adaptive sampling algorithms (Bayesian
   optimization, reinforcement learning-based scan planners).
 - **Bluesky integration template**: The pipeline provides a model for integrating
   classical ML analysis into the Bluesky/Tiled data infrastructure. A Bluesky plan
   that runs coarse survey -> ROI-Finder -> fine scan would close the autonomous
   experiment loop.
 - **Low deployment barrier**: Unsupervised, no GPU needed, open source, and fast.
-  eBERlight can deploy this at partner beamlines within 1-2 weeks.
+  Can be deployed at partner beamlines within 1-2 weeks.
 - **Priority**: **High** -- practical, deployable tool addressing a real operational
-  need that aligns directly with eBERlight's core mission.
+  need that aligns directly with the BER program's core mission.
 
 ---
 
 ## Actionable Takeaways
 
 1. **Benchmark baseline**: Integrate ROI-Finder as the "classical ML baseline" in
-   eBERlight's scan-planning evaluation suite for XRF beamlines.
+   the BER program's scan-planning evaluation suite for XRF beamlines.
 2. **Auto-k selection**: Extend fuzzy k-means with silhouette-based or gap-statistic
-   automatic cluster number selection before deploying at eBERlight beamlines.
+   automatic cluster number selection before deploying at APS BER beamlines.
 3. **Format adapter**: Write a thin HDF5 adapter to ingest APS-U and NSLS-II XRF
    data formats into ROI-Finder's pipeline without modifying the core algorithm.
-4. **Hybrid approach**: Feed ROI-Finder cluster maps into eBERlight's Bayesian
+4. **Hybrid approach**: Feed ROI-Finder cluster maps into the BER program's Bayesian
    optimization loop as informative spatial priors for adaptive scanning.
-5. **Latency target**: The < 60 s runtime sets a useful reference point; eBERlight's
+5. **Latency target**: The < 60 s runtime sets a useful reference point; the BER program's
    DL-based alternatives should aim for comparable or faster inference.
 6. **Expert feedback collection**: Run ROI-Finder alongside expert selection during
-   eBERlight beamtimes and collect accept/reject data for future learning-based
+   beamtimes and collect accept/reject data for future learning-based
    scoring.
 
 ---
@@ -275,7 +275,7 @@ on the enhanced map.
 
 | Field | Value |
 |-------|-------|
-| **Reviewed by** | eBERlight AI/ML Team |
+| **Reviewed by** | APS BER AI/ML Team |
 | **Review date** | 2025-10-15 |
 | **Last updated** | 2025-10-15 |
 | **Tags** | XRF, clustering, unsupervised, PCA, fuzzy-c-means, ROI, autonomous, beamline |

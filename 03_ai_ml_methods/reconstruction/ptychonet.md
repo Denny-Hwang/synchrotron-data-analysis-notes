@@ -157,7 +157,7 @@ This hybrid approach achieves:
 - Quality equivalent to full iterative methods
 - Best of both worlds: DL speed + physics-based accuracy
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
 ### Beamline Integration (33-ID-C, 2-ID-E)
 - Real-time reconstruction feedback during ptychographic scans

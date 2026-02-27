@@ -116,29 +116,29 @@ a single tomographic scan rotation.
 
 ---
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
-This paper provides a systems-level template for eBERlight's real-time analysis
+This paper provides a systems-level template for the BER program's real-time analysis
 infrastructure:
 
-- **Pipeline architecture**: eBERlight can adopt the producer-consumer, stage-
+- **Pipeline architecture**: The BER program can adopt the producer-consumer, stage-
   overlapped design for its own multi-stage analysis pipelines across modalities
   (not just tomography).
 - **ALCF integration**: The Globus-based data fabric and ALCF resource allocation
-  patterns demonstrated here directly apply to eBERlight's planned use of ALCF
+  patterns demonstrated here directly apply to the BER program's planned use of ALCF
   for GPU inference and training.
 - **Latency benchmarks**: The < 60 s end-to-end latency establishes a target
-  for eBERlight's tomography pipeline; APS-U's higher data rates will require
+  for the BER program's tomography pipeline; APS-U's higher data rates will require
   further optimization.
 - **Feedback loop**: The web-based visualization component is a starting point
-  for eBERlight's operator dashboard, though it needs to be extended with
+  for the BER program's operator dashboard, though it needs to be extended with
   automated decision-making capabilities.
 
 ---
 
 ## Actionable Takeaways
 
-1. **Adopt producer-consumer staging**: Implement eBERlight's analysis pipelines
+1. **Adopt producer-consumer staging**: Implement the BER program's analysis pipelines
    using ZeroMQ or Kafka message queues for stage-level parallelism and decoupling.
 2. **Upgrade to Bluesky/Tiled**: Replace the custom data streaming layer with
    Bluesky event model and Tiled for metadata-rich, facility-standard data flow.
@@ -151,4 +151,4 @@ infrastructure:
 
 ---
 
-*Reviewed for the eBERlight Research Archive, 2026-02-27.*
+*Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*

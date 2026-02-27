@@ -215,24 +215,24 @@ but the general approach is fully reproducible.
 
 ---
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
-TomoGAN is directly relevant to eBERlight's dose-optimization and throughput goals:
+TomoGAN is directly relevant to the BER program's dose-optimization and throughput goals:
 
 - **Applicable beamlines**: All tomography beamlines at APS, including 2-BM,
-  32-ID, and any eBERlight partner beamlines performing micro-CT. Also potentially
+  32-ID, and any partner beamlines performing micro-CT. Also potentially
   applicable to ptychographic tomography data.
-- **Dose-adaptive scanning**: eBERlight's scan planner could use TomoGAN to
+- **Dose-adaptive scanning**: The BER program's scan planner could use TomoGAN to
   maintain image quality while reducing dose in radiation-sensitive regions,
   enabling heterogeneous dose allocation across a sample.
 - **Real-time pipeline integration**: The ~15 ms inference time fits within
-  eBERlight's latency budget for streaming reconstruction at APS-U frame rates.
+  the BER program's latency budget for streaming reconstruction at APS-U frame rates.
   Integration with Bluesky/Tiled as a post-reconstruction callback is
   straightforward.
-- **Training data generation**: eBERlight could automate collection of paired dose
+- **Training data generation**: The BER program could automate collection of paired dose
   datasets during commissioning runs to build facility-specific TomoGAN models.
 - **Uncertainty extension**: Coupling TomoGAN with Monte Carlo dropout or ensemble
-  methods could provide pixel-wise uncertainty maps for eBERlight's automated
+  methods could provide pixel-wise uncertainty maps for the program's automated
   quality control.
 - **Priority**: **High** -- denoising is a ubiquitous need, and TomoGAN represents
   a well-validated approach with Argonne pedigree. Deployment should be accompanied
@@ -253,7 +253,7 @@ TomoGAN is directly relevant to eBERlight's dose-optimization and throughput goa
    strategies that eliminate the need for paired high-dose ground truth, reducing
    retraining cost for new sample types.
 5. **Integrate with Bluesky**: Package TomoGAN inference as a Bluesky callback for
-   on-the-fly denoising during live reconstruction at eBERlight beamlines.
+   on-the-fly denoising during live reconstruction at APS BER beamlines.
 6. **Hallucination benchmarking**: Develop a test suite using known-structure
    phantoms to quantify hallucination rates at different dose reduction levels.
 
@@ -264,7 +264,7 @@ TomoGAN is directly relevant to eBERlight's dose-optimization and throughput goa
 TomoGAN is one of the most cited deep learning papers in the synchrotron
 tomography community and has been widely adopted as a benchmark for AI-based
 denoising. Its Argonne pedigree (developed at APS with real 2-BM data) makes it
-particularly relevant to eBERlight. The full-stack pipeline paper reviewed in
+particularly relevant to the APS BER program. The full-stack pipeline paper reviewed in
 `review_fullstack_dl_tomo_2023.md` provides the broader context for where
 TomoGAN-style denoising fits within the complete tomographic workflow, and the
 real-time HPC pipeline in `review_realtime_uct_hpc_2020.md` demonstrates how
@@ -276,7 +276,7 @@ TomoGAN has been integrated into streaming analysis systems.
 
 | Field | Value |
 |-------|-------|
-| **Reviewed by** | eBERlight AI/ML Team |
+| **Reviewed by** | APS BER AI/ML Team |
 | **Review date** | 2025-10-16 |
 | **Last updated** | 2025-10-16 |
 | **Tags** | tomography, GAN, denoising, dose-reduction, deep-learning, real-time |

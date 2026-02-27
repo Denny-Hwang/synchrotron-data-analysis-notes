@@ -53,7 +53,7 @@ Pixelated area detector (in far field)
 Diffraction pattern per scan position
 ```
 
-### eBERlight Beamlines
+### APS BER Beamlines
 
 | Beamline | Source | Resolution | Energy | Specialty |
 |----------|--------|-----------|--------|-----------|
@@ -136,7 +136,7 @@ Diffraction patterns + scan positions
             └── Phase image (electron density / refractive index)
 ```
 
-## eBERlight Applications
+## APS BER Applications
 
 - **Microbiology**: Unstained cell ultrastructure at nanometer resolution
 - **Plant science**: Cell wall nanostructure, organelle imaging

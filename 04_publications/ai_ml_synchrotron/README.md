@@ -6,7 +6,7 @@ This directory contains in-depth reviews of key publications at the intersection
 of artificial intelligence, machine learning, and synchrotron X-ray science.
 Each review follows the standardized template defined in
 `../template_paper_review.md` and includes an explicit assessment of relevance
-to the eBERlight program at the Advanced Photon Source (APS).
+to the APS BER program at the Advanced Photon Source (APS).
 
 The collection spans foundational methods (2013-2019), mature techniques
 (2020-2022), and cutting-edge developments (2023-2024), providing a
@@ -129,7 +129,7 @@ provides a logical progression:
 ## Cross-References
 
 - `../template_paper_review.md` -- Review template
-- `../eberlight_publications.md` -- eBERlight program publications
+- `../ber_program_publications.md` -- BER program publications
 - `../../03_ai_ml_methods/` -- Background on AI/ML techniques
 - `../../05_tools_and_code/` -- Software tools referenced in reviews
 

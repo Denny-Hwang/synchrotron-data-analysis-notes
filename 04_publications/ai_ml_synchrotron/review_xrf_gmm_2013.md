@@ -222,22 +222,22 @@ results would require access to similar cryo-XRF data from infected erythrocytes
 
 ---
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
-This paper is relevant to eBERlight in several key respects:
+This paper is relevant to the APS BER program in several key respects:
 
 - **Applicable beamlines**: Directly applicable to all XRF microprobe beamlines at
-  APS, including upgraded sector 2 beamlines and any eBERlight partner beamlines
+  APS, including upgraded sector 2 beamlines and any partner beamlines
   performing XRF imaging on biological, environmental, or materials science samples.
 - **Baseline clustering method**: GMM soft clustering provides a principled
-  comparison point for any neural-network-based XRF segmentation eBERlight
+  comparison point for any neural-network-based XRF segmentation the BER program
   develops. It serves as the "classical statistics" baseline against which DL
   approaches must demonstrate added value.
 - **Uncertainty-guided scanning**: The posterior probability outputs from GMMs could
-  feed directly into eBERlight's adaptive scanning framework, directing the next
+  feed directly into the BER program's adaptive scanning framework, directing the next
   scan to regions of high assignment uncertainty (high entropy in the posterior)
   where additional measurement would be most informative.
-- **Poisson-aware extensions**: eBERlight could extend this approach using Poisson
+- **Poisson-aware extensions**: The BER program could extend this approach using Poisson
   mixture models that directly model photon-counting statistics, or variational
   autoencoders that combine nonlinear representation learning with probabilistic
   assignments.
@@ -251,14 +251,14 @@ This paper is relevant to eBERlight in several key respects:
 
 ## Actionable Takeaways
 
-1. **Implement GMM baseline**: Add scikit-learn-based GMM clustering to eBERlight's
+1. **Implement GMM baseline**: Add scikit-learn-based GMM clustering to the BER program's
    XRF analysis toolkit as a standard segmentation method, with BIC-based model
    selection and visualization of posterior probability maps.
 2. **Uncertainty-guided scanning**: Use GMM posterior entropy maps to guide adaptive
-   dwell-time allocation in eBERlight's scan planner -- spend more time measuring
+   dwell-time allocation in the BER program's scan planner -- spend more time measuring
    regions where the segmentation is uncertain.
 3. **Benchmark against ROI-Finder**: Compare GMM soft clustering with the FCM
-   approach in ROI-Finder (`review_roi_finder_2022.md`) on eBERlight commissioning
+   approach in ROI-Finder (`review_roi_finder_2022.md`) on commissioning
    data to determine which provides more useful spatial decompositions.
 4. **Noise model upgrade**: Replace the Gaussian likelihood with Poisson or negative
    binomial to better match photon-counting XRF statistics, potentially improving
@@ -294,7 +294,7 @@ statistical rigor of mixture models.
 
 | Field | Value |
 |-------|-------|
-| **Reviewed by** | eBERlight AI/ML Team |
+| **Reviewed by** | APS BER AI/ML Team |
 | **Review date** | 2025-10-15 |
 | **Last updated** | 2025-10-15 |
 | **Tags** | XRF, GMM, clustering, unsupervised, probabilistic, subcellular, malaria, biological |

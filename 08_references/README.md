@@ -1,6 +1,6 @@
 # References
 
-This section provides comprehensive reference materials for the eBERlight Research Archive.
+This section provides comprehensive reference materials for Synchrotron Data Analysis Notes.
 
 ## Contents
 
@@ -8,7 +8,7 @@ This section provides comprehensive reference materials for the eBERlight Resear
 |------|-------------|
 | [bibliography.bib](bibliography.bib) | BibTeX file for all cited papers |
 | [glossary.md](glossary.md) | Synchrotron science terminology glossary |
-| [useful_links.md](useful_links.md) | URLs: eBERlight, APS, tools, datasets, tutorials |
+| [useful_links.md](useful_links.md) | URLs: APS BER program, APS, tools, datasets, tutorials |
 
 ## Usage
 

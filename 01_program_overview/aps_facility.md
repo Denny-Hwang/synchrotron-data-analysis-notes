@@ -91,9 +91,9 @@ The APS-U creates unprecedented data challenges due to dramatically increased da
 - **Globus**: High-speed data transfer service connecting APS to remote computing resources
 - **Edge computing**: FPGA and GPU-based edge devices at beamlines for real-time analysis
 
-## Significance for eBERlight
+## Significance for APS BER Program
 
-The APS-U directly benefits eBERlight science through:
+The APS-U directly benefits BER program science through:
 
 - **Higher spatial resolution**: Resolve finer structures in biological/environmental samples
 - **Faster data collection**: Enable time-resolved studies of dynamic processes

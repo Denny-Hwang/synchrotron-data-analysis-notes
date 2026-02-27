@@ -2,7 +2,7 @@
 
 ## Overview
 
-Comprehensive Mermaid-based diagrams of the eBERlight data pipeline showing
+Comprehensive Mermaid-based diagrams of the APS BER data pipeline showing
 component interactions, data format conversions, and system interfaces.
 
 ## Full System Architecture

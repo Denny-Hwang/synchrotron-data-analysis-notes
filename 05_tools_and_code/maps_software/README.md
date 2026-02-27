@@ -36,7 +36,7 @@ elemental concentration maps.
 - Available to APS users via the beamline computing environment.
 - Contact: Stefan Vogt, XSD / APS.
 
-## Integration with eBERlight
+## Integration with APS
 
 The ROI Finder pipeline (see `../roi_finder/`) reads MAPS HDF5 output as its
 primary input format. The `/MAPS/XRF_fits` dataset provides the multi-element

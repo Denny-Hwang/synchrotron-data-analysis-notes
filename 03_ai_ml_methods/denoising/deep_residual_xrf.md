@@ -106,7 +106,7 @@ Approach 2: Simulated degradation
 4. **Probe model**: Performance depends on accuracy of probe characterization
 5. **Validation**: Difficult to validate resolution claims without independent measurement
 
-## Application to eBERlight
+## Application to APS BER Program
 
 ### Potential Impact
 - **2-ID-D nanoprobe**: Enhance 100-200 nm maps to sub-100 nm effective resolution

@@ -187,26 +187,26 @@ compared to full ePIE while approaching its reconstruction quality.
 
 ---
 
-## Relevance to eBERlight
+## Relevance to APS BER Program
 
-PtychoNet is a foundational reference for eBERlight's AI-accelerated coherent
+PtychoNet is a foundational reference for the BER program's AI-accelerated coherent
 imaging strategy:
 
 - **AI@Edge lineage**: PtychoNet established the CNN-for-ptychography paradigm that
   directly evolved into the real-time edge deployment work by Babu et al. (2023,
   Nature Communications). Understanding PtychoNet's architecture, training approach,
-  and limitations is essential context for eBERlight's edge compute deployment plans.
+  and limitations is essential context for the BER program's edge compute deployment plans.
 - **Hybrid reconstruction paradigm**: The CNN + few-iteration refinement strategy
-  maps directly onto eBERlight's planned tiered reconstruction architecture, where
+  maps directly onto the BER program's planned tiered reconstruction architecture, where
   fast CNN inference provides millisecond-scale feedback for adaptive scanning and
   full iterative reconstruction runs asynchronously on HPC for archival-quality
   results.
-- **Training data infrastructure**: eBERlight should build on PtychoNet's simulation-
+- **Training data infrastructure**: The BER program should build on PtychoNet's simulation-
   based training approach, extending the forward model to incorporate APS-U probe
   functions, partial coherence characteristics, and detector-specific noise models.
 - **Applicable beamlines**: APS 26-ID (CNM nanoprobe), 2-ID-D, and future APS-U
   coherent imaging endstations.
-- **Priority**: High -- as the foundational work underpinning eBERlight's
+- **Priority**: High -- as the foundational work underpinning the BER program's
   ptychography reconstruction pipeline.
 
 ---
@@ -214,7 +214,7 @@ imaging strategy:
 ## Actionable Takeaways
 
 1. **Reimplement and benchmark**: Build an open-source PtychoNet implementation in
-   PyTorch as part of eBERlight's ptychography toolkit; benchmark against PtychoNN,
+   PyTorch as part of the BER program's ptychography toolkit; benchmark against PtychoNN,
    the Babu et al. edge model, and unrolled optimization approaches.
 2. **Scale to APS-U detectors**: Extend the architecture to handle 256x256 or
    512x512 diffraction patterns natively to match APS-U detector dimensions,
@@ -226,7 +226,7 @@ imaging strategy:
    small amounts of experimental data to bridge the sim-to-real gap, enabling rapid
    deployment at new beamline configurations.
 5. **Integrate with scan planner**: Use PtychoNet-style fast reconstruction to
-   provide live phase-image feedback for eBERlight's adaptive scan path optimizer,
+   provide live phase-image feedback for the BER program's adaptive scan path optimizer,
    enabling overlap reduction and region-of-interest zoom during experiments.
 
 ---
@@ -251,4 +251,4 @@ imaging strategy:
 
 ---
 
-*Reviewed for the eBERlight Research Archive, 2026-02-27.*
+*Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*

@@ -1,20 +1,20 @@
-# eBERlight-Attributed Publications (2023-2025)
+# BER Program-Attributed Publications (2023-2025)
 
 ## Overview
 
-The eBERlight program launched in **October 2023** at the Advanced Photon Source
+The BER program launched in **October 2023** at the Advanced Photon Source
 (APS), Argonne National Laboratory. As a relatively new initiative coinciding
 with the APS Upgrade (APS-U) era, the program's earliest publications are
 emerging from **commissioning activities**, initial beamline characterization,
 and proof-of-concept AI/ML integrations performed during the first operational
 cycles.
 
-This document provides a high-level overview of eBERlight-attributed
+This document provides a high-level overview of BER program-attributed
 publications. A comprehensive and continuously updated list is maintained on the
-**official eBERlight website** and in the APS publications database.
+**official program website** and in the APS publications database.
 
 > **Canonical publication list:**
-> Refer to the eBERlight program website for the authoritative, up-to-date
+> Refer to the program website for the authoritative, up-to-date
 > publication list. This document is a snapshot intended for offline reference
 > and internal planning.
 
@@ -42,7 +42,7 @@ Key activities that seeded later publications:
 
 ### 2024 -- Early Results & Method Development
 
-As the APS-U beamlines reached operational maturity, eBERlight began producing
+As the APS-U beamlines reached operational maturity, the BER program began producing
 results from its AI/ML integration efforts:
 
 - **AI-assisted data reduction** -- early demonstrations of real-time denoising
@@ -50,17 +50,17 @@ results from its AI/ML integration efforts:
 - **Workflow automation** -- publications describing the integration of
   autonomous experiment steering with Bluesky/Tiled infrastructure
 - **Collaborative papers** -- contributions to multi-institutional studies
-  leveraging eBERlight's computing and algorithmic capabilities
+  leveraging the BER program's computing and algorithmic capabilities
 - **Workshop contributions** -- presentations and proceedings from the AI for
   Synchrotron Science workshops, including contributions to the AI@ALS workshop
   (reviewed separately in this archive)
 
 ### 2025 -- Maturing Pipeline & User Science
 
-With beamlines fully operational and the AI/ML pipeline stabilized, eBERlight
+With beamlines fully operational and the AI/ML pipeline stabilized, the BER program's
 publications in 2025 are expected to span:
 
-- **User science papers** where eBERlight AI/ML tools enabled new measurements
+- **User science papers** where the BER program's AI/ML tools enabled new measurements
   or accelerated data analysis for general user experiments
 - **Methods papers** describing novel algorithms developed within the program
   (e.g., self-supervised denoising for low-dose XRF, real-time segmentation for
@@ -74,9 +74,9 @@ publications in 2025 are expected to span:
 
 ## Publication Categories
 
-### Category 1: Core eBERlight Methods
+### Category 1: Core BER Program Methods
 
-Papers where eBERlight team members are primary authors and the work was
+Papers where BER program team members are primary authors and the work was
 primarily conducted within the program.
 
 | # | Title (abbreviated) | Authors | Status | Target Journal |
@@ -85,10 +85,10 @@ primarily conducted within the program.
 
 ### Category 2: Collaborative / Multi-Beamline
 
-Papers where eBERlight contributed AI/ML analysis, computing infrastructure, or
+Papers where the BER program contributed AI/ML analysis, computing infrastructure, or
 algorithmic support to experiments led by other groups.
 
-| # | Title (abbreviated) | eBERlight Contribution | Status |
+| # | Title (abbreviated) | BER Program Contribution | Status |
 |---|---------------------|----------------------|--------|
 | _1_ | _To be added_ | -- | -- |
 
@@ -112,7 +112,7 @@ Works in progress, arXiv preprints, and internal technical reports.
 
 ## Acknowledgment & Attribution Guidelines
 
-All publications benefiting from eBERlight resources should include the
+All publications benefiting from the BER program's resources should include the
 following acknowledgment (or equivalent):
 
 > This research used resources of the Advanced Photon Source, a U.S. Department
@@ -120,8 +120,8 @@ following acknowledgment (or equivalent):
 > Laboratory, and was supported by the eBERlight program under Contract No.
 > DE-AC02-06CH11357.
 
-For papers where eBERlight's AI/ML tools were used but the primary science is
-outside the program, co-authorship of relevant eBERlight team members should be
+For papers where the BER program's AI/ML tools were used but the primary science is
+outside the program, co-authorship of relevant BER program team members should be
 discussed and offered where appropriate per APS authorship guidelines.
 
 ---
@@ -132,7 +132,7 @@ As the publication portfolio grows, the following metrics will be tracked:
 
 - Total publications per year
 - Citations (tracked via Google Scholar and Web of Science)
-- Beamline coverage (which beamlines have eBERlight-enabled publications)
+- Beamline coverage (which beamlines have BER program-enabled publications)
 - User vs. staff-led publications ratio
 - Code/data release rate (fraction of papers with open code and data)
 
@@ -140,21 +140,21 @@ As the publication portfolio grows, the following metrics will be tracked:
 
 ## How to Add a Publication
 
-1. Verify the publication acknowledges eBERlight appropriately.
+1. Verify the publication acknowledges the BER program appropriately.
 2. Add the entry to the relevant category table above.
 3. If the publication involves a novel AI/ML method, consider creating a
    detailed review using `template_paper_review.md` and adding it to the
    `ai_ml_synchrotron/` directory.
-4. Update the canonical list on the eBERlight website.
+4. Update the canonical list on the program website.
 5. Commit changes with: `docs(pubs): add <Author> <Year> to publication list`.
 
 ---
 
 ## Contact
 
-For questions about eBERlight publications or to report a missing entry:
+For questions about BER program publications or to report a missing entry:
 
-- eBERlight program coordinators
+- BER program coordinators
 - APS Scientific Publications Office
 
 ---
