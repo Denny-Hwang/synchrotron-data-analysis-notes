@@ -1,0 +1,100 @@
+sections:
+  - id: "01_program_overview"
+    title: "Program Overview"
+    icon: "🏠"
+    description: "eBERlight program mission, APS facility, beamlines, partners, and research domains"
+    files:
+      - path: "01_program_overview/README.md"
+        title: "Mission & Overview"
+        level: L1
+        tags: [overview, mission, BER, DOE]
+      - path: "01_program_overview/aps_facility.md"
+        title: "APS Facility"
+        level: L2
+        tags: [APS, facility, APS-U, upgrade]
+      - path: "01_program_overview/beamlines.md"
+        title: "Beamlines"
+        level: L2
+        tags: [beamline, facility]
+      - path: "01_program_overview/partner_facilities.md"
+        title: "Partner Facilities"
+        level: L2
+        tags: [NSLS-II, SSRL, partners]
+      - path: "01_program_overview/research_domains.md"
+        title: "Research Domains"
+        level: L2
+        tags: [biology, environment, soil, plant, microbiome]
+
+  - id: "02_xray_modalities"
+    title: "X-ray Modalities"
+    icon: "🔬"
+    description: "Six X-ray measurement techniques used at APS beamlines"
+    files:
+      - path: "02_xray_modalities/README.md"
+        title: "Modalities Overview"
+        level: L1
+        tags: [modality, X-ray, overview]
+
+  - id: "03_ai_ml_methods"
+    title: "AI/ML Methods"
+    icon: "🤖"
+    description: "Machine learning and AI methods applied to synchrotron data analysis"
+    files:
+      - path: "03_ai_ml_methods/README.md"
+        title: "AI/ML Overview"
+        level: L1
+        tags: [AI, ML, deep-learning, overview]
+
+  - id: "04_publications"
+    title: "Publications"
+    icon: "📚"
+    description: "Paper reviews and publication archive for synchrotron AI/ML research"
+    files:
+      - path: "04_publications/README.md"
+        title: "Publications Overview"
+        level: L1
+        tags: [publications, review, papers]
+      - path: "04_publications/ber_program_publications.md"
+        title: "BER Program Publications"
+        level: L2
+        tags: [BER, publications]
+
+  - id: "05_tools_and_code"
+    title: "Tools & Code"
+    icon: "🛠️"
+    description: "Open-source tools and software for synchrotron data processing"
+    files:
+      - path: "05_tools_and_code/README.md"
+        title: "Tools Overview"
+        level: L1
+        tags: [tools, software, open-source]
+
+  - id: "06_data_structures"
+    title: "Data Structures"
+    icon: "📊"
+    description: "HDF5 schemas, data scale analysis, and exploratory data analysis"
+    files:
+      - path: "06_data_structures/README.md"
+        title: "Data Structures Overview"
+        level: L1
+        tags: [data, HDF5, schema]
+
+  - id: "07_data_pipeline"
+    title: "Data Pipeline"
+    icon: "🔄"
+    description: "End-to-end data pipeline from acquisition to storage"
+    files:
+      - path: "07_data_pipeline/README.md"
+        title: "Pipeline Overview"
+        level: L1
+        tags: [pipeline, acquisition, streaming, processing]
+
+  - id: "08_references"
+    title: "References"
+    icon: "🔗"
+    description: "Bibliography, glossary, and useful links"
+    files:
+      - path: "08_references/README.md"
+        title: "References Overview"
+        level: L1
+        tags: [references, bibliography, glossary]

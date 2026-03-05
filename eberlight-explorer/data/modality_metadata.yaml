@@ -1,0 +1,102 @@
+modalities:
+  - id: tomography
+    name: "X-ray Tomography"
+    short_name: "Tomography"
+    icon: "🔬"
+    interaction: "Absorption / Phase contrast"
+    measures: "3D internal structure"
+    resolution: "0.5 - 10 μm"
+    beamlines: ["2-BM", "32-ID"]
+    dir: "02_xray_modalities/tomography"
+    files:
+      readme: "02_xray_modalities/tomography/README.md"
+      data_format: "02_xray_modalities/tomography/data_format.md"
+      ai_ml: "02_xray_modalities/tomography/ai_ml_methods.md"
+      extra:
+        - path: "02_xray_modalities/tomography/reconstruction.md"
+          title: "Reconstruction Methods"
+    ai_methods: [denoising, segmentation, reconstruction]
+    tags: [3D, imaging, dose, phase-contrast]
+
+  - id: xrf_microscopy
+    name: "X-ray Fluorescence Microscopy"
+    short_name: "XRF"
+    icon: "✨"
+    interaction: "Fluorescence emission"
+    measures: "Elemental distribution maps"
+    resolution: "30 nm - 5 μm"
+    beamlines: ["2-ID-D", "2-ID-E", "9-ID (Bionanoprobe)"]
+    dir: "02_xray_modalities/xrf_microscopy"
+    files:
+      readme: "02_xray_modalities/xrf_microscopy/README.md"
+      data_format: "02_xray_modalities/xrf_microscopy/data_format.md"
+      ai_ml: "02_xray_modalities/xrf_microscopy/ai_ml_methods.md"
+      extra:
+        - path: "02_xray_modalities/xrf_microscopy/analysis_pipeline.md"
+          title: "Analysis Pipeline"
+    ai_methods: [segmentation, denoising, autonomous]
+    tags: [elemental, mapping, fluorescence, 2D]
+
+  - id: ptychography
+    name: "Ptychography"
+    short_name: "Ptychography"
+    icon: "🔍"
+    interaction: "Coherent diffraction"
+    measures: "Phase & amplitude at nm resolution"
+    resolution: "5 - 50 nm"
+    beamlines: ["2-ID-D", "9-ID"]
+    dir: "02_xray_modalities/ptychography"
+    files:
+      readme: "02_xray_modalities/ptychography/README.md"
+      data_format: "02_xray_modalities/ptychography/data_format.md"
+      ai_ml: "02_xray_modalities/ptychography/ai_ml_methods.md"
+    ai_methods: [reconstruction, multimodal]
+    tags: [coherent, phase, nanoscale, CDI]
+
+  - id: spectroscopy
+    name: "X-ray Spectroscopy"
+    short_name: "Spectroscopy"
+    icon: "📈"
+    interaction: "Absorption edge"
+    measures: "Chemical speciation & oxidation state"
+    resolution: "0.1 - 1 eV (energy)"
+    beamlines: ["9-BM", "12-BM", "20-BM"]
+    dir: "02_xray_modalities/spectroscopy"
+    files:
+      readme: "02_xray_modalities/spectroscopy/README.md"
+      data_format: "02_xray_modalities/spectroscopy/data_format.md"
+      ai_ml: "02_xray_modalities/spectroscopy/ai_ml_methods.md"
+    ai_methods: [multimodal]
+    tags: [XANES, EXAFS, chemical, speciation]
+
+  - id: crystallography
+    name: "X-ray Crystallography"
+    short_name: "Crystallography"
+    icon: "💎"
+    interaction: "Bragg diffraction"
+    measures: "Atomic structure of crystals/proteins"
+    resolution: "1 - 3 Å"
+    beamlines: ["17-ID (IMCA-CAT)", "19-ID", "23-ID (GM/CA)"]
+    dir: "02_xray_modalities/crystallography"
+    files:
+      readme: "02_xray_modalities/crystallography/README.md"
+      data_format: "02_xray_modalities/crystallography/data_format.md"
+      ai_ml: "02_xray_modalities/crystallography/ai_ml_methods.md"
+    ai_methods: [segmentation]
+    tags: [protein, structure, diffraction, Bragg]
+
+  - id: scattering
+    name: "X-ray Scattering"
+    short_name: "Scattering"
+    icon: "🌊"
+    interaction: "Small/wide-angle scattering"
+    measures: "Nanostructure & molecular organization"
+    resolution: "1 - 100 nm (d-spacing)"
+    beamlines: ["12-ID-B", "12-ID-C&D"]
+    dir: "02_xray_modalities/scattering"
+    files:
+      readme: "02_xray_modalities/scattering/README.md"
+      data_format: "02_xray_modalities/scattering/data_format.md"
+      ai_ml: "02_xray_modalities/scattering/ai_ml_methods.md"
+    ai_methods: []
+    tags: [SAXS, WAXS, nanostructure, in-situ]
