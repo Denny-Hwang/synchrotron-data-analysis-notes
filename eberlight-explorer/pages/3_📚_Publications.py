@@ -8,6 +8,7 @@ from utils.content_parser import load_yaml, read_local_file, extract_tldr, extra
 from components.level_selector import render_level_selector
 from components.common_styles import inject_styles
 from components.paper_card import render_paper_card
+from components.mermaid_diagram import render_mermaid
 
 st.set_page_config(page_title="Publications", page_icon="📚", layout="wide")
 
@@ -27,75 +28,85 @@ for p in papers:
         seen_files.add(p["file"])
         unique_papers.append(p)
 
-# Method diagrams for known papers
+# Method diagrams for known papers (raw Mermaid code, no fences)
 PAPER_DIAGRAMS = {
-    "review_tomogan_2020": """
-```mermaid
-graph LR
-    A[High-Dose Projections] --> B[Dose Reduction / Noise Injection]
-    B --> C[FBP Reconstruction<br>TomoPy]
-    C --> D[Noisy Slices]
-    D --> E[TomoGAN Generator<br>U-Net + Skip]
-    E --> F[Denoised Slices]
-    F --> G[Segmentation /<br>Quantitative Analysis]
-
-    H[PatchGAN<br>Discriminator] -.->|adversarial loss| E
-    I[VGG-16<br>Perceptual] -.->|perceptual loss| E
-    J[L1 Pixel Loss] -.->|pixel loss| E
-```
-""",
-    "review_roi_finder_2022": """
-```mermaid
-graph LR
-    A[Multi-element<br>XRF Survey Map] --> B[Spectral Fitting<br>MAPS]
-    B --> C[Per-pixel Elemental<br>Concentration Maps]
-    C --> D[PCA<br>k=3-5 components]
-    D --> E[Fuzzy C-Means<br>c=3-8 clusters]
-    E --> F[Membership<br>Thresholding]
-    F --> G[ROI Scoring<br>heterogeneity + size]
-    G --> H[Ranked ROI<br>Bounding Boxes]
-    H --> I[Beamline Scan<br>Controller]
-```
-""",
-    "review_xrf_gmm_2013": """
-```mermaid
-graph LR
-    A[XRF Raster Scan<br>~300nm step] --> B[Spectral Fitting]
-    B --> C[7-Channel<br>Elemental Maps]
-    C --> D[Normalize<br>zero mean, unit var]
-    D --> E[GMM via EM<br>K components]
-    E --> F[BIC Sweep<br>K=2..8]
-    F --> G[Posterior<br>Probability Maps]
-    G --> H[Component<br>Identification]
-```
-""",
-    "review_ptychonet_2019": """
-```mermaid
-graph LR
-    A[Diffraction<br>Patterns] --> B[CNN Encoder]
-    B --> C[Latent<br>Representation]
-    C --> D[CNN Decoder]
-    D --> E[Phase + Amplitude<br>Reconstruction]
-
-    F[Iterative Solver<br>ePIE baseline] -.->|comparison| E
-```
-""",
-    "review_fullstack_dl_tomo_2023": """
-```mermaid
-graph TB
-    A[Raw Projections] --> B[Preprocessing<br>Flat/Dark Correction]
-    B --> C[Reconstruction<br>FBP / Iterative / DL]
-    C --> D[Denoising<br>TomoGAN / N2N]
-    D --> E[Segmentation<br>U-Net / nnU-Net]
-    E --> F[Quantification<br>Porosity / Morphology]
-    F --> G[Visualization<br>& Reporting]
-
-    style C fill:#00D4AA22,stroke:#00D4AA
-    style D fill:#FFB80022,stroke:#FFB800
-    style E fill:#1B3A5C22,stroke:#1B3A5C
-```
-""",
+    "review_tomogan_2020": {
+        "code": """graph LR
+    A["High-Dose Projections"] --> B["Dose Reduction"]
+    B --> C["FBP Recon via TomoPy"]
+    C --> D["Noisy Slices"]
+    D --> E["TomoGAN Generator"]
+    E --> F["Denoised Slices"]
+    F --> G["Segmentation & Analysis"]
+    H["PatchGAN Discriminator"] -.-> E
+    I["VGG-16 Perceptual Loss"] -.-> E
+    J["L1 Pixel Loss"] -.-> E""",
+        "height": 300,
+    },
+    "review_roi_finder_2022": {
+        "code": """graph LR
+    A["Multi-element XRF Survey"] --> B["Spectral Fitting MAPS"]
+    B --> C["Elemental Concentration Maps"]
+    C --> D["PCA k=3-5"]
+    D --> E["Fuzzy C-Means c=3-8"]
+    E --> F["Membership Thresholding"]
+    F --> G["ROI Scoring"]
+    G --> H["Ranked ROI Boxes"]
+    H --> I["Beamline Controller"]""",
+        "height": 250,
+    },
+    "review_xrf_gmm_2013": {
+        "code": """graph LR
+    A["XRF Raster Scan"] --> B["Spectral Fitting"]
+    B --> C["7-Channel Elemental Maps"]
+    C --> D["Normalize"]
+    D --> E["GMM via EM"]
+    E --> F["BIC Sweep K=2-8"]
+    F --> G["Posterior Probability Maps"]
+    G --> H["Component Identification"]""",
+        "height": 250,
+    },
+    "review_ptychonet_2019": {
+        "code": """graph LR
+    A["Diffraction Patterns"] --> B["CNN Encoder"]
+    B --> C["Latent Representation"]
+    C --> D["CNN Decoder"]
+    D --> E["Phase + Amplitude"]
+    F["ePIE Iterative Solver"] -.-> E""",
+        "height": 250,
+    },
+    "review_fullstack_dl_tomo_2023": {
+        "code": """graph TB
+    A["Raw Projections"] --> B["Preprocessing"]
+    B --> C["Reconstruction"]
+    C --> D["Denoising"]
+    D --> E["Segmentation"]
+    E --> F["Quantification"]
+    F --> G["Visualization"]""",
+        "height": 350,
+    },
+    "review_ai_nerd_2024": {
+        "code": """graph LR
+    A["XPCS Measurement"] --> B["Speckle Pattern Analysis"]
+    B --> C["AI-NERD Feature Extraction"]
+    C --> D["Unsupervised Fingerprinting"]
+    D --> E["Dynamics Classification"]
+    E --> F["Autonomous Decision"]
+    F -->|"next measurement"| A""",
+        "height": 250,
+    },
 }
+
+
+def _paper_link(paper: dict) -> str:
+    """Generate DOI or link string for a paper."""
+    doi = paper.get("doi")
+    url = paper.get("url")
+    if doi:
+        return f"[DOI: {doi}](https://doi.org/{doi})"
+    elif url:
+        return f"[Link]({url})"
+    return ""
 
 
 if level == "L0":
@@ -105,7 +116,7 @@ if level == "L0":
         st.metric("Total Reviews", len(unique_papers))
     with cols[1]:
         years = sorted(set(p["year"] for p in unique_papers))
-        st.metric("Year Range", f"{years[0]}–{years[-1]}")
+        st.metric("Year Range", f"{years[0]}--{years[-1]}")
     with cols[2]:
         high_priority = sum(1 for p in unique_papers if p.get("priority") == "High")
         st.metric("High Priority", high_priority)
@@ -160,7 +171,16 @@ elif level == "L2":
     paper = unique_papers[selected_idx]
 
     st.subheader(paper["title"])
-    st.caption(f"{paper.get('authors', 'N/A')} | {paper['journal']} ({paper['year']})")
+
+    # Author, journal, and link
+    link_str = _paper_link(paper)
+    meta_parts = [
+        paper.get("authors", "N/A"),
+        f'{paper["journal"]} ({paper["year"]})',
+    ]
+    if link_str:
+        meta_parts.append(link_str)
+    st.markdown(" | ".join(meta_parts))
 
     # Tags
     tag_str = " ".join(f"`{t}`" for t in paper.get("tags", []))
@@ -169,26 +189,26 @@ elif level == "L2":
 
     content = read_local_file(paper["file"])
     if content:
-        # Show structured sections
+        # TL;DR
         tldr = extract_tldr(content)
         if tldr:
             st.info(f"**TL;DR:** {tldr}")
 
         # Method diagram if available
         paper_id = os.path.splitext(os.path.basename(paper["file"]))[0]
-        diagram = PAPER_DIAGRAMS.get(paper_id)
+        diagram_info = PAPER_DIAGRAMS.get(paper_id)
 
         tab_names = ["Pipeline Diagram", "Method", "Key Results", "Strengths", "Limitations", "BER Relevance", "Full Review"]
-        if not diagram:
-            tab_names = tab_names[1:]  # skip diagram tab if none available
+        if not diagram_info:
+            tab_names = tab_names[1:]  # skip diagram tab if none
 
         tabs = st.tabs(tab_names)
         tab_offset = 0
 
-        if diagram:
+        if diagram_info:
             with tabs[0]:
                 st.markdown("#### Method Pipeline")
-                st.markdown(diagram)
+                render_mermaid(diagram_info["code"], height=diagram_info["height"])
             tab_offset = 1
 
         section_map = {
@@ -211,7 +231,6 @@ elif level == "L2":
             st.markdown(content, unsafe_allow_html=False)
 
 elif level == "L3":
-    # Source view
     paper_titles = [f"[{p['year']}] {p['title']}" for p in unique_papers]
     selected_idx = st.selectbox(
         "Select Paper",

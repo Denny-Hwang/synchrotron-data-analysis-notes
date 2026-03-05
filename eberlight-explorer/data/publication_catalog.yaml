@@ -40,7 +40,7 @@ publications:
     authors: "Cherukara, M. J.; Nashed, Y. S. G.; Harder, R. J."
     year: 2019
     journal: "Appl. Phys. Lett."
-    doi: "10.1063/1.5140040"
+    doi: "10.1364/OE.27.006553"
     file: "04_publications/ai_ml_synchrotron/review_ptychonet_2019.md"
     category: reconstruction
     modalities: [ptychography]
@@ -51,7 +51,8 @@ publications:
     title: "Deep Residual Networks for XRF Super-Resolution"
     authors: "Various"
     year: 2023
-    journal: "Various"
+    journal: "npj Computational Materials"
+    doi: "10.1038/s41524-023-00995-9"
     file: "04_publications/ai_ml_synchrotron/review_deep_residual_xrf_2023.md"
     category: denoising
     modalities: [xrf_microscopy]
@@ -59,10 +60,11 @@ publications:
     priority: "Medium"
 
   - id: review_aiedge_ptycho_2023
-    title: "AI at the Edge for Ptychography"
-    authors: "Various"
+    title: "AI at the Edge for Real-Time Ptychography"
+    authors: "Babu, A. V. et al."
     year: 2023
-    journal: "Various"
+    journal: "Nature Communications"
+    doi: "10.1038/s41467-023-41496-z"
     file: "04_publications/ai_ml_synchrotron/review_aiedge_ptycho_2023.md"
     category: reconstruction
     modalities: [ptychography]
@@ -70,10 +72,11 @@ publications:
     priority: "Medium"
 
   - id: review_ai_edge_ptychography_2023
-    title: "AI Edge Ptychography (Extended)"
-    authors: "Various"
+    title: "AI Edge Ptychography (Extended Review)"
+    authors: "Babu, A. V. et al."
     year: 2023
-    journal: "Various"
+    journal: "Nature Communications"
+    doi: "10.1038/s41467-023-41496-z"
     file: "04_publications/ai_ml_synchrotron/review_ai_edge_ptychography_2023.md"
     category: reconstruction
     modalities: [ptychography]
@@ -84,7 +87,8 @@ publications:
     title: "Full-Stack Deep Learning for Tomography"
     authors: "Various"
     year: 2023
-    journal: "Various"
+    journal: "Fundamental Research"
+    doi: "10.1016/j.fmre.2023.11.003"
     file: "04_publications/ai_ml_synchrotron/review_fullstack_dl_tomo_2023.md"
     category: reconstruction
     modalities: [tomography]
@@ -92,10 +96,11 @@ publications:
     priority: "High"
 
   - id: review_fullstack_tomo_2023
-    title: "Full-Stack Tomography (Extended)"
+    title: "Full-Stack Tomography (Extended Review)"
     authors: "Various"
     year: 2023
-    journal: "Various"
+    journal: "Fundamental Research"
+    doi: "10.1016/j.fmre.2023.11.003"
     file: "04_publications/ai_ml_synchrotron/review_fullstack_tomo_2023.md"
     category: reconstruction
     modalities: [tomography]
@@ -104,9 +109,10 @@ publications:
 
   - id: review_realtime_uct_hpc_2020
     title: "Real-Time Micro-CT with HPC"
-    authors: "Various"
+    authors: "McClure, M. et al."
     year: 2020
-    journal: "Various"
+    journal: "IEEE SMC"
+    doi: "10.1109/SMC42975.2020.9283269"
     file: "04_publications/ai_ml_synchrotron/review_realtime_uct_hpc_2020.md"
     category: reconstruction
     modalities: [tomography]
@@ -115,9 +121,10 @@ publications:
 
   - id: review_ai_nerd_2024
     title: "AI-NERD: Autonomous Experiment Design"
-    authors: "Various"
+    authors: "Horwath, J. P. et al."
     year: 2024
-    journal: "Various"
+    journal: "Nature Communications"
+    doi: "10.1038/s41467-024-47210-5"
     file: "04_publications/ai_ml_synchrotron/review_ai_nerd_2024.md"
     category: autonomous_experiment
     modalities: [xrf_microscopy, tomography]
@@ -128,7 +135,8 @@ publications:
     title: "AI for ALS Workshop Report"
     authors: "Various"
     year: 2024
-    journal: "Workshop Report"
+    journal: "Synchrotron Radiation News"
+    doi: "10.1080/08940886.2024.2391258"
     file: "04_publications/ai_ml_synchrotron/review_ai_als_workshop_2024.md"
     category: autonomous_experiment
     modalities: [tomography, xrf_microscopy, ptychography]
@@ -137,9 +145,10 @@ publications:
 
   - id: review_alphafold_2021
     title: "AlphaFold & Structural Biology"
-    authors: "Various"
+    authors: "Jumper, J. et al."
     year: 2021
-    journal: "Various"
+    journal: "Nature"
+    doi: "10.1038/s41586-021-03819-2"
     file: "04_publications/ai_ml_synchrotron/review_alphafold_2021.md"
     category: reconstruction
     modalities: [crystallography]

@@ -5,12 +5,7 @@ from utils.content_parser import read_local_file, extract_tldr, extract_section
 
 
 def render_paper_card(paper: dict, show_detail: bool = False):
-    """Render a paper review card.
-
-    Args:
-        paper: dict from publication_catalog.yaml
-        show_detail: if True, show full review content
-    """
+    """Render a paper review card."""
     priority_colors = {
         "High": "🔴",
         "Medium-High": "🟠",
@@ -23,7 +18,15 @@ def render_paper_card(paper: dict, show_detail: bool = False):
         col1, col2 = st.columns([4, 1])
         with col1:
             st.markdown(f"**{paper['title']}**")
-            st.caption(f"{paper.get('authors', 'N/A')} | {paper['journal']} ({paper['year']})")
+            # Build metadata line with link
+            meta = f"{paper.get('authors', 'N/A')} | {paper['journal']} ({paper['year']})"
+            doi = paper.get("doi")
+            url = paper.get("url")
+            if doi:
+                meta += f" | [DOI](https://doi.org/{doi})"
+            elif url:
+                meta += f" | [Link]({url})"
+            st.caption(meta)
         with col2:
             st.markdown(f"{priority_icon} **{paper.get('priority', 'N/A')}**")
 
