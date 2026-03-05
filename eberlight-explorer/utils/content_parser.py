@@ -73,23 +73,56 @@ def extract_tldr(markdown_text: str) -> str | None:
     return extract_section(markdown_text, "TL;DR")
 
 
+def _clean_bibtex_value(val: str) -> str:
+    """Clean BibTeX field value — remove LaTeX braces and special chars."""
+    # Remove outer braces: {TomoGAN} -> TomoGAN
+    val = re.sub(r'\{([^}]*)\}', r'\1', val)
+    # Handle LaTeX accents: {\"u} -> ü, {\u{g}} -> g, etc.
+    val = val.replace('\\"u', 'ü').replace('\\"o', 'ö').replace('\\"a', 'ä')
+    val = val.replace("\\'e", 'é').replace("\\'a", 'á')
+    # Clean remaining backslash commands
+    val = re.sub(r'\\[a-zA-Z]+\{?', '', val)
+    # Remove stray braces
+    val = val.replace('{', '').replace('}', '')
+    return val.strip()
+
+
 def parse_bibtex(bibtex_text: str) -> list[dict]:
-    """Simple BibTeX parser returning list of entries."""
+    """Robust BibTeX parser returning list of entries."""
     entries = []
-    pattern = re.compile(
-        r"@(\w+)\{([^,]+),\s*(.*?)\}\s*(?=@|\Z)", re.DOTALL
-    )
-    for match in pattern.finditer(bibtex_text):
-        entry_type = match.group(1)
-        entry_key = match.group(2).strip()
-        body = match.group(3)
+    # Split by @ entries
+    raw_entries = re.split(r'(?=@\w+\{)', bibtex_text)
+
+    for raw in raw_entries:
+        raw = raw.strip()
+        if not raw.startswith('@'):
+            continue
+
+        # Extract type and key
+        header_match = re.match(r'@(\w+)\{([^,]+),', raw)
+        if not header_match:
+            continue
+
+        entry_type = header_match.group(1)
+        entry_key = header_match.group(2).strip()
+
+        # Extract fields using a more robust pattern
+        # Match: field = {value that can span lines and contain nested braces}
         fields = {}
-        field_pattern = re.compile(r"(\w+)\s*=\s*\{([^}]*)\}")
-        for fm in field_pattern.finditer(body):
-            fields[fm.group(1).lower()] = fm.group(2).strip()
+        # Find all field=value pairs
+        field_pattern = re.compile(
+            r'(\w+)\s*=\s*\{((?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*)\}',
+            re.DOTALL
+        )
+        for fm in field_pattern.finditer(raw):
+            field_name = fm.group(1).lower()
+            field_value = _clean_bibtex_value(fm.group(2).strip())
+            fields[field_name] = field_value
+
         entries.append({
             "type": entry_type,
             "key": entry_key,
             **fields,
         })
+
     return entries

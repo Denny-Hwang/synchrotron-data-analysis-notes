@@ -5,25 +5,34 @@ from utils.content_parser import load_yaml
 
 
 def render_pipeline_diagram():
-    """Render data pipeline as a visual flow."""
+    """Render data pipeline as a visual flow with arrows."""
     cross_refs = load_yaml("cross_references.yaml")
     stages = cross_refs.get("pipeline_stages", [])
 
-    cols = st.columns(len(stages))
+    # Build an HTML-based pipeline with arrows
+    html_parts = []
     for i, stage in enumerate(stages):
-        with cols[i]:
-            st.markdown(
-                f"<div style='text-align:center; padding:10px; "
-                f"background:#E8EEF6; border-radius:10px; min-height:120px;'>"
-                f"<h3>{stage['icon']}</h3>"
-                f"<b>{stage['name']}</b><br>"
-                f"<small>{'<br>'.join(stage.get('tools', []) or ['—'])}</small>"
-                f"</div>",
-                unsafe_allow_html=True,
-            )
+        tools_html = "<br>".join(stage.get("tools", []) or ["—"])
+        html_parts.append(
+            f"<div style='flex:1; text-align:center; padding:14px 8px; "
+            f"background:linear-gradient(135deg, #E8EEF6, #D4DFEF); border-radius:12px; "
+            f"min-height:130px; display:flex; flex-direction:column; "
+            f"justify-content:center; align-items:center; "
+            f"border: 2px solid #C0D0E0;'>"
+            f"<div style='font-size:2rem;'>{stage['icon']}</div>"
+            f"<div style='font-weight:700; font-size:1.05rem; margin:4px 0;'>{stage['name']}</div>"
+            f"<div style='font-size:0.88rem; color:#555;'>{tools_html}</div>"
+            f"</div>"
+        )
         if i < len(stages) - 1:
-            pass  # arrow between stages is handled by column layout
+            html_parts.append(
+                "<div style='display:flex; align-items:center; padding:0 2px; "
+                "font-size:1.5rem; color:#00D4AA; font-weight:bold;'>→</div>"
+            )
 
-    # Show arrows as text
-    arrow_row = " → ".join(f"{s['icon']} {s['name']}" for s in stages)
-    st.markdown(f"**Flow:** {arrow_row}")
+    full_html = (
+        "<div style='display:flex; align-items:stretch; gap:0; width:100%;'>"
+        + "".join(html_parts)
+        + "</div>"
+    )
+    st.markdown(full_html, unsafe_allow_html=True)
