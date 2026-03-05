@@ -8,6 +8,7 @@ from utils.content_parser import load_yaml, read_local_file
 from components.level_selector import render_level_selector
 from components.common_styles import inject_styles
 from components.markdown_viewer import render_markdown
+from components.mermaid_diagram import render_mermaid
 
 st.set_page_config(page_title="AI/ML Methods", page_icon="🤖", layout="wide")
 
@@ -20,46 +21,30 @@ modalities = load_yaml("modality_metadata.yaml")["modalities"]
 st.title("🤖 AI/ML Methods")
 st.markdown("Machine learning and AI methods applied to synchrotron data analysis.")
 
-# Taxonomy diagram (shown at L0 and L1)
-TAXONOMY_DIAGRAM = """
-```mermaid
-graph TD
-    ROOT["🤖 AI/ML for<br>Synchrotron Data"] --> SEG["🎯 Segmentation"]
-    ROOT --> DEN["🧹 Denoising"]
-    ROOT --> REC["🏗️ Reconstruction"]
-    ROOT --> AUT["🤖 Autonomous<br>Experiment"]
-    ROOT --> MUL["🔗 Multimodal<br>Integration"]
-
+TAXONOMY_CODE = """graph TD
+    ROOT["AI/ML for Synchrotron Data"] --> SEG["Segmentation"]
+    ROOT --> DEN["Denoising"]
+    ROOT --> REC["Reconstruction"]
+    ROOT --> AUT["Autonomous Experiment"]
+    ROOT --> MUL["Multimodal Integration"]
     SEG --> S1["U-Net Variants"]
     SEG --> S2["Tomo Segmentation"]
     SEG --> S3["XRF Cell Segmentation"]
-
     DEN --> D1["TomoGAN"]
     DEN --> D2["Deep Residual XRF"]
     DEN --> D3["Noise2Noise"]
-
     REC --> R1["PtychoNet"]
     REC --> R2["TomocuPy"]
     REC --> R3["INR Dynamic"]
-
     AUT --> A1["AI-NERD"]
     AUT --> A2["ROI-Finder"]
     AUT --> A3["Bayesian Opt."]
-
     MUL --> M1["XRF + Ptychography"]
     MUL --> M2["CT-XAS Correlation"]
-    MUL --> M3["Optical-X-ray"]
-
-    style SEG fill:#00D4AA22,stroke:#00D4AA
-    style DEN fill:#FFB80022,stroke:#FFB800
-    style REC fill:#1B3A5C22,stroke:#1B3A5C
-    style AUT fill:#E8515D22,stroke:#E8515D
-    style MUL fill:#9B59B622,stroke:#9B59B6
-```
-"""
+    MUL --> M3["Optical-X-ray"]"""
 
 if level == "L0":
-    st.markdown(TAXONOMY_DIAGRAM)
+    render_mermaid(TAXONOMY_CODE, height=500)
 
     st.markdown("---")
     cols = st.columns(len(categories))
@@ -72,7 +57,7 @@ if level == "L0":
                 st.metric("Methods", len(cat["methods"]))
 
 elif level == "L1":
-    st.markdown(TAXONOMY_DIAGRAM)
+    render_mermaid(TAXONOMY_CODE, height=500)
 
     # Category overview
     st.markdown("---")
@@ -88,7 +73,7 @@ elif level == "L1":
 
     # Heatmap
     st.markdown("---")
-    st.subheader("Modality × Method Matrix")
+    st.subheader("Modality x Method Matrix")
     import pandas as pd
 
     mod_names = [f"{m['icon']} {m['short_name']}" for m in modalities]
@@ -96,7 +81,7 @@ elif level == "L1":
     for m in modalities:
         row = {}
         for c in categories:
-            row[c["name"]] = "✅" if m["id"] in c["modalities"] else "—"
+            row[c["name"]] = "Y" if m["id"] in c["modalities"] else "-"
         matrix.append(row)
     df = pd.DataFrame(matrix, index=mod_names)
     st.dataframe(df, use_container_width=True)
