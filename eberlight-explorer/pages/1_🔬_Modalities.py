@@ -6,9 +6,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from utils.content_parser import load_yaml, read_local_file, extract_section
 from components.level_selector import render_level_selector
+from components.common_styles import inject_styles
 from components.markdown_viewer import render_markdown, render_markdown_card
 
 st.set_page_config(page_title="X-ray Modalities", page_icon="🔬", layout="wide")
+
+inject_styles()
 
 level = render_level_selector(key="mod_level")
 modalities = load_yaml("modality_metadata.yaml")["modalities"]

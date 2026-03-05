@@ -6,10 +6,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from utils.content_parser import load_yaml, read_local_file
 from components.level_selector import render_level_selector
+from components.common_styles import inject_styles
 from components.tool_card import render_tool_card
 from components.markdown_viewer import render_markdown
 
 st.set_page_config(page_title="Tools & Code", page_icon="🛠️", layout="wide")
+
+inject_styles()
 
 level = render_level_selector(key="tool_level")
 tools = load_yaml("tool_catalog.yaml")["tools"]

@@ -6,10 +6,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from utils.content_parser import load_yaml, read_local_file
 from components.level_selector import render_level_selector
+from components.common_styles import inject_styles
 from components.pipeline_diagram import render_pipeline_diagram
 from components.markdown_viewer import render_markdown
 
 st.set_page_config(page_title="Data Pipeline", page_icon="🔄", layout="wide")
+
+inject_styles()
 
 level = render_level_selector(key="pipe_level")
 cross_refs = load_yaml("cross_references.yaml")

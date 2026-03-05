@@ -6,9 +6,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from utils.content_parser import read_local_file
 from components.level_selector import render_level_selector
+from components.common_styles import inject_styles
 from components.markdown_viewer import render_markdown
 
 st.set_page_config(page_title="Data Structures", page_icon="📊", layout="wide")
+
+inject_styles()
 
 level = render_level_selector(key="data_level")
 

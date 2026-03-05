@@ -12,13 +12,51 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Custom CSS
+# Custom CSS — larger fonts, better spacing, bullet styling
 st.markdown("""
 <style>
-    .block-container { padding-top: 2rem; }
-    h1 { color: #0A1628; }
-    .stMetric > div { background: #E8EEF6; padding: 10px; border-radius: 8px; }
+    .block-container { padding-top: 1.5rem; }
+    h1 { color: #0A1628; font-size: 2.4rem !important; }
+    h2 { font-size: 1.8rem !important; }
+    h3 { font-size: 1.4rem !important; }
+
+    /* Body text larger */
+    .stMarkdown p, .stMarkdown li { font-size: 1.08rem; line-height: 1.7; }
+
+    /* Metric cards */
+    .stMetric > div { background: #E8EEF6; padding: 12px; border-radius: 8px; }
+
+    /* Expanders */
     div[data-testid="stExpander"] { border: 1px solid #E8EEF6; border-radius: 8px; }
+    div[data-testid="stExpander"] summary { font-size: 1.15rem; font-weight: 600; }
+
+    /* Bullet list styling */
+    .stMarkdown ul { padding-left: 1.4em; }
+    .stMarkdown ul li { margin-bottom: 0.35em; }
+    .stMarkdown ul li::marker { color: #00D4AA; font-size: 1.1em; }
+
+    /* Tables */
+    .stDataFrame { font-size: 1.02rem; }
+
+    /* Sidebar */
+    section[data-testid="stSidebar"] > div { padding-top: 1rem; }
+    section[data-testid="stSidebar"] .stMarkdown p { font-size: 1.0rem; }
+    section[data-testid="stSidebar"] h4 { font-size: 1.1rem !important; margin-bottom: 0.3rem; }
+    section[data-testid="stSidebar"] .stRadio label { font-size: 1.05rem; }
+
+    /* Captions a bit bigger */
+    .stCaption, .stMarkdown small { font-size: 0.92rem !important; }
+
+    /* Info boxes */
+    .stAlert p { font-size: 1.05rem; }
+
+    /* Tabs */
+    button[data-baseweb="tab"] { font-size: 1.05rem; }
+
+    /* Container borders */
+    div[data-testid="stVerticalBlockBorderWrapper"] > div[data-testid="stVerticalBlock"] {
+        gap: 0.5rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -29,12 +67,26 @@ from utils.content_parser import load_yaml
 from components.level_selector import render_level_selector
 from components.pipeline_diagram import render_pipeline_diagram
 
-# Sidebar
-st.sidebar.title("🔬 eBERlight Explorer")
+# ── Sidebar ───────────────────────────────────────────
+st.sidebar.markdown("## 🔬 eBERlight Explorer")
+st.sidebar.caption("Synchrotron Data Analysis Research")
+st.sidebar.markdown("---")
+
+st.sidebar.markdown("#### 📂 Navigate")
+st.sidebar.markdown(
+    "Use the **pages** in the left menu to explore:\n"
+    "- 🔬 **Modalities** — X-ray techniques\n"
+    "- 🤖 **AI/ML** — Methods & algorithms\n"
+    "- 📚 **Papers** — Reviewed publications\n"
+    "- 🛠️ **Tools** — Software ecosystem\n"
+    "- 🔄 **Pipeline** — Data flow\n"
+    "- 📊 **Data** — Schemas & EDA\n"
+    "- 🧠 **Knowledge Graph** — Cross-references"
+)
 st.sidebar.markdown("---")
 level = render_level_selector()
 
-# Load data
+# ── Load data ─────────────────────────────────────────
 index = load_yaml("content_index.yaml")
 modalities = load_yaml("modality_metadata.yaml")["modalities"]
 methods = load_yaml("method_taxonomy.yaml")["categories"]
@@ -65,14 +117,17 @@ for col, (icon, label, value) in zip(cols, stats):
         st.metric(label=f"{icon} {label}", value=value)
 
 if level in ("L0", "L1"):
-    # Research Domain Quick Guide
+    # Quick Navigation Guide
     st.markdown("---")
     st.subheader("🧭 Quick Navigation Guide")
     guide_cols = st.columns(3)
     guides = [
-        ("🧪 New to synchrotrons?", "Start with **Program Overview** → then explore **X-ray Modalities**"),
-        ("🤖 Want to apply AI/ML?", "Jump to **AI/ML Methods** → browse **Publications** for reviews"),
-        ("📊 Need to understand data?", "Check **Data Structures** → then **Data Pipeline**"),
+        ("🧪 New to synchrotrons?",
+         "- Start with **Program Overview**\n- Then explore **X-ray Modalities**\n- Check **Glossary** for terms"),
+        ("🤖 Want to apply AI/ML?",
+         "- Jump to **AI/ML Methods**\n- Browse **Publications** for reviews\n- See **Tools** for implementations"),
+        ("📊 Need to understand data?",
+         "- Check **Data Structures** for schemas\n- Explore **Data Pipeline** flow\n- Run **EDA notebooks** interactively"),
     ]
     for col, (title, desc) in zip(guide_cols, guides):
         with col:
@@ -88,7 +143,7 @@ if level in ("L0", "L1"):
         with section_cols[i % 4]:
             with st.container(border=True):
                 st.markdown(f"### {section['icon']} {section['title']}")
-                st.caption(section["description"])
+                st.markdown(section["description"])
                 st.markdown(f"`{len(section['files'])} files`")
 
 if level in ("L1", "L2"):
