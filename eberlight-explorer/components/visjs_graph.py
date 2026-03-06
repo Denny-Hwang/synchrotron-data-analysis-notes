@@ -102,7 +102,7 @@ def render_visjs_graph(nodes: list[dict], edges: list[dict],
     <!DOCTYPE html>
     <html>
     <head>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.9/vis-network.min.js"></script>
+        <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
         <style>
             body {{ margin: 0; padding: 0; font-family: sans-serif; }}
             #graph {{ width: 100%; height: {height}px; border: 1px solid #E8EEF6; border-radius: 12px; background: #FAFCFF; }}
@@ -133,8 +133,14 @@ def render_visjs_graph(nodes: list[dict], edges: list[dict],
             <div class="legend-item" style="margin-left:auto; font-size:12px; color:#aaa;">― solid = uses &nbsp; - - dashed = supports</div>
         </div>
         <script>
-            var nodesData = new vis.DataSet({nodes_json});
-            var edgesData = new vis.DataSet({edges_json});
+            // Store original colors for highlight reset
+            var nodeList = {nodes_json};
+            var edgeList = {edges_json};
+            var originalColors = {{}};
+            nodeList.forEach(function(n) {{ originalColors[n.id] = JSON.parse(JSON.stringify(n.color)); }});
+
+            var nodesData = new vis.DataSet(nodeList);
+            var edgesData = new vis.DataSet(edgeList);
             var container = document.getElementById('graph');
 
             var options = {{
@@ -178,22 +184,18 @@ def render_visjs_graph(nodes: list[dict], edges: list[dict],
                 if (params.nodes.length > 0) {{
                     var selectedNode = params.nodes[0];
                     var connectedNodes = network.getConnectedNodes(selectedNode);
-                    var connectedEdges = network.getConnectedEdges(selectedNode);
 
-                    // Highlight connected, dim others
-                    var allNodes = nodesData.get();
-                    allNodes.forEach(function(n) {{
-                        if (n.id === selectedNode || connectedNodes.includes(n.id)) {{
-                            nodesData.update({{ id: n.id, opacity: 1.0 }});
+                    nodesData.get().forEach(function(n) {{
+                        if (n.id === selectedNode || connectedNodes.indexOf(n.id) !== -1) {{
+                            nodesData.update({{ id: n.id, color: originalColors[n.id], font: {{ color: '#1A1A2E' }} }});
                         }} else {{
-                            nodesData.update({{ id: n.id, opacity: 0.15 }});
+                            nodesData.update({{ id: n.id, color: {{ background: '#E0E0E0', border: '#CCC' }}, font: {{ color: '#CCC' }} }});
                         }}
                     }});
                 }} else {{
                     // Reset all
-                    var allNodes = nodesData.get();
-                    allNodes.forEach(function(n) {{
-                        nodesData.update({{ id: n.id, opacity: 1.0 }});
+                    nodesData.get().forEach(function(n) {{
+                        nodesData.update({{ id: n.id, color: originalColors[n.id], font: {{ color: '#1A1A2E' }} }});
                     }});
                 }}
             }});
