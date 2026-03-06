@@ -96,6 +96,18 @@ PAPER_DIAGRAMS = {
     F -->|"next measurement"| A""",
         "height": 250,
     },
+    "review_aidriven_xanes_2025": {
+        "code": """graph LR
+    A["Seed Points 5-10"] --> B["GP Surrogate Fit"]
+    B --> C["Knowledge-Injected\\nAcquisition Function"]
+    C --> D["Select Next Energy E*"]
+    D --> E["Monochromator + Measure"]
+    E --> F["Update GP"]
+    F -->|"iterate"| B
+    G["Edge Prior P_edge"] -.-> C
+    H["Gradient |∂μ/∂E|"] -.-> C""",
+        "height": 280,
+    },
     "review_deep_residual_xrf_2023": {
         "code": """graph LR
     A["Low-res XRF Map"] --> B["Upscale Interpolation"]
