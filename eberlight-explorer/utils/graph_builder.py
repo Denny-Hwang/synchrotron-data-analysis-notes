@@ -6,8 +6,8 @@ from utils.content_parser import load_yaml
 def build_knowledge_graph() -> tuple[list[dict], list[dict]]:
     """Build nodes and edges for the knowledge graph.
 
-    Returns (nodes, edges) where each node has {id, label, group, size}
-    and each edge has {source, target, label}.
+    Returns (nodes, edges) where each node has {id, label, group, size, color, level}
+    and each edge has {from, to, label, dashes?}.
     """
     modalities = load_yaml("modality_metadata.yaml")["modalities"]
     methods = load_yaml("method_taxonomy.yaml")["categories"]
@@ -18,7 +18,7 @@ def build_knowledge_graph() -> tuple[list[dict], list[dict]]:
     nodes = []
     edges = []
 
-    # Modality nodes
+    # Modality nodes — top level
     for m in modalities:
         nodes.append({
             "id": m["id"],
@@ -26,9 +26,10 @@ def build_knowledge_graph() -> tuple[list[dict], list[dict]]:
             "group": "modality",
             "size": 30,
             "color": "#00D4AA",
+            "level": 0,
         })
 
-    # Method category nodes
+    # Method category nodes — middle level
     for cat in methods:
         nodes.append({
             "id": cat["id"],
@@ -36,9 +37,10 @@ def build_knowledge_graph() -> tuple[list[dict], list[dict]]:
             "group": "method",
             "size": 25,
             "color": "#FFB800",
+            "level": 1,
         })
 
-    # Paper nodes
+    # Paper nodes — bottom level
     for p in papers:
         nodes.append({
             "id": p["id"],
@@ -46,9 +48,10 @@ def build_knowledge_graph() -> tuple[list[dict], list[dict]]:
             "group": "paper",
             "size": 15,
             "color": "#1B3A5C",
+            "level": 2,
         })
 
-    # Tool nodes
+    # Tool nodes — bottom level
     for t in tools:
         if t["id"] == "aps_github_repos":
             continue
@@ -58,6 +61,7 @@ def build_knowledge_graph() -> tuple[list[dict], list[dict]]:
             "group": "tool",
             "size": 20,
             "color": "#E8515D",
+            "level": 2,
         })
 
     # Modality -> Method edges
@@ -65,8 +69,8 @@ def build_knowledge_graph() -> tuple[list[dict], list[dict]]:
     for mod_id, method_ids in mod_method.items():
         for method_id in method_ids:
             edges.append({
-                "source": mod_id,
-                "target": method_id,
+                "from": mod_id,
+                "to": method_id,
                 "label": "uses",
             })
 
@@ -78,19 +82,20 @@ def build_knowledge_graph() -> tuple[list[dict], list[dict]]:
                 if m["id"] == method_id or method_id in m["id"]:
                     for pid in paper_ids:
                         edges.append({
-                            "source": cat["id"],
-                            "target": pid,
+                            "from": cat["id"],
+                            "to": pid,
                             "label": "reviewed in",
                         })
 
-    # Tool -> Pipeline stage edges
+    # Tool -> Modality edges (dashed)
     for t in tools:
         if t.get("pipeline_stage"):
             for mod_id in t.get("modalities", []):
                 edges.append({
-                    "source": t["id"],
-                    "target": mod_id,
+                    "from": t["id"],
+                    "to": mod_id,
                     "label": "supports",
+                    "dashes": True,
                 })
 
     return nodes, edges

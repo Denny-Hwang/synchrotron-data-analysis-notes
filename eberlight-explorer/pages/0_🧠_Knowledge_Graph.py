@@ -30,93 +30,19 @@ st.markdown(
 st.markdown("---")
 st.subheader("🔗 Interactive Research Network")
 
-try:
-    from streamlit_agraph import agraph, Node, Edge, Config
-    from utils.graph_builder import build_knowledge_graph
+from utils.graph_builder import build_knowledge_graph
+from components.visjs_graph import render_visjs_graph
 
-    raw_nodes, raw_edges = build_knowledge_graph()
+raw_nodes, raw_edges = build_knowledge_graph()
 
-    nodes = [
-        Node(
-            id=n["id"],
-            label=n["label"],
-            size=n["size"],
-            color=n["color"],
-            font={"size": 14, "color": "#1A1A2E"},
-        )
-        for n in raw_nodes
-    ]
-    edges = [
-        Edge(
-            source=e["source"],
-            target=e["target"],
-            label=e.get("label", ""),
-            color="#CCCCCC",
-        )
-        for e in raw_edges
-    ]
+# Layout toggle via Streamlit checkbox (drives initial state)
+hier_col, info_col = st.columns([1, 3])
+with hier_col:
+    hierarchical = st.checkbox("Hierarchical Layout", value=False, key="kg_hier")
+with info_col:
+    st.caption("Toggle layout above or use in-graph controls. Drag nodes to rearrange, scroll to zoom, click to highlight connections.")
 
-    config = Config(
-        width=1100,
-        height=600,
-        directed=True,
-        physics=True,
-        hierarchical=False,
-        nodeHighlightBehavior=True,
-        highlightColor="#00D4AA",
-    )
-    agraph(nodes=nodes, edges=edges, config=config)
-
-except ImportError:
-    st.info(
-        "💡 Install `streamlit-agraph` for the interactive graph. "
-        "Showing text-based view instead."
-    )
-
-    # Text-based fallback with better formatting
-    st.markdown("#### Modality → AI/ML Method Connections")
-    mod_method = cross_refs.get("modality_method", {})
-    for mod_id, method_ids in mod_method.items():
-        mod_name = next((m["short_name"] for m in modalities if m["id"] == mod_id), mod_id)
-        mod_icon = next((m["icon"] for m in modalities if m["id"] == mod_id), "")
-        if method_ids:
-            method_names = []
-            for mid in method_ids:
-                cat = next((c for c in categories if c["id"] == mid), None)
-                method_names.append(f"{cat['icon']} {cat['name']}" if cat else mid)
-            st.markdown(f"- {mod_icon} **{mod_name}** → {' · '.join(method_names)}")
-        else:
-            st.markdown(f"- {mod_icon} **{mod_name}** → _(no AI/ML methods yet)_")
-
-    st.markdown("#### Tool → Pipeline Stage")
-    display_tools = [t for t in tools if t["id"] != "aps_github_repos"]
-    for t in display_tools:
-        stage = (t.get("pipeline_stage") or "N/A").title()
-        st.markdown(f"- {t['icon']} **{t['name']}** → {stage}")
-
-# Legend
-st.markdown("---")
-legend_cols = st.columns(4)
-with legend_cols[0]:
-    st.markdown(
-        "<span style='display:inline-block;width:14px;height:14px;"
-        "background:#00D4AA;border-radius:50%;margin-right:6px;'></span>"
-        " **Modality** (6)", unsafe_allow_html=True)
-with legend_cols[1]:
-    st.markdown(
-        "<span style='display:inline-block;width:14px;height:14px;"
-        "background:#FFB800;border-radius:50%;margin-right:6px;'></span>"
-        " **AI/ML Method** (5)", unsafe_allow_html=True)
-with legend_cols[2]:
-    st.markdown(
-        "<span style='display:inline-block;width:14px;height:14px;"
-        "background:#1B3A5C;border-radius:50%;margin-right:6px;'></span>"
-        " **Paper** (13)", unsafe_allow_html=True)
-with legend_cols[3]:
-    st.markdown(
-        "<span style='display:inline-block;width:14px;height:14px;"
-        "background:#E8515D;border-radius:50%;margin-right:6px;'></span>"
-        " **Tool** (6)", unsafe_allow_html=True)
+render_visjs_graph(raw_nodes, raw_edges, hierarchical=hierarchical, height=650)
 
 # ── Matrix Views ──────────────────────────────────────
 if level in ("L0", "L1", "L2"):

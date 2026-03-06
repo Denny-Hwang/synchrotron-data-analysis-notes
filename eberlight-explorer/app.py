@@ -75,13 +75,13 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("#### 📂 Navigate")
 st.sidebar.markdown(
     "Use the **pages** in the left menu to explore:\n"
+    "- 🧠 **Knowledge Graph** — Visual research map\n"
     "- 🔬 **Modalities** — X-ray techniques\n"
     "- 🤖 **AI/ML** — Methods & algorithms\n"
     "- 📚 **Papers** — Reviewed publications\n"
     "- 🛠️ **Tools** — Software ecosystem\n"
     "- 🔄 **Pipeline** — Data flow\n"
-    "- 📊 **Data** — Schemas & EDA\n"
-    "- 🧠 **Knowledge Graph** — Cross-references"
+    "- 📊 **Data** — Schemas & EDA"
 )
 st.sidebar.markdown("---")
 level = render_level_selector()
