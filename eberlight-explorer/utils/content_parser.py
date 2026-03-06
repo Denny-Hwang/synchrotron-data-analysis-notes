@@ -51,21 +51,30 @@ def extract_metadata_table(markdown_text: str) -> dict:
     return metadata
 
 
-def extract_section(markdown_text: str, section_name: str) -> str | None:
-    """Extract content under a specific ## heading."""
-    lines = markdown_text.split("\n")
-    capturing = False
-    result = []
-    for line in lines:
-        if line.strip().startswith("## ") and section_name.lower() in line.lower():
-            capturing = True
-            continue
-        elif line.strip().startswith("## ") and capturing:
-            break
-        elif capturing:
-            result.append(line)
-    if result:
-        return "\n".join(result).strip()
+def extract_section(markdown_text: str, section_name: str,
+                     aliases: list[str] | None = None) -> str | None:
+    """Extract content under a specific ## heading.
+
+    Args:
+        markdown_text: Full markdown content.
+        section_name: Primary heading to search for (substring match).
+        aliases: Alternative heading substrings to try if primary not found.
+    """
+    names_to_try = [section_name] + (aliases or [])
+    for name in names_to_try:
+        lines = markdown_text.split("\n")
+        capturing = False
+        result = []
+        for line in lines:
+            if line.strip().startswith("## ") and name.lower() in line.lower():
+                capturing = True
+                continue
+            elif line.strip().startswith("## ") and capturing:
+                break
+            elif capturing:
+                result.append(line)
+        if result:
+            return "\n".join(result).strip()
     return None
 
 
