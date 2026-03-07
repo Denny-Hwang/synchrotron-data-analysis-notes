@@ -139,9 +139,9 @@ refinement of selected frames.
 
 | Resource       | Link / Note                                                           |
 |----------------|-----------------------------------------------------------------------|
-| **Code**       | Partial release: inference scripts and pretrained model weights on GitHub |
-| **Data**       | Simulated training sets available; experimental data on request        |
-| **License**    | Not explicitly stated in paper                                        |
+| **Code**       | [edgePtychoNN](https://github.com/vbanakha/edgePtychoNN) — TensorRT inference + EPICS PVA streaming on Jetson AGX Xavier |
+| **Data**       | [Zenodo 8121606](https://zenodo.org/records/8121606) — 121 spiral scans × 963 diffraction images (.npy), CC BY 4.0 |
+| **License**    | Code: not explicitly stated; Data: CC BY 4.0                          |
 | **Reproducibility Score** | **3 / 5** -- Inference code and pretrained weights publicly available; FPGA synthesis scripts and full training pipeline not released; experimental data available on request but not openly deposited. |
 
 ---

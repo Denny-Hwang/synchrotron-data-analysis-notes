@@ -36,11 +36,11 @@ publications:
     priority: "Medium-High"
 
   - id: review_ptychonet_2019
-    title: "PtychoNet: Fast Ptychographic Phase Retrieval with CNNs"
-    authors: "Cherukara, M. J.; Nashed, Y. S. G.; Harder, R. J."
+    title: "PtychoNet: Fast and High Quality Phase Retrieval for Ptychography"
+    authors: "Guan, Z.; Tsai, E. H. R.; Huang, X.; Yager, K. G.; Qin, H."
     year: 2019
-    journal: "Appl. Phys. Lett."
-    doi: "10.1364/OE.27.006553"
+    journal: "BMVC 2019"
+    doi: "10.2172/1599580"
     file: "04_publications/ai_ml_synchrotron/review_ptychonet_2019.md"
     category: reconstruction
     modalities: [ptychography]
@@ -48,8 +48,8 @@ publications:
     priority: "High"
 
   - id: review_deep_residual_xrf_2023
-    title: "Deep Residual Networks for XRF Super-Resolution"
-    authors: "Various"
+    title: "Resolution-Enhanced X-ray Fluorescence Microscopy via Deep Residual Networks"
+    authors: "Wu, L.; Bak, S.; Shin, Y.; Chu, Y. S.; Yoo, S.; Robinson, I. K.; Huang, X."
     year: 2023
     journal: "npj Computational Materials"
     doi: "10.1038/s41524-023-00995-9"
@@ -84,11 +84,11 @@ publications:
     priority: "Medium"
 
   - id: review_fullstack_dl_tomo_2023
-    title: "Full-Stack Deep Learning for Tomography"
-    authors: "Various"
+    title: "Towards Full-Stack Deep Learning-Empowered Data Processing Pipeline for Synchrotron Tomography Experiments"
+    authors: "Zhang, Z.; Li, C.; Wang, W.; Dong, Z.; Liu, G.; Dong, Y.; Zhang, Y."
     year: 2023
-    journal: "Fundamental Research"
-    doi: "10.1016/j.fmre.2023.11.003"
+    journal: "The Innovation"
+    doi: "10.1016/j.xinn.2023.100539"
     file: "04_publications/ai_ml_synchrotron/review_fullstack_dl_tomo_2023.md"
     category: reconstruction
     modalities: [tomography]
@@ -97,10 +97,10 @@ publications:
 
   - id: review_fullstack_tomo_2023
     title: "Full-Stack Tomography (Extended Review)"
-    authors: "Various"
+    authors: "Zhang, Z.; Li, C.; Wang, W.; Dong, Z.; Liu, G.; Dong, Y.; Zhang, Y."
     year: 2023
-    journal: "Fundamental Research"
-    doi: "10.1016/j.fmre.2023.11.003"
+    journal: "The Innovation"
+    doi: "10.1016/j.xinn.2023.100539"
     file: "04_publications/ai_ml_synchrotron/review_fullstack_tomo_2023.md"
     category: reconstruction
     modalities: [tomography]
@@ -108,11 +108,11 @@ publications:
     priority: "Medium"
 
   - id: review_realtime_uct_hpc_2020
-    title: "Real-Time Micro-CT with HPC"
-    authors: "McClure, M. et al."
+    title: "Toward Real-Time Analysis of Synchrotron Micro-Tomography Data: Accelerating Experimental Workflows with AI and HPC"
+    authors: "McClure, J. E.; Yin, J.; Armstrong, R. T.; Maheshwari, K. C.; Wilkinson, S.; Vlcek, L.; Wang, Y. D.; Berrill, M. A.; Rivers, M."
     year: 2020
-    journal: "IEEE SMC"
-    doi: "10.1109/SMC42975.2020.9283269"
+    journal: "SMC 2020 (Smoky Mountains Comp. Sci. Eng.)"
+    doi: "10.1007/978-3-030-63393-6_15"
     file: "04_publications/ai_ml_synchrotron/review_realtime_uct_hpc_2020.md"
     category: reconstruction
     modalities: [tomography]
@@ -133,7 +133,7 @@ publications:
 
   - id: review_ai_als_workshop_2024
     title: "AI for ALS Workshop Report"
-    authors: "Various"
+    authors: "Parkinson, D.; Chavez, T.; Choudhary, M. et al."
     year: 2024
     journal: "Synchrotron Radiation News"
     doi: "10.1080/08940886.2024.2391258"

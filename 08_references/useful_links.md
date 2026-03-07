@@ -68,6 +68,8 @@
 | Tike | [https://github.com/AdvancedPhotonSource/tike](https://github.com/AdvancedPhotonSource/tike) | APS ptychography + tomo toolkit |
 | PtychoPy | [https://github.com/ptycho/ptypy](https://github.com/ptycho/ptypy) | Ptychographic reconstruction |
 | PyNX | [http://ftp.esrf.fr/pub/scisoft/PyNX/](http://ftp.esrf.fr/pub/scisoft/PyNX/) | GPU-accelerated coherent imaging |
+| edgePtychoNN | [https://github.com/vbanakha/edgePtychoNN](https://github.com/vbanakha/edgePtychoNN) | Real-time edge inference for ptychography (TensorRT + EPICS PVA) |
+| PtychoNN | [https://github.com/mcherukara/PtychoNN](https://github.com/mcherukara/PtychoNN) | Deep learning for ptychographic imaging |
 
 ## APS GitHub Organization
 
@@ -92,6 +94,7 @@
 |----------|-----|-------------|
 | TomoBank | [https://tomobank.readthedocs.io](https://tomobank.readthedocs.io) | APS tomography datasets |
 | CXIDB | [https://cxidb.org](https://cxidb.org) | Coherent X-ray imaging database |
+| edgePtychoNN Data | [https://zenodo.org/records/8121606](https://zenodo.org/records/8121606) | Ptychographic diffraction datasets (Babu 2023) |
 | PDB | [https://www.rcsb.org](https://www.rcsb.org) | Protein Data Bank |
 | AlphaFold DB | [https://alphafold.ebi.ac.uk](https://alphafold.ebi.ac.uk) | Protein structure predictions |
 | SBGrid Data | [https://data.sbgrid.org](https://data.sbgrid.org) | Raw diffraction datasets |
@@ -102,7 +105,7 @@
 |-------|-----|
 | ROI-Finder (Chowdhury 2022) | [10.1107/S1600577522008876](https://doi.org/10.1107/S1600577522008876) |
 | AI@Edge Ptychography (Babu 2023) | [10.1038/s41467-023-41496-z](https://doi.org/10.1038/s41467-023-41496-z) |
-| Full-Stack DL Tomo (2023) | [10.1016/j.fmre.2023.11.003](https://doi.org/10.1016/j.fmre.2023.11.003) |
+| Full-Stack DL Tomo (Zhang 2023) | [10.1016/j.xinn.2023.100539](https://doi.org/10.1016/j.xinn.2023.100539) |
 | Deep Residual XRF (2023) | [10.1038/s41524-023-00995-9](https://doi.org/10.1038/s41524-023-00995-9) |
 | AI@ALS Workshop (2024) | [10.1080/08940886.2024.2391258](https://doi.org/10.1080/08940886.2024.2391258) |
 | TomoPy (Gürsoy 2014) | [10.1107/S1600577514013939](https://doi.org/10.1107/S1600577514013939) |
