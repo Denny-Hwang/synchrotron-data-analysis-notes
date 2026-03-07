@@ -4,11 +4,11 @@
 
 | Field              | Value                                                                                  |
 |--------------------|----------------------------------------------------------------------------------------|
-| **Title**          | PtychoNet: CNN-Based Ptychographic Phase Retrieval                                     |
-| **Authors**        | Guan, S.; Cherukara, M. J.; Phatak, C.; Zhou, T.                                      |
-| **Journal**        | Optics Express, 27(5), 6553--6566                                                      |
+| **Title**          | PtychoNet: Fast and High Quality Phase Retrieval for Ptychography                      |
+| **Authors**        | Guan, Z.; Tsai, E. H. R.; Huang, X.; Yager, K. G.; Qin, H.                           |
+| **Journal**        | BMVC 2019 (British Machine Vision Conference)                                          |
 | **Year**           | 2019                                                                                   |
-| **DOI**            | [10.1364/OE.27.006553](https://doi.org/10.1364/OE.27.006553)                           |
+| **DOI**            | [10.2172/1599580](https://doi.org/10.2172/1599580)                                     |
 | **Beamline**       | Simulation-based; validated against APS hard X-ray ptychography data                   |
 | **Modality**       | Ptychography (coherent diffraction imaging)                                            |
 

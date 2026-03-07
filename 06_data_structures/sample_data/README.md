@@ -96,6 +96,41 @@ The NeXus international standard provides example HDF5/NeXus files for testing r
 - **Repository**: [https://github.com/mcherukara/PtychoNN](https://github.com/mcherukara/PtychoNN)
 - Training datasets for neural network ptychographic reconstruction
 
+### edgePtychoNN Experimental Data (Babu et al. 2023)
+
+- **Zenodo DOI**: [10.5281/zenodo.8121606](https://zenodo.org/records/8121606)
+- **Code**: [https://github.com/vbanakha/edgePtychoNN](https://github.com/vbanakha/edgePtychoNN)
+- **Format**: NumPy `.npy` arrays + `positions.csv`
+- **License**: CC BY 4.0
+- **Includes**: 121 spiral scans × 963 diffraction images (128×128 pixels), collected
+  with a Medipix3 detector at 50 nm step size / 0.4 s exposure
+- **Paper**: "Deep learning at the edge enables real-time streaming ptychographic imaging"
+  ([10.1038/s41467-023-41496-z](https://doi.org/10.1038/s41467-023-41496-z))
+
+**Quick-start example**:
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load a single scan (963 diffraction patterns, 128x128 each)
+scan = np.load("diff_scan_810.npy")
+print(f"Scan shape: {scan.shape}")  # (963, 128, 128)
+
+# Visualize a single diffraction pattern (log scale)
+fig, axes = plt.subplots(1, 3, figsize=(12, 4))
+for i, idx in enumerate([0, 480, 962]):
+    axes[i].imshow(np.log1p(scan[idx]), cmap="viridis")
+    axes[i].set_title(f"Pattern #{idx}")
+plt.suptitle("Ptychographic Diffraction Patterns")
+plt.tight_layout()
+plt.show()
+
+# Load scan positions
+import pandas as pd
+positions = pd.read_csv("positions.csv")
+print(f"Positions: {len(positions)} points")
+```
+
 ## Spectroscopy Datasets
 
 ### XAS Reference Spectra

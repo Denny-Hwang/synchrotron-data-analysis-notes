@@ -4,11 +4,11 @@
 
 | Field              | Value                                                                                  |
 |--------------------|----------------------------------------------------------------------------------------|
-| **Title**          | Real-Time AI+HPC Workflow for Micro-Computed Tomography: Reconstruction, Denoising, and Segmentation |
-| **Authors**        | McClure, M.; Bicer, T.; Kettimuthu, R.; Foster, I.; Schwarz, N.                       |
-| **Journal**        | Proceedings of IEEE International Conference on Systems, Man, and Cybernetics (SMC)    |
+| **Title**          | Toward Real-Time Analysis of Synchrotron Micro-Tomography Data: Accelerating Experimental Workflows with AI and HPC |
+| **Authors**        | McClure, J. E.; Yin, J.; Armstrong, R. T.; Maheshwari, K. C.; Wilkinson, S.; Vlcek, L.; Wang, Y. D.; Berrill, M. A.; Rivers, M. |
+| **Journal**        | SMC 2020 — Smoky Mountains Comp. Sci. & Eng. Conference (Springer CCIS 1315)          |
 | **Year**           | 2020                                                                                   |
-| **DOI**            | 10.1109/SMC42975.2020.9283269                                                         |
+| **DOI**            | 10.1007/978-3-030-63393-6_15                                                          |
 | **Beamline**       | APS 2-BM (micro-tomography)                                                           |
 
 ---

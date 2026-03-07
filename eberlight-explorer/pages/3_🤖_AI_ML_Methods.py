@@ -239,10 +239,7 @@ st.caption("Explore the landscape of AI/ML methods for synchrotron science. "
            "Click nodes to highlight connections. Toggle hierarchy for structured view.")
 
 method_nodes, method_edges = _build_method_graph()
-hier_col, _ = st.columns([1, 3])
-with hier_col:
-    method_hier = st.checkbox("Hierarchical Layout", value=True, key="method_hier")
-render_visjs_graph(method_nodes, method_edges, hierarchical=method_hier, height=550)
+render_visjs_graph(method_nodes, method_edges, hierarchical=True, height=550)
 
 # ── Level-specific content ────────────────────────────
 if level == "L0":

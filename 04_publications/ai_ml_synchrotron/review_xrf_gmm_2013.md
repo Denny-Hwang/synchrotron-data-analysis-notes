@@ -5,10 +5,10 @@
 | Field              | Value                                                                                  |
 |--------------------|----------------------------------------------------------------------------------------|
 | **Title**          | Cluster Analysis of Subcellular XRF Maps from *Plasmodium falciparum*-Infected Erythrocytes |
-| **Authors**        | Ward, J.; Dooley, J.; Bhatt, M.; Mehta, A.; Bhatt, S.                                 |
+| **Authors**        | Ward, J.; Marvin, R.; O'Halloran, T.; Jacobsen, C.; Vogt, S.                          |
 | **Journal**        | Microscopy and Microanalysis, 19(5)                                                    |
 | **Year**           | 2013                                                                                   |
-| **DOI**            | 10.1017/S1431927613001128 (Proceedings / Supplement)                                   |
+| **DOI**            | [10.1017/S1431927613012737](https://doi.org/10.1017/S1431927613012737)                 |
 | **Beamline**       | APS 2-ID-E (hard X-ray fluorescence nanoprobe)                                         |
 | **Modality**       | X-ray Fluorescence (XRF) Microscopy                                                   |
 

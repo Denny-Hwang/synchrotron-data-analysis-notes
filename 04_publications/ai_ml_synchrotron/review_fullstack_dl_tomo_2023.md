@@ -4,11 +4,11 @@
 
 | Field              | Value                                                                                  |
 |--------------------|----------------------------------------------------------------------------------------|
-| **Title**          | Deep Learning for Full-Stack Synchrotron X-Ray Tomography: From Preprocessing to Segmentation |
-| **Authors**        | Wang, G.; Zhang, T.; Gao, H.; Woollard, M.; Ren, L.; Liu, H.                         |
-| **Journal**        | Fundamental Research, 3(6), 1040--1052                                                 |
+| **Title**          | Towards Full-Stack Deep Learning-Empowered Data Processing Pipeline for Synchrotron Tomography Experiments |
+| **Authors**        | Zhang, Z.; Li, C.; Wang, W.; Dong, Z.; Liu, G.; Dong, Y.; Zhang, Y.                  |
+| **Journal**        | The Innovation, 5(1), 100539                                                           |
 | **Year**           | 2023                                                                                   |
-| **DOI**            | [10.1016/j.fmre.2023.11.003](https://doi.org/10.1016/j.fmre.2023.11.003)              |
+| **DOI**            | [10.1016/j.xinn.2023.100539](https://doi.org/10.1016/j.xinn.2023.100539)              |
 | **Beamline**       | Multi-facility review (SSRF, APS, ESRF, Diamond, Swiss Light Source)                   |
 
 ---
