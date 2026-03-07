@@ -158,6 +158,17 @@ METHOD_DIAGRAMS = {
     E -->|"update"| B""",
         "height": 250,
     },
+    "ki_bo_xanes": {
+        "code": """graph LR
+    A["Seed Points"] --> B["GP Surrogate"]
+    B --> C["Knowledge-Injected\\nAcquisition"]
+    C --> D["Next Energy E*"]
+    D --> E["Measure XANES"]
+    E -->|"update GP"| B
+    F["Edge Prior"] -.-> C
+    G["Gradient ∂μ/∂E"] -.-> C""",
+        "height": 280,
+    },
 }
 
 
