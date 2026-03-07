@@ -1,7 +1,7 @@
 publications:
   - id: review_tomogan_2020
     title: "TomoGAN: Low-Dose Synchrotron X-Ray Tomography with GANs"
-    authors: "Liu, Z.; Bicer, T.; Kettimuthu, R.; Deng, D.; Foster, I."
+    authors: "Liu, Z.; Bicer, T.; Kettimuthu, R.; Gursoy, D.; De Carlo, F.; Foster, I."
     year: 2020
     journal: "J. Opt. Soc. Am. A"
     doi: "10.1364/JOSAA.375595"
@@ -13,7 +13,7 @@ publications:
 
   - id: review_roi_finder_2022
     title: "ROI-Finder: ML-Assisted Region-of-Interest for XRF Microscopy"
-    authors: "Chowdhury, A. Z.; Wen, H.; Jatla, V.; Huang, X.; Chen, S.; Jacobsen, C."
+    authors: "Chowdhury, M. A. Z.; Ok, K.; Luo, Y.; Liu, Z.; Chen, S.; O'Halloran, T. V.; Kettimuthu, R.; Tekawade, A."
     year: 2022
     journal: "J. Synchrotron Rad."
     doi: "10.1107/S1600577522008876"
@@ -24,11 +24,11 @@ publications:
     priority: "High"
 
   - id: review_xrf_gmm_2013
-    title: "Cluster Analysis of XRF Spectra Using GMM"
-    authors: "Ward, J.; Dooley, J.; Bhatt, M.; Mehta, A.; Bhatt, S."
+    title: "Rapid and Accurate Analysis of an X-Ray Fluorescence Microscopy Data Set through Gaussian Mixture-Based Soft Clustering Methods"
+    authors: "Ward, J.; Marvin, R.; O'Halloran, T.; Jacobsen, C.; Vogt, S."
     year: 2013
     journal: "Microsc. Microanal."
-    doi: "10.1017/S1431927613001128"
+    doi: "10.1017/S1431927613012737"
     file: "04_publications/ai_ml_synchrotron/review_xrf_gmm_2013.md"
     category: image_segmentation
     modalities: [xrf_microscopy]
@@ -120,15 +120,15 @@ publications:
     priority: "High"
 
   - id: review_ai_nerd_2024
-    title: "AI-NERD: Autonomous Experiment Design"
-    authors: "Horwath, J. P. et al."
+    title: "AI-NERD: Elucidation of Relaxation Dynamics Beyond Equilibrium through AI-Informed X-ray Photon Correlation Spectroscopy"
+    authors: "Horwath, J. P.; Lin, X.-M.; He, H.; Zhang, Q.; Dufresne, E. M.; Chu, M.; Sankaranarayanan, S. K. R. S.; Chen, W.; Narayanan, S.; Cherukara, M. J."
     year: 2024
     journal: "Nature Communications"
-    doi: "10.1038/s41467-024-47210-5"
+    doi: "10.1038/s41467-024-49381-z"
     file: "04_publications/ai_ml_synchrotron/review_ai_nerd_2024.md"
     category: autonomous_experiment
-    modalities: [xrf_microscopy, tomography]
-    tags: [autonomous, experiment, reinforcement-learning]
+    modalities: [scattering]
+    tags: [autonomous, XPCS, unsupervised, dynamics, AI]
     priority: "High"
 
   - id: review_ai_als_workshop_2024

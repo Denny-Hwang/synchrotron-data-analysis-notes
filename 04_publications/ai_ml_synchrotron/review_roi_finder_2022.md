@@ -5,7 +5,7 @@
 | Field              | Value                                                                                  |
 |--------------------|----------------------------------------------------------------------------------------|
 | **Title**          | ROI-Finder: Machine-Learning-Assisted Region-of-Interest Identification in XRF Maps   |
-| **Authors**        | Chowdhury, A. Z.; Wen, H.; Jatla, V.; Huang, X.; Chen, S.; Jacobsen, C.             |
+| **Authors**        | Chowdhury, M. A. Z.; Ok, K.; Luo, Y.; Liu, Z.; Chen, S.; O'Halloran, T. V.; Kettimuthu, R.; Tekawade, A. |
 | **Journal**        | Journal of Synchrotron Radiation, 29(4)                                                |
 | **Year**           | 2022                                                                                   |
 | **DOI**            | [10.1107/S1600577522008876](https://doi.org/10.1107/S1600577522008876)                 |

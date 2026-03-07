@@ -4,11 +4,11 @@
 
 | Field              | Value                                                                                  |
 |--------------------|----------------------------------------------------------------------------------------|
-| **Title**          | AI-NERD: Autonomous Identification of Non-Equilibrium Relaxation Dynamics via Unsupervised Fingerprinting |
-| **Authors**        | Horwath, J. P.; Chen, X.; Lhermitte, J.; Yager, K. G.; Freychet, G.; Cosgriff, M.; Sutton, M.; Bhatt, R.; Narayanan, S.; Sandy, A.; Schwarz, N. |
+| **Title**          | AI-NERD: Elucidation of Relaxation Dynamics Beyond Equilibrium through AI-Informed X-ray Photon Correlation Spectroscopy |
+| **Authors**        | Horwath, J. P.; Lin, X.-M.; He, H.; Zhang, Q.; Dufresne, E. M.; Chu, M.; Sankaranarayanan, S. K. R. S.; Chen, W.; Narayanan, S.; Cherukara, M. J. |
 | **Journal**        | Nature Communications, 15                                                              |
 | **Year**           | 2024                                                                                   |
-| **DOI**            | [10.1038/s41467-024-47210-5](https://doi.org/10.1038/s41467-024-47210-5)               |
+| **DOI**            | [10.1038/s41467-024-49381-z](https://doi.org/10.1038/s41467-024-49381-z)               |
 | **Beamline**       | APS 8-ID-I (XPCS), NSLS-II 11-ID (CHX)                                                |
 
 ---

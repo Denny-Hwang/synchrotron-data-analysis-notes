@@ -5,7 +5,7 @@
 | Field              | Value                                                                                  |
 |--------------------|----------------------------------------------------------------------------------------|
 | **Title**          | TomoGAN: Low-Dose Synchrotron X-Ray Tomography with Generative Adversarial Networks    |
-| **Authors**        | Liu, Z.; Bicer, T.; Kettimuthu, R.; Deng, D.; Foster, I.                              |
+| **Authors**        | Liu, Z.; Bicer, T.; Kettimuthu, R.; Gursoy, D.; De Carlo, F.; Foster, I.              |
 | **Journal**        | Journal of the Optical Society of America A, 37(3), 422--434                           |
 | **Year**           | 2020                                                                                   |
 | **DOI**            | [10.1364/JOSAA.375595](https://doi.org/10.1364/JOSAA.375595)                           |
