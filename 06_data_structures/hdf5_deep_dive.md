@@ -324,12 +324,46 @@ files" at the format level. VDS provides this but requires explicit
 configuration. If the master file is lost, the relationship between data
 files is lost.
 
-### 5. Schema Evolution
+### 5. Python GIL Constraint (h5py)
+
+The h5py library is effectively **single-threaded** due to Python's GIL.
+Multi-threaded reads from the same HDF5 file do not parallelize. This is
+a significant limitation for Python-based analysis pipelines:
+
+| Approach | Throughput | Notes |
+|----------|-----------|-------|
+| Single-thread h5py | 2--5 GB/s | GIL-limited |
+| Multi-thread h5py | 2--5 GB/s (no gain) | GIL prevents parallel reads |
+| Multi-process h5py | 10--30 GB/s | Each process opens file independently |
+| MPI-parallel (mpi4py + h5py) | 50--100 GB/s | Best performance on ALCF |
+| Zarr + Dask (alternative) | 30--80 GB/s | No GIL limitation |
+
+### 6. Cannot Truly Delete Data
+
+Deleting a dataset from an HDF5 file only removes the link -- the file
+size does **not shrink**. The on-disk space is marked as free but not
+reclaimed. Requires `h5repack` to compact:
+
+```bash
+# Repack a 120 GB file to reclaim space -- produces a full copy
+h5repack -f GZIP=4 input.h5 output.h5
+# For TB-scale files, this is extremely expensive
+```
+
+### 7. Schema Evolution
 
 Modifying the structure of an existing HDF5 file (adding new groups,
 renaming datasets) requires rewriting the file. There is no in-place
 schema migration. This complicates long-running experiments where
 requirements change mid-campaign.
+
+### 8. VOL (Virtual Object Layer) -- Potential Future Fix
+
+HDF5 1.12+ introduced the **Virtual Object Layer (VOL)**, which allows
+the HDF5 API to interface with arbitrary storage backends via plugins.
+In theory, this could enable transparent cloud object store access
+without application changes. However, VOL connectors for S3 and other
+cloud backends are not yet production-ready.
 
 ## Best Practices for APS-U Scale
 

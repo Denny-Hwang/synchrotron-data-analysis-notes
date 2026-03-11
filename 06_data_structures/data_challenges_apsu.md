@@ -97,18 +97,19 @@ Detector (EIGER, Pilatus, etc.)
 | Bandwidth | 650 GB/s aggregate |
 | Retention | 90 days (project allocation) |
 | Access | Direct from Polaris/Aurora compute nodes |
-| Network | 100 Gbps dedicated link to APS (being upgraded to terabit) |
+| Network | 100 Gbps dedicated link to APS (terabit streaming link to Aurora) |
+| Dedicated | 4 racks of Polaris reserved for APS facility integration |
 
 **Strengths**: Massive bandwidth; directly accessible from supercomputers;
-Globus-enabled for external sharing.
+Globus-enabled for external sharing; terabit link to Aurora for streaming.
 **Weakness**: 90-day retention; allocation-based access requires ALCF project.
 
 #### Tier 3: Petrel (Warm Archive)
 
 | Parameter | Value |
 |-----------|-------|
-| Hardware | Object store at ALCF |
-| Capacity | 500 TB per project allocation (expandable) |
+| Hardware | 3 PB high-speed storage at ALCF |
+| Capacity | ~100 TB per project allocation (expandable) |
 | Access | Globus transfer, REST API, web portal |
 | Retention | 3 years |
 | Sharing | Identity-based ACLs, Globus Auth groups |
@@ -149,7 +150,8 @@ inter-facility transfers:
 
 **Key capability**: Globus Flows automates the entire post-acquisition
 pipeline: transfer → process → archive → notify. A single scan completion
-triggers the full chain automatically.
+triggers the full chain automatically. Globus has demonstrated transfers
+of **2.9 PB in a single campaign**, proving the system scales to APS-U demands.
 
 #### Nexus Framework (APS-ALCF Integration)
 
@@ -178,6 +180,9 @@ Scan → Write HDF5 → Transfer → Process → Archive → DOI → Notify
 
 **Advantage**: Scientists focus on science, not data management.
 **Metric**: Median time from scan completion to processed results: 5--15 minutes.
+**Demonstrated**: Fully automated Laue microdiffraction pipeline on Polaris --
+scans processed every 1--2 minutes over 6--12 hour experimental runs with
+no human in the loop (MPI+CUDA parallelized across up to 50 nodes).
 
 ### 2. GPU-Accelerated Reconstruction
 
@@ -310,6 +315,15 @@ Reusable) principles:
 | **Accessible** | Globus transfer; Petrel web portal | No standardized API for all data; 12-month embargo |
 | **Interoperable** | NeXus/HDF5 standard | Inconsistent NeXus compliance across beamlines |
 | **Reusable** | Processing provenance in NXprocess | Incomplete reproducibility chain; no containerized environments |
+
+**Emerging solutions**:
+- **Tiled** (BNL/NSLS-II) is explicitly designed for FAIR data from the ground up,
+  serving structured data over HTTP with full provenance. Being tested at APS.
+- **CRADLE** (Common Research Analytics and Data Lifecycle Environment) is a proposed
+  distributed platform for the full data lifecycle: heterogeneous data management,
+  elastic scaling, and accessible interfaces.
+- **Ontology frameworks** (MDS-Onto, FAIRmaterials, FAIRLinked) are being developed
+  to structure and integrate synchrotron data following FAIR principles.
 
 ### 4. Data Reduction at Source
 
