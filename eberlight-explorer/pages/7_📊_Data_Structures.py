@@ -16,12 +16,19 @@ inject_styles()
 level = render_level_selector(key="data_level")
 
 st.title("📊 Data Structures")
-st.markdown("HDF5 schemas, data scale analysis, and exploratory data analysis for synchrotron datasets.")
+st.markdown("HDF5 schemas, data formats, data scale analysis, and exploratory data analysis for synchrotron datasets.")
 
 HDF5_SCHEMAS = {
     "Tomography": "06_data_structures/hdf5_structure/tomo_hdf5_schema.md",
     "XRF Microscopy": "06_data_structures/hdf5_structure/xrf_hdf5_schema.md",
     "Ptychography": "06_data_structures/hdf5_structure/ptychography_hdf5_schema.md",
+}
+
+DEEP_DIVE_FILES = {
+    "HDF5 Deep Dive (SWMR, Parallel I/O, Limitations)": "06_data_structures/hdf5_deep_dive.md",
+    "Data Formats Comparison (HDF5 vs Zarr vs TIFF)": "06_data_structures/data_formats_comparison.md",
+    "APS-U Data Challenges (100+ TB/Day)": "06_data_structures/data_challenges_apsu.md",
+    "Data Scale Analysis (Pre vs Post APS-U)": "06_data_structures/data_scale_analysis.md",
 }
 
 EDA_FILES = {
@@ -71,19 +78,29 @@ elif level == "L1":
     st.subheader("Data Scale Analysis")
     render_markdown("06_data_structures/data_scale_analysis.md", show_title=False)
 
+    st.markdown("---")
+    st.subheader("APS-U Data Challenges")
+    render_markdown("06_data_structures/data_challenges_apsu.md", show_title=False)
+
 elif level == "L2":
-    tab_names = ["HDF5 Schemas", "EDA Reports", "Notebooks"]
+    tab_names = ["HDF5 & Data Formats", "HDF5 Schemas", "EDA Reports", "Notebooks"]
     tabs = st.tabs(tab_names)
 
     with tabs[0]:
+        selected_topic = st.selectbox(
+            "Select Topic", options=list(DEEP_DIVE_FILES.keys())
+        )
+        render_markdown(DEEP_DIVE_FILES[selected_topic], show_title=True)
+
+    with tabs[1]:
         selected_schema = st.selectbox("Select Schema", options=list(HDF5_SCHEMAS.keys()))
         render_markdown(HDF5_SCHEMAS[selected_schema], show_title=True)
 
-    with tabs[1]:
+    with tabs[2]:
         selected_eda = st.selectbox("Select EDA", options=list(EDA_FILES.keys()))
         render_markdown(EDA_FILES[selected_eda], show_title=True)
 
-    with tabs[2]:
+    with tabs[3]:
         st.subheader("Available Notebooks")
         for nb in NOTEBOOKS:
             st.markdown(f"- `{nb}`")
@@ -92,8 +109,9 @@ elif level == "L2":
 elif level == "L3":
     all_files = (
         list(HDF5_SCHEMAS.values()) +
+        list(DEEP_DIVE_FILES.values()) +
         list(EDA_FILES.values()) +
-        ["06_data_structures/README.md", "06_data_structures/data_scale_analysis.md"]
+        ["06_data_structures/README.md"]
     )
     selected = st.selectbox("Select file", options=all_files)
     content = read_local_file(selected)

@@ -72,6 +72,9 @@ background subtraction, filtering) that directly impact downstream analysis.
 | [hdf5_structure/ptychography_hdf5_schema.md](hdf5_structure/ptychography_hdf5_schema.md) | Ptychography CXI schema |
 | [hdf5_structure/notebooks/](hdf5_structure/notebooks/) | HDF5 exploration & visualization notebooks |
 | [data_scale_analysis.md](data_scale_analysis.md) | Pre vs. post-APS-U data volume projections |
+| [hdf5_deep_dive.md](hdf5_deep_dive.md) | HDF5 internals: SWMR, parallel I/O, chunking, limitations |
+| [data_formats_comparison.md](data_formats_comparison.md) | HDF5 vs Zarr vs TIFF; areaDetector, Databroker, Tiled |
+| [data_challenges_apsu.md](data_challenges_apsu.md) | APS-U 100+ TB/day: infrastructure, challenges, solutions |
 | [eda/](eda/) | Exploratory data analysis guides and notebooks |
 | [eda/xrf_eda.md](eda/xrf_eda.md) | XRF-specific EDA techniques |
 | [eda/tomo_eda.md](eda/tomo_eda.md) | Tomography-specific EDA techniques |
@@ -82,10 +85,13 @@ background subtraction, filtering) that directly impact downstream analysis.
 ## Recommended Reading Order
 
 1. Start with [hdf5_structure/README.md](hdf5_structure/README.md) for format fundamentals
-2. Explore the schema file for your modality of interest
-3. Run the HDF5 exploration notebook to gain hands-on familiarity
-4. Read [data_scale_analysis.md](data_scale_analysis.md) for context on data volumes
-5. Follow the EDA guide for your modality before processing data
+2. Read [hdf5_deep_dive.md](hdf5_deep_dive.md) for SWMR, parallel I/O, and performance tuning
+3. Compare formats in [data_formats_comparison.md](data_formats_comparison.md) (HDF5 vs Zarr vs TIFF)
+4. Explore the schema file for your modality of interest
+5. Run the HDF5 exploration notebook to gain hands-on familiarity
+6. Read [data_scale_analysis.md](data_scale_analysis.md) for context on data volumes
+7. Understand the challenges in [data_challenges_apsu.md](data_challenges_apsu.md)
+8. Follow the EDA guide for your modality before processing data
 
 ## Related Directories
 
