@@ -185,5 +185,5 @@ if level in ("L1", "L2"):
 st.markdown("---")
 st.caption(
     "Built from [synchrotron-data-analysis-notes](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes) | "
-    "eBERlight Research Explorer v0.1.0"
+    "eBERlight Research Explorer v1.0.0"
 )

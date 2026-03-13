@@ -32,7 +32,7 @@ Photon Source (APS).
 
 ---
 
-## Paper Reviews (10 total)
+## Paper Reviews (14 total)
 
 All reviews live in `ai_ml_synchrotron/` and follow the template. They are
 organized here by primary topic for quick navigation.
@@ -55,32 +55,41 @@ organized here by primary topic for quick navigation.
 | # | File | Short Title | Year |
 |---|------|-------------|------|
 | 4 | `ai_ml_synchrotron/review_ai_nerd_2024.md` | AI-NERD: unsupervised XPCS fingerprinting | 2024 |
+| 5 | `ai_ml_synchrotron/review_aidriven_xanes_2025.md` | AI-driven workflow for dynamic XANES | 2025 |
 
 ### Ptychography
 
 | # | File | Short Title | Year |
 |---|------|-------------|------|
-| 5 | `ai_ml_synchrotron/review_ai_edge_ptychography_2023.md` | Real-time edge ptychographic imaging | 2023 |
-| 6 | `ai_ml_synchrotron/review_ptychonet_2019.md` | PtychoNet: CNN phase retrieval | 2019 |
+| 6 | `ai_ml_synchrotron/review_aiedge_ptycho_2023.md` | AI at the edge for real-time ptychography | 2023 |
+| 7 | `ai_ml_synchrotron/review_ai_edge_ptychography_2023.md` | AI edge ptychography (extended review) | 2023 |
+| 8 | `ai_ml_synchrotron/review_ptychonet_2019.md` | PtychoNet: CNN phase retrieval | 2019 |
 
 ### Resolution Enhancement
 
 | # | File | Short Title | Year |
 |---|------|-------------|------|
-| 7 | `ai_ml_synchrotron/review_deep_residual_xrf_2023.md` | Deep residual networks for XRF resolution | 2023 |
+| 9 | `ai_ml_synchrotron/review_deep_residual_xrf_2023.md` | Deep residual networks for XRF resolution | 2023 |
 
 ### Full-Pipeline / Infrastructure
 
 | # | File | Short Title | Year |
 |---|------|-------------|------|
-| 8 | `ai_ml_synchrotron/review_fullstack_dl_tomo_2023.md` | Full-stack DL pipeline for tomography | 2023 |
-| 9 | `ai_ml_synchrotron/review_realtime_uct_hpc_2020.md` | Real-time AI+HPC for micro-CT | 2020 |
+| 10 | `ai_ml_synchrotron/review_fullstack_dl_tomo_2023.md` | Full-stack DL pipeline for tomography | 2023 |
+| 11 | `ai_ml_synchrotron/review_fullstack_tomo_2023.md` | Full-stack tomography (extended review) | 2023 |
+| 12 | `ai_ml_synchrotron/review_realtime_uct_hpc_2020.md` | Real-time AI+HPC for micro-CT | 2020 |
+
+### Structural Biology
+
+| # | File | Short Title | Year |
+|---|------|-------------|------|
+| 13 | `ai_ml_synchrotron/review_alphafold_2021.md` | AlphaFold & structural biology | 2021 |
 
 ### Workshop Reports & Surveys
 
 | # | File | Short Title | Year |
 |---|------|-------------|------|
-| 10 | `ai_ml_synchrotron/review_ai_als_workshop_2024.md` | AI@ALS Workshop Report | 2024 |
+| 14 | `ai_ml_synchrotron/review_ai_als_workshop_2024.md` | AI@ALS Workshop Report | 2024 |
 
 ---
 
@@ -117,4 +126,4 @@ To add a new review:
 ## Maintainers
 
 - APS BER program AI/ML team, Argonne National Laboratory
-- Last updated: 2025-Q4
+- Last updated: 2026-Q1

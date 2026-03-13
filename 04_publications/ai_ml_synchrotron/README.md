@@ -9,7 +9,7 @@ Each review follows the standardized template defined in
 to the APS BER program at the Advanced Photon Source (APS).
 
 The collection spans foundational methods (2013-2019), mature techniques
-(2020-2022), and cutting-edge developments (2023-2024), providing a
+(2020-2022), and cutting-edge developments (2023-2025), providing a
 comprehensive landscape of AI/ML capabilities applicable to beamline science.
 
 ---
@@ -44,7 +44,7 @@ retrieval that improve speed, quality, or both.
 | Review | Paper | Key Contribution |
 |--------|-------|------------------|
 | `review_ai_edge_ptychography_2023.md` | Babu et al., Nature Comm. (2023) | Real-time streaming ptychography at 2 kHz on edge GPU/FPGA |
-| `review_fullstack_dl_tomo_2023.md` | Fundamental Research (2023) | Full-stack DL vision for synchrotron tomography pipeline |
+| `review_fullstack_dl_tomo_2023.md` | Zhang et al., The Innovation (2023) | Full-stack DL vision for synchrotron tomography pipeline |
 | `review_ptychonet_2019.md` | Guan et al. (2019) | CNN phase retrieval with 90% speedup over iterative methods |
 
 ### Autonomous & Adaptive Experiments
@@ -56,7 +56,8 @@ experimental control during beamtime.
 |--------|-------|------------------|
 | `review_roi_finder_2022.md` | Chowdhury et al., J. Synchrotron Rad. (2022) | Automated ROI recommendation for beam-time-efficient XRF scanning |
 | `review_ai_nerd_2024.md` | Horwath et al., Nature Comm. (2024) | Unsupervised XPCS dynamics fingerprinting via UMAP + HDBSCAN |
-| `review_ai_edge_ptychography_2023.md` | Babu et al., Nature Comm. (2023) | Real-time feedback loop for ptychographic imaging |
+| `review_aiedge_ptycho_2023.md` | Babu et al., Nature Comm. (2023) | Real-time feedback loop for ptychographic imaging |
+| `review_aidriven_xanes_2025.md` | Du et al., npj Comput. Mater. (2025) | AI-driven workflow for dynamic XANES with Bayesian optimization |
 
 ### Resolution Enhancement
 
@@ -67,6 +68,14 @@ measurements beyond the physical limits of the optics or detector.
 |--------|-------|------------------|
 | `review_deep_residual_xrf_2023.md` | npj Comp. Mater. (2023) | 2-4x effective resolution improvement for XRF via deep residual networks |
 
+### Structural Biology
+
+AI methods for protein structure prediction and crystallographic analysis.
+
+| Review | Paper | Key Contribution |
+|--------|-------|------------------|
+| `review_alphafold_2021.md` | Jumper et al., Nature (2021) | AlphaFold: revolutionary protein structure prediction |
+
 ### Multimodal, Survey & Infrastructure
 
 Broad surveys, workshop reports, and papers addressing cross-cutting themes
@@ -74,7 +83,7 @@ across multiple modalities or facility-wide infrastructure.
 
 | Review | Paper | Key Contribution |
 |--------|-------|------------------|
-| `review_fullstack_dl_tomo_2023.md` | Fundamental Research (2023) | Comprehensive pipeline vision across all tomography stages |
+| `review_fullstack_dl_tomo_2023.md` | The Innovation (2023) | Comprehensive pipeline vision across all tomography stages |
 | `review_realtime_uct_hpc_2020.md` | McClure et al., SMC (2020) | Full pipeline integration for real-time micro-CT analysis |
 | `review_ai_als_workshop_2024.md` | Synchrotron Rad. News (2024) | AI@ALS Workshop: facility-wide ML needs survey, applicable to APS |
 
@@ -88,12 +97,16 @@ across multiple modalities or facility-wide infrastructure.
 | 2 | `review_ptychonet_2019.md` | Guan | 2019 | Ptychography |
 | 3 | `review_tomogan_2020.md` | Liu | 2020 | Tomography |
 | 4 | `review_realtime_uct_hpc_2020.md` | McClure | 2020 | Micro-CT |
-| 5 | `review_roi_finder_2022.md` | Chowdhury | 2022 | XRF |
-| 6 | `review_ai_edge_ptychography_2023.md` | Babu | 2023 | Ptychography |
-| 7 | `review_fullstack_dl_tomo_2023.md` | Wang | 2023 | Tomography |
-| 8 | `review_deep_residual_xrf_2023.md` | Zhang | 2023 | XRF |
-| 9 | `review_ai_nerd_2024.md` | Horwath | 2024 | XPCS |
-| 10 | `review_ai_als_workshop_2024.md` | ALS Working Group | 2024 | Multi-modal |
+| 5 | `review_alphafold_2021.md` | Jumper | 2021 | Crystallography |
+| 6 | `review_roi_finder_2022.md` | Chowdhury | 2022 | XRF |
+| 7 | `review_aiedge_ptycho_2023.md` | Babu | 2023 | Ptychography |
+| 8 | `review_ai_edge_ptychography_2023.md` | Babu | 2023 | Ptychography |
+| 9 | `review_fullstack_dl_tomo_2023.md` | Zhang | 2023 | Tomography |
+| 10 | `review_fullstack_tomo_2023.md` | Zhang | 2023 | Tomography |
+| 11 | `review_deep_residual_xrf_2023.md` | Wu | 2023 | XRF |
+| 12 | `review_ai_nerd_2024.md` | Horwath | 2024 | XPCS |
+| 13 | `review_ai_als_workshop_2024.md` | Parkinson | 2024 | Multi-modal |
+| 14 | `review_aidriven_xanes_2025.md` | Du | 2025 | Spectroscopy |
 
 ---
 
@@ -114,15 +127,18 @@ provides a logical progression:
 4. **`review_roi_finder_2022.md`** and **`review_xrf_gmm_2013.md`** -- Explore
    clustering and segmentation methods for XRF, from classical to modern.
 
-5. **`review_ai_edge_ptychography_2023.md`** and
+5. **`review_aiedge_ptycho_2023.md`** and
    **`review_realtime_uct_hpc_2020.md`** -- Examine real-time and edge
    computing approaches.
 
 6. **`review_deep_residual_xrf_2023.md`** -- Resolution enhancement as a
    complementary capability.
 
-7. **`review_ai_nerd_2024.md`** -- Unsupervised methods for dynamics at the
-   cutting edge.
+7. **`review_ai_nerd_2024.md`** and **`review_aidriven_xanes_2025.md`** --
+   Autonomous and AI-driven experimental methods.
+
+8. **`review_alphafold_2021.md`** -- AI for structural biology and protein
+   structure prediction.
 
 ---
 
@@ -135,4 +151,4 @@ provides a logical progression:
 
 ---
 
-_Last updated: 2025-Q4_
+_Last updated: 2026-Q1_
