@@ -34,7 +34,7 @@ All notable changes to this project will be documented in this file.
 #### Phase 5: Publication Archive (04_publications/)
 - Paper review template
 - BER program publications overview
-- 10 detailed paper reviews covering ROI-Finder, TomoGAN, XRF GMM, AI-NERD, PtychoNet, AI@Edge ptychography, deep residual XRF, full-stack DL tomo, real-time µCT HPC, AI@ALS workshop
+- 14 detailed paper reviews covering ROI-Finder, TomoGAN, XRF GMM, AI-NERD, PtychoNet, AI@Edge ptychography, deep residual XRF, full-stack DL tomo, real-time µCT HPC, AI@ALS workshop, AI-driven XANES, AlphaFold
 
 #### Phase 6: Tools & Code Reverse Engineering (05_tools_and_code/)
 - ROI-Finder: reverse engineering, pros/cons, reproduction guide, 4 Jupyter notebooks

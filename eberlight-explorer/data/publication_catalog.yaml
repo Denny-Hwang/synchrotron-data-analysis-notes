@@ -71,17 +71,6 @@ publications:
     tags: [edge-computing, ptychography, AI, real-time]
     priority: "Medium"
 
-  - id: review_ai_edge_ptychography_2023
-    title: "AI Edge Ptychography (Extended Review)"
-    authors: "Babu, A. V. et al."
-    year: 2023
-    journal: "Nature Communications"
-    doi: "10.1038/s41467-023-41496-z"
-    file: "04_publications/ai_ml_synchrotron/review_ai_edge_ptychography_2023.md"
-    category: reconstruction
-    modalities: [ptychography]
-    tags: [edge-computing, ptychography, AI]
-    priority: "Medium"
 
   - id: review_fullstack_dl_tomo_2023
     title: "Towards Full-Stack Deep Learning-Empowered Data Processing Pipeline for Synchrotron Tomography Experiments"
@@ -95,17 +84,6 @@ publications:
     tags: [full-stack, deep-learning, tomography, pipeline]
     priority: "High"
 
-  - id: review_fullstack_tomo_2023
-    title: "Full-Stack Tomography (Extended Review)"
-    authors: "Zhang, Z.; Li, C.; Wang, W.; Dong, Z.; Liu, G.; Dong, Y.; Zhang, Y."
-    year: 2023
-    journal: "The Innovation"
-    doi: "10.1016/j.xinn.2023.100539"
-    file: "04_publications/ai_ml_synchrotron/review_fullstack_tomo_2023.md"
-    category: reconstruction
-    modalities: [tomography]
-    tags: [full-stack, tomography]
-    priority: "Medium"
 
   - id: review_realtime_uct_hpc_2020
     title: "Toward Real-Time Analysis of Synchrotron Micro-Tomography Data: Accelerating Experimental Workflows with AI and HPC"
