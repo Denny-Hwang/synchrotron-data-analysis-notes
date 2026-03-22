@@ -45,6 +45,26 @@ NOTEBOOKS = [
     "06_data_structures/eda/notebooks/03_spectral_eda.ipynb",
 ]
 
+# ── Deep-linking via query params ──────────────────────
+# Supports URLs like ?doc=tomo_eda or ?doc=06_data_structures/eda/tomo_eda.md
+_ALL_DOCS = {**HDF5_SCHEMAS, **DEEP_DIVE_FILES, **EDA_FILES}
+_DOC_BY_BASENAME: dict[str, tuple[str, str, str]] = {}  # basename -> (display_name, path, category)
+for _name, _path in HDF5_SCHEMAS.items():
+    _DOC_BY_BASENAME[os.path.splitext(os.path.basename(_path))[0]] = (_name, _path, "schema")
+for _name, _path in DEEP_DIVE_FILES.items():
+    _DOC_BY_BASENAME[os.path.splitext(os.path.basename(_path))[0]] = (_name, _path, "deep_dive")
+for _name, _path in EDA_FILES.items():
+    _DOC_BY_BASENAME[os.path.splitext(os.path.basename(_path))[0]] = (_name, _path, "eda")
+
+_doc_param = st.query_params.get("doc", None)
+_deep_link_target = None
+if _doc_param:
+    # Try matching by basename (e.g., "tomo_eda") or full path
+    key = os.path.splitext(os.path.basename(_doc_param))[0]
+    if key in _DOC_BY_BASENAME:
+        _deep_link_target = _DOC_BY_BASENAME[key]
+        level = "L2"  # Force detail view for deep links
+
 if level == "L0":
     cols = st.columns(3)
     with cols[0]:
@@ -83,21 +103,44 @@ elif level == "L1":
     render_markdown("06_data_structures/data_challenges_apsu.md", show_title=False)
 
 elif level == "L2":
+    # If deep-linked to a specific document, show it directly
+    if _deep_link_target:
+        dl_name, dl_path, dl_cat = _deep_link_target
+        st.info(f"Showing: **{dl_name}**")
+        render_markdown(dl_path, show_title=True)
+        st.markdown("---")
+        st.caption("Browse all documents below:")
+
     tab_names = ["HDF5 & Data Formats", "HDF5 Schemas", "EDA Reports", "Notebooks"]
+    # Default to the tab matching the deep-link category
+    default_tab = 0
+    if _deep_link_target:
+        cat = _deep_link_target[2]
+        default_tab = {"deep_dive": 0, "schema": 1, "eda": 2}.get(cat, 0)
     tabs = st.tabs(tab_names)
 
     with tabs[0]:
-        selected_topic = st.selectbox(
-            "Select Topic", options=list(DEEP_DIVE_FILES.keys())
-        )
+        _dd_keys = list(DEEP_DIVE_FILES.keys())
+        _dd_default = 0
+        if _deep_link_target and _deep_link_target[2] == "deep_dive":
+            _dd_default = _dd_keys.index(_deep_link_target[0]) if _deep_link_target[0] in _dd_keys else 0
+        selected_topic = st.selectbox("Select Topic", options=_dd_keys, index=_dd_default)
         render_markdown(DEEP_DIVE_FILES[selected_topic], show_title=True)
 
     with tabs[1]:
-        selected_schema = st.selectbox("Select Schema", options=list(HDF5_SCHEMAS.keys()))
+        _sc_keys = list(HDF5_SCHEMAS.keys())
+        _sc_default = 0
+        if _deep_link_target and _deep_link_target[2] == "schema":
+            _sc_default = _sc_keys.index(_deep_link_target[0]) if _deep_link_target[0] in _sc_keys else 0
+        selected_schema = st.selectbox("Select Schema", options=_sc_keys, index=_sc_default)
         render_markdown(HDF5_SCHEMAS[selected_schema], show_title=True)
 
     with tabs[2]:
-        selected_eda = st.selectbox("Select EDA", options=list(EDA_FILES.keys()))
+        _eda_keys = list(EDA_FILES.keys())
+        _eda_default = 0
+        if _deep_link_target and _deep_link_target[2] == "eda":
+            _eda_default = _eda_keys.index(_deep_link_target[0]) if _deep_link_target[0] in _eda_keys else 0
+        selected_eda = st.selectbox("Select EDA", options=_eda_keys, index=_eda_default)
         render_markdown(EDA_FILES[selected_eda], show_title=True)
 
     with tabs[3]:

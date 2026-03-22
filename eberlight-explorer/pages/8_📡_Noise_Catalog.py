@@ -486,6 +486,21 @@ def _render_no_solution_actions(topic: str):
         st.link_button("Contact Repository Maintainer", email_url)
 
 
+# ── Deep-linking via query params ──────────────────────
+# Supports URLs like ?doc=ring_artifact or ?doc=09_noise_catalog/tomography/ring_artifact.md
+_DOC_BY_BASENAME: dict[str, tuple[str, str, str]] = {}  # basename -> (name, path, modality)
+for _mod_name, _mod_data in MODALITIES.items():
+    for _name, _path in _mod_data["files"]:
+        _DOC_BY_BASENAME[os.path.splitext(os.path.basename(_path))[0]] = (_name, _path, _mod_name)
+
+_doc_param = st.query_params.get("doc", None)
+_deep_link_target = None
+if _doc_param:
+    key = os.path.splitext(os.path.basename(_doc_param))[0]
+    if key in _DOC_BY_BASENAME:
+        _deep_link_target = _DOC_BY_BASENAME[key]
+        level = "L2"
+
 # ══════════════════════════════════════════════
 # Main Page Rendering
 # ══════════════════════════════════════════════
@@ -521,20 +536,41 @@ elif level == "L1":
     _render_summary_table_interactive()
 
 elif level == "L2":
+    # If deep-linked to a specific document, show it directly
+    if _deep_link_target:
+        dl_name, dl_path, dl_mod = _deep_link_target
+        st.info(f"Showing: **{dl_name}** ({dl_mod})")
+        if dl_name in BEFORE_AFTER_IMAGES:
+            with st.expander("Before/After Comparison", expanded=True):
+                _render_before_after_viewer(dl_name)
+        render_markdown(dl_path, show_title=True)
+        st.markdown("---")
+        st.caption("Browse all documents below:")
+
     tab_names = ["By Modality", "Summary Table", "Troubleshooter"]
     tabs = st.tabs(tab_names)
 
     with tabs[0]:
+        _mod_keys = list(MODALITIES.keys())
+        _mod_default = 0
+        if _deep_link_target:
+            _mod_default = _mod_keys.index(_deep_link_target[2]) if _deep_link_target[2] in _mod_keys else 0
         selected_mod = st.selectbox(
             "Select Modality",
-            options=list(MODALITIES.keys()),
+            options=_mod_keys,
+            index=_mod_default,
             format_func=lambda x: f"{MODALITIES[x]['icon']} {x}",
         )
         mod_data = MODALITIES[selected_mod]
 
+        _noise_names = [name for name, _ in mod_data["files"]]
+        _noise_default = 0
+        if _deep_link_target and _deep_link_target[2] == selected_mod:
+            _noise_default = _noise_names.index(_deep_link_target[0]) if _deep_link_target[0] in _noise_names else 0
         selected_noise = st.selectbox(
             "Select Noise/Artifact",
-            options=[name for name, _ in mod_data["files"]],
+            options=_noise_names,
+            index=_noise_default,
         )
         noise_path = next(p for n, p in mod_data["files"] if n == selected_noise)
 
