@@ -12,7 +12,9 @@
 
 ## Visual Examples
 
-![Before and after](../images/rotation_center_error_before_after.png)
+![Before and after — Shepp-Logan phantom with rotation center offset](../images/rotation_center_error_before_after.png)
+
+> **Image source:** Synthetic — Shepp-Logan phantom reconstructed with +5 pixel rotation center offset vs correct center alignment.
 
 ## Description
 

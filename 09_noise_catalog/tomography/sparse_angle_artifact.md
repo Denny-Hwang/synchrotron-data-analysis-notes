@@ -12,7 +12,9 @@
 
 ## Visual Examples
 
-![Before and after](../images/sparse_angle_before_after.png)
+![Before and after — FBP reconstruction with sparse vs full angular sampling](../images/sparse_angle_before_after.png)
+
+> **Image source:** Sarepy neutron CT data — FBP reconstruction with sparse projections showing streak artifacts vs full 360° acquisition with ring removal.
 
 ## Description
 

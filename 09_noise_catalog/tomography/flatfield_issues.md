@@ -12,7 +12,9 @@
 
 ## Visual Examples
 
-![Before and after](../images/flatfield_before_after.png)
+![Before and after — Shepp-Logan phantom with simulated flat-field non-uniformity](../images/flatfield_before_after.png)
+
+> **Image source:** Synthetic — Shepp-Logan phantom with simulated beam non-uniformity, corrected via flat-field + dark-field normalization.
 
 ## Description
 

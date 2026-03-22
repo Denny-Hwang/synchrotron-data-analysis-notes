@@ -27,7 +27,7 @@ Expected (correct positions)      Observed (position errors)
 
 > **External references:**
 > - [Odstrcil et al. — Ptychographic position correction](https://doi.org/10.1038/s41467-023-41496-z)
-> - [PtychoShelves — modular ptychography framework](https://github.com/PtychoShelves)
+> - [PtychoShelves — modular ptychography framework (Wakonig et al. 2020)](https://doi.org/10.1107/S1600576720001776)
 
 ## Description
 
@@ -272,7 +272,7 @@ Position errors directly limit the achievable resolution in ptychographic recons
 - [Stitching Artifact](stitching_artifact.md) — position errors at tile boundaries exacerbate stitching issues
 - [Ptychography overview](../../02_xray_modalities/ptychography/README.md) — fundamentals of ptychographic reconstruction
 - [edgePtychoNN — DL position correction (Babu et al. 2023)](https://doi.org/10.1038/s41467-023-41496-z)
-- [PtychoShelves framework](https://github.com/PtychoShelves) — modular reconstruction with position refinement
+- [PtychoShelves framework (Wakonig et al. 2020)](https://doi.org/10.1107/S1600576720001776) — modular reconstruction with position refinement
 
 ## Key Takeaway
 
