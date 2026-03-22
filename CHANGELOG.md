@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-03-21
+
+### Added
+
+#### Phase 10: Noise Handling Catalog (09_noise_catalog/)
+- Dual-mode noise catalog: classification-based browsing + symptom-based troubleshooter
+- 29 noise/artifact type documents across 5 categories (tomography, XRF, spectroscopy, ptychography, cross-cutting)
+- Symptom-based troubleshooter with ASCII decision trees for all 29 noise types
+- Synthetic before/after example image generator (Shepp-Logan phantom based)
+- Visual example references for 9+ open-source image sources
+- Full summary matrix (summary_table.md) with detection methods and solutions
+- Image attribution and regeneration guide
+
 ## [1.0.0] - 2026-02-27
 
 ### Added

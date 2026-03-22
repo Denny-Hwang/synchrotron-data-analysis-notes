@@ -12,6 +12,7 @@ This repository documents the DOE BER (Biological and Environmental Research) pr
 - **7 open-source tools** — reverse-engineered architectures for ROI-Finder, TomocuPy, TomoPy, MAPS, MLExchange, Bluesky/EPICS
 - **HDF5 data schemas** — with EDA notebooks and sample data links
 - **End-to-end data pipeline** — from acquisition to storage with architecture diagrams
+- **29 noise/artifact types** — cataloged with detection code, before/after examples, and symptom-based troubleshooter
 
 ## eBERlight Explorer (Interactive Web App)
 
@@ -66,6 +67,7 @@ synchrotron-data-analysis-notes/
 ├── 06_data_structures/      # HDF5 schemas, EDA notebooks, sample data links
 ├── 07_data_pipeline/        # End-to-end pipeline: acquisition → streaming → processing → storage
 ├── 08_references/           # Bibliography (BibTeX), glossary (A-Z), useful links
+├── 09_noise_catalog/        # Noise/artifact catalog: detection, examples, troubleshooter
 └── eberlight-explorer/      # Streamlit web app for interactive exploration
 ```
 
@@ -88,6 +90,12 @@ synchrotron-data-analysis-notes/
 1. Run the Jupyter notebooks in [`05_tools_and_code/roi_finder/notebooks/`](05_tools_and_code/roi_finder/notebooks/)
 2. Explore HDF5 data with [`06_data_structures/hdf5_structure/notebooks/`](06_data_structures/hdf5_structure/notebooks/)
 3. Try the EDA notebooks in [`06_data_structures/eda/notebooks/`](06_data_structures/eda/notebooks/)
+
+### Dealing with noisy data?
+
+1. **Know the modality?** Browse [`09_noise_catalog/`](09_noise_catalog/) by technique
+2. **See something wrong but unsure?** Use the [Symptom-Based Troubleshooter](09_noise_catalog/troubleshooter.md)
+3. **Quick reference**: Check the [Summary Table](09_noise_catalog/summary_table.md) for all 29 types at a glance
 
 ### Just want to browse?
 
