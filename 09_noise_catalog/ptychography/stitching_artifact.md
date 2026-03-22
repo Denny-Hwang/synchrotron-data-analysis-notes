@@ -259,7 +259,7 @@ Stitching artifacts are generally cosmetic for qualitative imaging but can cause
 
 - [Position Error](position_error.md) — position errors at tile boundaries exacerbate stitching mismatches
 - [Partial Coherence Effects](partial_coherence.md) — coherence drift between tiles contributes to intensity mismatches
-- [Ptychography overview](../../01_modalities/ptychography.md) — scan geometry and overlap requirements
+- [Ptychography overview](../../02_xray_modalities/ptychography/README.md) — scan geometry and overlap requirements
 - [Wakonig et al. 2020](https://doi.org/10.1107/S1600577520001587) — PtychoShelves stitching pipeline
 
 ## Key Takeaway
