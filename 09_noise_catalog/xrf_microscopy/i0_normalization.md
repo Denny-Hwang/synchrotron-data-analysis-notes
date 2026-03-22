@@ -12,7 +12,9 @@
 
 ## Visual Examples
 
-![Before and after](../images/i0_drop_before_after.png)
+![Before and after — synthetic XRF map with I0 beam current drops](../images/i0_drop_before_after.png)
+
+> **Image source:** Synthetic — simulated XRF map with I0 beam current drops causing horizontal stripes, corrected via I0 normalization.
 
 ```
  I0 monitor signal during scan           Unnormalized Fe map

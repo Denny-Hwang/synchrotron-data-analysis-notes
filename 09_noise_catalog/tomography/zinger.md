@@ -12,7 +12,9 @@
 
 ## Visual Examples
 
-![Before and after](../images/zinger_before_after.png)
+![Before and after — Shepp-Logan phantom with simulated zingers](../images/zinger_before_after.png)
+
+> **Image source:** Synthetic — Shepp-Logan phantom with simulated zinger spikes in sinogram, corrected via median filter.
 
 ## Description
 

@@ -12,10 +12,12 @@
 
 ## Visual Examples
 
-![Before and after](../images/low_dose_noise_before_after.png)
+![Before and after — real APS synchrotron data from TomoGAN (Liu et al. 2020)](../images/low_dose_noise_before_after.png)
 
+> **Image source:** Real synchrotron CT data from [TomoGAN](https://github.com/lzhengchun/TomoGAN) (Liu et al. 2020), BSD-2 license. Left: noisy low-dose reconstruction. Right: GAN-denoised output preserving structural features.
+>
 > **External references:**
-> - [TomoGAN — low-dose CT denoising with GANs (Liu et al.)](https://github.com/ramsesproject/TomoGAN)
+> - [TomoGAN — low-dose CT denoising with GANs (Liu et al.)](https://github.com/lzhengchun/TomoGAN)
 > - [Noise2Noise — learning to denoise without clean data (Lehtinen et al.)](https://arxiv.org/abs/1803.04189)
 
 ## Description

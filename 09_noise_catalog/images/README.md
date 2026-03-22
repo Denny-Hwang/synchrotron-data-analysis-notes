@@ -1,34 +1,30 @@
 # Image Attribution and Regeneration Guide
 
+## Real Data Images
+
+The following images use real experimental data from published open-source repositories.
+
+| Image File | Noise Type | Data Source | License |
+|-----------|-----------|-------------|---------|
+| `ring_artifact_before_after.png` | Ring artifact | [Sarepy](https://github.com/nghia-vo/sarepy) — Vo et al., real neutron CT data (section 3 figures) | BSD-3 |
+| `low_dose_noise_before_after.png` | Low-dose Poisson noise | [TomoGAN](https://github.com/lzhengchun/TomoGAN) — Liu et al. 2020, real APS synchrotron data | BSD-2 |
+
 ## Synthetic Example Images
 
-The following images are generated programmatically by `generate_examples.py` using synthetic data (Shepp-Logan phantom and simulated elemental maps). No external data downloads are required.
+The following images are generated programmatically using synthetic data (Shepp-Logan phantom and simulated elemental maps).
 
 | Image File | Noise Type | Generation Method | License |
 |-----------|-----------|-------------------|---------|
-| `ring_artifact_before_after.png` | Ring artifact | Dead-pixel column in sinogram → FBP reconstruction | MIT (this repo) |
-| `zinger_before_after.png` | Zinger | Random high-intensity spots → median filter | MIT (this repo) |
-| `low_dose_noise_before_after.png` | Low-dose Poisson noise | Poisson-sampled projections → reconstruction | MIT (this repo) |
-| `rotation_center_error_before_after.png` | Rotation center error | Correct vs offset (±5 px) center reconstruction | MIT (this repo) |
-| `flatfield_before_after.png` | Flat-field non-uniformity | Non-uniform flat → normalized vs raw projection | MIT (this repo) |
-| `sparse_angle_before_after.png` | Sparse-angle artifact | 1800 vs 180 projections → FBP comparison | MIT (this repo) |
-| `dead_hot_pixel_before_after.png` | Dead/hot pixel (XRF) | Synthetic elemental map → outlier injection | MIT (this repo) |
-| `i0_drop_before_after.png` | I0 drop | Simulated I0 with drops → normalization | MIT (this repo) |
-
-### Regenerating Images
-
-```bash
-cd 09_noise_catalog/images/
-python generate_examples.py
-```
-
-Requirements: `numpy`, `scipy`, `matplotlib`
-
-All images are saved at 300 DPI with white background.
+| `zinger_before_after.png` | Zinger | Shepp-Logan phantom, random zingers in sinogram → median filter | MIT (this repo) |
+| `rotation_center_error_before_after.png` | Rotation center error | Shepp-Logan phantom, ±5 px center offset → correct center | MIT (this repo) |
+| `flatfield_before_after.png` | Flat-field non-uniformity | Shepp-Logan phantom, beam profile non-uniformity → normalized | MIT (this repo) |
+| `sparse_angle_before_after.png` | Sparse-angle artifact | Sarepy neutron CT data — FBP with sparse projections vs full angle | BSD-3 |
+| `dead_hot_pixel_before_after.png` | Dead/hot pixel (XRF) | Synthetic elemental map → outlier injection → median filter | MIT (this repo) |
+| `i0_drop_before_after.png` | I0 drop | Synthetic XRF map with I0 beam drops → normalization | MIT (this repo) |
 
 ## External Image References
 
-The following external sources are referenced in the noise catalog documents for real-data examples. Images are **not included** in this repository — only linked.
+The following external sources are referenced in the noise catalog documents for real-data examples.
 
 | Source | URL | License | Referenced In |
 |--------|-----|---------|--------------|

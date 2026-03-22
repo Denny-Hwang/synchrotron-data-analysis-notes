@@ -12,8 +12,10 @@
 
 ## Visual Examples
 
-![Before and after](../images/ring_artifact_before_after.png)
+![Before and after — real neutron CT data from Sarepy (Vo et al.)](../images/ring_artifact_before_after.png)
 
+> **Image source:** Real neutron CT data from [Sarepy](https://github.com/nghia-vo/sarepy) (Vo et al.), BSD-3 license. Left: reconstruction with ring artifacts from defective detector columns. Right: after Sarepy combined ring removal algorithm.
+>
 > **External references:**
 > - [Sarepy — ring artifact removal](https://github.com/nghia-vo/sarepy)
 > - [Algotom — data processing algorithms for tomography](https://github.com/algotom/algotom)

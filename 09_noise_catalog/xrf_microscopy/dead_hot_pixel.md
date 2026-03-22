@@ -12,7 +12,9 @@
 
 ## Visual Examples
 
-![Before and after](../images/dead_hot_pixel_before_after.png)
+![Before and after — synthetic XRF elemental map with dead/hot pixel defects](../images/dead_hot_pixel_before_after.png)
+
+> **Image source:** Synthetic — simulated XRF elemental map with injected dead (zero) and hot (saturated) pixels, corrected via 3x3 median filter.
 
 ```
  Raw elemental map with dead/hot pixels       After median filter correction
