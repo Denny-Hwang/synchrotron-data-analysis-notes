@@ -266,7 +266,7 @@ Partial coherence reduces the effective resolution and phase contrast of ptychog
 
 - [Position Error](position_error.md) — position errors compound with coherence issues, making both harder to diagnose
 - [Stitching Artifact](stitching_artifact.md) — coherence variations across the scan area affect tile-to-tile consistency
-- [Ptychography overview](../../01_modalities/ptychography.md) — fundamentals of coherent diffraction imaging
+- [Ptychography overview](../../02_xray_modalities/ptychography/README.md) — fundamentals of coherent diffraction imaging
 - [Thibault & Menzel 2013](https://doi.org/10.1038/nature11806) — original mixed-state ptychography paper
 - [PtyPy — python ptychography framework](https://github.com/ptycho/ptypy) — includes mixed-state reconstruction
 

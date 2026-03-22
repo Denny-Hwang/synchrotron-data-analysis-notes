@@ -270,7 +270,7 @@ Position errors directly limit the achievable resolution in ptychographic recons
 
 - [Partial Coherence Effects](partial_coherence.md) — coherence issues compound position error effects
 - [Stitching Artifact](stitching_artifact.md) — position errors at tile boundaries exacerbate stitching issues
-- [Ptychography overview](../../01_modalities/ptychography.md) — fundamentals of ptychographic reconstruction
+- [Ptychography overview](../../02_xray_modalities/ptychography/README.md) — fundamentals of ptychographic reconstruction
 - [edgePtychoNN — DL position correction (Babu et al. 2023)](https://doi.org/10.1038/s41467-023-41496-z)
 - [PtychoShelves framework](https://github.com/PtychoShelves) — modular reconstruction with position refinement
 

@@ -385,8 +385,8 @@ Corrupted data produces scientifically meaningless results that may not be obvio
 ## Related Resources
 
 - [Tomography EDA notebook](../../06_data_structures/eda/tomo_eda.md) — data inspection and quality checks
-- [HDF5/NeXus data structures](../../06_data_structures/hdf5_nexus.md) — chunking and compression strategies
-- [Dask parallel processing](../../05_tools_and_code/dask/parallel_processing.md) — safe rechunking patterns
+- [HDF5 Deep Dive](../../06_data_structures/hdf5_deep_dive.md) — chunking and compression strategies
+- [Data Pipeline — Processing](../../07_data_pipeline/processing.md) — safe rechunking patterns
 - [HDF5 Group best practices](https://docs.hdfgroup.org/hdf5/develop/_l_b_dsetCreate.html)
 
 ## Key Takeaway
