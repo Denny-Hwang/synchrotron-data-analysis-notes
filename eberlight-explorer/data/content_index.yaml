@@ -98,3 +98,21 @@ sections:
         title: "References Overview"
         level: L1
         tags: [references, bibliography, glossary]
+
+  - id: "09_noise_catalog"
+    title: "Noise & Artifact Catalog"
+    icon: "📡"
+    description: "29 noise and artifact types across synchrotron modalities with detection, correction, and troubleshooting"
+    files:
+      - path: "09_noise_catalog/README.md"
+        title: "Noise Catalog Overview"
+        level: L1
+        tags: [noise, artifact, catalog, troubleshooting]
+      - path: "09_noise_catalog/summary_table.md"
+        title: "Summary Table"
+        level: L2
+        tags: [noise, summary, matrix]
+      - path: "09_noise_catalog/troubleshooter.md"
+        title: "Symptom-Based Troubleshooter"
+        level: L2
+        tags: [troubleshooting, diagnosis, symptom]
