@@ -1,6 +1,8 @@
 # Noise & Artifact Catalog
 
-A practical catalog of **29 noise and artifact types** encountered in synchrotron X-ray data analysis. Each entry includes detection code, correction methods, before/after examples, and links to deeper resources in this repository.
+A practical catalog of **47 noise and artifact types** encountered in synchrotron X-ray data analysis and related imaging domains. Each entry includes detection code, correction methods, before/after examples, and links to deeper resources in this repository.
+
+> **New in v2:** 18 entries added from cross-domain benchmarking — Medical Imaging (CT/MRI), Electron Microscopy (SEM/TEM/Cryo-EM), Scattering & Diffraction (SAXS/Crystallography), and cross-cutting methods from Astronomy. These entries include facility benchmarks from ESRF, Diamond, DESY, SPring-8, and more.
 
 ## How to Use This Catalog
 
@@ -28,7 +30,10 @@ Synchrotron Noise & Artifact Catalog
 │   ├── XRF Microscopy (8 types)
 │   ├── Spectroscopy (6 types)
 │   ├── Ptychography (3 types)
-│   └── Cross-cutting (3 types)
+│   ├── Cross-cutting (6 types)
+│   ├── Medical Imaging (6 types) ← NEW
+│   ├── Electron Microscopy (5 types) ← NEW
+│   └── Scattering & Diffraction (5 types) ← NEW
 │
 ├── By Noise Type (attribute in each doc)
 │   ├── Statistical — photon counting, Poisson, thermal
@@ -43,7 +48,9 @@ Synchrotron Noise & Artifact Catalog
     ├── "Image is grainy/noisy"
     ├── "Features are blurred/shifted"
     ├── "Spectrum looks wrong"
-    └── "Data values seem off"
+    ├── "Data values seem off"
+    ├── "Phase map has discontinuities" ← NEW
+    └── "Ghost/residual from previous exposure" ← NEW
 ```
 
 ## Quick Reference Table
@@ -79,6 +86,30 @@ Synchrotron Noise & Artifact Catalog
 | 27 | [DL hallucination](cross_cutting/dl_hallucination.md) | Cross | Computational | Critical | Occasional | Uncertainty quantification, residual analysis |
 | 28 | [Rechunking data integrity](cross_cutting/rechunking_data_integrity.md) | Cross | Computational | Major | Occasional | Checksum verification after rechunking |
 | 29 | [Detector common issues](cross_cutting/detector_common_issues.md) | Cross | Instrumental | Major | Common | Regular detector calibration |
+| | **Medical Imaging (Benchmarked)** | | | | | |
+| 30 | [Beam hardening](medical_imaging/beam_hardening.md) | Med/Tomo | Systematic | Major | Common | Polynomial correction or dual-energy |
+| 31 | [Truncation artifact](medical_imaging/truncation_artifact.md) | Med/Tomo | Systematic | Major | Occasional | Sinogram extrapolation / padding |
+| 32 | [Partial volume effect](medical_imaging/partial_volume_effect.md) | Med/Micro | Systematic | Major | Always | Higher resolution or sub-voxel modeling |
+| 33 | [Scatter artifact](medical_imaging/scatter_artifact.md) | Med/Tomo | Systematic | Major | Common | Anti-scatter grid or kernel correction |
+| 34 | [Gibbs ringing](medical_imaging/gibbs_ringing.md) | Med/CDI | Computational | Moderate | Common | Apodization (Hamming window) |
+| 35 | [Bias field](medical_imaging/bias_field.md) | Med/Micro | Instrumental | Major | Common | N4ITK or homomorphic filtering |
+| 36 | [Metal artifact](medical_imaging/metal_artifact.md) | Med/Tomo | Systematic | Critical | Occasional | MAR sinogram inpainting |
+| | **Electron Microscopy (Benchmarked)** | | | | | |
+| 37 | [Shot noise (low-dose)](electron_microscopy/shot_noise_low_dose.md) | EM | Statistical | Critical | Always | Class averaging, dose weighting |
+| 38 | [Charging artifact](electron_microscopy/charging_artifact.md) | SEM | Instrumental | Major | Common | Conductive coating or low-voltage SEM |
+| 39 | [Drift & vibration](electron_microscopy/drift_vibration.md) | EM/Nano | Systematic | Major | Common | Cross-correlation alignment |
+| 40 | [CTF artifact](electron_microscopy/ctf_artifact.md) | TEM | Instrumental | Critical | Always | CTF estimation + Wiener correction |
+| 41 | [Contamination buildup](electron_microscopy/contamination_buildup.md) | EM | Systematic | Moderate | Common | Plasma cleaning, beam shower |
+| | **Scattering & Diffraction (Benchmarked)** | | | | | |
+| 42 | [Parasitic scattering](scattering_diffraction/parasitic_scattering.md) | SAXS/WAXS | Instrumental | Critical | Always | Guard slits + buffer subtraction |
+| 43 | [Ice rings](scattering_diffraction/ice_rings.md) | MX | Systematic | Major | Common | Cryoprotection + resolution exclusion |
+| 44 | [Detector gaps & parallax](scattering_diffraction/detector_gaps_parallax.md) | Scatter/Diff | Instrumental | Major | Common | Multi-position merge + geometry correction |
+| 45 | [Phase wrapping](scattering_diffraction/phase_wrapping.md) | Phase/CDI | Computational | Critical | Common | Quality-guided phase unwrapping |
+| 46 | [Radiation damage (MX)](scattering_diffraction/radiation_damage_crystallography.md) | MX | Systematic | Critical | Common | Zero-dose extrapolation, multi-crystal |
+| | **Cross-cutting (Benchmarked)** | | | | | |
+| 47 | [Cosmic ray / outlier](cross_cutting/cosmic_ray_outlier.md) | Cross | Statistical | Major | Common | L.A.Cosmic Laplacian detection |
+| 48 | [Noise estimation methods](cross_cutting/noise_estimation_methods.md) | Cross | Reference | N/A | N/A | NPS, DQE, MAD, Noise2Void (methodology) |
+| 49 | [Afterglow / persistence](cross_cutting/afterglow_persistence.md) | Cross | Instrumental | Major | Common | Decay modeling + flush frames |
 
 ## Directory Contents
 
@@ -120,7 +151,30 @@ Synchrotron Noise & Artifact Catalog
 ├── cross_cutting/
 │   ├── dl_hallucination.md
 │   ├── rechunking_data_integrity.md
-│   └── detector_common_issues.md
+│   ├── detector_common_issues.md
+│   ├── cosmic_ray_outlier.md              # NEW — astronomy benchmarked
+│   ├── noise_estimation_methods.md        # NEW — cross-domain methodology
+│   └── afterglow_persistence.md           # NEW — astronomy/medical benchmarked
+├── medical_imaging/                       # NEW — benchmarked from CT/MRI/PET
+│   ├── beam_hardening.md
+│   ├── truncation_artifact.md
+│   ├── partial_volume_effect.md
+│   ├── scatter_artifact.md
+│   ├── gibbs_ringing.md
+│   ├── bias_field.md
+│   └── metal_artifact.md
+├── electron_microscopy/                   # NEW — benchmarked from SEM/TEM/Cryo-EM
+│   ├── shot_noise_low_dose.md
+│   ├── charging_artifact.md
+│   ├── drift_vibration.md
+│   ├── ctf_artifact.md
+│   └── contamination_buildup.md
+├── scattering_diffraction/                # NEW — SAXS/WAXS/MX from global facilities
+│   ├── parasitic_scattering.md
+│   ├── ice_rings.md
+│   ├── detector_gaps_parallax.md
+│   ├── phase_wrapping.md
+│   └── radiation_damage_crystallography.md
 └── images/
     ├── README.md                      # Image attribution and license info
     └── generate_examples.py           # Script to generate synthetic examples
