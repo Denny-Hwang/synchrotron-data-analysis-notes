@@ -11,6 +11,12 @@
 | **Detection Difficulty** | Easy |
 | **Origin Domain** | Medical Imaging (MRI) |
 
+## Visual Examples
+
+![Before and after — Gibbs ringing](../images/gibbs_ringing_before_after.png)
+
+> **Image source:** Synthetic sharp-edge phantom with Fourier truncation. Left: oscillations at step boundaries from finite frequency sampling. Right: after Hamming apodization. MIT license.
+
 ## Description
 
 Gibbs ringing (also called truncation ringing or spectral leakage) manifests as oscillating bright/dark bands parallel to sharp edges. It arises from the finite sampling of frequency space (k-space in MRI, reciprocal space in diffraction), which is equivalent to multiplying the ideal infinite spectrum by a rectangular window function. The resulting sinc-function convolution produces characteristic overshoots and ringing at discontinuities.

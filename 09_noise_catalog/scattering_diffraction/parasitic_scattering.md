@@ -11,6 +11,12 @@
 | **Detection Difficulty** | Moderate |
 | **Origin Domain** | Synchrotron Scattering (ESRF, DESY, Diamond, SPring-8) |
 
+## Visual Examples
+
+![Before and after — parasitic scattering](../images/parasitic_scattering_before_after.png)
+
+> **Image source:** Synthetic SAXS I(q) curve with simulated parasitic scattering at low q. Left: steep upturn from slit/window scatter. Right: after buffer subtraction revealing true Guinier region. MIT license.
+
 ## Description
 
 Parasitic scattering is unwanted background signal from X-ray interactions with optical components (slits, windows, air gaps, beamstop) rather than the sample. In SAXS, this is the dominant noise source at low-q, where the scientific signal of interest (large-scale structures) overlaps with scattering from beam-defining slits and windows. Proper subtraction of parasitic scatter is essential for reliable structural analysis.

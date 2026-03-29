@@ -11,6 +11,12 @@
 | **Detection Difficulty** | Easy |
 | **Origin Domain** | Astronomy / Synchrotron / Electron Microscopy |
 
+## Visual Examples
+
+![Before and after — cosmic ray detection](../images/cosmic_ray_before_after.png)
+
+> **Image source:** Synthetic image with injected cosmic ray points and tracks. Left: bright pixels and short tracks from CR hits. Right: after L.A.Cosmic Laplacian detection and median replacement. MIT license.
+
 ## Description
 
 Cosmic ray events (also called zingers in synchrotron context, hot pixels in astronomy) are isolated, anomalously bright pixels or small clusters caused by high-energy particle impacts on the detector. In astronomy, this is one of the most well-characterized noise types with mature detection tools (L.A.Cosmic, astroscrappy). The synchrotron catalog already covers zingers in tomography; this entry focuses on the broader cross-domain perspective and tools from astronomy and electron microscopy.

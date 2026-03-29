@@ -11,6 +11,12 @@
 | **Detection Difficulty** | Easy |
 | **Origin Domain** | Electron Microscopy |
 
+## Visual Examples
+
+![Before and after — shot noise in low-dose imaging](../images/shot_noise_low_dose_before_after.png)
+
+> **Image source:** Synthetic particle image with Poisson noise at ~5 e⁻/pixel. Left: single low-dose exposure (SNR < 0.1). Right: class average of 100 aligned particles. MIT license.
+
 ## Description
 
 Shot noise (Poisson noise) is the fundamental statistical noise in electron microscopy arising from the discrete nature of electron detection. Each pixel's electron count follows a Poisson distribution, where the variance equals the mean count. In low-dose imaging — essential for radiation-sensitive biological samples in cryo-EM — SNR can be extremely low (SNR < 0.1 per particle image), making individual particles virtually invisible without averaging.

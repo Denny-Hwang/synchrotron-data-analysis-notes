@@ -11,6 +11,12 @@
 | **Detection Difficulty** | Easy |
 | **Origin Domain** | Synchrotron Crystallography (Diamond, ESRF, APS, SPring-8) |
 
+## Visual Examples
+
+![Before and after — ice rings in diffraction](../images/ice_rings_before_after.png)
+
+> **Image source:** Synthetic 2D diffraction pattern with simulated ice powder rings at known d-spacings. Left: ice rings overlapping Bragg reflections. Right: after ice ring masking and interpolation. MIT license.
+
 ## Description
 
 Ice rings are sharp, concentric powder-diffraction rings appearing on crystallography diffraction images at specific d-spacings corresponding to crystalline ice (hexagonal Ih or cubic Ic). They arise from ice forming on the sample, loop, or cryo-stream, and can obscure Bragg reflections, corrupt intensity measurements, and introduce systematic errors in structure determination.

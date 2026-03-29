@@ -11,6 +11,12 @@
 | **Detection Difficulty** | Moderate |
 | **Origin Domain** | Medical Imaging (CT) |
 
+## Visual Examples
+
+![Before and after — scatter artifact](../images/scatter_artifact_before_after.png)
+
+> **Image source:** Synthetic phantom with simulated Compton scatter background. Left: reduced contrast and haze from scatter. Right: after scatter kernel subtraction. MIT license.
+
 ## Description
 
 Scatter artifacts arise when X-ray photons undergo Compton or coherent scattering within the sample and reach the detector at positions inconsistent with the primary beam path. This adds a broad, low-frequency background to projections, reducing contrast, introducing cupping artifacts, and creating shading/streaks between dense structures. In cone-beam geometries (common in both medical CBCT and synchrotron micro-CT), scatter can contribute 20-80% of detector signal.

@@ -11,6 +11,12 @@
 | **Detection Difficulty** | Moderate |
 | **Origin Domain** | Medical Imaging (CT) |
 
+## Visual Examples
+
+![Before and after — beam hardening cupping artifact](../images/beam_hardening_before_after.png)
+
+> **Image source:** Synthetic Shepp-Logan phantom with simulated polychromatic cupping. Left: reconstruction showing center-darkening cupping artifact. Right: after polynomial cupping correction. MIT license.
+
 ## Description
 
 Beam hardening artifacts appear as cupping (dark center in uniform objects) or dark bands/streaks between dense structures. They arise because polychromatic X-ray beams preferentially lose low-energy photons as they pass through matter, causing the effective beam energy to increase ("harden") with depth. This violates the monochromatic assumption of standard CT reconstruction algorithms.

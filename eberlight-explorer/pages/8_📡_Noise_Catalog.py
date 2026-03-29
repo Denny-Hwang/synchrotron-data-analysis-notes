@@ -18,7 +18,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 level = render_level_selector(key="noise_level")
 
 st.title("📡 Noise & Artifact Catalog")
-st.markdown("29 noise and artifact types across synchrotron modalities — detection, correction, and troubleshooting.")
+st.markdown("47 noise and artifact types across synchrotron and related imaging domains — detection, correction, and troubleshooting.")
 
 MODALITIES = {
     "Tomography": {
@@ -73,6 +73,41 @@ MODALITIES = {
             ("Detector Common Issues", "09_noise_catalog/cross_cutting/detector_common_issues.md"),
             ("DL Hallucination", "09_noise_catalog/cross_cutting/dl_hallucination.md"),
             ("Rechunking Data Integrity", "09_noise_catalog/cross_cutting/rechunking_data_integrity.md"),
+            ("Cosmic Ray / Outlier", "09_noise_catalog/cross_cutting/cosmic_ray_outlier.md"),
+            ("Noise Estimation Methods", "09_noise_catalog/cross_cutting/noise_estimation_methods.md"),
+            ("Afterglow / Persistence", "09_noise_catalog/cross_cutting/afterglow_persistence.md"),
+        ],
+    },
+    "Medical Imaging": {
+        "icon": "🏥",
+        "files": [
+            ("Beam Hardening", "09_noise_catalog/medical_imaging/beam_hardening.md"),
+            ("Truncation Artifact", "09_noise_catalog/medical_imaging/truncation_artifact.md"),
+            ("Partial Volume Effect", "09_noise_catalog/medical_imaging/partial_volume_effect.md"),
+            ("Scatter Artifact", "09_noise_catalog/medical_imaging/scatter_artifact.md"),
+            ("Gibbs Ringing", "09_noise_catalog/medical_imaging/gibbs_ringing.md"),
+            ("Bias Field", "09_noise_catalog/medical_imaging/bias_field.md"),
+            ("Metal Artifact", "09_noise_catalog/medical_imaging/metal_artifact.md"),
+        ],
+    },
+    "Electron Microscopy": {
+        "icon": "🔬",
+        "files": [
+            ("Shot Noise (Low-Dose)", "09_noise_catalog/electron_microscopy/shot_noise_low_dose.md"),
+            ("Charging Artifact", "09_noise_catalog/electron_microscopy/charging_artifact.md"),
+            ("Drift & Vibration", "09_noise_catalog/electron_microscopy/drift_vibration.md"),
+            ("CTF Artifact", "09_noise_catalog/electron_microscopy/ctf_artifact.md"),
+            ("Contamination Buildup", "09_noise_catalog/electron_microscopy/contamination_buildup.md"),
+        ],
+    },
+    "Scattering & Diffraction": {
+        "icon": "💎",
+        "files": [
+            ("Parasitic Scattering", "09_noise_catalog/scattering_diffraction/parasitic_scattering.md"),
+            ("Ice Rings", "09_noise_catalog/scattering_diffraction/ice_rings.md"),
+            ("Detector Gaps & Parallax", "09_noise_catalog/scattering_diffraction/detector_gaps_parallax.md"),
+            ("Phase Wrapping", "09_noise_catalog/scattering_diffraction/phase_wrapping.md"),
+            ("Radiation Damage (MX)", "09_noise_catalog/scattering_diffraction/radiation_damage_crystallography.md"),
         ],
     },
 }
@@ -87,6 +122,20 @@ BEFORE_AFTER_IMAGES = {
     "Rotation Center Error": "09_noise_catalog/images/rotation_center_error_before_after.png",
     "Dead/Hot Pixel": "09_noise_catalog/images/dead_hot_pixel_before_after.png",
     "I0 Normalization": "09_noise_catalog/images/i0_drop_before_after.png",
+    # Cross-domain benchmarked entries
+    "Beam Hardening": "09_noise_catalog/images/beam_hardening_before_after.png",
+    "Truncation Artifact": "09_noise_catalog/images/truncation_artifact_before_after.png",
+    "Scatter Artifact": "09_noise_catalog/images/scatter_artifact_before_after.png",
+    "Gibbs Ringing": "09_noise_catalog/images/gibbs_ringing_before_after.png",
+    "Metal Artifact": "09_noise_catalog/images/metal_artifact_before_after.png",
+    "Shot Noise (Low-Dose)": "09_noise_catalog/images/shot_noise_low_dose_before_after.png",
+    "CTF Artifact": "09_noise_catalog/images/ctf_artifact_before_after.png",
+    "Drift & Vibration": "09_noise_catalog/images/drift_vibration_before_after.png",
+    "Parasitic Scattering": "09_noise_catalog/images/parasitic_scattering_before_after.png",
+    "Ice Rings": "09_noise_catalog/images/ice_rings_before_after.png",
+    "Phase Wrapping": "09_noise_catalog/images/phase_wrapping_before_after.png",
+    "Cosmic Ray / Outlier": "09_noise_catalog/images/cosmic_ray_before_after.png",
+    "Afterglow / Persistence": "09_noise_catalog/images/afterglow_before_after.png",
 }
 
 # All noise items for lookup (name -> doc path)
@@ -306,6 +355,67 @@ print(f"Residual/signal ratio: {residual_std/signal_std:.3f}")
 print(f"If > 0.1, DL is adding significant content - verify carefully")
 ```""",
     },
+    "Phase map discontinuities": {
+        "description": "Abrupt jumps or 'cliffs' in retrieved phase images",
+        "branches": [
+            {
+                "question": "What type of discontinuity?",
+                "options": [
+                    {"label": "Sharp lines of ±2π discontinuity", "diagnosis": "Phase Wrapping", "severity": "Critical"},
+                    {"label": "Oscillating bands parallel to edges", "diagnosis": "Gibbs Ringing", "severity": "Moderate"},
+                    {"label": "Contrast reversals at different defocus", "diagnosis": "CTF Artifact", "severity": "Critical"},
+                ],
+            },
+        ],
+        "quick_check": """```python
+import numpy as np
+dy = np.diff(phase_map, axis=0)
+dx = np.diff(phase_map, axis=1)
+wraps = (np.abs(dy) > 5).sum() + (np.abs(dx) > 5).sum()
+print(f"Phase wraps detected: {wraps} ({wraps/phase_map.size:.2%} of pixels)")
+```""",
+    },
+    "Ghost/residual from previous exposure": {
+        "description": "Faint image of previous sample or bright region persists",
+        "branches": [
+            {
+                "question": "How does the residual behave?",
+                "options": [
+                    {"label": "Fades over seconds to minutes", "diagnosis": "Afterglow / Persistence", "severity": "Major"},
+                    {"label": "Persists indefinitely at same pixels", "diagnosis": "Detector Common Issues", "severity": "Major"},
+                    {"label": "Only at low-q in scattering pattern", "diagnosis": "Parasitic Scattering", "severity": "Critical"},
+                    {"label": "Signal grows over time under beam", "diagnosis": "Contamination Buildup", "severity": "Moderate"},
+                ],
+            },
+        ],
+        "quick_check": """```python
+import numpy as np
+mean_signals = [frame.mean() for frame in dark_frames_after_bright]
+print(f"Signal decay: {mean_signals[:5]}")
+if all(a > b for a, b in zip(mean_signals, mean_signals[1:])):
+    print("Monotonic decay detected — likely afterglow/persistence")
+```""",
+    },
+    "Sample/beam damage effects": {
+        "description": "Progressive data quality degradation during measurement",
+        "branches": [
+            {
+                "question": "What modality?",
+                "options": [
+                    {"label": "XAS — edge position shifts between scans", "diagnosis": "Radiation Damage", "severity": "Critical"},
+                    {"label": "Crystallography — B-factor increases, diffraction fades", "diagnosis": "Radiation Damage (MX)", "severity": "Critical"},
+                    {"label": "EM — carbon deposit builds up under beam", "diagnosis": "Contamination Buildup", "severity": "Moderate"},
+                    {"label": "CT — same material shows different density over time", "diagnosis": "Radiation Damage", "severity": "Critical"},
+                ],
+            },
+        ],
+        "quick_check": """```python
+import numpy as np
+# Track signal vs accumulated dose
+for i, scan in enumerate(scans):
+    print(f"Scan {i}: edge_position={e0[i]:.2f} eV, amplitude={amp[i]:.4f}")
+```""",
+    },
 }
 
 SEVERITY_COLORS = {
@@ -332,7 +442,7 @@ def _render_summary_table_interactive():
     import pandas as pd
 
     st.subheader("Summary Table")
-    st.markdown("Complete matrix of all 29 noise/artifact types. Click **View** to see before/after comparisons.")
+    st.markdown("Complete matrix of all 47 noise/artifact types. Click **View** to see before/after comparisons.")
 
     rows = []
     for mod_name, mod_data in MODALITIES.items():
@@ -523,7 +633,7 @@ if level == "L0":
     with c1:
         with st.container(border=True):
             st.markdown("### Summary Table")
-            st.markdown("Complete matrix of all 29 noise/artifact types with Before/After comparisons.")
+            st.markdown("Complete matrix of all 47 noise/artifact types with Before/After comparisons.")
     with c2:
         with st.container(border=True):
             st.markdown("### Troubleshooter")

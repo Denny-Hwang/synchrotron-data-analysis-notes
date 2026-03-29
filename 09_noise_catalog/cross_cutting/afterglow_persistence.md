@@ -11,6 +11,12 @@
 | **Detection Difficulty** | Moderate |
 | **Origin Domain** | Astronomy / Medical Imaging / Synchrotron |
 
+## Visual Examples
+
+![Before and after — afterglow/persistence](../images/afterglow_before_after.png)
+
+> **Image source:** Synthetic image showing ghost from previous bright exposure persisting in current dim frame. Left: afterglow contamination. Right: after decay model subtraction. MIT license.
+
 ## Description
 
 Afterglow (persistence, lag, image retention) occurs when a detector retains residual signal from previous exposures, contaminating subsequent frames. In scintillator-based detectors, afterglow comes from slow phosphorescence decay; in direct-conversion sensors (CdTe/CZT), it comes from charge trapping. In astronomy, persistence from bright stars can contaminate hours of subsequent exposures.
