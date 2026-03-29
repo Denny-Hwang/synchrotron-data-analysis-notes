@@ -1,6 +1,8 @@
 # Noise & Artifact Summary Table
 
-Complete matrix of all 29 noise/artifact types with detection methods, solutions, and resource links.
+Complete matrix of all 47 noise/artifact types with detection methods, solutions, and resource links.
+
+> **v2 additions (18 entries):** Medical Imaging, Electron Microscopy, Scattering/Diffraction, and cross-domain benchmarks.
 
 ## Full Summary Matrix
 
@@ -35,3 +37,27 @@ Complete matrix of all 29 noise/artifact types with detection methods, solutions
 | [DL hallucination](cross_cutting/dl_hallucination.md) | Cross-cutting | Computational | Critical | Residual analysis, uncertainty maps, compare with ground truth | Ensemble methods, dropout uncertainty | Uncertainty-aware architectures | No (ASCII diagram) | [tomogan](../03_ai_ml_methods/denoising/tomogan.md) |
 | [Rechunking data integrity](cross_cutting/rechunking_data_integrity.md) | Cross-cutting | Computational | Major | Checksum before/after, slice comparison | Verification pipeline with checksums | — | No (ASCII diagram) | — |
 | [Detector common issues](cross_cutting/detector_common_issues.md) | Cross-cutting | Instrumental | Major | Flat-field analysis, pixel response map | Regular calibration, bad-pixel mask | — | No (ASCII diagram) | — |
+| **Medical Imaging (Benchmarked from CT/MRI)** | | | | | | | | |
+| [Beam hardening](medical_imaging/beam_hardening.md) | Medical CT / Tomo | Systematic | Major | Radial profile cupping analysis | Polynomial correction, dual-energy | Deep learning BHC | No | [streak_artifact](tomography/streak_artifact.md) |
+| [Truncation artifact](medical_imaging/truncation_artifact.md) | Medical CT / Tomo | Systematic | Major | Sinogram edge analysis | Sinogram extrapolation / padding | Sinogram inpainting networks | No | [rotation_center_error](tomography/rotation_center_error.md) |
+| [Partial volume effect](medical_imaging/partial_volume_effect.md) | Medical CT / Micro | Systematic | Major | Edge transition width, intermediate values | Higher resolution, sub-voxel segmentation | Super-resolution CNNs | No | [probe_blurring](xrf_microscopy/probe_blurring.md) |
+| [Scatter artifact](medical_imaging/scatter_artifact.md) | Medical CT / Tomo | Systematic | Major | Air-region signal, cupping analysis | Anti-scatter grid, scatter kernel deconvolution | Deep scatter estimation | No | [beam_hardening](medical_imaging/beam_hardening.md) |
+| [Gibbs ringing](medical_imaging/gibbs_ringing.md) | Medical MRI / CDI | Computational | Moderate | Edge oscillation analysis, overshoot measurement | Hamming apodization, Gegenbauer | CNN de-ringing | No | [partial_coherence](ptychography/partial_coherence.md) |
+| [Bias field](medical_imaging/bias_field.md) | Medical MRI / Micro | Instrumental | Major | Block-wise intensity CV analysis | N4ITK, homomorphic filtering | DeepN4 | No | [flatfield_issues](tomography/flatfield_issues.md) |
+| [Metal artifact](medical_imaging/metal_artifact.md) | Medical CT / Tomo | Systematic | Critical | Metal segmentation, starburst detection | MAR sinogram inpainting, NMAR | ADN, DuDoNet | No | [streak_artifact](tomography/streak_artifact.md) |
+| **Electron Microscopy (Benchmarked from SEM/TEM/Cryo-EM)** | | | | | | | | |
+| [Shot noise (low-dose)](electron_microscopy/shot_noise_low_dose.md) | SEM / TEM / Cryo-EM | Statistical | Critical | Mean-variance analysis, spectral SNR | Class averaging, dose weighting | Topaz-Denoise, Noise2Noise | No | [photon_counting_noise](xrf_microscopy/photon_counting_noise.md) |
+| [Charging artifact](electron_microscopy/charging_artifact.md) | SEM | Instrumental | Major | Scan-line intensity slope/jumps | Conductive coating, low-voltage SEM | — | No | [scan_stripe](xrf_microscopy/scan_stripe.md) |
+| [Drift & vibration](electron_microscopy/drift_vibration.md) | SEM / TEM / Nano | Systematic | Major | Cross-correlation of sequential frames, FFT anisotropy | MotionCor2, scan-line registration | Deep drift correction | No | [position_error](ptychography/position_error.md) |
+| [CTF artifact](electron_microscopy/ctf_artifact.md) | TEM / Cryo-EM | Instrumental | Critical | Thon rings in power spectrum | CTFFIND4, Wiener filtering | DeepCTF, CryoDRGN | No | [partial_coherence](ptychography/partial_coherence.md) |
+| [Contamination buildup](electron_microscopy/contamination_buildup.md) | SEM / TEM | Systematic | Moderate | Progressive signal loss across frames | Plasma cleaning, beam shower | — | No | [radiation_damage](spectroscopy/radiation_damage.md) |
+| **Scattering & Diffraction (Benchmarked from ESRF, Diamond, DESY, SPring-8)** | | | | | | | | |
+| [Parasitic scattering](scattering_diffraction/parasitic_scattering.md) | SAXS / WAXS | Instrumental | Critical | Low-q power-law slope, empty beam comparison | Guard slits, buffer subtraction | — | No | [scatter_artifact](medical_imaging/scatter_artifact.md) |
+| [Ice rings](scattering_diffraction/ice_rings.md) | MX (Crystallography) | Systematic | Major | Intensity spikes at known ice d-spacings | Cryoprotection, resolution shell exclusion | — | No | [ring_artifact](tomography/ring_artifact.md) |
+| [Detector gaps & parallax](scattering_diffraction/detector_gaps_parallax.md) | Scatter / Diff | Instrumental | Major | Zero-count columns/rows, PSF anisotropy | Multi-position merge, geometry correction | — | No | [detector_common_issues](cross_cutting/detector_common_issues.md) |
+| [Phase wrapping](scattering_diffraction/phase_wrapping.md) | Phase / CDI | Computational | Critical | Phase gradient jumps near ±π | Quality-guided unwrapping, multi-distance | PhaseNet (deep learning) | No | [position_error](ptychography/position_error.md) |
+| [Radiation damage (MX)](scattering_diffraction/radiation_damage_crystallography.md) | MX (Crystallography) | Systematic | Critical | B-factor increase, R_merge trend, unit cell expansion | Zero-dose extrapolation, multi-crystal, RADDOSE-3D | — | No | [radiation_damage](spectroscopy/radiation_damage.md) |
+| **Cross-cutting (Benchmarked from Astronomy & Multi-domain)** | | | | | | | | |
+| [Cosmic ray / outlier](cross_cutting/cosmic_ray_outlier.md) | Cross-cutting | Statistical | Major | L.A.Cosmic Laplacian detection, σ-clipping | Median replacement, astroscrappy | Deep learning CR removal | No | [zinger](tomography/zinger.md) |
+| [Noise estimation methods](cross_cutting/noise_estimation_methods.md) | Cross-cutting | Reference | N/A | NPS, DQE, MAD estimator, mean-variance analysis | — (methodology reference) | Noise2Void, Noise2Self | No | [low_dose_noise](tomography/low_dose_noise.md) |
+| [Afterglow / persistence](cross_cutting/afterglow_persistence.md) | Cross-cutting | Instrumental | Major | Decaying residual in sequential darks | Bi-exponential decay correction, flush frames | — | No | [detector_common_issues](cross_cutting/detector_common_issues.md) |

@@ -538,24 +538,75 @@ print(f"Residual spectrum peak/mean: {spectrum.max()/spectrum.mean():.1f} (> 10 
 
 ---
 
-## Cross-Reference: All 29 Noise Types by Symptom
+---
+
+## 10. Phase Map Discontinuities
+
+### Symptom: Abrupt jumps or "cliffs" in retrieved phase images
+
+```
+Is the data from phase-contrast imaging, CDI, or interferometry?
+│
+├── Sharp lines of ±2π discontinuity in phase map
+│   └── → Phase Wrapping (phase exceeds [-π, π] range)
+│       Severity: Critical | Full guide: scattering_diffraction/phase_wrapping.md
+│
+├── Oscillating bands parallel to sharp edges
+│   └── → Gibbs Ringing (Fourier truncation artifact)
+│       Severity: Moderate | Full guide: medical_imaging/gibbs_ringing.md
+│
+└── Contrast reversals (features flip bright/dark at different defocus)
+    └── → CTF Artifact (contrast transfer function zero-crossings)
+        Severity: Critical | Full guide: electron_microscopy/ctf_artifact.md
+```
+
+---
+
+## 11. Ghost / Residual from Previous Exposure
+
+### Symptom: Faint image of previous sample or bright region persists in subsequent frames
+
+```
+Does the residual fade over time?
+│
+├── Yes — decays over seconds to minutes
+│   └── → Afterglow / Persistence (scintillator or charge trapping)
+│       Severity: Major | Full guide: cross_cutting/afterglow_persistence.md
+│
+├── Persists indefinitely at same pixel positions
+│   └── → Detector Burn-in or Dead/Hot Pixel
+│       Full guide: cross_cutting/detector_common_issues.md
+│
+└── Affects only low-q region in scattering pattern
+    └── → Parasitic Scattering (from slits/windows, not sample)
+        Severity: Critical | Full guide: scattering_diffraction/parasitic_scattering.md
+```
+
+---
+
+## Cross-Reference: All 47 Noise Types by Symptom
 
 | Symptom Category | Noise Types Covered |
 |-----------------|-------------------|
-| Circular/ring patterns | [Ring artifact](tomography/ring_artifact.md), [Rotation center error](tomography/rotation_center_error.md), [Flat-field issues](tomography/flatfield_issues.md) |
-| Isolated bright/dark spots | [Zinger](tomography/zinger.md), [Dead/hot pixel (XRF)](xrf_microscopy/dead_hot_pixel.md), [Detector issues](cross_cutting/detector_common_issues.md) |
-| Streak/stripe patterns | [Streak artifact](tomography/streak_artifact.md), [Sparse-angle](tomography/sparse_angle_artifact.md), [Scan stripe](xrf_microscopy/scan_stripe.md), [Beam intensity drop](tomography/beam_intensity_drop.md), [Ring artifact](tomography/ring_artifact.md), [I0 normalization](xrf_microscopy/i0_normalization.md), [Stitching artifact](ptychography/stitching_artifact.md) |
-| Overall graininess/noise | [Low-dose noise](tomography/low_dose_noise.md), [Photon counting noise](xrf_microscopy/photon_counting_noise.md), [Statistical noise EXAFS](spectroscopy/statistical_noise_exafs.md) |
-| Blurring/loss of detail | [Motion artifact](tomography/motion_artifact.md), [Probe blurring](xrf_microscopy/probe_blurring.md), [Partial coherence](ptychography/partial_coherence.md), [Position error](ptychography/position_error.md), [Rotation center error](tomography/rotation_center_error.md) |
-| Intensity/value anomalies | [Beam intensity drop](tomography/beam_intensity_drop.md), [Dead-time saturation](xrf_microscopy/dead_time_saturation.md), [Self-absorption (XRF)](xrf_microscopy/self_absorption.md), [I0 normalization](xrf_microscopy/i0_normalization.md), [Self-absorption (XAS)](spectroscopy/self_absorption_xas.md), [Harmonics](spectroscopy/harmonics_contamination.md) |
+| Circular/ring patterns | [Ring artifact](tomography/ring_artifact.md), [Rotation center error](tomography/rotation_center_error.md), [Flat-field issues](tomography/flatfield_issues.md), [Ice rings](scattering_diffraction/ice_rings.md) |
+| Isolated bright/dark spots | [Zinger](tomography/zinger.md), [Dead/hot pixel (XRF)](xrf_microscopy/dead_hot_pixel.md), [Detector issues](cross_cutting/detector_common_issues.md), [Cosmic ray/outlier](cross_cutting/cosmic_ray_outlier.md) |
+| Streak/stripe patterns | [Streak artifact](tomography/streak_artifact.md), [Sparse-angle](tomography/sparse_angle_artifact.md), [Scan stripe](xrf_microscopy/scan_stripe.md), [Beam intensity drop](tomography/beam_intensity_drop.md), [Ring artifact](tomography/ring_artifact.md), [I0 normalization](xrf_microscopy/i0_normalization.md), [Stitching artifact](ptychography/stitching_artifact.md), [Metal artifact](medical_imaging/metal_artifact.md), [Detector gaps](scattering_diffraction/detector_gaps_parallax.md) |
+| Overall graininess/noise | [Low-dose noise](tomography/low_dose_noise.md), [Photon counting noise](xrf_microscopy/photon_counting_noise.md), [Statistical noise EXAFS](spectroscopy/statistical_noise_exafs.md), [Shot noise low-dose (EM)](electron_microscopy/shot_noise_low_dose.md) |
+| Blurring/loss of detail | [Motion artifact](tomography/motion_artifact.md), [Probe blurring](xrf_microscopy/probe_blurring.md), [Partial coherence](ptychography/partial_coherence.md), [Position error](ptychography/position_error.md), [Rotation center error](tomography/rotation_center_error.md), [Drift & vibration](electron_microscopy/drift_vibration.md), [Partial volume effect](medical_imaging/partial_volume_effect.md) |
+| Intensity/value anomalies | [Beam intensity drop](tomography/beam_intensity_drop.md), [Dead-time saturation](xrf_microscopy/dead_time_saturation.md), [Self-absorption (XRF)](xrf_microscopy/self_absorption.md), [I0 normalization](xrf_microscopy/i0_normalization.md), [Self-absorption (XAS)](spectroscopy/self_absorption_xas.md), [Harmonics](spectroscopy/harmonics_contamination.md), [Beam hardening](medical_imaging/beam_hardening.md), [Bias field](medical_imaging/bias_field.md), [Charging artifact](electron_microscopy/charging_artifact.md) |
 | Spectral abnormalities | [Energy calibration drift](spectroscopy/energy_calibration_drift.md), [Harmonics contamination](spectroscopy/harmonics_contamination.md), [Self-absorption (XAS)](spectroscopy/self_absorption_xas.md), [Radiation damage](spectroscopy/radiation_damage.md), [Outlier spectra](spectroscopy/outlier_spectra.md) |
-| Boundary/stitching artifacts | [Stitching artifact](ptychography/stitching_artifact.md), [Position error](ptychography/position_error.md), [Rechunking integrity](cross_cutting/rechunking_data_integrity.md) |
+| Boundary/stitching artifacts | [Stitching artifact](ptychography/stitching_artifact.md), [Position error](ptychography/position_error.md), [Rechunking integrity](cross_cutting/rechunking_data_integrity.md), [Truncation artifact](medical_imaging/truncation_artifact.md), [Detector gaps](scattering_diffraction/detector_gaps_parallax.md) |
 | Suspicious "too-good" features | [DL hallucination](cross_cutting/dl_hallucination.md) |
+| Phase discontinuities | [Phase wrapping](scattering_diffraction/phase_wrapping.md), [Gibbs ringing](medical_imaging/gibbs_ringing.md), [CTF artifact](electron_microscopy/ctf_artifact.md) |
+| Ghost/residual images | [Afterglow/persistence](cross_cutting/afterglow_persistence.md), [Parasitic scattering](scattering_diffraction/parasitic_scattering.md), [Contamination buildup](electron_microscopy/contamination_buildup.md) |
+| Sample/beam damage | [Radiation damage (spectroscopy)](spectroscopy/radiation_damage.md), [Radiation damage (MX)](scattering_diffraction/radiation_damage_crystallography.md), [Contamination buildup](electron_microscopy/contamination_buildup.md) |
+| Scatter/background | [Scatter artifact](medical_imaging/scatter_artifact.md), [Parasitic scattering](scattering_diffraction/parasitic_scattering.md), [Beam hardening](medical_imaging/beam_hardening.md) |
 
 ---
 
 ## Still Not Sure?
 
-- Browse all 29 types in the [Summary Table](summary_table.md)
+- Browse all 47 types in the [Summary Table](summary_table.md)
+- Check the [Noise Estimation Methods](cross_cutting/noise_estimation_methods.md) for cross-domain characterization tools (NPS, DQE, MAD)
 - Check the [Detector Common Issues](cross_cutting/detector_common_issues.md) guide for hardware-related problems
 - Ask: **Is the problem in raw data or after processing?** Raw data issues → instrumental/statistical. Post-processing issues → computational/systematic.
