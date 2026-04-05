@@ -216,6 +216,16 @@ Dead pixels create artificial voids that can be mistaken for regions of zero con
 - Related artifact: [Photon Counting Noise](photon_counting_noise.md) — statistical noise distinct from single-pixel defects
 - Related artifact: [Dead-Time Saturation](dead_time_saturation.md) — can cause apparent hot pixels at high-concentration regions
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [scikit-image morphological filters](https://scikit-image.org/docs/stable/api/skimage.morphology.html) | Software docs | API examples | Morphological filters (median, opening, closing) for hot pixel removal with examples | BSD-3 |
+
+> **Recommended reference**: [scikit-image morphology module — hot pixel removal via median and morphological filters](https://scikit-image.org/docs/stable/api/skimage.morphology.html)
+
 ## Key Takeaway
 
 Dead and hot pixels are easy to detect and easy to fix — always run a bad-pixel screening step before any quantitative analysis. Build a persistent bad-pixel mask from multi-element data to catch detector-level defects that affect all elemental maps consistently.

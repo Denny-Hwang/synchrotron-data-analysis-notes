@@ -441,6 +441,16 @@ Radiation damage introduces systematic errors that mimic real chemical changes, 
 - Related artifact: [Energy Calibration Drift](energy_calibration_drift.md) — energy drift and radiation damage both shift E0 but from different causes
 - Related artifact: [Outlier Spectra](outlier_spectra.md) — early or late scans in a damage series may appear as outliers
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Holton 2009](https://doi.org/10.1016/j.jsb.2009.02.007) | Paper | Multiple | A beginner's guide to radiation damage — comprehensive overview with real experimental examples of progressive damage | -- |
+
+> **Recommended reference**: [Holton 2009 — A beginner's guide to radiation damage (J. Struct. Biol.)](https://doi.org/10.1016/j.jsb.2009.02.007)
+
 ## Key Takeaway
 
 Radiation damage is a critical systematic artifact that can invalidate XAS results entirely. Always compare successive scans for progressive spectral changes before merging. Use cryogenic cooling, attenuators, and defocused beams as standard practice for radiation-sensitive samples. If damage is detected, either extrapolate to zero dose or use only the undamaged scans. A quick pre-experiment dose test (a few rapid scans at one spot) should be standard protocol for any new sample type.

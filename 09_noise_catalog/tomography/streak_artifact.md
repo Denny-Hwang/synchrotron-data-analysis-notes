@@ -207,6 +207,17 @@ Streak artifacts can completely obscure the region surrounding dense objects, ma
 - Related artifact: [Ring Artifact](ring_artifact.md) — another systematic artifact but with circular rather than radial pattern
 - Related artifact: [Low-Dose Poisson Noise](low_dose_noise.md) — photon starvation is an extreme case of low photon count
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Boas & Fleischmann 2012](https://doi.org/10.1016/j.imgla.2012.06.001) | Paper | Fig 4 | CT artifacts: Causes and reduction techniques — metal streak before/after | -- |
+| [Gjesteby et al. 2016](https://doi.org/10.1109/ACCESS.2016.2608621) | Paper | Figs 3--5 | Metal Artifact Reduction in CT: Where Are We After Four Decades? — comprehensive before/after comparisons | CC BY 4.0 |
+
+> **Recommended reference**: [Gjesteby et al. 2016 — Metal Artifact Reduction in CT (IEEE Access)](https://doi.org/10.1109/ACCESS.2016.2608621)
+
 ## Key Takeaway
 
 Streak artifacts arise from photon starvation and beam hardening when the beam traverses highly absorbing objects. Prevention through higher-energy or monochromatic beams is most effective; when metal is unavoidable, sinogram inpainting via MAR or deep learning can substantially reduce streaks before reconstruction.

@@ -360,6 +360,17 @@ Statistical noise in EXAFS directly degrades the reliability of structural param
 - Related artifact: [Outlier Spectra](outlier_spectra.md) — individual bad scans increase noise when merged
 - Related artifact: [Energy Calibration Drift](energy_calibration_drift.md) — misaligned scans broaden merged features
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Kelly et al. 2018](https://doi.org/10.1107/S1600577518006021) | Paper | Figs 2--4 | Improving the quality of XAFS data — real spectra before/after noise reduction techniques | -- |
+| [Sources of Noise in EXAFS Experiments (IIT training)](https://gbxafs.iit.edu/training/Noise.pdf) | Training slides | Multiple | Comprehensive overview of noise sources in EXAFS with experimental examples | -- |
+
+> **Recommended reference**: [Kelly et al. 2018 — Improving the quality of XAFS data (J. Synchrotron Rad.)](https://doi.org/10.1107/S1600577518006021)
+
 ## Key Takeaway
 
 Statistical noise is the most fundamental limitation of EXAFS data quality. Always merge multiple scans, use k-dependent counting times during acquisition, and choose the Fourier transform k-range based on the actual SNR of your data rather than a fixed convention. A well-chosen k_max that excludes noise-dominated data yields more reliable structural parameters than extending to high k with poor statistics.

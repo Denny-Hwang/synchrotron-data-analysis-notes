@@ -204,6 +204,17 @@ Motion artifacts cause loss of spatial resolution proportional to the motion amp
 - Related artifact: [Rotation Center Error](rotation_center_error.md) — can mimic or compound motion artifacts
 - Related artifact: [Sparse-Angle Artifact](sparse_angle_artifact.md) — fast scans to reduce motion may under-sample angles
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Zheng et al. 2017 — MotionCor2](https://doi.org/10.1038/nmeth.4193) | Paper | Fig 1 | Before/after drift correction in electron microscopy (analogous to tomographic motion correction) | -- |
+| [Mohan et al. 2022 — AFFIRM](https://doi.org/10.1109/TCI.2022.3180700) | Paper | -- | Affinely Regularized Self-supervised Fusion for Motion Correction in tomography | -- |
+
+> **Recommended reference**: [Zheng et al. 2017 — MotionCor2 (Nature Methods)](https://doi.org/10.1038/nmeth.4193)
+
 ## Key Takeaway
 
 Motion artifacts arise whenever the sample moves during acquisition, violating the static-object assumption of standard reconstruction. Prevention through fast scans and stable mounting is best; when motion is unavoidable, projection re-registration or implicit neural representation-based joint reconstruction-and-alignment can recover image quality.

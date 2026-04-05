@@ -131,6 +131,16 @@ def correct_scanline_drift(image, reference_line=0):
 | In-situ experiments | Thermal/mechanical changes during reaction cause drift |
 | Long EXAFS scans | Monochromator drift (energy calibration drift) |
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Zheng et al. 2017 — MotionCor2](https://doi.org/10.1038/nmeth.4193) | Paper | Fig 1 | Before/after drift correction in cryo-EM movie frames — anisotropic beam-induced motion correction | -- |
+
+> **Recommended reference**: [Zheng et al. 2017 — MotionCor2 (Nature Methods)](https://doi.org/10.1038/nmeth.4193)
+
 ## Related Resources
 
 - [Position error](../ptychography/position_error.md) — Drift causes position errors in ptychography

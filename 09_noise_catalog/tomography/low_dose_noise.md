@@ -190,6 +190,18 @@ Low-dose noise degrades all downstream quantitative analyses. Segmentation algor
 - Related artifact: [Sparse-Angle Artifact](sparse_angle_artifact.md) — another under-sampling regime that benefits from DL reconstruction
 - Related artifact: [Zinger](zinger.md) — transient noise spikes that compound low-dose noise effects
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [TomoGAN (GitHub)](https://github.com/tomography/TomoGAN) | Repository | Figs 4--6 in paper | Real APS synchrotron data — noisy vs GAN-denoised tomographic slices | BSD-2 |
+| [Liu et al. 2020](https://doi.org/10.1364/JOSAA.375595) | Paper | Fig 4 | Noisy vs denoised tomographic slices from real synchrotron acquisitions | -- |
+| [TomoBank](https://tomobank.readthedocs.io/) | Data repository | Multiple datasets | Open tomography datasets including low-dose examples for benchmarking | -- |
+
+> **Recommended reference**: [TomoGAN GitHub — real APS synchrotron low-dose denoising examples](https://github.com/tomography/TomoGAN)
+
 ## Key Takeaway
 
 Low-dose Poisson noise is an inherent limitation of photon-counting detectors and becomes the dominant image quality factor in dose-limited experiments. When increasing photon flux is not feasible, modern deep learning denoisers like TomoGAN and Noise2Noise can recover substantial image quality — apply denoising before segmentation or quantitative analysis.

@@ -205,6 +205,16 @@ Photon counting noise directly limits the minimum detectable concentration and t
 - Related artifact: [Dead/Hot Pixel](dead_hot_pixel.md) — extreme single-pixel anomalies distinct from statistical noise
 - Related artifact: [Peak Overlap](peak_overlap.md) — spectral interference can reduce effective counts for a given element
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [PyXRF documentation and examples](https://nsls-ii.github.io/PyXRF/) | Software docs | Multiple | XRF fitting and visualization examples from NSLS-II beamlines | BSD-3 |
+
+> **Recommended reference**: [PyXRF — Python-based X-ray Fluorescence Analysis (NSLS-II)](https://nsls-ii.github.io/PyXRF/)
+
 ## Key Takeaway
 
 Photon counting noise is the fundamental floor of XRF microscopy data quality. Always check mean counts per pixel before analysis — if counts are below ~100, consider longer dwell times, scan summation, or spatial binning before attempting quantitative interpretation.

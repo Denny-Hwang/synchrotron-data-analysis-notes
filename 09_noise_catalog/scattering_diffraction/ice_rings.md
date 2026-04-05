@@ -143,6 +143,17 @@ def flag_ice_ring_reflections(hkl_data, d_spacings_ice=None, tolerance=0.02):
 | APS GM/CA | JBluIce with ice ring warning |
 | NSLS-II FMX/AMX | LSDC with automated quality metrics |
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Parkhurst et al. 2017](https://doi.org/10.1107/S2059798317010348) | Paper | -- | DIALS: implementation and evaluation of a new integration package — includes ice ring detection in real MX data | BSD-3 |
+| [IUCr 2017 — Background modelling in the presence of ice rings](https://doi.org/10.1107/M5.5646) | Paper | Fig 1 | Background modelling approaches for diffraction data with ice ring contamination | -- |
+
+> **Recommended reference**: [Parkhurst et al. 2017 — DIALS integration package (Acta Cryst D)](https://doi.org/10.1107/S2059798317010348)
+
 ## Related Resources
 
 - [Radiation damage](../spectroscopy/radiation_damage.md) — Both are cryo-related experimental issues

@@ -195,6 +195,17 @@ Sparse-angle artifacts create false features in the reconstruction that can be m
 - Related artifact: [Low-Dose Poisson Noise](low_dose_noise.md) — sparse-angle and low-dose regimes often co-occur in fast experiments
 - Related artifact: [Motion Artifact](motion_artifact.md) — fast scans to avoid motion may require sparse angular sampling
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Bubba et al. 2019](https://doi.org/10.1088/1361-6420/ab10ca) | Paper | Fig 3 | "Learning the invisible" — limited angle artifacts and deep learning reconstruction | -- |
+| [Scientific Reports 2021](https://doi.org/10.1038/s41598-021-97226-2) | Paper | Figs 2--4 | Limited-angle CT with deep image and physics priors — before/after comparisons | CC BY 4.0 |
+
+> **Recommended reference**: [Bubba et al. 2019 — "Learning the invisible" (Inverse Problems)](https://doi.org/10.1088/1361-6420/ab10ca)
+
 ## Key Takeaway
 
 Sparse-angle artifacts arise when angular sampling falls below the Nyquist threshold, producing directional streaks and aliasing. Use iterative reconstruction with TV regularization as a first-line correction, and consider deep learning approaches for severely undersampled datasets where traditional methods fall short.

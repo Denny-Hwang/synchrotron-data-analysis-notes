@@ -145,6 +145,16 @@ def correct_parallax_shift(x_det, y_det, detector_distance, sensor_thickness,
 | SPring-8 | Pilatus3 / custom | BL-specific calibration |
 | SLS | Eiger 16M | Native gap interpolation in processing pipeline |
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [pyFAI documentation](https://pyfai.readthedocs.io/) | Software docs | Multiple | Gap filling, detector geometry correction, and azimuthal integration examples with real detector data | MIT |
+
+> **Recommended reference**: [pyFAI — Python Fast Azimuthal Integration (ESRF)](https://pyfai.readthedocs.io/)
+
 ## Related Resources
 
 - [Detector common issues](../cross_cutting/detector_common_issues.md) — General detector defects

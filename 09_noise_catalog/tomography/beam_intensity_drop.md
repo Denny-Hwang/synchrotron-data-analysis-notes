@@ -225,6 +225,16 @@ Uncorrected beam intensity drops introduce false density variations in the recon
 - Related artifact: [Flat-Field Issues](flatfield_issues.md) — beam drift that flat-fielding partially addresses
 - Related artifact: [Ring Artifact](ring_artifact.md) — intensity bands can masquerade as ring sources in the sinogram
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| APS operation modes documentation | Facility docs | -- | Beam fill patterns and I0 normalization procedures showing intensity drop events and correction | -- |
+
+> **Recommended reference**: Consult your facility's machine status and operation modes documentation for beam fill patterns and I0 normalization best practices.
+
 ## Key Takeaway
 
 Always record the I0 beam monitor synchronously with projections and apply per-projection intensity normalization as a standard preprocessing step. Check the I0 trace before reconstruction — projections acquired during beam dumps or injection failures should be flagged and either corrected or removed to prevent reconstruction artifacts.

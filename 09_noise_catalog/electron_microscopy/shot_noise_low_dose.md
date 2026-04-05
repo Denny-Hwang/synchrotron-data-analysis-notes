@@ -139,6 +139,17 @@ def dose_weighting(movie_frames, dose_per_frame, voltage=300):
 | EMPIAR-10061 | TRPV1 channel — membrane protein benchmark |
 | Topaz-Denoise training set | Paired even/odd frame averages for self-supervised training |
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Bepler et al. 2020 — Topaz-Denoise](https://doi.org/10.1038/s41467-020-18952-1) | Paper | Fig 2 | General deep denoising models for cryo-EM — real micrograph before/after denoising | CC BY 4.0 |
+| [EMPIAR database](https://www.ebi.ac.uk/empiar/) | Data repository | Multiple datasets | Electron Microscopy Public Image Archive — real cryo-EM datasets for benchmarking | Open access |
+
+> **Recommended reference**: [Bepler et al. 2020 — Topaz-Denoise (Nature Communications)](https://doi.org/10.1038/s41467-020-18952-1)
+
 ## Related Resources
 
 - [Photon counting noise](../xrf_microscopy/photon_counting_noise.md) — Same Poisson statistics in X-ray detection

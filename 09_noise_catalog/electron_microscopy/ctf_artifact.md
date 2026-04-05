@@ -135,6 +135,17 @@ def wiener_ctf_correction(image_fft, ctf, snr=10.0):
 | Ptychography | Phase retrieval inherently handles CTF-like effects |
 | Correlative cryo-EM + synchrotron | Understanding CTF needed for multi-modal data fusion |
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Rohou & Grigorieff 2015 — CTFFIND4](https://doi.org/10.1016/j.jsb.2015.08.008) | Paper | Fig 1 | Fast and accurate defocus estimation from electron micrographs — Thon ring fitting examples | -- |
+| RELION documentation | Software docs | CTF correction tutorial | CTF correction examples showing before/after Wiener filtering in single-particle reconstruction | GPL-2.0 |
+
+> **Recommended reference**: [Rohou & Grigorieff 2015 — CTFFIND4 (J. Struct. Biol.)](https://doi.org/10.1016/j.jsb.2015.08.008)
+
 ## Related Resources
 
 - [Partial coherence](../ptychography/partial_coherence.md) — Coherence envelope effects in ptychography

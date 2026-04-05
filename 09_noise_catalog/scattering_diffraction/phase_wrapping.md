@@ -137,6 +137,16 @@ def quality_guided_unwrap_2d(wrapped_phase):
 | SPring-8 | BL20B2 | Talbot-Lau grating interferometry |
 | APS | 32-ID | Propagation phase contrast, Zernike phase contrast |
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [scikit-image unwrap_phase](https://scikit-image.org/docs/stable/api/skimage.restoration.html) | Software docs | API examples | Phase unwrapping function with examples showing wrapped vs unwrapped phase maps | BSD-3 |
+
+> **Recommended reference**: [scikit-image — unwrap_phase (skimage.restoration)](https://scikit-image.org/docs/stable/api/skimage.restoration.html)
+
 ## Related Resources
 
 - [Position error](../ptychography/position_error.md) — Phase errors in ptychographic reconstruction

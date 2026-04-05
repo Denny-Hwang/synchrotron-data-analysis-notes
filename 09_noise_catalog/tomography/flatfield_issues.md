@@ -212,6 +212,17 @@ Flat-field issues introduce spatially varying bias into the reconstructed attenu
 - Related artifact: [Ring Artifact](ring_artifact.md) — often caused or amplified by flat-field pixel defects
 - Related artifact: [Beam Intensity Drop](beam_intensity_drop.md) — temporal beam changes that flat-fielding cannot correct
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [TomoPy normalize documentation](https://tomopy.readthedocs.io/en/stable/api/tomopy.prep.normalize.html) | Software docs | API examples | Flat-field normalization function with usage examples | BSD-3 |
+| [Van Nieuwenhove et al. 2015](https://doi.org/10.1364/OE.23.027975) | Paper | Fig 3 | Dynamic intensity normalization using eigen flat fields in X-ray imaging | CC BY 4.0 |
+
+> **Recommended reference**: [Van Nieuwenhove et al. 2015 — eigen flat fields (Optics Express)](https://doi.org/10.1364/OE.23.027975)
+
 ## Key Takeaway
 
 Flat-field correction is the foundation of quantitative tomography — invest time in acquiring high-quality, contemporaneous flat and dark images. When beam conditions drift during a scan, dynamic flat-fielding with interpolated flat images before and after the scan significantly improves normalization quality.

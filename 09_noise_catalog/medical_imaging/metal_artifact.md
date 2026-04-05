@@ -121,6 +121,17 @@ def simple_mar_sinogram_inpainting(sinogram, metal_trace_mask):
 | In-situ experiments | Metal sample holders, thermocouples, pressure cells |
 | Cultural heritage imaging | Metal fasteners, gilding in historical artifacts |
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Boas & Fleischmann 2011](https://doi.org/10.1148/rg.2018170102) | Paper | Figs 3--5 | CT artifacts: causes and reduction techniques — clinical metal artifact before/after examples | -- |
+| [Liao et al. 2019 — ADN](https://doi.org/10.1016/j.media.2019.101554) | Paper | Multiple | Artifact Disentanglement Network for Metal Artifact Reduction — real clinical CT before/after MAR | -- |
+
+> **Recommended reference**: [Liao et al. 2019 — ADN: Artifact Disentanglement Network (Medical Image Analysis)](https://doi.org/10.1016/j.media.2019.101554)
+
 ## Related Resources
 
 - [Streak artifact](../tomography/streak_artifact.md) — Overlap with metal-induced streaks
