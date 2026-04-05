@@ -198,7 +198,13 @@ The following published sources provide real experimental before/after compariso
 |--------|------|--------|-------------|---------|
 | [TomoGAN (GitHub)](https://github.com/tomography/TomoGAN) | Repository | Figs 4--6 in paper | Real APS synchrotron data — noisy vs GAN-denoised tomographic slices | BSD-2 |
 | [Liu et al. 2020](https://doi.org/10.1364/JOSAA.375595) | Paper | Fig 4 | Noisy vs denoised tomographic slices from real synchrotron acquisitions | -- |
-| [TomoBank](https://tomobank.readthedocs.io/) | Data repository | Multiple datasets | Open tomography datasets including low-dose examples for benchmarking | -- |
+| [TomoBank](https://tomobank.readthedocs.io/) | Data repository | Multiple datasets | Real APS synchrotron data with varying dose levels for benchmarking | Public Domain |
+| [Lehtinen et al. 2018 — Noise2Noise](https://doi.org/10.48550/arXiv.1803.04189) | Paper | Fig. 3 | Noise2Noise: Learning Image Restoration without Clean Data — denoising without clean targets | -- |
+| [NVlabs Noise2Noise (GitHub)](https://github.com/NVlabs/noise2noise) | Repository | Example outputs | Official Noise2Noise implementation with example denoised outputs | CC BY-NC 4.0 |
+
+**Key references with published before/after comparisons:**
+- **Liu et al. (2020)**: TomoGAN — real APS synchrotron low-dose CT before/after GAN denoising. DOI: 10.1364/JOSAA.375595
+- **Lehtinen et al. (2018)**: Noise2Noise — Fig. 3 shows denoising results achieved without clean training targets. DOI: 10.48550/arXiv.1803.04189
 
 > **Recommended reference**: [TomoGAN GitHub — real APS synchrotron low-dose denoising examples](https://github.com/tomography/TomoGAN)
 

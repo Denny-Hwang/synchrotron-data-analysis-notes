@@ -367,7 +367,12 @@ The following published sources provide real experimental before/after compariso
 | Source | Type | Figure | Description | License |
 |--------|------|--------|-------------|---------|
 | [Kelly et al. 2018](https://doi.org/10.1107/S1600577518006021) | Paper | Figs 2--4 | Improving the quality of XAFS data — real spectra before/after noise reduction techniques | -- |
+| [Bunker 2010 — Introduction to XAFS](https://www.cambridge.org/core/books/introduction-to-xafs/3FB7CE9B04A0C93F3B89F7D800B3350E) | Book | Multiple | Introduction to XAFS — standard EXAFS noise figures and data quality assessment | Cambridge University Press |
 | [Sources of Noise in EXAFS Experiments (IIT training)](https://gbxafs.iit.edu/training/Noise.pdf) | Training slides | Multiple | Comprehensive overview of noise sources in EXAFS with experimental examples | -- |
+
+**Key references with published before/after comparisons:**
+- **Kelly et al. (2018)**: Before/after noise reduction in EXAFS spectra with real experimental data. DOI: 10.1107/S1600577518006021
+- **Bunker (2010)**: Standard textbook reference for EXAFS noise characteristics and data quality figures. Cambridge University Press.
 
 > **Recommended reference**: [Kelly et al. 2018 — Improving the quality of XAFS data (J. Synchrotron Rad.)](https://doi.org/10.1107/S1600577518006021)
 

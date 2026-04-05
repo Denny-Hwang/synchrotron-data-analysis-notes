@@ -223,8 +223,12 @@ The following published sources provide real experimental before/after compariso
 | Source | Type | Figure | Description | License |
 |--------|------|--------|-------------|---------|
 | [scikit-image morphological filters](https://scikit-image.org/docs/stable/api/skimage.morphology.html) | Software docs | API examples | Morphological filters (median, opening, closing) for hot pixel removal with examples | BSD-3 |
+| [scikit-image inpainting examples](https://scikit-image.org/docs/stable/auto_examples/filters/) | Software docs | Gallery examples | Inpainting and filtering examples including dead/hot pixel correction techniques | BSD-3 |
 
-> **Recommended reference**: [scikit-image morphology module — hot pixel removal via median and morphological filters](https://scikit-image.org/docs/stable/api/skimage.morphology.html)
+**Key references with published before/after comparisons:**
+- **scikit-image**: Inpainting and morphological filtering gallery examples showing pixel defect correction before/after.
+
+> **Recommended reference**: [scikit-image — inpainting and morphological filtering examples](https://scikit-image.org/docs/stable/auto_examples/filters/)
 
 ## Key Takeaway
 

@@ -296,6 +296,18 @@ Peak overlap leads to false identification of elements that are not present in t
 - Related artifact: [Photon Counting Noise](photon_counting_noise.md) — low counts make peak overlap harder to resolve
 - Related artifact: [Dead-Time Saturation](dead_time_saturation.md) — distorted spectra at high count rates exacerbate overlap
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure/Location | Description | License |
+|--------|------|-----------------|-------------|---------|
+| [Sole et al. 2007](https://doi.org/10.1016/j.sab.2007.09.002) | Paper | Multiple | PyMca: A Multiplatform Code for the Analysis of Energy-Dispersive X-Ray Fluorescence Spectra — spectral deconvolution examples showing peak separation | -- |
+| [PyMca (GitHub)](https://github.com/vasole/pymca) | Repository | Examples | PyMca X-ray fluorescence analysis toolkit with spectral deconvolution demonstrations | MIT |
+
+**Key references with published before/after comparisons:**
+- **Sole et al. (2007)**: PyMca spectral deconvolution examples showing overlapping peaks separated via fitting. DOI: 10.1016/j.sab.2007.09.002
+
 ## Key Takeaway
 
 Never trust ROI-based elemental maps for elements with known spectral overlaps. Always perform proper spectral deconvolution using multi-peak Gaussian fitting or dedicated software (PyXRF, MAPS) before reporting co-localization or quantitative concentrations for overlapping element pairs.

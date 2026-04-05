@@ -280,7 +280,7 @@ The following published sources provide real experimental before/after compariso
 
 | Source | Type | Figure | Description | License |
 |--------|------|--------|-------------|---------|
-| [Maiden et al. 2012](https://doi.org/10.1016/j.ultramic.2012.09.006) | Paper | -- | An annealing algorithm to correct positioning errors in ptychography — foundational method with experimental validation | -- |
+| [Maiden et al. 2012](https://doi.org/10.1016/j.ultramic.2012.05.001) | Paper | Multiple | An annealing algorithm to correct positioning errors in ptychography — figures showing position-corrected reconstructions | -- |
 | [Babu et al. 2023](https://doi.org/10.1038/s41467-023-41496-z) | Paper | Fig 4 | AI at the edge for real-time ptychography — before/after position correction on real synchrotron data | CC BY 4.0 |
 
 > **Recommended reference**: [Babu et al. 2023 — AI at the edge for real-time ptychography (Nature Communications)](https://doi.org/10.1038/s41467-023-41496-z)

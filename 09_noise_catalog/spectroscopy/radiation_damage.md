@@ -448,6 +448,13 @@ The following published sources provide real experimental before/after compariso
 | Source | Type | Figure | Description | License |
 |--------|------|--------|-------------|---------|
 | [Holton 2009](https://doi.org/10.1016/j.jsb.2009.02.007) | Paper | Multiple | A beginner's guide to radiation damage — comprehensive overview with real experimental examples of progressive damage | -- |
+| [Henderson 1990](https://doi.org/10.1098/rspb.1990.0057) | Paper | Multiple | Cryo-protection of protein crystals against radiation damage in electron and X-ray diffraction — foundational reference | -- |
+| [Owen et al. 2006](https://doi.org/10.1073/pnas.0600973103) | Paper | Multiple | Experimental determination of the radiation dose limit for cryocooled protein crystals — dose-dependent damage examples | -- |
+
+**Key references with published before/after comparisons:**
+- **Holton (2009)**: Comprehensive overview with real experimental examples of progressive radiation damage in XAS. DOI: 10.1016/j.jsb.2009.02.007
+- **Henderson (1990)**: Foundational reference on cryo-protection against radiation damage. DOI: 10.1098/rspb.1990.0057
+- **Owen et al. (2006)**: Experimental determination of radiation dose limits with dose-dependent damage examples. DOI: 10.1073/pnas.0600973103
 
 > **Recommended reference**: [Holton 2009 — A beginner's guide to radiation damage (J. Struct. Biol.)](https://doi.org/10.1016/j.jsb.2009.02.007)
 

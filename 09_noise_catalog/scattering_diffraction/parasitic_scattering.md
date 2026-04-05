@@ -115,6 +115,18 @@ def saxs_background_subtraction(I_sample, I_buffer, I_empty,
 | SPring-8 | BL40B2 | Precision slit system + He path |
 | APS | 12-ID-B | Pinhole collimation + vacuum |
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure/Location | Description | License |
+|--------|------|-----------------|-------------|---------|
+| [Ashiotis et al. 2015 — pyFAI](https://doi.org/10.1107/S1600576715004306) | Paper | Multiple | pyFAI: a Python library for high performance azimuthal integration — azimuthal integration with masking examples for parasitic scatter removal | MIT |
+| [pyFAI documentation](https://pyfai.readthedocs.io/) | Software docs | Tutorials | pyFAI azimuthal integration tutorials showing masking of parasitic scattering and beamstop shadows | MIT |
+
+**Key references with published before/after comparisons:**
+- **Ashiotis et al. (2015)**: pyFAI azimuthal integration with masking examples showing parasitic scatter removal. DOI: 10.1107/S1600576715004306
+
 ## Related Resources
 
 - [Scatter artifact](../medical_imaging/scatter_artifact.md) — Scatter in CT geometry

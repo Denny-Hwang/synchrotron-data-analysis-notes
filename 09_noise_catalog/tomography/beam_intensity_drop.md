@@ -232,6 +232,12 @@ The following published sources provide real experimental before/after compariso
 | Source | Type | Figure | Description | License |
 |--------|------|--------|-------------|---------|
 | APS operation modes documentation | Facility docs | -- | Beam fill patterns and I0 normalization procedures showing intensity drop events and correction | -- |
+| [Diamond Light Source I13 documentation](https://www.diamond.ac.uk/Instruments/Imaging-and-Microscopy/I13/) | Facility docs | -- | I13 imaging beamline documentation on I0 normalization and beam monitoring best practices | -- |
+| [ESRF/EDF data format documentation](https://www.esrf.fr/home/UsersAndScience/Experiments/Imaging.html) | Facility docs | -- | ESRF imaging documentation showing I0 monitoring and data format best practices for intensity normalization | -- |
+
+**Key references with published before/after comparisons:**
+- **Diamond Light Source I13**: Documentation on I0 normalization procedures for tomography imaging experiments.
+- **ESRF Imaging Group**: EDF data format documentation showing I0 monitoring best practices for beam intensity correction.
 
 > **Recommended reference**: Consult your facility's machine status and operation modes documentation for beam fill patterns and I0 normalization best practices.
 

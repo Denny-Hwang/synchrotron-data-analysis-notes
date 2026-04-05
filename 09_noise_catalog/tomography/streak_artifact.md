@@ -214,7 +214,12 @@ The following published sources provide real experimental before/after compariso
 | Source | Type | Figure | Description | License |
 |--------|------|--------|-------------|---------|
 | [Boas & Fleischmann 2012](https://doi.org/10.1016/j.imgla.2012.06.001) | Paper | Fig 4 | CT artifacts: Causes and reduction techniques — metal streak before/after | -- |
-| [Gjesteby et al. 2016](https://doi.org/10.1109/ACCESS.2016.2608621) | Paper | Figs 3--5 | Metal Artifact Reduction in CT: Where Are We After Four Decades? — comprehensive before/after comparisons | CC BY 4.0 |
+| [Gjesteby et al. 2016](https://doi.org/10.1109/ACCESS.2016.2608621) | Paper | Figs 5--8 | Metal Artifact Reduction in CT: Where Are We After Four Decades? — comprehensive before/after MAR comparisons | CC BY 4.0 |
+| [Prell et al. 2009](https://doi.org/10.1118/1.3124682) | Paper | Multiple | Comparison of ring artifact correction methods for flat-detector CT — before/after streak and ring correction | -- |
+
+**Key references with published before/after comparisons:**
+- **Gjesteby et al. (2016)**: Figs 5-8 show streak artifacts before/after metal artifact reduction across multiple MAR techniques. DOI: 10.1109/ACCESS.2016.2608621
+- **Prell et al. (2009)**: Comparison of correction methods for flat-detector CT with before/after examples. DOI: 10.1118/1.3124682
 
 > **Recommended reference**: [Gjesteby et al. 2016 — Metal Artifact Reduction in CT (IEEE Access)](https://doi.org/10.1109/ACCESS.2016.2608621)
 

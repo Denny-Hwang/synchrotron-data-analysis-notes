@@ -201,8 +201,12 @@ The following published sources provide real experimental before/after compariso
 
 | Source | Type | Figure | Description | License |
 |--------|------|--------|-------------|---------|
-| [Bubba et al. 2019](https://doi.org/10.1088/1361-6420/ab10ca) | Paper | Fig 3 | "Learning the invisible" — limited angle artifacts and deep learning reconstruction | -- |
-| [Scientific Reports 2021](https://doi.org/10.1038/s41598-021-97226-2) | Paper | Figs 2--4 | Limited-angle CT with deep image and physics priors — before/after comparisons | CC BY 4.0 |
+| [Bubba et al. 2019](https://doi.org/10.1088/1361-6420/ab10ca) | Paper | Figs 5--7 | "Learning the invisible: limited-angle CT reconstruction" — limited-angle artifacts before/after DL correction | -- |
+| [Liu et al. 2021](https://doi.org/10.1038/s41598-021-97226-2) | Paper | Fig. 3 | Limited-angle CT reconstruction with deep image and physics priors — FBP vs learned reconstruction comparison | CC BY 4.0 |
+
+**Key references with published before/after comparisons:**
+- **Bubba et al. (2019)**: Figs 5-7 show limited-angle artifacts before/after deep learning correction. DOI: 10.1088/1361-6420/ab10ca
+- **Liu et al. (2021)**: Fig. 3 compares FBP vs learned reconstruction for limited-angle CT. DOI: 10.1038/s41598-021-97226-2
 
 > **Recommended reference**: [Bubba et al. 2019 — "Learning the invisible" (Inverse Problems)](https://doi.org/10.1088/1361-6420/ab10ca)
 

@@ -210,10 +210,16 @@ The following published sources provide real experimental before/after compariso
 
 | Source | Type | Figure | Description | License |
 |--------|------|--------|-------------|---------|
+| [Gürsoy et al. 2017](https://doi.org/10.1038/s41598-017-12141-9) | Paper | Fig. 2 | Rapid alignment of nanotomography data using joint iterative reconstruction and reprojection — motion correction before/after | CC BY 4.0 |
+| [TomoPy alignment functions](https://tomopy.readthedocs.io/en/stable/api/tomopy.prep.alignment.html) | Software docs | API examples | Projection alignment functions for motion correction in tomography | BSD-3 |
 | [Zheng et al. 2017 — MotionCor2](https://doi.org/10.1038/nmeth.4193) | Paper | Fig 1 | Before/after drift correction in electron microscopy (analogous to tomographic motion correction) | -- |
 | [Mohan et al. 2022 — AFFIRM](https://doi.org/10.1109/TCI.2022.3180700) | Paper | -- | Affinely Regularized Self-supervised Fusion for Motion Correction in tomography | -- |
 
-> **Recommended reference**: [Zheng et al. 2017 — MotionCor2 (Nature Methods)](https://doi.org/10.1038/nmeth.4193)
+**Key references with published before/after comparisons:**
+- **Gürsoy et al. (2017)**: Fig. 2 shows nanotomography motion correction before/after alignment. DOI: 10.1038/s41598-017-12141-9
+- **Zheng et al. (2017)**: MotionCor2 drift-corrected micrographs (analogous approach). DOI: 10.1038/nmeth.4193
+
+> **Recommended reference**: [Gürsoy et al. 2017 — Rapid alignment of nanotomography data (Scientific Reports)](https://doi.org/10.1038/s41598-017-12141-9)
 
 ## Key Takeaway
 
