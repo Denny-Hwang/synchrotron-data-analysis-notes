@@ -11,6 +11,12 @@
 | **Detection Difficulty** | Moderate |
 | **Origin Domain** | Electron Microscopy (SEM/TEM) |
 
+## Visual Examples
+
+![Before and after — drift and vibration](../images/drift_vibration_before_after.png)
+
+> **Image source:** Synthetic image with progressive horizontal drift (~20 pixels total). Left: distorted image from specimen drift during scan. Right: after cross-correlation line-by-line alignment. MIT license.
+
 ## Description
 
 Specimen drift and mechanical vibration cause spatial blurring and distortion in microscopy images. Drift is a slow, continuous movement of the sample (thermal expansion, piezo creep, mechanical relaxation), while vibration is rapid oscillatory motion (building vibrations, acoustic noise, pump vibrations). Both degrade spatial resolution — drift causes directional elongation of features, vibration causes isotropic blurring.

@@ -11,6 +11,12 @@
 | **Detection Difficulty** | Easy |
 | **Origin Domain** | Medical Imaging (CT) |
 
+## Visual Examples
+
+![Before and after — metal artifact](../images/metal_artifact_before_after.png)
+
+> **Image source:** Synthetic phantom with dense metallic insert. Left: starburst streaks radiating from metal object. Right: after MAR sinogram inpainting. MIT license.
+
 ## Description
 
 Metal artifacts are severe image distortions caused by highly attenuating metallic objects (implants, dental fillings, surgical hardware). They manifest as bright/dark streaks, "starburst" patterns, and signal voids radiating from the metal. This is a compound artifact caused by the simultaneous occurrence of beam hardening, photon starvation, scatter, and partial volume effects near the metal object.

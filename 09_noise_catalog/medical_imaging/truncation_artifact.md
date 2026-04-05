@@ -11,6 +11,12 @@
 | **Detection Difficulty** | Easy |
 | **Origin Domain** | Medical Imaging (CT) |
 
+## Visual Examples
+
+![Before and after — truncation artifact](../images/truncation_artifact_before_after.png)
+
+> **Image source:** Synthetic phantom with simulated FOV clipping. Left: bright halo at FOV boundary from incomplete projections. Right: after sinogram extrapolation correction. MIT license.
+
 ## Description
 
 Truncation artifacts occur when the sample extends beyond the detector's field of view (FOV) in one or more projections. The missing data causes bright edge halos and cupping-like intensity distortions in the reconstructed volume. In medical CT this is called "patient exceeds scan FOV"; in synchrotron tomography it happens with samples wider than the beam/detector width ("local tomography" or "region-of-interest CT").

@@ -11,6 +11,12 @@
 | **Detection Difficulty** | Moderate |
 | **Origin Domain** | Transmission Electron Microscopy |
 
+## Visual Examples
+
+![Before and after — CTF artifact](../images/ctf_artifact_before_after.png)
+
+> **Image source:** Synthetic phantom with CTF modulation in Fourier space. Left: contrast reversals from oscillating transfer function. Right: after Wiener CTF correction. MIT license.
+
 ## Description
 
 The Contrast Transfer Function (CTF) is the oscillating transfer function of the TEM imaging system that modulates spatial frequencies with alternating positive and negative contrast. Uncorrected CTF causes contrast reversals (features can appear bright or dark depending on defocus), information loss at zero-crossings, and envelope-function damping of high-frequency information. Proper CTF estimation and correction is the single most important step in high-resolution cryo-EM.

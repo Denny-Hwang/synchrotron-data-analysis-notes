@@ -102,7 +102,7 @@ sections:
   - id: "09_noise_catalog"
     title: "Noise & Artifact Catalog"
     icon: "📡"
-    description: "29 noise and artifact types across synchrotron modalities with detection, correction, and troubleshooting"
+    description: "47 noise and artifact types across synchrotron and related imaging domains with detection, correction, and troubleshooting"
     files:
       - path: "09_noise_catalog/README.md"
         title: "Noise Catalog Overview"
@@ -116,3 +116,87 @@ sections:
         title: "Symptom-Based Troubleshooter"
         level: L2
         tags: [troubleshooting, diagnosis, symptom]
+      # Medical Imaging (benchmarked)
+      - path: "09_noise_catalog/medical_imaging/beam_hardening.md"
+        title: "Beam Hardening"
+        level: L2
+        tags: [noise, medical, CT, beam-hardening, cupping]
+      - path: "09_noise_catalog/medical_imaging/truncation_artifact.md"
+        title: "Truncation Artifact"
+        level: L2
+        tags: [noise, medical, CT, truncation, local-tomography]
+      - path: "09_noise_catalog/medical_imaging/partial_volume_effect.md"
+        title: "Partial Volume Effect"
+        level: L2
+        tags: [noise, medical, CT, partial-volume, resolution]
+      - path: "09_noise_catalog/medical_imaging/scatter_artifact.md"
+        title: "Scatter Artifact"
+        level: L2
+        tags: [noise, medical, CT, scatter, Compton]
+      - path: "09_noise_catalog/medical_imaging/gibbs_ringing.md"
+        title: "Gibbs Ringing"
+        level: L2
+        tags: [noise, medical, MRI, Gibbs, Fourier, truncation]
+      - path: "09_noise_catalog/medical_imaging/bias_field.md"
+        title: "Bias Field"
+        level: L2
+        tags: [noise, medical, MRI, bias-field, inhomogeneity]
+      - path: "09_noise_catalog/medical_imaging/metal_artifact.md"
+        title: "Metal Artifact"
+        level: L2
+        tags: [noise, medical, CT, metal, MAR, streak]
+      # Electron Microscopy (benchmarked)
+      - path: "09_noise_catalog/electron_microscopy/shot_noise_low_dose.md"
+        title: "Shot Noise (Low-Dose)"
+        level: L2
+        tags: [noise, EM, cryo-EM, Poisson, low-dose, Topaz]
+      - path: "09_noise_catalog/electron_microscopy/charging_artifact.md"
+        title: "Charging Artifact"
+        level: L2
+        tags: [noise, SEM, charging, insulator]
+      - path: "09_noise_catalog/electron_microscopy/drift_vibration.md"
+        title: "Drift & Vibration"
+        level: L2
+        tags: [noise, EM, drift, vibration, alignment, MotionCor2]
+      - path: "09_noise_catalog/electron_microscopy/ctf_artifact.md"
+        title: "CTF Artifact"
+        level: L2
+        tags: [noise, TEM, CTF, Thon-rings, phase-contrast, CTFFIND]
+      - path: "09_noise_catalog/electron_microscopy/contamination_buildup.md"
+        title: "Contamination Buildup"
+        level: L2
+        tags: [noise, EM, contamination, carbon, beam-damage]
+      # Scattering & Diffraction (benchmarked)
+      - path: "09_noise_catalog/scattering_diffraction/parasitic_scattering.md"
+        title: "Parasitic Scattering"
+        level: L2
+        tags: [noise, SAXS, WAXS, parasitic, background, ESRF, DESY]
+      - path: "09_noise_catalog/scattering_diffraction/ice_rings.md"
+        title: "Ice Rings"
+        level: L2
+        tags: [noise, crystallography, MX, ice, cryo, DIALS]
+      - path: "09_noise_catalog/scattering_diffraction/detector_gaps_parallax.md"
+        title: "Detector Gaps & Parallax"
+        level: L2
+        tags: [noise, detector, Pilatus, Eiger, gaps, parallax, pyFAI]
+      - path: "09_noise_catalog/scattering_diffraction/phase_wrapping.md"
+        title: "Phase Wrapping"
+        level: L2
+        tags: [noise, phase, CDI, unwrapping, interferometry]
+      - path: "09_noise_catalog/scattering_diffraction/radiation_damage_crystallography.md"
+        title: "Radiation Damage (MX)"
+        level: L2
+        tags: [noise, crystallography, radiation-damage, dose, RADDOSE]
+      # Cross-cutting (benchmarked)
+      - path: "09_noise_catalog/cross_cutting/cosmic_ray_outlier.md"
+        title: "Cosmic Ray / Outlier"
+        level: L2
+        tags: [noise, cosmic-ray, outlier, LACosmic, astronomy]
+      - path: "09_noise_catalog/cross_cutting/noise_estimation_methods.md"
+        title: "Noise Estimation Methods"
+        level: L2
+        tags: [noise, NPS, DQE, MAD, Noise2Void, benchmark, methodology]
+      - path: "09_noise_catalog/cross_cutting/afterglow_persistence.md"
+        title: "Afterglow / Persistence"
+        level: L2
+        tags: [noise, afterglow, persistence, detector, scintillator, astronomy]

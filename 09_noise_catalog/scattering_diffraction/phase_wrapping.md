@@ -11,6 +11,12 @@
 | **Detection Difficulty** | Moderate |
 | **Origin Domain** | Synchrotron Phase-Contrast Imaging (ESRF, Diamond, SLS) |
 
+## Visual Examples
+
+![Before and after — phase wrapping](../images/phase_wrapping_before_after.png)
+
+> **Image source:** Synthetic phase map with range exceeding [-π, π]. Left: wrapped phase with 2π discontinuities. Right: after quality-guided phase unwrapping recovering true continuous phase. MIT license.
+
 ## Description
 
 Phase wrapping occurs when the retrieved phase exceeds the principal value range [-π, π], causing abrupt 2π discontinuities in the phase map. These artificial "jumps" create false boundaries, corrupt quantitative phase measurements, and mislead segmentation algorithms. It is a fundamental ambiguity in any phase retrieval method, analogous to the aliasing problem in signal processing.
