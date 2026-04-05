@@ -424,6 +424,17 @@ Self-absorption produces systematic errors that are often mistaken for real chem
 - Related artifact: [Harmonics Contamination](harmonics_contamination.md) — also causes amplitude damping but via a different mechanism
 - Related artifact: [Statistical Noise in EXAFS](statistical_noise_exafs.md) — noise effects compound with self-absorption
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure/Location | Description | License |
+|--------|------|-----------------|-------------|---------|
+| [Trevorah et al. 2019](https://doi.org/10.1107/S160057751901302X) | Paper | Figs 2--3 | Correcting for self-absorption in fluorescence XAS — distorted vs corrected XAS spectra | -- |
+
+**Key references with published before/after comparisons:**
+- **Trevorah et al. (2019)**: Figs 2-3 show distorted (self-absorbed) vs corrected XAS spectra from real fluorescence measurements. DOI: 10.1107/S160057751901302X
+
 ## Key Takeaway
 
 Self-absorption is the most common source of systematic error in fluorescence XAS of concentrated samples. Always compare fluorescence and transmission spectra when both are available, dilute samples whenever practical, and apply the Booth & Bridges correction algorithm when dilution is not feasible. Never trust coordination numbers from uncorrected fluorescence data on samples with more than a few atomic percent of the target element.

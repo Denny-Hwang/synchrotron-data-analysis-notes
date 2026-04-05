@@ -134,6 +134,17 @@ def replace_cosmic_rays(image, cr_mask, method='median'):
 | EMPIAR dark frames | Cryo-EM | Electron detector dark current + cosmic rays |
 | TomoBank dark scans | Synchrotron | APS detector darks with zingers |
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Astropy CCD Guide — Section 6.3](https://www.astropy.org/ccd-reduction-and-photometry-guide/v/dev/notebooks/08-03-Cosmic-ray-removal.html) | Tutorial notebook | Multiple | Before/after cosmic ray removal on real CCD astronomical data | BSD-3 |
+| [van Dokkum 2001](https://doi.org/10.1086/323894) | Paper | Fig 2 | Cosmic-Ray Rejection by Laplacian Edge Detection — the seminal L.A.Cosmic paper with real before/after examples | -- |
+
+> **Recommended reference**: [Astropy CCD Guide — Cosmic ray removal notebook with interactive before/after examples](https://www.astropy.org/ccd-reduction-and-photometry-guide/v/dev/notebooks/08-03-Cosmic-ray-removal.html)
+
 ## Related Resources
 
 - [Zinger](../tomography/zinger.md) — Synchrotron-specific cosmic ray treatment in tomography

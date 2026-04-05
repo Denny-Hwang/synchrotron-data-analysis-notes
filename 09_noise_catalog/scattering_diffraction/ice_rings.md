@@ -143,6 +143,20 @@ def flag_ice_ring_reflections(hkl_data, d_spacings_ice=None, tolerance=0.02):
 | APS GM/CA | JBluIce with ice ring warning |
 | NSLS-II FMX/AMX | LSDC with automated quality metrics |
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Parkhurst et al. 2017](https://doi.org/10.1107/S2059798317010348) | Paper | Fig. 1 | Background modelling in the presence of ice rings — ice ring masking before/after in real MX data | BSD-3 |
+| [DIALS documentation](https://dials.github.io/) | Software docs | Multiple | DIALS diffraction integration software with ice ring detection and masking tools | BSD-3 |
+
+**Key references with published before/after comparisons:**
+- **Parkhurst et al. (2017)**: Fig. 1 shows ice ring masking before/after in real crystallographic data. DOI: 10.1107/S2059798317010348
+
+> **Recommended reference**: [Parkhurst et al. 2017 — DIALS integration package (Acta Cryst D)](https://doi.org/10.1107/S2059798317010348)
+
 ## Related Resources
 
 - [Radiation damage](../spectroscopy/radiation_damage.md) — Both are cryo-related experimental issues

@@ -173,6 +173,54 @@ PAPER_DIAGRAMS = {
     F --> G["Visualization"]""",
         "height": 350,
     },
+    "review_noise2void_2019": {
+        "code": """graph LR
+    A["Single Noisy Image"] --> B["Random Blind-Spot Masking"]
+    B --> C["U-Net Prediction"]
+    C --> D["Self-supervised Loss"]
+    D --> E["Denoised Output"]
+    F["No Clean Target Needed"] -.-> D""",
+        "height": 250,
+    },
+    "review_diffusion_ct_2024": {
+        "code": """graph LR
+    A["Sparse-View Sinogram"] --> B["FBP Initial Recon"]
+    B --> C["Forward Diffusion\\n(Add Noise)"]
+    C --> D["Score Network\\nReverse Diffusion"]
+    D --> E["Data Consistency\\nStep"]
+    E --> F["Clean Reconstruction"]
+    D -->|"iterate T steps"| D""",
+        "height": 280,
+    },
+    "review_httomo_2024": {
+        "code": """graph TB
+    A["Raw Projections"] --> B["YAML Pipeline Config"]
+    B --> C["GPU Preprocessing\\n(Ring, Stripe, Norm)"]
+    C --> D["GPU Reconstruction\\n(FBP/Gridrec/CGLS)"]
+    D --> E["Post-processing\\n(Segmentation)"]
+    E --> F["HDF5/TIFF Output"]""",
+        "height": 350,
+    },
+    "review_multimodal_synchrotron_data_2025": {
+        "code": """graph TB
+    A["Sample"] --> B["XRF Mapping"]
+    A --> C["Ptychography"]
+    A --> D["Micro-CT"]
+    B --> E["Paired 3D Dataset"]
+    C --> E
+    D --> E
+    E --> F["ML Benchmark\\nTraining"]""",
+        "height": 350,
+    },
+    "review_hallucination_tomo_2021": {
+        "code": """graph LR
+    A["Sparse-View Data"] --> B["DL Reconstruction"]
+    B --> C["Output Image"]
+    C --> D["sFRC Analysis"]
+    D --> E["Hallucination Map"]
+    F["Reference FBP"] -.-> D""",
+        "height": 250,
+    },
 }
 
 

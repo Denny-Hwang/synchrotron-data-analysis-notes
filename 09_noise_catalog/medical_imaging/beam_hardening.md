@@ -132,6 +132,22 @@ def polynomial_beam_hardening_correction(projections, order=3):
 | Lab micro-CT comparison | Essential when benchmarking synchrotron vs lab data |
 | Phase-contrast imaging | Energy spectrum affects phase retrieval accuracy |
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Barrett & Keat 2004](https://doi.org/10.1148/rg.246045065) | Paper | Fig. 7 | Artifacts in CT: Recognition and Avoidance — beam hardening before/after correction | -- |
+| [UTCT — Artifacts and Partial-Volume Effects](https://www.ctlab.geo.utexas.edu/about-ct/artifacts-and-partial-volume-effects/) | Facility docs | Multiple | University of Texas CT Lab — real CT artifact examples including beam hardening cupping | Public |
+| [Chen et al. 2025](https://doi.org/10.3390/s25072088) | Paper | Figs 3--5 | VGG-based beam hardening correction — before/after comparisons on real CT data | CC BY 4.0 |
+
+**Key references with published before/after comparisons:**
+- **Barrett & Keat (2004)**: Fig. 7 shows beam hardening cupping artifact before/after correction in clinical CT. DOI: 10.1148/rg.246045065
+- **Chen et al. (2025)**: Figs 3-5 show VGG-based beam hardening correction before/after on real CT data. DOI: 10.3390/s25072088
+
+> **Recommended reference**: [UTCT — Artifacts and Partial-Volume Effects (University of Texas CT Lab)](https://www.ctlab.geo.utexas.edu/about-ct/artifacts-and-partial-volume-effects/)
+
 ## Related Resources
 
 - [Harmonics contamination](../spectroscopy/harmonics_contamination.md) — Related spectral contamination issue

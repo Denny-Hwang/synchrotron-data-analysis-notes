@@ -121,6 +121,22 @@ def simple_mar_sinogram_inpainting(sinogram, metal_trace_mask):
 | In-situ experiments | Metal sample holders, thermocouples, pressure cells |
 | Cultural heritage imaging | Metal fasteners, gilding in historical artifacts |
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Boas & Fleischmann 2012](https://doi.org/10.4329/wjr.v4.i4.156) | Paper | Figs 1--4 | CT artifacts: Causes and reduction techniques — comprehensive clinical metal artifact before/after examples | -- |
+| [Katsura et al. 2018](https://doi.org/10.1148/rg.2018170102) | Paper | Multiple | Current and novel techniques for metal artifact reduction at CT — MAR techniques with before/after comparisons | -- |
+| [Liao et al. 2019 — ADN](https://doi.org/10.1016/j.media.2019.101554) | Paper | Multiple | Artifact Disentanglement Network for Metal Artifact Reduction — real clinical CT before/after MAR | -- |
+
+**Key references with published before/after comparisons:**
+- **Boas & Fleischmann (2012)**: Figs 1-4 show comprehensive metal artifact before/after correction examples. DOI: 10.4329/wjr.v4.i4.156
+- **Katsura et al. (2018)**: RadioGraphics review of current and novel MAR techniques with clinical before/after examples. DOI: 10.1148/rg.2018170102
+
+> **Recommended reference**: [Boas & Fleischmann 2012 — CT artifacts: Causes and reduction techniques (World J. Radiol.)](https://doi.org/10.4329/wjr.v4.i4.156)
+
 ## Related Resources
 
 - [Streak artifact](../tomography/streak_artifact.md) — Overlap with metal-induced streaks

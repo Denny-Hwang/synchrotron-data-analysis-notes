@@ -330,6 +330,17 @@ Hallucinated features can lead to entirely incorrect scientific conclusions. In 
 - [Gottschling et al. 2020 — The troublesome kernel](https://doi.org/10.1137/20M1387237)
 - [Antun et al. 2020 — Instabilities of DL in image reconstruction](https://doi.org/10.1073/pnas.1907377117)
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Bhadra et al. 2021](https://doi.org/10.1109/TMI.2021.3077857) | Paper (PMC8673588) | Figs 3--5 | On Hallucinations in Tomographic Image Reconstruction — systematic analysis of DL hallucinations with real CT examples | -- |
+| [DIDSR/sfrc (GitHub)](https://github.com/DIDSR/sfrc) | Repository | -- | sFRC tool for detecting hallucinated regions in DL-reconstructed images via spectral Fourier ring correlation | -- |
+
+> **Recommended reference**: [Bhadra et al. 2021 — On Hallucinations in Tomographic Image Reconstruction (IEEE TMI)](https://doi.org/10.1109/TMI.2021.3077857)
+
 ## Key Takeaway
 
 Deep learning hallucination is the most scientifically dangerous artifact in modern synchrotron data analysis. Never rely solely on DL-processed results for quantitative conclusions — always perform residual analysis against conventional reconstructions, use uncertainty quantification, and treat DL outputs as hypotheses to be validated rather than ground truth.

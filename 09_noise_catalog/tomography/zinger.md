@@ -159,6 +159,17 @@ Uncorrected zingers propagate through the reconstruction as streak-like artifact
 - Related artifact: [Ring Artifact](ring_artifact.md) — persistent pixel defects (vs. transient zingers)
 - Related artifact: [Low-Dose Poisson Noise](low_dose_noise.md) — statistical noise that also benefits from outlier filtering
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Astropy CCD Data Reduction Guide — Cosmic ray removal](https://www.astropy.org/ccd-reduction-and-photometry-guide/v/dev/notebooks/08-03-Cosmic-ray-removal.html) | Tutorial notebook | Section 6.3 | Before/after cosmic ray removal on real CCD data with interactive examples | BSD-3 |
+| [astroscrappy (GitHub)](https://github.com/astropy/astroscrappy) | Repository | Test images | L.A.Cosmic Python implementation with test images for cosmic ray detection | BSD-3 |
+
+> **Recommended reference**: [Astropy CCD Guide — Section 6.3 Cosmic ray removal](https://www.astropy.org/ccd-reduction-and-photometry-guide/v/dev/notebooks/08-03-Cosmic-ray-removal.html)
+
 ## Key Takeaway
 
 Zingers are transient bright-pixel events caused by cosmic rays or detector noise bursts. They are easy to detect by comparing consecutive projections and straightforward to remove with median-based outlier replacement — always apply zinger removal before reconstruction.

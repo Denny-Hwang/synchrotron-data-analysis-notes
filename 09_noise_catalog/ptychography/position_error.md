@@ -274,6 +274,17 @@ Position errors directly limit the achievable resolution in ptychographic recons
 - [edgePtychoNN — DL position correction (Babu et al. 2023)](https://doi.org/10.1038/s41467-023-41496-z)
 - [PtychoShelves framework (Wakonig et al. 2020)](https://doi.org/10.1107/S1600576720001776) — modular reconstruction with position refinement
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Maiden et al. 2012](https://doi.org/10.1016/j.ultramic.2012.05.001) | Paper | Multiple | An annealing algorithm to correct positioning errors in ptychography — figures showing position-corrected reconstructions | -- |
+| [Babu et al. 2023](https://doi.org/10.1038/s41467-023-41496-z) | Paper | Fig 4 | AI at the edge for real-time ptychography — before/after position correction on real synchrotron data | CC BY 4.0 |
+
+> **Recommended reference**: [Babu et al. 2023 — AI at the edge for real-time ptychography (Nature Communications)](https://doi.org/10.1038/s41467-023-41496-z)
+
 ## Key Takeaway
 
 Position errors are the single most common cause of degraded resolution in ptychography. Always enable joint position refinement during reconstruction and, when possible, validate positions against independent interferometer readings — correcting positions post-hoc using the diffraction data itself is both effective and essential for achieving diffraction-limited resolution.

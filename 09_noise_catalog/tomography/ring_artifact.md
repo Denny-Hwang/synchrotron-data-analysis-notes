@@ -172,6 +172,18 @@ Ring artifacts severely degrade quantitative analysis in tomographic data. They 
 - Related artifact: [Flat-Field Issues](flatfield_issues.md) — improper flat-fielding can introduce or amplify ring artifacts
 - Related artifact: [Rotation Center Error](rotation_center_error.md) — off-center rings can be confused with ring artifacts
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Sarepy documentation](https://sarepy.readthedocs.io/toc/section3.html) | Software docs | Figs 3.1--3.6 | Sinogram stripe detection and removal on real neutron CT data | BSD-3 |
+| [Algotom documentation](https://algotom.readthedocs.io/en/latest/toc/section4/section4_4.html) | Software docs | Section 4.4 | Comparison of multiple ring removal methods on experimental data | Apache-2.0 |
+| [Vo et al. 2018](https://doi.org/10.1364/OE.26.028396) | Paper | Figs 3--7 | Superior techniques for eliminating ring artifacts in X-ray micro-tomography — before/after sinograms and reconstructions | CC BY 4.0 |
+
+> **Recommended reference**: [Sarepy Section 3 — ring artifact removal on real neutron CT data](https://sarepy.readthedocs.io/toc/section3.html)
+
 ## Key Takeaway
 
 Ring artifacts are among the most common and visually striking tomography artifacts. Always inspect the sinogram for vertical stripes before reconstruction — catching them early allows targeted column correction or stripe-removal filtering, which is far more effective than post-reconstruction cleanup.

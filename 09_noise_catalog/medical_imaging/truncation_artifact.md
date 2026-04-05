@@ -115,6 +115,17 @@ def sinogram_padding(sinogram, pad_width=100, mode='cosine'):
 | Multi-resolution stitched CT | Stitching boundaries can create similar edge effects |
 | Phase-contrast local CT | Phase retrieval + truncation interact non-trivially |
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure/Location | Description | License |
+|--------|------|-----------------|-------------|---------|
+| [Ohnesorge et al. 2000](https://doi.org/10.1118/1.598535) | Paper | Multiple | Efficient correction for CT image artifacts caused by objects extending outside the scan field of view — before/after truncation correction | -- |
+
+**Key references with published before/after comparisons:**
+- **Ohnesorge et al. (2000)**: Efficient correction for CT truncation artifacts with before/after examples showing FOV extension. DOI: 10.1118/1.598535
+
 ## Related Resources
 
 - [Rotation center error](../tomography/rotation_center_error.md) — Can compound truncation effects

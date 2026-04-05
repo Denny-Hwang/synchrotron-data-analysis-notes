@@ -12,7 +12,8 @@ Denoising is critical in synchrotron science because:
 | Category | Training Data | Examples |
 |----------|--------------|---------|
 | **Supervised** | Paired noisy/clean images | TomoGAN, standard denoising CNNs |
-| **Self-supervised** | Noisy pairs (no clean target) | Noise2Noise, Noise2Void |
+| **Self-supervised (paired)** | Noisy pairs (no clean target) | Noise2Noise |
+| **Self-supervised (single image)** | Single noisy image only | Noise2Void, Noise2Self, Neighbor2Neighbor |
 | **Unsupervised** | No pairs needed | Deep image prior, BM3D |
 | **GAN-based** | Paired data + adversarial training | TomoGAN (combines supervised + GAN) |
 
@@ -27,6 +28,8 @@ Denoising is critical in synchrotron science because:
 | **TomoGAN** | Yes | Yes | ★★★★★ | High | Mode collapse risk |
 | **Noise2Noise** | No | Noisy pairs | ★★★★ | Medium | Needs repeat scans |
 | **Noise2Void** | No | No | ★★★ | Medium | Lower quality |
+| **Noise2Self** | No | No | ★★★ | Medium | Lower quality |
+| **Neighbor2Neighbor** | No | No | ★★★½ | Medium | Subsampling artifacts |
 
 ## Directory Contents
 
@@ -35,3 +38,4 @@ Denoising is critical in synchrotron science because:
 | [tomogan.md](tomogan.md) | GAN-based denoising for tomography |
 | [noise2noise.md](noise2noise.md) | Self-supervised denoising without clean targets |
 | [deep_residual_xrf.md](deep_residual_xrf.md) | Resolution enhancement via probe deconvolution |
+| [noise2void.md](noise2void.md) | Self-supervised denoising from single noisy images (N2V, N2S, Neighbor2Neighbor) |

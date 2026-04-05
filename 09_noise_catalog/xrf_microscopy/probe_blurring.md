@@ -269,6 +269,16 @@ Probe blurring limits the effective spatial resolution of XRF maps to the beam s
 - Related artifact: [Photon Counting Noise](photon_counting_noise.md) — deconvolution amplifies noise; denoise first
 - Related artifact: [Scan Stripe](scan_stripe.md) — destriping should precede deconvolution
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [Wu et al. 2023](https://doi.org/10.1038/s41524-023-00995-9) | Paper | Fig 3 | Resolution-Enhanced XRF Microscopy via Deep Residual Networks — real before/after super-resolution on synchrotron XRF data | CC BY 4.0 |
+
+> **Recommended reference**: [Wu et al. 2023 — Resolution-Enhanced XRF Microscopy (npj Computational Materials)](https://doi.org/10.1038/s41524-023-00995-9)
+
 ## Key Takeaway
 
 Probe blurring is an unavoidable consequence of the finite beam size and sets the true spatial resolution of XRF microscopy. For quantitative analysis of small features, either use a beamline with a smaller probe or apply Richardson-Lucy deconvolution with a measured PSF — but be aware that deconvolution amplifies noise and requires careful regularization.

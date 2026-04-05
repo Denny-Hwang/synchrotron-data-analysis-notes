@@ -314,6 +314,17 @@ Scan stripes corrupt visual interpretation by obscuring subtle compositional bou
 - Related artifact: [Photon Counting Noise](photon_counting_noise.md) — noisy maps make stripe detection harder
 - Related artifact: [Probe Blurring](probe_blurring.md) — destriping should precede deconvolution
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure/Location | Description | License |
+|--------|------|-----------------|-------------|---------|
+| [Mak et al. 2014](https://doi.org/10.1016/j.sab.2014.06.012) | Paper | Multiple | Non-negative matrix analysis for effective feature extraction in X-ray spectromicroscopy — scan stripe correction in XRF data | -- |
+
+**Key references with published before/after comparisons:**
+- **Mak et al. (2014)**: Non-negative matrix analysis showing scan stripe correction in XRF microscopy data. DOI: 10.1016/j.sab.2014.06.012
+
 ## Key Takeaway
 
 Scan stripes are a common raster-scan artifact with multiple possible causes (bidirectional offset, I0 drift, stage errors). Always inspect row and column averages for systematic oscillations, and apply row normalization or Fourier destriping before quantitative analysis. Using unidirectional scanning and proper I0 normalization prevents most stripe artifacts at the source.

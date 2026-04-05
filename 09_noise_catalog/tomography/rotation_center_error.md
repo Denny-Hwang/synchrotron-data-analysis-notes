@@ -203,6 +203,17 @@ Rotation center error degrades spatial resolution uniformly across the reconstru
 - Related artifact: [Ring Artifact](ring_artifact.md) — off-center rings can indicate rotation center error
 - Related artifact: [Motion Artifact](motion_artifact.md) — rotation axis drift during scan mimics center error
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure | Description | License |
+|--------|------|--------|-------------|---------|
+| [TomoPy find_center documentation](https://tomopy.readthedocs.io/en/stable/api/tomopy.recon.rotation.html) | Software docs | API examples | Rotation center finding methods with usage examples | BSD-3 |
+| [Vo et al. 2014](https://doi.org/10.1364/OE.22.019078) | Paper | Figs 3--4 | Reliable method for calculating the center of rotation in parallel-beam tomography — before/after center correction | CC BY 4.0 |
+
+> **Recommended reference**: [Vo et al. 2014 — Reliable rotation center finding (Optics Express)](https://doi.org/10.1364/OE.22.019078)
+
 ## Key Takeaway
 
 The rotation center is the single most critical parameter for tomographic reconstruction quality. Always verify the center using automated methods like `find_center_vo()` before running full reconstruction, and perform a center sweep on a test slice when results look suspicious — a sub-pixel correction can dramatically improve image quality.

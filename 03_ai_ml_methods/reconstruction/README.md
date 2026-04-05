@@ -28,8 +28,15 @@ Reconstruction Methods
 ├── Learned Iterative
 │   └── Unrolled optimization with learned components
 │
-└── Neural Representations
-    └── INR (continuous coordinate → value mapping)
+├── Neural Representations
+│   └── INR (continuous coordinate → value mapping)
+│
+├── Generative Models
+│   └── Diffusion models for CT (score-based priors + data consistency)
+│
+└── Physics-Informed
+    ├── PINNs (physical forward models as constraints)
+    └── Neural Operators (FNO, DeepONet for PDE-based reconstruction)
 ```
 
 ## Directory Contents
@@ -39,3 +46,5 @@ Reconstruction Methods
 | [tomocupy.md](tomocupy.md) | GPU-accelerated reconstruction (CuPy-based) |
 | [ptychonet.md](ptychonet.md) | CNN-based ptychographic phase retrieval |
 | [inr_dynamic.md](inr_dynamic.md) | Implicit Neural Representations for dynamic tomography |
+| [diffusion_ct.md](diffusion_ct.md) | Score-based diffusion models for CT reconstruction |
+| [pinns_xray.md](pinns_xray.md) | Physics-Informed Neural Networks and Neural Operators for X-ray reconstruction |

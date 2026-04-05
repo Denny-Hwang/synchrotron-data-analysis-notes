@@ -18,7 +18,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 level = render_level_selector(key="noise_level")
 
 st.title("📡 Noise & Artifact Catalog")
-st.markdown("47 noise and artifact types across synchrotron and related imaging domains — detection, correction, and troubleshooting.")
+st.markdown("49 noise and artifact types across synchrotron and related imaging domains — detection, correction, and troubleshooting.")
 
 MODALITIES = {
     "Tomography": {
@@ -442,7 +442,7 @@ def _render_summary_table_interactive():
     import pandas as pd
 
     st.subheader("Summary Table")
-    st.markdown("Complete matrix of all 47 noise/artifact types. Click **View** to see before/after comparisons.")
+    st.markdown("Complete matrix of all 49 noise/artifact types. Click **View** to see before/after comparisons.")
 
     rows = []
     for mod_name, mod_data in MODALITIES.items():

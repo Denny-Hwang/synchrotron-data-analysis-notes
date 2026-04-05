@@ -35,6 +35,7 @@ Current state: Most systems at Level 1-2; research pushing toward Level 3-4.
 | **Adaptive scanning** | What resolution | Running results | Vary step size |
 | **Anomaly detection** | When to flag | Data stream | Alert operator |
 | **Stopping criteria** | When to stop | Cumulative data | End acquisition |
+| **Foundation models** | Multi-task | Any modality | NL control, screening, strategy |
 
 ## Directory Contents
 
@@ -43,3 +44,4 @@ Current state: Most systems at Level 1-2; research pushing toward Level 3-4.
 | [roi_finder.md](roi_finder.md) | ML-guided ROI selection for XRF |
 | [bayesian_optimization.md](bayesian_optimization.md) | Bayesian parameter optimization |
 | [ai_nerd.md](ai_nerd.md) | Unsupervised dynamics fingerprinting |
+| [foundation_models_beamline.md](foundation_models_beamline.md) | Foundation models (LLMs, ViTs) for beamline control and autonomous operation |

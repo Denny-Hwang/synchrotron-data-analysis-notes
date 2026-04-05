@@ -169,6 +169,47 @@ METHOD_DIAGRAMS = {
     G["Gradient ∂μ/∂E"] -.-> C""",
         "height": 280,
     },
+    "noise2void": {
+        "code": """graph LR
+    A["Single Noisy\\nImage"] --> B["Blind-Spot\\nMasking"]
+    B --> C["U-Net\\nEncoder-Decoder"]
+    C --> D["Predict Masked\\nCenter Pixel"]
+    D --> E["Self-supervised\\nLoss"]
+    E -->|"iterate"| B
+    style D fill:#00D4AA,color:#fff""",
+        "height": 260,
+    },
+    "diffusion_ct": {
+        "code": """graph LR
+    A["Sparse-View\\nSinogram"] --> B["Score Network\\nEstimate ∇log p"]
+    B --> C["Reverse\\nDiffusion"]
+    C --> D["Data Consistency\\nProjection"]
+    D --> E["Reconstructed\\nVolume"]
+    C -->|"denoise step"| C
+    style E fill:#1B3A5C,color:#fff""",
+        "height": 260,
+    },
+    "pinns_xray": {
+        "code": """graph LR
+    A["Sparse\\nMeasurements"] --> B["Neural Network\\nf(x,y,z)"]
+    B --> C["Physics Loss\\nForward Model"]
+    C --> D["Data Loss\\nMeasurement Fit"]
+    D --> E["Physically\\nConsistent Recon"]
+    F["PDE\\nConstraints"] -.-> C
+    style E fill:#9B59B6,color:#fff""",
+        "height": 280,
+    },
+    "foundation_models_beamline": {
+        "code": """graph LR
+    A["Natural Language\\nCommand"] --> B["LLM/VLM\\nFoundation Model"]
+    B --> C["Experiment\\nPlan"]
+    C --> D["Beamline\\nExecution"]
+    D --> E["Live Data\\nFeedback"]
+    E -->|"adapt"| B
+    F["Pre-trained\\nVision Model"] -.-> B
+    style B fill:#E8515D,color:#fff""",
+        "height": 280,
+    },
 }
 
 

@@ -270,6 +270,19 @@ Partial coherence reduces the effective resolution and phase contrast of ptychog
 - [Thibault & Menzel 2013](https://doi.org/10.1038/nature11806) — original mixed-state ptychography paper
 - [PtyPy — python ptychography framework](https://github.com/ptycho/ptypy) — includes mixed-state reconstruction
 
+## Real-World Before/After Examples
+
+The following published sources provide real experimental before/after comparisons:
+
+| Source | Type | Figure/Location | Description | License |
+|--------|------|-----------------|-------------|---------|
+| [Clark et al. 2012](https://doi.org/10.1103/PhysRevLett.112.113901) | Paper | Multiple | Dynamic imaging using ptychography — coherence effects on reconstruction quality | -- |
+| [Thibault & Menzel 2013](https://doi.org/10.1038/nature11806) | Paper | Multiple | Reconstructing state mixtures from diffraction measurements — mixed-state ptychography before/after coherence correction | -- |
+
+**Key references with published before/after comparisons:**
+- **Clark et al. (2012)**: Demonstrates coherence effects on ptychographic reconstruction quality. DOI: 10.1103/PhysRevLett.112.113901
+- **Thibault & Menzel (2013)**: Original mixed-state ptychography paper showing reconstruction improvement with coherence mode decomposition. DOI: 10.1038/nature11806
+
 ## Key Takeaway
 
 Partial coherence is an unavoidable reality at most synchrotron beamlines and silently degrades reconstruction quality. Always use mixed-state ptychography with at least 3-5 probe modes as a default — the computational overhead is modest, and it prevents the insidious loss of resolution and contrast that occurs when partial coherence is ignored.

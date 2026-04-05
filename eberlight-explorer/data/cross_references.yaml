@@ -5,11 +5,16 @@ modality_method:
   crystallography: [image_segmentation]
   spectroscopy: [multimodal_integration, autonomous_experiment]
   scattering: [autonomous_experiment]
+  ptychography_recon: [reconstruction]
 
 method_paper:
   tomogan: [review_tomogan_2020]
   deep_residual_xrf: [review_deep_residual_xrf_2023]
   noise2noise: []
+  noise2void: [review_noise2void_2019]
+  diffusion_ct: [review_diffusion_ct_2024]
+  pinns_xray: []
+  foundation_models_beamline: []
   unet_variants: []
   tomo_segmentation: [review_fullstack_dl_tomo_2023]
   xrf_cell_seg: [review_xrf_gmm_2013]
@@ -23,6 +28,7 @@ method_paper:
   xrf_ptychography: []
   ct_xas: []
   optical_xray: []
+  xrf_ptychography_joint: [review_multimodal_synchrotron_data_2025]
 
 modality_noise:
   tomography: [ring_artifact, zinger, streak_artifact, low_dose_noise, sparse_angle_artifact, motion_artifact, flatfield_issues, rotation_center_error, beam_intensity_drop]
@@ -32,9 +38,10 @@ modality_noise:
   cross_cutting: [detector_common_issues, dl_hallucination, rechunking_data_integrity]
 
 noise_method:
-  low_dose_noise: [tomogan, noise2noise]
+  low_dose_noise: [tomogan, noise2noise, noise2void, diffusion_ct]
   probe_blurring: [deep_residual_xrf]
-  dl_hallucination: [tomogan, noise2noise, unet_variants]
+  dl_hallucination: [tomogan, noise2noise, unet_variants, diffusion_ct]
+  sparse_angle_artifact: [diffusion_ct, pinns_xray]
 
 tool_pipeline_stage:
   bluesky_epics: acquisition
@@ -43,6 +50,9 @@ tool_pipeline_stage:
   maps_software: processing
   roi_finder: analysis
   mlexchange: analysis
+  httomo: processing
+  tike: processing
+  pyxrf: processing
 
 pipeline_stages:
   - id: acquisition
@@ -59,7 +69,7 @@ pipeline_stages:
     name: "Processing"
     icon: "⚙️"
     file: "07_data_pipeline/processing.md"
-    tools: [tomocupy, tomopy, maps_software]
+    tools: [tomocupy, tomopy, maps_software, httomo, tike, pyxrf]
   - id: analysis
     name: "Analysis"
     icon: "🧠"
