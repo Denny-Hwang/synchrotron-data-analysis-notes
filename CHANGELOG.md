@@ -6,6 +6,17 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [explorer-0.2.0] - 2026-04-08
+
+### Added
+- 3-cluster information architecture mapping (9 folders → 3 clusters) per ADR-004
+- Note loader with YAML frontmatter parsing and graceful degradation (ADR-002, ADR-003)
+- Controlled vocabulary validation for cluster, modality, beamline (DC-001)
+- Cluster landing pages: Discover, Explore, Build
+- Card and note view components per DS-001
+- Landing page updated with hero + 3 cluster cards (FR-001)
+- 12 new tests (IA mapping + note parser), total 16 passing
+
 ## [explorer-0.1.0] - 2026-04-08
 
 ### Added
