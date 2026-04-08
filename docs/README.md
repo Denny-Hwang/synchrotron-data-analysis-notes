@@ -42,11 +42,11 @@ This file is the central index of all project documentation for eBERlight Explor
 
 | Document | Doc ID | Status | Description |
 |----------|--------|--------|-------------|
-| `information_architecture.md` | IA-001 | planned | Folder-to-cluster mapping, 4-zoom model, navigation |
-| `design_system.md` | DS-001 | planned | Color tokens, typography, spacing, components |
-| `wireframes/landing_v0.1.md` | WF-001 | planned | Landing page wireframe |
-| `wireframes/section_v0.1.md` | WF-002 | planned | Section page wireframe |
-| `wireframes/tool_v0.1.md` | WF-003 | planned | Tool detail page wireframe |
+| [`information_architecture.md`](02_design/information_architecture.md) | IA-001 | draft | Folder-to-cluster mapping, 4-zoom model, navigation |
+| [`design_system.md`](02_design/design_system.md) | DS-001 | draft | Color tokens, typography, spacing, components |
+| [`wireframes/landing_v0.1.md`](02_design/wireframes/landing_v0.1.md) | WF-001 | draft | Landing page wireframe ([HTML](02_design/wireframes/html/landing_v0.1.html)) |
+| [`wireframes/section_v0.1.md`](02_design/wireframes/section_v0.1.md) | WF-002 | draft | Section page wireframe ([HTML](02_design/wireframes/html/section_v0.1.html)) |
+| [`wireframes/tool_v0.1.md`](02_design/wireframes/tool_v0.1.md) | WF-003 | draft | Tool detail page wireframe ([HTML](02_design/wireframes/html/tool_v0.1.html)) |
 
 ## Design Decisions (`docs/02_design/decisions/`)
 
@@ -65,7 +65,7 @@ This file is the central index of all project documentation for eBERlight Explor
 |----------|--------|--------|-------------|
 | `setup.md` | IMP-001 | planned | Dev environment setup and run instructions |
 | `coding_standards.md` | IMP-002 | planned | Python style, linting, commit conventions |
-| `data_contracts.md` | DC-001 | planned | YAML frontmatter schema, controlled vocabularies |
+| [`data_contracts.md`](03_implementation/data_contracts.md) | DC-001 | draft | YAML frontmatter schema, controlled vocabularies |
 
 ## Testing (`docs/04_testing/`)
 
