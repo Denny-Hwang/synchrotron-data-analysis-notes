@@ -26,17 +26,17 @@ This file is the central index of all project documentation for eBERlight Explor
 
 | Document | Doc ID | Status | Description |
 |----------|--------|--------|-------------|
-| `vision.md` | VIS-001 | planned | Mission, problem statement, target outcomes, non-goals |
-| `personas.md` | PER-001 | planned | Three target personas with goals and pain points |
-| `roadmap.md` | RMP-001 | planned | 5-phase, 12-week delivery roadmap |
+| [`vision.md`](00_product/vision.md) | VIS-001 | draft | Mission, problem statement, target outcomes, non-goals |
+| [`personas.md`](00_product/personas.md) | PER-001 | draft | Three target personas with goals and pain points |
+| [`roadmap.md`](00_product/roadmap.md) | RMP-001 | draft | 5-phase, 12-week delivery roadmap |
 
 ## Requirements (`docs/01_requirements/`)
 
 | Document | Doc ID | Status | Description |
 |----------|--------|--------|-------------|
-| `PRD.md` | PRD-001 | planned | Product Requirements Document |
-| `user_stories.md` | UST-001 | planned | User stories grouped by persona |
-| `non_functional.md` | NFR-001 | planned | Accessibility, performance, security requirements |
+| [`PRD.md`](01_requirements/PRD.md) | PRD-001 | draft | Product Requirements Document |
+| [`user_stories.md`](01_requirements/user_stories.md) | UST-001 | draft | User stories grouped by persona |
+| [`non_functional.md`](01_requirements/non_functional.md) | NFR-001 | draft | Accessibility, performance, security requirements |
 
 ## Design (`docs/02_design/`)
 
