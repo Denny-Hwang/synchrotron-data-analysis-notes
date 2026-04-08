@@ -14,9 +14,29 @@ This repository documents the DOE BER (Biological and Environmental Research) pr
 - **End-to-end data pipeline** — from acquisition to storage with architecture diagrams
 - **29 noise/artifact types** — cataloged with detection code, before/after examples, and symptom-based troubleshooter
 
-## eBERlight Explorer (Interactive Web App)
+## Documentation
 
-This repository includes **eBERlight Research Explorer**, an interactive Streamlit web application that lets you browse all the content visually.
+![notes-v0.1.0](https://img.shields.io/badge/notes-v0.1.0-blue)
+![explorer-v0.2.0](https://img.shields.io/badge/explorer-v0.2.0-green)
+
+Full project documentation is available in [`docs/README.md`](docs/README.md), including:
+
+- **Product layer**: Vision, personas, roadmap, PRD, user stories, NFRs
+- **Design layer**: Information architecture, design system, wireframes
+- **Architecture decisions**: 6 ADRs covering framework, IA, schema, tokens, versioning
+- **Implementation**: Setup guide, coding standards, data contracts
+- **Testing**: Test plan, accessibility audit checklist
+
+### Wireframe Preview
+
+Static HTML wireframe mockups are published via GitHub Pages:
+- [Landing page](docs/02_design/wireframes/html/landing_v0.1.html)
+- [Section page](docs/02_design/wireframes/html/section_v0.1.html)
+- [Tool detail page](docs/02_design/wireframes/html/tool_v0.1.html)
+
+## Explorer (Redesigned)
+
+The **eBERlight Explorer** (`explorer/`) is a redesigned Streamlit portal with ANL-aligned design, 3-cluster IA, and runtime note rendering.
 
 ### Running the Explorer
 
@@ -26,10 +46,10 @@ git clone https://github.com/Denny-Hwang/synchrotron-data-analysis-notes.git
 cd synchrotron-data-analysis-notes
 
 # 2. Install dependencies
-pip install -r eberlight-explorer/requirements.txt
+pip install -r explorer/requirements.txt
 
 # 3. Launch the app
-streamlit run eberlight-explorer/app.py
+streamlit run explorer/app.py
 ```
 
 The app opens at `http://localhost:8501` in your browser.
