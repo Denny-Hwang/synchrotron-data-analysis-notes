@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+This project uses two independent SemVer streams per ADR-006:
+- `notes-vX.Y.Z` — content in the note folders
+- `explorer-vX.Y.Z` — the explorer application
+
+## [explorer-0.2.0] - 2026-04-08
+
+### Added
+- 3-cluster information architecture mapping (9 folders → 3 clusters) per ADR-004
+- Note loader with YAML frontmatter parsing and graceful degradation (ADR-002, ADR-003)
+- Controlled vocabulary validation for cluster, modality, beamline (DC-001)
+- Cluster landing pages: Discover, Explore, Build
+- Card and note view components per DS-001
+- Landing page updated with hero + 3 cluster cards (FR-001)
+- 12 new tests (IA mapping + note parser), total 16 passing
+
+## [explorer-0.1.0] - 2026-04-08
+
+### Added
+- Streamlit theme with ANL-aligned design tokens (ADR-005)
+- Header component with logo placeholder and top nav stubs
+- Breadcrumb component per IA-001 navigation rules
+- DOE acknowledgment footer with Contract No. DE-AC02-06CH11357
+- Custom CSS for header, breadcrumb, footer, card, and tag components
+- Placeholder landing page ("Hello, eBERlight")
+- Smoke tests for all 3 components
+- Full documentation suite: CLAUDE.md, product layer, design layer,
+  6 ADRs, implementation docs, test plan, glossary, contributing guide
+
 ## [1.1.0] - 2026-03-21
 
 ### Added
