@@ -52,12 +52,12 @@ This file is the central index of all project documentation for eBERlight Explor
 
 | Document | Doc ID | Status | Description |
 |----------|--------|--------|-------------|
-| `ADR-001.md` | ADR-001 | planned | Choose Streamlit over Next.js / Docusaurus / Jekyll |
-| `ADR-002.md` | ADR-002 | planned | Notes remain single source of truth |
-| `ADR-003.md` | ADR-003 | planned | YAML frontmatter schema for notes |
-| `ADR-004.md` | ADR-004 | planned | 8 folders → 3 task clusters IA mapping |
-| `ADR-005.md` | ADR-005 | planned | Adopt Argonne-aligned design tokens |
-| `ADR-006.md` | ADR-006 | planned | Dual SemVer streams (notes vs explorer) |
+| [`ADR-001.md`](02_design/decisions/ADR-001.md) | ADR-001 | accepted | Choose Streamlit over Next.js / Docusaurus / Jekyll |
+| [`ADR-002.md`](02_design/decisions/ADR-002.md) | ADR-002 | accepted | Notes remain single source of truth |
+| [`ADR-003.md`](02_design/decisions/ADR-003.md) | ADR-003 | accepted | YAML frontmatter schema for notes |
+| [`ADR-004.md`](02_design/decisions/ADR-004.md) | ADR-004 | accepted | 8 folders → 3 task clusters IA mapping |
+| [`ADR-005.md`](02_design/decisions/ADR-005.md) | ADR-005 | accepted | Adopt Argonne-aligned design tokens |
+| [`ADR-006.md`](02_design/decisions/ADR-006.md) | ADR-006 | accepted | Dual SemVer streams (notes vs explorer) |
 
 ## Implementation (`docs/03_implementation/`)
 
