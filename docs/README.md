@@ -63,16 +63,16 @@ This file is the central index of all project documentation for eBERlight Explor
 
 | Document | Doc ID | Status | Description |
 |----------|--------|--------|-------------|
-| `setup.md` | IMP-001 | planned | Dev environment setup and run instructions |
-| `coding_standards.md` | IMP-002 | planned | Python style, linting, commit conventions |
+| [`setup.md`](03_implementation/setup.md) | IMP-001 | draft | Dev environment setup and run instructions |
+| [`coding_standards.md`](03_implementation/coding_standards.md) | IMP-002 | draft | Python style, linting, commit conventions |
 | [`data_contracts.md`](03_implementation/data_contracts.md) | DC-001 | draft | YAML frontmatter schema, controlled vocabularies |
 
 ## Testing (`docs/04_testing/`)
 
 | Document | Doc ID | Status | Description |
 |----------|--------|--------|-------------|
-| `test_plan.md` | TST-001 | planned | Test pyramid, tooling, coverage targets |
-| `accessibility_audit.md` | TST-002 | planned | WCAG 2.1 AA checklist for Streamlit |
+| [`test_plan.md`](04_testing/test_plan.md) | TST-001 | draft | Test pyramid, tooling, coverage targets |
+| [`accessibility_audit.md`](04_testing/accessibility_audit.md) | TST-002 | draft | WCAG 2.1 AA checklist for Streamlit |
 
 ## Release (`docs/05_release/`)
 
@@ -84,5 +84,5 @@ This file is the central index of all project documentation for eBERlight Explor
 
 | Document | Doc ID | Status | Description |
 |----------|--------|--------|-------------|
-| `glossary.md` | GLO-001 | planned | Domain terminology definitions |
-| `contributing.md` | CON-001 | planned | Branch naming, PR flow, ADR process |
+| [`glossary.md`](06_meta/glossary.md) | GLO-001 | draft | Domain terminology definitions |
+| [`contributing.md`](06_meta/contributing.md) | CON-001 | draft | Branch naming, PR flow, ADR process |
