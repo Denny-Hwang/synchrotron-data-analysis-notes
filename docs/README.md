@@ -58,6 +58,7 @@ This file is the central index of all project documentation for eBERlight Explor
 | [`ADR-004.md`](02_design/decisions/ADR-004.md) | ADR-004 | accepted | 8 folders → 3 task clusters IA mapping |
 | [`ADR-005.md`](02_design/decisions/ADR-005.md) | ADR-005 | accepted | Adopt Argonne-aligned design tokens |
 | [`ADR-006.md`](02_design/decisions/ADR-006.md) | ADR-006 | accepted | Dual SemVer streams (notes vs explorer) |
+| [`ADR-007.md`](02_design/decisions/ADR-007.md) | ADR-007 | accepted | Static site mirror of Streamlit explorer for GitHub Pages |
 
 ## Implementation (`docs/03_implementation/`)
 
@@ -66,6 +67,7 @@ This file is the central index of all project documentation for eBERlight Explor
 | [`setup.md`](03_implementation/setup.md) | IMP-001 | draft | Dev environment setup and run instructions |
 | [`coding_standards.md`](03_implementation/coding_standards.md) | IMP-002 | draft | Python style, linting, commit conventions |
 | [`data_contracts.md`](03_implementation/data_contracts.md) | DC-001 | draft | YAML frontmatter schema, controlled vocabularies |
+| [`github_pages_sync.md`](03_implementation/github_pages_sync.md) | IMPL-002 | accepted | GitHub Pages ↔ Streamlit explorer sync contract |
 
 ## Testing (`docs/04_testing/`)
 

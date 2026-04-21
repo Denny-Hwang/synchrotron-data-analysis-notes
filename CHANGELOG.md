@@ -6,6 +6,24 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [explorer-0.3.0] - 2026-04-21
+
+### Added
+- Static HTML mirror of the Streamlit explorer, deployed to GitHub Pages (ADR-007)
+- `scripts/build_static_site.py` — generator that reuses `explorer/lib/ia.py`, `explorer/lib/notes.py`, and `explorer/assets/styles.css` to mirror the Streamlit app 1:1
+- `.github/workflows/pages.yml` — rebuilds and deploys the site on every push to `main` touching notes, `explorer/**`, the generator, wireframes, or the workflow
+- `docs/03_implementation/github_pages_sync.md` (IMPL-002) — sync contract between Streamlit and Pages
+- `CLAUDE.md` Invariant #9 — Pages must mirror the Streamlit explorer
+- Note-folder images (e.g. `09_noise_catalog/images/*`) are mirrored so markdown image references resolve on the static site
+- `.nojekyll`, `404.html`, and a regenerated `wireframes/index.html` on the published site
+
+### Changed
+- `.github/workflows/pages.yml` previously published only the 3 design wireframes; now builds and deploys the full explorer mirror plus wireframes
+- `CLAUDE.md` directory map updated to include `scripts/`
+
+### Notes
+- The generated `site/` directory is git-ignored and must not be committed or hand-edited
+
 ## [explorer-0.2.0] - 2026-04-08
 
 ### Added

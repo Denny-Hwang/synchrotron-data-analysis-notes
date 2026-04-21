@@ -36,6 +36,8 @@ This repository contains two versioned artifacts:
 
 8. **Status vocabulary:** `draft` | `proposed` | `accepted` | `superseded`. No other values are permitted.
 
+9. **GitHub Pages MUST mirror the Streamlit explorer.** Any change to `explorer/` (pages, components, assets, IA mapping, or note parser) MUST be reflected in the static site generator `scripts/build_static_site.py` in the **same PR**. The generated `site/` directory is built by CI on every push to `main` (see `.github/workflows/pages.yml`) and MUST NOT be hand-edited or committed. See `docs/03_implementation/github_pages_sync.md` for the full sync contract and ADR-007 for rationale.
+
 ## Directory Map
 
 ```
@@ -70,6 +72,9 @@ synchrotron-data-analysis-notes/
 │   ├── lib/                    # Core logic (notes loader, IA mapping)
 │   ├── tests/                  # Unit and integration tests
 │   └── app.py                  # Streamlit entry point
+├── scripts/
+│   ├── build_static_site.py    # Generator for GitHub Pages (mirrors explorer/)
+│   └── requirements.txt        # Generator deps (kept in sync with explorer)
 ├── CLAUDE.md                   # This file
 ├── CHANGELOG.md                # Combined changelog
 └── README.md                   # Repository overview
