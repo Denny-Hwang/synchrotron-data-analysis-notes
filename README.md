@@ -17,7 +17,7 @@ This repository documents the DOE BER (Biological and Environmental Research) pr
 ## Documentation
 
 ![notes-v0.1.0](https://img.shields.io/badge/notes-v0.1.0-blue)
-![explorer-v0.2.0](https://img.shields.io/badge/explorer-v0.2.0-green)
+![explorer-v0.3.0](https://img.shields.io/badge/explorer-v0.3.0-green)
 
 Full project documentation is available in [`docs/README.md`](docs/README.md), including:
 
@@ -27,9 +27,26 @@ Full project documentation is available in [`docs/README.md`](docs/README.md), i
 - **Implementation**: Setup guide, coding standards, data contracts
 - **Testing**: Test plan, accessibility audit checklist
 
+### Static Site (GitHub Pages)
+
+GitHub Pages hosts a read-only **static mirror** of the Streamlit explorer,
+regenerated automatically on every push to `main` by
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml) via
+[`scripts/build_static_site.py`](scripts/build_static_site.py). The mirror
+reuses `explorer/lib/ia.py`, `explorer/lib/notes.py`, and
+`explorer/assets/styles.css` so the two surfaces cannot drift. See the sync
+contract in [`docs/03_implementation/github_pages_sync.md`](docs/03_implementation/github_pages_sync.md)
+and the rationale in [ADR-007](docs/02_design/decisions/ADR-007.md).
+
+The published site includes:
+- Landing page with 3 cluster cards (mirrors `explorer/app.py`)
+- Discover / Explore / Build cluster pages (mirrors `explorer/pages/`)
+- One page per note (176 notes), with markdown, code highlighting, and metadata panel
+- Design wireframes at `/wireframes/` (preserved from the previous Pages setup)
+
 ### Wireframe Preview
 
-Static HTML wireframe mockups are published via GitHub Pages:
+Static HTML wireframe mockups — also published on the mirror at `/wireframes/`:
 - [Landing page](docs/02_design/wireframes/html/landing_v0.1.html)
 - [Section page](docs/02_design/wireframes/html/section_v0.1.html)
 - [Tool detail page](docs/02_design/wireframes/html/tool_v0.1.html)
