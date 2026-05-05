@@ -6,6 +6,25 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [notes-0.10.0] - 2026-05-05
+
+### Added
+- New section `10_interactive_lab/` — real sample data for hands-on noise mitigation experiments (ADR-008)
+- 71 sample files (~135 MB) bundled across 6 modalities: tomography (ring artifact, neutron CT, flatfield), XRF spectra and PyXRF configs, spectroscopy (EXAFS + FEFF + Athena), scattering/diffraction calibrants, cross-cutting (cosmic ray FITS)
+- 8 `ATTRIBUTION.md` files with YAML frontmatter declaring upstream URL, pinned commit SHA, authors, license, and required citation
+- 8 verbatim upstream LICENSE files in `10_interactive_lab/LICENSES/` (Apache-2.0, BSD-Argonne, MIT, LGPL-2.1+, BSD-3)
+- `10_interactive_lab/manifest.yaml` — machine-readable inventory consumed by the planned Streamlit Lab page
+- `10_interactive_lab/CITATIONS.bib` — 19 BibTeX entries for bundled and external datasets
+- `10_interactive_lab/docs/external_data_sources.md` — curated atlas of bigger / lazy-load datasets (TomoBank, EMPIAR, CXIDB, AAPM, etc.) with download recipes, license rules, citation strings, and a research-ethics reminder
+- `10_interactive_lab/models/README.md` and `lazy_download_recipes.yaml` — registry for native synchrotron models (TomoGAN, Topaz, CryoDRGN, edgePtychoNN) and Hugging Face Hub baselines (NAFNet, SwinIR, Swin2SR)
+- `docs/02_design/decisions/ADR-008.md` — accepts a tenth note folder, extends the Build cluster (ADR-004), and documents free-tier-only constraints (no Git LFS, no file > 100 MB, lazy-download for heavy weights/data)
+- `docs/05_release/release_notes/notes-v0.10.0.md`
+
+### Notes
+- `09_noise_catalog/` content is unchanged; the Lab consumes its taxonomy
+- No pretrained weights are bundled; all model downloads are deferred to runtime via `pooch.retrieve(...)` with hash verification
+- Pages mirror (ADR-007, invariant #9) renders the Lab's markdown but interactive parameter tuning remains Streamlit-only
+
 ## [explorer-0.3.0] - 2026-04-21
 
 ### Added
