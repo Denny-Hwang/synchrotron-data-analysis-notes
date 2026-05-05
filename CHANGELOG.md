@@ -34,6 +34,11 @@ This project uses two independent SemVer streams per ADR-006:
 - `docs/01_requirements/user_stories.md` — adds US-013–US-016 for the Interactive Lab personas
 - The Pages mirror picks up `10_interactive_lab/` automatically (no generator change needed); interactive pipelines remain Streamlit-only per ADR-007 / invariant #9
 
+### Fixed
+- `compute_metrics` now centre-crops to the common minimum shape when the reference and candidate differ by ≤ 2 pixels in either dim (controlled by `align_tolerance` kwarg). Sarepy ships the clean reference at (1801, 2560) and noisy variants at (1800, 2560); without alignment, **PSNR/SSIM were silently skipped on every ring-artifact sample**, defeating the metric panel. The previously-skipped `test_ring_artifact_pipeline_reduces_stripes` now runs and asserts a meaningful PSNR improvement (uses `all_stripe_types_sample1.tif`, the sample with the cleanest reference relationship).
+- `4_Experiment.py` now special-cases `role: false_positive_trap` samples with an info banner explaining why metrics are skipped (the sample is a different scene from the clean reference). Other shape-mismatched cases show a centre-crop caption so the user knows alignment was applied.
+- Ring-artifact recipe descriptions now include a "note on metrics" caveat explaining that Sarepy's `sinogram_normal.tif` is a visual reference, not a paired ground truth — directing users to `all_stripe_types_sample1` for unambiguous metric comparisons.
+
 ## [notes-0.10.0] - 2026-05-05
 
 ### Added

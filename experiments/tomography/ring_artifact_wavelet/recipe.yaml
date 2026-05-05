@@ -27,6 +27,12 @@ description: |
     targets the low-frequency vertical structure of the artifact and
     is gentler on real angular features.
 
+  > **A note on metrics.** Sarepy's `sinogram_normal.tif` is a visual
+  > reference, not a paired ground truth for every noisy sample. PSNR/SSIM
+  > behave most cleanly on **`all_stripe_types_sample1`** — there both
+  > algorithms can be ranked unambiguously. On other samples trust the
+  > visual side-by-side more than the numbers.
+
 function: experiments.tomography.ring_artifact_wavelet.pipeline.remove_stripe_wavelet_fft
 
 samples:
