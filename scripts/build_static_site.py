@@ -39,6 +39,7 @@ _EXPLORER_DIR = _REPO_ROOT / "explorer"
 if str(_EXPLORER_DIR) not in sys.path:
     sys.path.insert(0, str(_EXPLORER_DIR))
 
+from lib.experiments import Recipe, load_recipes  # noqa: E402
 from lib.ia import CLUSTER_META, FOLDER_TO_CLUSTER, get_folders_for_cluster  # noqa: E402
 from lib.notes import Note, load_notes  # noqa: E402
 
@@ -527,6 +528,81 @@ def _render_landing(out_dir: Path) -> None:
     (out_dir / page_path).write_text(html, encoding="utf-8")
 
 
+def _recipe_card_html(recipe: Recipe) -> str:
+    """Render one recipe.yaml as a card on the Build cluster page.
+
+    The static site cannot run pipelines — the card is a read-only summary
+    pointing readers to the Streamlit Lab to actually execute.
+    """
+    desc_first_para = recipe.description.split("\n\n", 1)[0] if recipe.description else ""
+    # Strip markdown emphasis from the excerpt for cleaner display.
+    desc_clean = re.sub(r"[*_`]+", "", desc_first_para).strip()
+    if len(desc_clean) > 280:
+        desc_clean = desc_clean[:280].rstrip() + "…"
+
+    primary_ref = recipe.references[0] if recipe.references else None
+    ref_html = ""
+    if primary_ref:
+        cite = (
+            f"{html_escape_mod.escape(primary_ref.authors)} "
+            f"({primary_ref.year}). "
+            f"{html_escape_mod.escape(primary_ref.title)}."
+        )
+        if primary_ref.doi:
+            cite += (
+                f' <a href="https://doi.org/{html_escape_mod.escape(primary_ref.doi)}"'
+                ' target="_blank" rel="noopener">DOI</a>'
+            )
+        ref_html = f'<p class="recipe-cite" style="font-size:12px;color:#888;">{cite}</p>'
+
+    badge_color = CLUSTER_META["build"]["color"]
+    return (
+        '<div class="eberlight-card" '
+        f'style="border-left: 3px solid {badge_color};">'
+        '<div style="display:flex;align-items:center;justify-content:space-between;'
+        'gap:8px;margin-bottom:8px;">'
+        f'<h4 style="margin:0;">{html_escape_mod.escape(recipe.title)}</h4>'
+        f'<span style="font-size:11px;color:#fff;background:{badge_color};'
+        'padding:2px 8px;border-radius:10px;white-space:nowrap;">'
+        f"{html_escape_mod.escape(recipe.modality)}</span>"
+        "</div>"
+        f'<p style="font-size:13px;color:#555;margin:0 0 8px 0;">{html_escape_mod.escape(desc_clean)}</p>'
+        '<p style="font-size:12px;color:#666;margin:0 0 4px 0;">'
+        f"<b>{len(recipe.samples)}</b> bundled sample"
+        f"{'s' if len(recipe.samples) != 1 else ''} · "
+        f"<b>{len(recipe.parameters)}</b> tunable parameter"
+        f"{'s' if len(recipe.parameters) != 1 else ''} · "
+        f'<code>{html_escape_mod.escape(recipe.recipe_id)}</code>'
+        "</p>"
+        f"{ref_html}"
+        "</div>"
+    )
+
+
+def _recipe_gallery_html() -> str:
+    """Render the full recipe gallery shown on the Build cluster page."""
+    experiments_root = _REPO_ROOT / "experiments"
+    if not experiments_root.exists():
+        return ""
+    recipes = load_recipes(experiments_root)
+    if not recipes:
+        return ""
+    cards = "\n".join(_recipe_card_html(r) for r in recipes)
+    return (
+        '<section class="folder-section">'
+        '<h2>Interactive Lab — Recipes</h2>'
+        '<p style="color:#666;font-size:14px;margin:-8px 0 12px 0;">'
+        f"{len(recipes)} bundled noise-mitigation recipe"
+        f"{'s' if len(recipes) != 1 else ''}. "
+        "Run interactively in the Streamlit Explorer "
+        "(see <code>10_interactive_lab/README.md</code>); the static site "
+        "cannot execute pipelines."
+        "</p>"
+        f'<div class="card-grid">{cards}</div>'
+        "</section>"
+    )
+
+
 def _render_cluster(
     out_dir: Path,
     cluster_id: str,
@@ -560,6 +636,12 @@ def _render_cluster(
     else:
         cards = "\n".join(card_for(n) for n in cluster_notes)
         content = f'<div class="card-grid">{cards}</div>'
+
+    # Build cluster gets an extra "Interactive Lab — Recipes" gallery (ADR-008).
+    if cluster_id == "build":
+        gallery = _recipe_gallery_html()
+        if gallery:
+            content = gallery + "\n" + content
 
     body = f"""
     {_breadcrumb_html(page_path, [("Home", "index.html"), (meta["name"], None)])}

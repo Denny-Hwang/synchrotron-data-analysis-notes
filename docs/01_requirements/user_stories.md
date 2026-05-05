@@ -127,3 +127,41 @@ related: [PRD-001, PER-001, VIS-001]
 
 - Given I am on the "Build and Compute" cluster page, when I select two tool cards, then I see a comparison view with key attributes side by side.
 - Given only one tool is selected, when I look at the page, then the comparison view is not shown.
+
+### US-013: Replay a noise mitigation algorithm with parameter tuning
+
+> As a **Computational Scientist**, I want to pick a noise mitigation recipe, choose a real bundled sample, and tune the algorithm's parameters interactively, so that I can build intuition for how a method behaves before applying it to my own data. (Ref: ADR-008, FR-017–FR-019.)
+
+**Acceptance Criteria:**
+
+- Given I open the Interactive Lab page, when I select a recipe from the sidebar, then I see the recipe title, description, primary citation, and parameter widgets auto-generated from `recipe.yaml`.
+- Given I change a parameter slider, when the page re-renders, then the processed image updates within ~2 seconds (the cached pipeline run is reused if I revert).
+- Given the chosen sample's shape matches the recipe's `clean_reference`, when the page re-renders, then PSNR and SSIM are shown with delta vs. the raw input.
+- Given the chosen sample's shape differs from the `clean_reference`, when the page re-renders, then an info banner explains the metric skip and the visual comparison still works.
+
+### US-014: Compare two algorithms on the same input
+
+> As a **Beamline Scientist**, I want to apply different mitigation algorithms (e.g., sorting-based vs. wavelet-FFT) to the same bundled sinogram, so that I can decide which method is better suited to my detector's specific stripe profile. (Ref: ADR-008.)
+
+**Acceptance Criteria:**
+
+- Given two recipes target the same noise-catalog entry (e.g. `09_noise_catalog/tomography/ring_artifact.md`), when I switch between them in the sidebar, then I keep the same sample selected and the page re-runs only the pipeline.
+- Given I keep the same sample across both recipes, when both finish processing, then I can visually inspect that the inputs are identical (sanity check) and compare the outputs.
+
+### US-015: Spot cosmic-ray / zinger artifacts safely
+
+> As a **Beamline Scientist**, I want to run an L.A.Cosmic-style detector on a real CCD frame and see how the threshold trades off detection vs. real-feature preservation, so that I learn to recognise zingers in my own tomography projections. (Ref: ADR-008.)
+
+**Acceptance Criteria:**
+
+- Given the cosmic-ray recipe is selected, when I lower the `sigclip` threshold below ~3.5, then I see real features starting to be flagged (visible as differences between input and output).
+- Given the cosmic-ray recipe's primary citation is van Dokkum (2001), when I expand the references panel, then I can click through to the DOI.
+
+### US-016: Reuse models without bundling weights
+
+> As a **Computational Scientist**, I want the Lab to fetch model weights or large datasets only when I ask for them, with the license string visible before any download begins, so that I never accidentally pull a CC-BY-NC or GPL artifact onto my machine without consenting. (Ref: ADR-008, FR-021.)
+
+**Acceptance Criteria:**
+
+- Given a recipe declares an external model in `lazy_download_recipes.yaml` with `license_warning`, when I trigger the fetch, then the warning text is rendered before the download starts.
+- Given the same model is requested again, when the file is already in the local cache, then the page reuses the cached copy with no network call.

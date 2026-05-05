@@ -12,20 +12,26 @@ This project uses two independent SemVer streams per ADR-006:
 - `explorer/pages/4_Experiment.py` — Interactive Lab page with auto-generated parameter widgets, side-by-side before/after display, and PSNR/SSIM metrics vs clean reference (ADR-008)
 - `explorer/lib/experiments.py` — Recipe loader, sample loader (TIFF/NumPy/FITS, multi-extension FITS), pure-function pipeline dispatch, metrics
 - `explorer/lib/model_zoo.py` — Lazy-download infrastructure consuming `10_interactive_lab/models/lazy_download_recipes.yaml`. `pooch`-based hash-verified fetch + Hugging Face `snapshot_download`. License is shown to the user before any download.
-- `experiments/` directory with recipe schema (`experiments/README.md`) and two bundled recipes:
+- `experiments/` directory with recipe schema (`experiments/README.md`) and **three** bundled recipes:
   - `experiments/tomography/ring_artifact/` — Vo et al. (2018) sorting-based stripe removal
+  - `experiments/tomography/ring_artifact_wavelet/` — Munch et al. (2009) combined wavelet-Fourier filter (different algorithm on the same Sarepy sinograms — pedagogical comparison)
   - `experiments/cross_cutting/cosmic_ray_lacosmic/` — van Dokkum (2001) L.A.Cosmic via `astroscrappy.detect_cosmics`
 - Landing-page CTA card pointing to the Interactive Lab (`app.py`)
 - `10_interactive_lab` added to `FOLDER_TO_CLUSTER` mapping → Build cluster (`explorer/lib/ia.py`)
 - `explorer/tests/test_experiments.py` — 20 tests covering recipe parsing, function resolution, pipeline dispatch with type coercion, metrics, end-to-end run on bundled samples, **and CI-quality recipe-contract validation** (every `recipe.yaml` parses, every `manifest_path` exists, every `function` resolves, every metric is known, every `noise_catalog_ref` exists)
 - `explorer/tests/test_model_zoo.py` — 8 offline tests; caught a real omission: `topaz_denoise_unet_3d` and `cryodrgn` had no `license_warning` despite GPL licenses (now fixed)
-- `numpy`, `scipy`, `scikit-image`, `tifffile`, `astropy`, `astroscrappy`, `pooch` pinned in `explorer/requirements.txt`
+- `.github/workflows/test.yml` — runs `pytest explorer/tests/` on Python 3.11 + 3.12 for every push and PR touching `explorer/`, `experiments/`, `10_interactive_lab/`, or the workflow itself
+- `scripts/build_static_site.py` — renders an "Interactive Lab — Recipes" gallery on the Build cluster page with title, modality badge, sample/parameter counts, and primary citation per recipe; explicitly states pipelines run only in the Streamlit Explorer (FR-022)
+- `numpy`, `scipy`, `scikit-image`, `tifffile`, `astropy`, `astroscrappy`, `pooch`, `PyWavelets` pinned in `explorer/requirements.txt`
 - `docs/05_release/release_notes/explorer-v0.4.0.md`
 
 ### Changed
 - `explorer/lib/ia.py` Build cluster description mentions the Interactive Lab
 - `explorer/tests/test_ia.py` updated to expect 10 note folders
 - `10_interactive_lab/models/lazy_download_recipes.yaml` — added missing `license_warning` to GPL entries (Topaz 3D, CryoDRGN)
+- `.github/workflows/pages.yml` — adds `10_interactive_lab/**` and `experiments/**` to trigger paths so Pages rebuilds when lab content or recipes change
+- `docs/01_requirements/PRD.md` — bumped to v0.2.0; adds FR-017–FR-022 covering the Interactive Lab; scope/dependencies amended
+- `docs/01_requirements/user_stories.md` — adds US-013–US-016 for the Interactive Lab personas
 - The Pages mirror picks up `10_interactive_lab/` automatically (no generator change needed); interactive pipelines remain Streamlit-only per ADR-007 / invariant #9
 
 ## [notes-0.10.0] - 2026-05-05

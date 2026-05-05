@@ -10,3 +10,4 @@ tifffile>=2023.7.10
 astropy>=5.3
 astroscrappy>=1.1     # L.A.Cosmic cosmic-ray / zinger detection
 pooch>=1.7            # Lazy-download of large datasets and model weights
+PyWavelets>=1.5       # Wavelet-FFT ring artifact removal (Munch 2009)
