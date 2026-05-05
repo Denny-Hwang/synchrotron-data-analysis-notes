@@ -1,10 +1,11 @@
 """Information architecture mapping for eBERlight Explorer.
 
-Defines the single constant mapping 9 note folders to 3 task-oriented
+Defines the single constant mapping 10 note folders to 3 task-oriented
 clusters. This is the one place to change if the IA evolves.
 
 Ref: IA-001 (information_architecture.md) — Folder-to-cluster mapping.
 Ref: ADR-004 — 8 folders → 3 task clusters IA mapping.
+Ref: ADR-008 — Section 10 Interactive Lab joins the Build cluster.
 """
 
 from typing import Final
@@ -21,6 +22,7 @@ FOLDER_TO_CLUSTER: Final[dict[str, str]] = {
     "07_data_pipeline": "build",
     "08_references": "discover",
     "09_noise_catalog": "explore",
+    "10_interactive_lab": "build",
 }
 
 # Human-readable cluster names and descriptions.
@@ -45,7 +47,8 @@ CLUSTER_META: Final[dict[str, dict[str, str]]] = {
         "name": "Build and Compute",
         "description": (
             "7 open-source tools with reverse engineering, HDF5 data schemas, "
-            "EDA guides, and the end-to-end data pipeline architecture."
+            "EDA guides, the end-to-end data pipeline architecture, and the "
+            "Interactive Lab with real sample data for noise mitigation experiments."
         ),
         "color": "#F47B20",
     },

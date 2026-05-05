@@ -51,6 +51,13 @@ synchrotron-data-analysis-notes/
 ├── 07_data_pipeline/           # Note folder
 ├── 08_references/              # Note folder
 ├── 09_noise_catalog/           # Note folder
+├── 10_interactive_lab/         # Note folder — real sample data for hands-on experiments (ADR-008)
+│   ├── datasets/               # Bundled samples grouped by modality
+│   ├── LICENSES/               # Verbatim upstream LICENSE files
+│   ├── docs/                   # external_data_sources.md
+│   ├── models/                 # lazy_download_recipes.yaml (no weights bundled)
+│   ├── manifest.yaml           # Machine-readable inventory
+│   └── CITATIONS.bib           # BibTeX for bundled + external datasets
 ├── docs/
 │   ├── 00_product/             # Vision, personas, roadmap
 │   ├── 01_requirements/        # PRD, user stories, NFRs

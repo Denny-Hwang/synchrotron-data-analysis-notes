@@ -1,0 +1,125 @@
+# lazy_download_recipes.yaml — Model-weight registry for the Interactive Lab
+#
+# Each entry is consumed by a `pooch.retrieve(...)` call in the Streamlit
+# Lab page. `known_hash` is null where we have not yet vetted a download;
+# the first time the Lab fetches the file, it should compute the SHA-256
+# and pin it here before merging.
+#
+# License field is REQUIRED. The Streamlit page MUST show the license to
+# the user before initiating any download.
+
+schema_version: 1
+
+native_synchrotron_models:
+
+  tomogan_generator:
+    framework: tensorflow_keras
+    purpose: low-dose tomography denoising
+    paper_doi: 10.1364/JOSAA.375595
+    repo: https://github.com/tomography/TomoGAN
+    url: https://github.com/tomography/TomoGAN/releases  # update with concrete asset URL
+    known_hash: null
+    size_bytes: ~50_000_000
+    license: CC-BY-NC-4.0
+    license_warning: "Non-commercial use only. Show this string to the user before download."
+
+  tomogan_vgg19_loss:
+    framework: tensorflow_keras
+    purpose: perceptual loss network for TomoGAN training
+    repo: https://github.com/lzhengchun/TomoGAN
+    url: https://github.com/lzhengchun/TomoGAN/raw/master/vgg19_weights_notop.h5
+    known_hash: null
+    size_bytes: 80_134_624
+    license: "Keras default (Apache-2.0 derived)"
+
+  topaz_denoise_unet:
+    framework: pytorch
+    purpose: cryo-EM 2D denoising
+    paper_doi: 10.1038/s41467-020-18952-1
+    repo: https://github.com/tbepler/topaz
+    url: https://github.com/tbepler/topaz/raw/master/topaz/pretrained/denoise/unet_L2_v0.2.2.sav
+    known_hash: null
+    size_bytes: ~30_000_000
+    license: GPL-3.0
+    license_warning: "Copyleft. Derivative works must remain GPL-3.0."
+
+  topaz_denoise_unet_3d:
+    framework: pytorch
+    purpose: cryo-ET (3D) denoising
+    paper_doi: 10.1038/s41467-020-18952-1
+    repo: https://github.com/tbepler/topaz
+    url: https://github.com/tbepler/topaz/raw/master/topaz/pretrained/denoise/unet-3d-10a-v0.2.4.sav
+    known_hash: null
+    size_bytes: ~100_000_000
+    license: GPL-3.0
+
+  cryodrgn:
+    framework: pytorch
+    purpose: heterogeneous cryo-EM reconstruction
+    paper_doi: 10.1038/s41592-020-01049-4
+    repo: https://github.com/ml-struct-bio/cryodrgn
+    url: pip_install_only   # cryoDRGN ships via pip; user trains their own model
+    known_hash: null
+    license: GPL
+
+  edgeptychonn:
+    framework: pytorch
+    purpose: real-time ptychography
+    paper_doi: 10.1038/s41467-023-41496-z
+    repo: https://github.com/AnakhaVB/edgePtychoNN
+    url: https://github.com/AnakhaVB/edgePtychoNN/releases  # update with concrete asset URL
+    known_hash: null
+    size_bytes: ~50_000_000
+    license: MIT
+
+
+huggingface_baselines:
+
+  nafnet_general_denoise:
+    framework: pytorch
+    hf_model_id: mikestealth/nafnet-models
+    purpose: general image denoising baseline (SIDD-trained)
+    license: MIT
+    notes: "Use as a non-domain-specific baseline. Apply to single 2D slices."
+
+  swinir_color_denoise:
+    framework: pytorch
+    hf_paper_page: https://huggingface.co/papers/2108.10257
+    download_pattern: KAIR/main_test_swinir.py weights
+    purpose: color/grayscale denoising + super-resolution baseline
+    license: Apache-2.0
+
+  swin2sr_classical_x2:
+    framework: pytorch
+    hf_model_id: caidas/swin2SR-classical-sr-x2-64
+    purpose: 2x super-resolution baseline
+    license: Apache-2.0
+    auto_loadable_via_transformers: true
+
+
+# Datasets that are too big to bundle but match the Lab's "interactive" use case.
+# These are referenced from `manifest.yaml` for completeness.
+external_datasets:
+
+  empiar_10185_apoferritin:
+    purpose: cryo-EM low-dose denoising demo
+    archive: EMPIAR
+    accession: EMPIAR-10185
+    url: https://www.ebi.ac.uk/empiar/EMPIAR-10185
+    size_bytes: ~3_000_000_000
+    license: CC0
+    fetch_method: aspera_or_globus
+
+  tomobank_dynamic:
+    purpose: tomography multi-dose pairs
+    archive: TomoBank
+    url: https://tomobank.readthedocs.io/en/latest/source/data/docs.data.dynamic.html
+    license: per-entry  # mostly CC-BY 4.0
+    fetch_method: globus_or_https
+
+  cxidb:
+    purpose: ptychography & CDI
+    archive: CXIDB
+    url: https://cxidb.org
+    license: per-entry  # mostly CC-BY
+    fetch_method: https

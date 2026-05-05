@@ -1,0 +1,195 @@
+# manifest.yaml — eBERlight Interactive Lab Dataset Inventory
+#
+# Machine-readable index of all bundled datasets. The Streamlit Lab page
+# (planned `4_Experiment.py`) parses this file at startup to populate
+# the sample-picker UI. Lazy-download recipes for larger external datasets
+# live in the same schema with `bundled: false` and a `url` + `sha256` field.
+
+schema_version: 1
+
+modalities:
+
+  tomography:
+
+    ring_artifact:
+      noise_catalog_ref: 09_noise_catalog/tomography/ring_artifact.md
+      source:
+        repo: https://github.com/nghia-vo/sarepy
+        commit: 2d00b05eb2c1e0d3bad20b4883b70448d0179818
+        license: Apache-2.0
+      attribution: datasets/tomography/ring_artifact/ATTRIBUTION.md
+      samples:
+        - file: datasets/tomography/ring_artifact/sinogram_normal.tif
+          role: clean_reference
+          format: tiff_uint16
+          description: Clean reference sinogram, no visible stripes
+        - file: datasets/tomography/ring_artifact/sinogram_dead_stripe.tif
+          role: noisy_input
+          format: tiff_uint16
+          description: Dead-stripe (sensor failure) artifact
+        - file: datasets/tomography/ring_artifact/sinogram_large_stripe.tif
+          role: noisy_input
+          format: tiff_uint16
+          description: Large-amplitude vertical stripe
+        - file: datasets/tomography/ring_artifact/sinogram_partial_stripe.tif
+          role: noisy_input
+          format: tiff_uint16
+          description: Partial column-range stripe
+        - file: datasets/tomography/ring_artifact/all_stripe_types_sample1.tif
+          role: noisy_input
+          format: tiff_uint16
+          description: Multiple stripe types coexisting (challenging)
+        - file: datasets/tomography/ring_artifact/large_partial_rings.tif
+          role: noisy_input
+          format: tiff_uint16
+          description: Large partial rings (challenging)
+        - file: datasets/tomography/ring_artifact/valid_stripes.tif
+          role: false_positive_trap
+          format: tiff_uint16
+          description: Looks like stripes but is real sample feature
+
+    neutron_tomography:
+      noise_catalog_ref: 09_noise_catalog/tomography/ring_artifact.md
+      source:
+        repo: https://github.com/nghia-vo/sarepy
+        commit: 2d00b05eb2c1e0d3bad20b4883b70448d0179818
+        license: Apache-2.0
+      attribution: datasets/tomography/neutron_tomography/ATTRIBUTION.md
+      samples:
+        - file: datasets/tomography/neutron_tomography/sinogram_360_neutron_image.tif
+          role: noisy_input
+          format: tiff
+        - file: datasets/tomography/neutron_tomography/rec_fbp_before_sinogram_360_neutron_image.jpg
+          role: reconstruction_before
+          format: jpeg
+        - file: datasets/tomography/neutron_tomography/rec_gridrec_before_sinogram_360_neutron_image.jpg
+          role: reconstruction_before
+          format: jpeg
+        - file: datasets/tomography/neutron_tomography/rec_after_sinogram_360_neutron_image.jpg
+          role: reconstruction_after
+          format: jpeg
+
+    flatfield_correction:
+      noise_catalog_ref: 09_noise_catalog/tomography/flatfield_issues.md
+      source:
+        repo: https://github.com/tomopy/tomopy
+        commit: 3377fed68103959e37a849309a096a9919b0bc97
+        license: BSD-Argonne
+      attribution: datasets/tomography/flatfield_correction/ATTRIBUTION.md
+      samples:
+        - {file: datasets/tomography/flatfield_correction/sinogram.npy,         role: noisy_input,    format: npy}
+        - {file: datasets/tomography/flatfield_correction/flat.npy,             role: flat_reference, format: npy}
+        - {file: datasets/tomography/flatfield_correction/flat_1.npy,           role: flat_reference, format: npy}
+        - {file: datasets/tomography/flatfield_correction/dark.npy,             role: dark_reference, format: npy}
+        - {file: datasets/tomography/flatfield_correction/cube.npy,             role: projection_3d,  format: npy}
+        - {file: datasets/tomography/flatfield_correction/distortion_proj.npy,  role: noisy_input,    format: npy}
+        - {file: datasets/tomography/flatfield_correction/distortion_sino.npy,  role: noisy_input,    format: npy}
+        - {file: datasets/tomography/flatfield_correction/stripes_mask3d.npy,   role: noisy_input,    format: npy}
+        - {file: datasets/tomography/flatfield_correction/angle.npy,            role: metadata,       format: npy}
+
+  xrf:
+
+    xrf_spectra:
+      noise_catalog_ref: 09_noise_catalog/xrf_microscopy/peak_overlap.md
+      source:
+        repo: https://github.com/vasole/pymca
+        commit: 4fbf74ac4edc032b54d9ab05f4ddb75ca19a1aa8
+        license: LGPL-2.1+
+      attribution: datasets/xrf/ATTRIBUTION.md
+      samples:
+        - {file: datasets/xrf/xrf_spectra/XRFSpectrum.mca, role: noisy_input,       format: mca, description: "Real XRF spectrum (PyMca canonical)"}
+        - {file: datasets/xrf/xrf_spectra/Steel.spe,       role: peak_overlap_demo, format: spe, description: "Steel sample reference spectrum"}
+
+    pyxrf_configs:
+      noise_catalog_ref: 09_noise_catalog/xrf_microscopy/peak_overlap.md
+      source:
+        repo: https://github.com/NSLS-II/PyXRF
+        commit: 7b7d8689c667b4653dd1c7e2073f6b0504692c48
+        license: BSD-3
+      attribution: datasets/xrf/ATTRIBUTION.md
+      samples:
+        - {file: datasets/xrf/pyxrf_configs/film_11564ev_all.json,  role: fit_params, description: "11.564 keV thin-film fit"}
+        - {file: datasets/xrf/pyxrf_configs/film_25000ev_all.json,  role: fit_params, description: "25 keV high-energy fit"}
+        - {file: datasets/xrf/pyxrf_configs/background_11564ev.json,role: fit_params, description: "Background subtraction params"}
+        - {file: datasets/xrf/pyxrf_configs/root.json,              role: fit_params, description: "Root config example"}
+        - {file: datasets/xrf/pyxrf_configs/root_all.json,          role: fit_params, description: "Full root config"}
+        - {file: datasets/xrf/pyxrf_configs/xrf_parameter.json,     role: fit_params, description: "Parameter schema"}
+
+  spectroscopy:
+
+    exafs_pymca:
+      noise_catalog_ref: 09_noise_catalog/spectroscopy/statistical_noise_exafs.md
+      source: {repo: https://github.com/vasole/pymca, commit: 4fbf74ac4edc032b54d9ab05f4ddb75ca19a1aa8, license: LGPL-2.1+}
+      attribution: datasets/spectroscopy/ATTRIBUTION.md
+      samples:
+        - {file: datasets/spectroscopy/exafs_pymca/EXAFS_Cu.dat, role: noisy_input, format: dat, description: "Real Cu K-edge EXAFS"}
+        - {file: datasets/spectroscopy/exafs_pymca/EXAFS_Ge.dat, role: noisy_input, format: dat, description: "Real Ge K-edge EXAFS"}
+
+    exafs_xraylarch:
+      noise_catalog_ref: 09_noise_catalog/spectroscopy/statistical_noise_exafs.md
+      source: {repo: https://github.com/xraypy/xraylarch, commit: 3037c388192794f18faa23be1d503414cb7146c0, license: MIT}
+      attribution: datasets/spectroscopy/ATTRIBUTION.md
+      samples:
+        - {file: datasets/spectroscopy/exafs_xraylarch/cu2s_xafs.dat, role: noisy_input, format: dat, description: "Cu₂S Cu K-edge XAFS"}
+
+    athena_projects:
+      noise_catalog_ref: 09_noise_catalog/spectroscopy/outlier_spectra.md
+      source: {repo: https://github.com/xraypy/xraylarch, commit: 3037c388192794f18faa23be1d503414cb7146c0, license: MIT}
+      attribution: datasets/spectroscopy/ATTRIBUTION.md
+      samples:
+        - {file: datasets/spectroscopy/athena_projects/abc.prj,     role: noisy_input, format: prj, description: "Generic 3-spectrum Athena project"}
+        - {file: datasets/spectroscopy/athena_projects/FeS2_ex.prj, role: noisy_input, format: prj, description: "FeS₂ pyrite Athena project"}
+
+    feff_calculations:
+      noise_catalog_ref: 09_noise_catalog/spectroscopy/statistical_noise_exafs.md
+      source: {repo: https://github.com/xraypy/xraylarch, commit: 3037c388192794f18faa23be1d503414cb7146c0, license: MIT}
+      attribution: datasets/spectroscopy/ATTRIBUTION.md
+      sample_groups:
+        - group: Cu
+          path: datasets/spectroscopy/feff_calculations/Cu/
+          description: "13 FEFF paths for Cu metal"
+          role: theoretical_reference
+        - group: FeO
+          path: datasets/spectroscopy/feff_calculations/FeO/
+          description: "6 FEFF paths for wüstite (FeO)"
+          role: theoretical_reference
+        - group: ZnSe
+          path: datasets/spectroscopy/feff_calculations/ZnSe/
+          description: "8 FEFF paths for ZnSe"
+          role: theoretical_reference
+
+  scattering_diffraction:
+
+    pyFAI_calibrants:
+      noise_catalog_ref: 09_noise_catalog/scattering_diffraction/detector_gaps_parallax.md
+      source: {repo: https://github.com/silx-kit/pyFAI, commit: 0f97cb433387b40bb3d326e6aff7a60f170c5a73, license: MIT}
+      attribution: datasets/scattering_diffraction/ATTRIBUTION.md
+      samples:
+        - {file: datasets/scattering_diffraction/pyFAI_calibrants/Si.D,            role: calibration_reference}
+        - {file: datasets/scattering_diffraction/pyFAI_calibrants/Si_SRM640.D,     role: calibration_reference}
+        - {file: datasets/scattering_diffraction/pyFAI_calibrants/LaB6.D,          role: calibration_reference}
+        - {file: datasets/scattering_diffraction/pyFAI_calibrants/LaB6_SRM660c.D,  role: calibration_reference}
+        - {file: datasets/scattering_diffraction/pyFAI_calibrants/Au.D,            role: calibration_reference}
+        - {file: datasets/scattering_diffraction/pyFAI_calibrants/Al.D,            role: calibration_reference}
+        - {file: datasets/scattering_diffraction/pyFAI_calibrants/Ni.D,            role: calibration_reference}
+        - {file: datasets/scattering_diffraction/pyFAI_calibrants/quartz.D,        role: calibration_reference}
+        - {file: datasets/scattering_diffraction/pyFAI_calibrants/C60.D,           role: calibration_reference}
+        - {file: datasets/scattering_diffraction/pyFAI_calibrants/TiO2.D,          role: calibration_reference}
+
+  cross_cutting:
+
+    cosmic_rays:
+      noise_catalog_ref: 09_noise_catalog/tomography/zinger.md
+      source: {repo: https://github.com/astropy/astroscrappy, commit: 60570d354a6650bc2f8a73ab07858fd6123f443b, license: BSD-3}
+      attribution: datasets/cross_cutting/cosmic_rays/ATTRIBUTION.md
+      samples:
+        - {file: datasets/cross_cutting/cosmic_rays/gmos.fits, role: noisy_input, format: fits, description: "GMOS CCD frame with real cosmic rays"}
+
+  # Modalities with no bundled data — links only.
+  ptychography:
+    bundled: false
+    note: "See datasets/ptychography/README.md and docs/external_data_sources.md"
+
+  electron_microscopy:
+    bundled: false
+    note: "See datasets/electron_microscopy/README.md and docs/external_data_sources.md"
