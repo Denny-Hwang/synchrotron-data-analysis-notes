@@ -52,6 +52,7 @@ native_synchrotron_models:
     known_hash: null
     size_bytes: ~100_000_000
     license: GPL-3.0
+    license_warning: "Copyleft. Derivative works must remain GPL-3.0."
 
   cryodrgn:
     framework: pytorch
@@ -61,6 +62,7 @@ native_synchrotron_models:
     url: pip_install_only   # cryoDRGN ships via pip; user trains their own model
     known_hash: null
     license: GPL
+    license_warning: "Copyleft. Derivative works must remain GPL-compatible."
 
   edgeptychonn:
     framework: pytorch

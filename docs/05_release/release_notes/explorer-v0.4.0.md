@@ -48,15 +48,23 @@ Recipe schema (full reference in `experiments/README.md`):
 Pipeline functions are **pure** (`np.ndarray + kwargs → np.ndarray`), no Streamlit imports,
 no I/O, no global state. This makes them trivially unit-testable and `@st.cache_data`-friendly.
 
-### First bundled recipe — Ring Artifact (Sorting-Based Filter)
+### Bundled recipes
 
-`experiments/tomography/ring_artifact/`:
+**1. Ring Artifact — Sorting-Based Filter** (`experiments/tomography/ring_artifact/`)
 
 - **Algorithm.** Sorting-based stripe removal from Vo, Atwood & Drakopoulos (2018), *Optics Express*. For each detector column, sort across angles, apply a 1-D median filter, revert ordering.
 - **Samples.** All 7 ring-artifact sinograms bundled in `10_interactive_lab/datasets/tomography/ring_artifact/`, including the false-positive trap `valid_stripes.tif`.
 - **Clean reference.** `sinogram_normal.tif` (PSNR/SSIM auto-skipped for samples with mismatched shape).
 - **Parameter.** `size` (median window length, 3 ≤ odd ≤ 101).
 - **Citation.** DOI: 10.1364/OE.26.028396 (also in `10_interactive_lab/CITATIONS.bib`).
+
+**2. Cosmic Ray / Zinger — L.A.Cosmic** (`experiments/cross_cutting/cosmic_ray_lacosmic/`)
+
+- **Algorithm.** Laplacian-edge cosmic ray detection from van Dokkum (2001), *PASP*. Wraps `astroscrappy.detect_cosmics`.
+- **Sample.** Real GMOS CCD frame `gmos.fits` (150 × 200) — proxy for tomography zingers, XRF dead/hot pixels, and outlier spectra.
+- **Parameters.** `sigclip` (detection threshold), `objlim` (object protection), `niter` (iterations), `readnoise`.
+- **No clean reference** — metrics omitted; users compare visually.
+- **Citation.** DOI: 10.1086/323894.
 
 ### `explorer/lib/experiments.py`
 
@@ -92,18 +100,54 @@ The `4_Experiment.py` page itself is **Streamlit-only** — running pipelines re
 
 ### Test coverage
 
-`explorer/tests/test_experiments.py` (new, 14 tests):
+`explorer/tests/test_experiments.py` (20 tests):
 
 - Recipe parsing — minimal valid case, missing-required-fields error, invalid-recipe skip.
 - Function resolution — dotted-path import, invalid path raises.
 - Pipeline dispatch — kwargs coercion (str → int), default substitution.
 - Metrics — perfect match → upper bounds, shape mismatch → ValueError, unknown metric → silent skip.
 - Integration — run the bundled ring-artifact pipeline on the bundled `sinogram_dead_stripe.tif`, assert shape and dtype preserved.
-- Bundled-recipe sanity — every `recipe.yaml` under `experiments/` parses successfully.
+- **CI-quality recipe contract validation** — for every `recipe.yaml` in `experiments/`:
+  - parses successfully,
+  - `recipe_id` is unique across recipes,
+  - `function` dotted path resolves to a callable,
+  - every `manifest_path` (samples + clean_reference) resolves to a real file in `10_interactive_lab/`,
+  - parameter `type` is one of `int | float | select`, with required `min/max/default` for numeric and `options` for select,
+  - declared `metrics` are known (`psnr`, `ssim`),
+  - `noise_catalog_ref` points to an existing markdown file.
+
+`explorer/tests/test_model_zoo.py` (8 tests, **offline-only**):
+
+- Parses three top-level sections (`native_synchrotron_models`, `huggingface_baselines`, `external_datasets`) and skips doc-only entries.
+- Classifies entries by URL vs Hugging Face ID.
+- Raises `DownloadError` for entries without a URL or HF ID.
+- Validates the bundled `lazy_download_recipes.yaml` parses cleanly.
+- **Catches missing `license_warning` for CC-BY-NC and GPL entries** — caught a real omission for the Topaz 3D and CryoDRGN entries, now fixed.
 
 `explorer/tests/test_ia.py` updated for 10-folder IA.
 
-Total test count: **27 + 1 skipped** (the skip is the PSNR-improvement integration test on samples whose shape doesn't match the clean reference — Sarepy's `sinogram_dead_stripe.tif` is `(1800, 2560)` while `sinogram_normal.tif` is `(1801, 2560)`).
+Total test count: **41 + 1 skipped** (the skip is the PSNR-improvement integration test on samples whose shape doesn't match the clean reference — Sarepy's `sinogram_dead_stripe.tif` is `(1800, 2560)` while `sinogram_normal.tif` is `(1801, 2560)`).
+
+### Lazy-download infrastructure (`explorer/lib/model_zoo.py`)
+
+New module that consumes `10_interactive_lab/models/lazy_download_recipes.yaml`
+and exposes a thin API for the Streamlit page to fetch model weights or
+external datasets on demand:
+
+- `load_zoo(yaml_path) → list[ZooEntry]` — parses the three sections (`native_synchrotron_models`, `huggingface_baselines`, `external_datasets`).
+- `find_entry(entries, name)` — name-based lookup.
+- `is_cached(entry)` — best-effort cache hit check.
+- `fetch(entry, progressbar=False) → Path` — `pooch.retrieve(...)` with hash verification.
+- `fetch_huggingface(entry) → Path` — `huggingface_hub.snapshot_download(...)`.
+- `DownloadError` raised on missing URL, network failure, or hash mismatch.
+
+**License safety.** Each `ZooEntry` carries a `license_warning` string; the
+Streamlit page MUST surface it before initiating any download. Bundled YAML
+already pins warnings for CC-BY-NC (TomoGAN) and GPL (Topaz, CryoDRGN)
+entries — verified by `test_bundled_zoo_no_unbalanced_warnings`.
+
+No actual downloads happen in CI. End-to-end fetch is deferred to a future
+PR that adds the first DL recipe (e.g., Noise2Void on a TomoBank sample).
 
 ### Dependencies
 
@@ -114,6 +158,8 @@ Total test count: **27 + 1 skipped** (the skip is the PSNR-improvement integrati
 - `scikit-image>=0.22` — PSNR / SSIM metrics
 - `tifffile>=2023.7.10` — read Sarepy `.tif` sinograms
 - `astropy>=5.3` — read `gmos.fits` cosmic-ray sample (lazy import, only loaded if user picks a FITS sample)
+- `astroscrappy>=1.1` — L.A.Cosmic implementation for the cosmic-ray recipe
+- `pooch>=1.7` — lazy-download with hash verification for `model_zoo`
 
 These add ~250 MB to a fresh install; on Streamlit Community Cloud they install on first cold-start.
 
@@ -131,10 +177,10 @@ These add ~250 MB to a fresh install; on Streamlit Community Cloud they install 
 
 ## What's Next
 
-- **`pooch`-based weight fetcher** (`explorer/lib/model_zoo.py`): consume `lazy_download_recipes.yaml`, show the license to the user before download, cache by SHA-256.
-- **Second recipe** (next PR): low-dose denoising via Noise2Void on a TomoBank sample (lazy-fetched).
-- **Recipe-validation CI step**: assert every `recipe.yaml` parses, every `manifest_path` exists, every `function` imports.
-- **PRD revision** to formalise the Lab as a first-class feature (FR-XXX).
+- **First DL recipe** wiring `model_zoo.fetch(...)` to load TomoGAN or Topaz-Denoise weights on demand inside `4_Experiment.py`. Probably starts with Noise2Void since its weights are small and BSD-3.
+- **GitHub Actions workflow** running `pytest explorer/tests/` on every push — the recipe-contract tests then act as drift protection at CI time, not just locally.
+- **PRD revision** to formalise the Lab as a first-class feature (FR-XXX) and cross-link from `09_noise_catalog/troubleshooter.md`.
+- **Recipe gallery on the static site** — render each `recipe.yaml` as a card under the Build cluster page even though pipelines themselves are Streamlit-only.
 
 ## References
 

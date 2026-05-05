@@ -1,0 +1,94 @@
+# Recipe — Cosmic Ray / Zinger Detection (L.A.Cosmic)
+
+schema_version: 1
+
+recipe_id: cosmic_ray_lacosmic
+title: "Cosmic Ray / Zinger — L.A.Cosmic"
+modality: cross_cutting
+noise_catalog_ref: 09_noise_catalog/tomography/zinger.md
+
+description: |
+  Laplacian-edge cosmic ray detection from **van Dokkum (2001)**, *PASP*.
+  Repeatedly applies a Laplacian filter to detect sharp single-pixel
+  outliers, masks them, and replaces with a local neighborhood mean.
+
+  The bundled sample (`gmos.fits`) is a real Gemini Multi-Object
+  Spectrograph CCD frame with cosmic ray hits. The same algorithm is
+  routinely used in synchrotron pipelines under the names **zinger
+  rejection** (tomography) and **outlier spectra** removal
+  (spectroscopy / XRF).
+
+  Tune `sigclip` to trade detection sensitivity vs. false-positive rate.
+  Watch what happens to compact real features as you lower the threshold.
+
+function: experiments.cross_cutting.cosmic_ray_lacosmic.pipeline.detect_cosmics_lacosmic
+
+samples:
+  - manifest_path: datasets/cross_cutting/cosmic_rays/gmos.fits
+    label: "GMOS CCD frame"
+    role: noisy_input
+    description: "Gemini Multi-Object Spectrograph image with real cosmic ray hits (150 × 200)"
+
+# No clean reference — the GMOS frame ships only the noisy version.
+# Metrics omitted so the page does not attempt PSNR/SSIM.
+
+parameters:
+  - name: sigclip
+    type: float
+    label: "Detection threshold (sigma)"
+    default: 4.5
+    min: 2.0
+    max: 8.0
+    step: 0.1
+    help: |
+      Higher = stricter (fewer detections). Below ~3.5 starts flagging
+      real features. Above ~6 leaves visible cosmic rays uncleaned.
+
+  - name: objlim
+    type: float
+    label: "Object protection limit"
+    default: 5.0
+    min: 1.0
+    max: 10.0
+    step: 0.5
+    help: |
+      Larger = stronger protection of real compact sources from being
+      misidentified as cosmic rays. Useful when the field has bright
+      stars or sharp sample features.
+
+  - name: niter
+    type: int
+    label: "Iterations"
+    default: 4
+    min: 1
+    max: 10
+    step: 1
+    help: |
+      More iterations catch additional cosmic rays missed in earlier
+      passes. Returns plateau quickly; 4 is a good default.
+
+  - name: readnoise
+    type: float
+    label: "Read noise (counts)"
+    default: 6.5
+    min: 0.5
+    max: 30.0
+    step: 0.5
+    help: |
+      Detector-specific read noise in counts. Affects the per-pixel
+      noise model. GMOS readnoise is typically ~3-7 counts depending
+      on amp; synchrotron CCDs vary widely.
+
+metrics: []   # no clean reference bundled
+
+references:
+  - title: "Cosmic-Ray Rejection by Laplacian Edge Detection"
+    authors: "van Dokkum, P. G."
+    year: 2001
+    venue: "Publications of the Astronomical Society of the Pacific, 113(789), 1420-1427"
+    doi: "10.1086/323894"
+  - title: "astroscrappy: Speedy Cosmic Ray Annihilation Package in Python"
+    authors: "McCully, C. et al."
+    year: 2018
+    venue: "Astrophysics Source Code Library, ascl:1907.032"
+    doi: ""
