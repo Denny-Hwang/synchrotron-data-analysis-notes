@@ -1,0 +1,93 @@
+# Recipe — Ring Artifact Removal (Sorting-Based Filter)
+#
+# Schema documented in experiments/README.md. Loaded by
+# explorer/lib/experiments.py and rendered by
+# explorer/pages/4_Experiment.py.
+
+schema_version: 1
+
+recipe_id: ring_artifact_sorting_filter
+title: "Ring Artifact — Sorting-Based Filter"
+modality: tomography
+noise_catalog_ref: 09_noise_catalog/tomography/ring_artifact.md
+
+description: |
+  Sorting-based stripe removal from **Vo, Atwood & Drakopoulos (2018)**
+  *Optics Express*. For each detector column the values across all
+  projection angles are sorted, smoothed with a 1-D median filter,
+  then unsorted. The persistent column-wise response (the stripe)
+  is smoothed away while real sample features — uncorrelated across
+  angles — are preserved.
+
+  Use this recipe to learn how the **filter window size** trades off
+  stripe suppression against angular blurring. Compare the processed
+  sinogram against the bundled clean reference (`sinogram_normal.tif`)
+  using PSNR and SSIM metrics.
+
+# Pure-function pipeline. Module path is rooted at the repository root
+# (the Streamlit page adds the repo root to sys.path).
+function: experiments.tomography.ring_artifact.pipeline.remove_stripe_based_sorting
+
+# Sample inputs from 10_interactive_lab/datasets/. `manifest_path` is
+# resolved relative to 10_interactive_lab/.
+samples:
+  - manifest_path: datasets/tomography/ring_artifact/sinogram_dead_stripe.tif
+    label: "Dead stripe"
+    role: noisy_input
+    description: "Sensor failure — full-amplitude stripe in a few columns"
+  - manifest_path: datasets/tomography/ring_artifact/sinogram_large_stripe.tif
+    label: "Large stripe"
+    role: noisy_input
+    description: "Large-amplitude vertical stripe across many angles"
+  - manifest_path: datasets/tomography/ring_artifact/sinogram_partial_stripe.tif
+    label: "Partial stripe"
+    role: noisy_input
+    description: "Stripe present only in part of the angular range"
+  - manifest_path: datasets/tomography/ring_artifact/all_stripe_types_sample1.tif
+    label: "All stripe types (challenging)"
+    role: noisy_input
+    description: "Multiple stripe types coexisting — hardest case"
+  - manifest_path: datasets/tomography/ring_artifact/large_partial_rings.tif
+    label: "Large partial rings (challenging)"
+    role: noisy_input
+    description: "Partial rings of large radius"
+  - manifest_path: datasets/tomography/ring_artifact/valid_stripes.tif
+    label: "Valid stripes (false-positive trap)"
+    role: false_positive_trap
+    description: "Looks like stripes, is real sample feature — over-smoothing should hurt PSNR"
+
+# Optional: when present, the page computes PSNR/SSIM of input and
+# output against this reference. The reference is treated as ground truth.
+clean_reference:
+  manifest_path: datasets/tomography/ring_artifact/sinogram_normal.tif
+  label: "Normal (clean reference)"
+
+# Each parameter is rendered as a Streamlit widget.
+# `type`: int | float | select
+parameters:
+  - name: size
+    type: int
+    label: "Median filter size (rows)"
+    default: 21
+    min: 3
+    max: 101
+    step: 2
+    help: |
+      Length of the 1-D median filter applied along the sorted axis.
+      Must be odd. Small values (3-9) preserve detail but leave residual
+      stripes; large values (51-101) suppress stripes aggressively at
+      the cost of smoothing real angular variation.
+
+# Metrics computed against `clean_reference` (skipped if absent).
+metrics:
+  - psnr
+  - ssim
+
+# Citations rendered in the page. Mirror entries already present in
+# 10_interactive_lab/CITATIONS.bib.
+references:
+  - title: "Superior techniques for eliminating ring artifacts in X-ray micro-tomography"
+    authors: "Vo, N. T., Atwood, R. C., Drakopoulos, M."
+    year: 2018
+    venue: "Optics Express, 26(22), 28396-28412"
+    doi: "10.1364/OE.26.028396"

@@ -5,6 +5,7 @@ Verifies that the folder-to-cluster mapping is exhaustive and disjoint.
 Ref: TST-001 (test_plan.md) — IA mapping tests.
 Ref: IA-001 (information_architecture.md).
 Ref: ADR-004 — 8 folders → 3 task clusters IA mapping.
+Ref: ADR-008 — Section 10 Interactive Lab.
 """
 
 import sys
@@ -34,6 +35,7 @@ def test_all_note_folders_mapped() -> None:
         "07_data_pipeline",
         "08_references",
         "09_noise_catalog",
+        "10_interactive_lab",
     }
     assert set(FOLDER_TO_CLUSTER.keys()) == expected
 
@@ -86,3 +88,4 @@ def test_get_folders_for_cluster() -> None:
     assert "05_tools_and_code" in build
     assert "06_data_structures" in build
     assert "07_data_pipeline" in build
+    assert "10_interactive_lab" in build

@@ -72,5 +72,25 @@ for col, cluster_id in zip(cols, cluster_order):
             unsafe_allow_html=True,
         )
 
+# --- Interactive Lab CTA (ADR-008) ---
+_LAB_COLOR = CLUSTER_META["build"]["color"]
+st.markdown(
+    f"""
+    <div style="margin-top: 32px;">
+        <div class="eberlight-card" style="border-left: 4px solid {_LAB_COLOR};">
+            <h4 style="color: {_LAB_COLOR}; margin: 0 0 8px 0;">🧪 Interactive Lab</h4>
+            <p style="font-size: 14px; color: #555555; margin: 0 0 8px 0;">
+                Replay noise mitigation techniques from prior research on real bundled data —
+                tune parameters, compare before/after, see PSNR/SSIM against a clean reference.
+            </p>
+            <p style="font-size: 13px; color: #888888; margin: 0;">
+                Open the <b>Experiment</b> page from the sidebar. New in notes-v0.10.0.
+            </p>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
 # --- Footer ---
 render_footer()
