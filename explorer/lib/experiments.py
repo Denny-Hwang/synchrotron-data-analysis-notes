@@ -181,8 +181,11 @@ def load_sample(repo_root: Path, manifest_path: str) -> np.ndarray:
     Supports ``.tif/.tiff`` (via ``tifffile``), ``.npy``, ``.fits``
     (via ``astropy.io.fits``).
 
+    For multi-extension FITS files, returns the first HDU whose ``data``
+    is a 2-D image array.
+
     Raises:
-        ValueError: For unsupported file extensions.
+        ValueError: For unsupported file extensions or FITS without image data.
         FileNotFoundError: If the file does not exist.
     """
     full_path = repo_root / "10_interactive_lab" / manifest_path
@@ -200,7 +203,13 @@ def load_sample(repo_root: Path, manifest_path: str) -> np.ndarray:
         from astropy.io import fits
 
         with fits.open(full_path) as hdul:
-            return np.asarray(hdul[0].data)
+            for hdu in hdul:
+                if getattr(hdu, "data", None) is None:
+                    continue
+                arr = np.asarray(hdu.data)
+                if arr.ndim >= 2:
+                    return arr
+        raise ValueError(f"No image HDU found in FITS file: {full_path}")
     raise ValueError(f"Unsupported sample format: {suffix}")
 
 

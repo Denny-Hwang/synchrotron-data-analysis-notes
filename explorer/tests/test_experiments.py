@@ -232,19 +232,94 @@ def test_ring_artifact_pipeline_reduces_stripes() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Bundled recipes are valid
+# Bundled-recipe contract validation (CI-quality)
 # ---------------------------------------------------------------------------
 
 
-def test_all_bundled_recipes_load() -> None:
-    """Every recipe.yaml in experiments/ must parse."""
+def _bundled_recipes() -> list[Recipe]:
     experiments_root = _REPO_ROOT / "experiments"
     if not experiments_root.exists():
         pytest.skip("no experiments/ directory")
     recipes = load_recipes(experiments_root)
+    if not recipes:
+        pytest.skip("no recipes bundled")
+    return recipes
+
+
+def test_all_bundled_recipes_load() -> None:
+    """Every recipe.yaml in experiments/ must parse."""
+    recipes = _bundled_recipes()
     assert len(recipes) >= 1, "expected at least one bundled recipe"
     for r in recipes:
         assert isinstance(r, Recipe)
         assert r.recipe_id
         assert r.function
         assert len(r.samples) >= 1
+
+
+def test_all_bundled_recipe_ids_unique() -> None:
+    """No two recipes may share a recipe_id."""
+    recipes = _bundled_recipes()
+    ids = [r.recipe_id for r in recipes]
+    assert len(ids) == len(set(ids)), f"duplicate recipe_id in {ids}"
+
+
+def test_all_bundled_recipe_functions_importable() -> None:
+    """Every recipe's function path must resolve to a callable."""
+    for r in _bundled_recipes():
+        func = resolve_function(r.function)
+        assert callable(func), f"{r.recipe_id}: {r.function} is not callable"
+
+
+def test_all_bundled_sample_paths_exist() -> None:
+    """Every sample manifest_path must resolve to a real file in 10_interactive_lab/."""
+    lab_root = _REPO_ROOT / "10_interactive_lab"
+    if not lab_root.exists():
+        pytest.skip("10_interactive_lab/ not present")
+    for r in _bundled_recipes():
+        for s in r.samples:
+            full = lab_root / s.manifest_path
+            assert full.exists(), f"{r.recipe_id}: missing sample {s.manifest_path}"
+        if r.clean_reference is not None:
+            full = lab_root / r.clean_reference.manifest_path
+            assert full.exists(), (
+                f"{r.recipe_id}: missing clean_reference {r.clean_reference.manifest_path}"
+            )
+
+
+def test_all_bundled_recipe_parameters_have_valid_types() -> None:
+    """Every parameter has a type the page can render."""
+    valid_types = {"int", "float", "select"}
+    for r in _bundled_recipes():
+        for p in r.parameters:
+            assert p.type in valid_types, (
+                f"{r.recipe_id}: parameter '{p.name}' has invalid type '{p.type}'"
+            )
+            if p.type in ("int", "float"):
+                assert p.min is not None and p.max is not None, (
+                    f"{r.recipe_id}: numeric parameter '{p.name}' missing min/max"
+                )
+                assert p.default is not None, (
+                    f"{r.recipe_id}: parameter '{p.name}' missing default"
+                )
+            if p.type == "select":
+                assert p.options, f"{r.recipe_id}: select parameter '{p.name}' missing options"
+
+
+def test_all_bundled_recipe_metrics_are_known() -> None:
+    """Every declared metric is one we can compute."""
+    known = {"psnr", "ssim"}
+    for r in _bundled_recipes():
+        for m in r.metrics:
+            assert m.lower() in known, f"{r.recipe_id}: unknown metric '{m}'"
+
+
+def test_all_bundled_recipe_noise_catalog_refs_exist() -> None:
+    """Every noise_catalog_ref points to an existing markdown file."""
+    for r in _bundled_recipes():
+        if not r.noise_catalog_ref:
+            continue
+        full = _REPO_ROOT / r.noise_catalog_ref
+        assert full.exists(), (
+            f"{r.recipe_id}: noise_catalog_ref {r.noise_catalog_ref} not found"
+        )
