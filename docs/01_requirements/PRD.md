@@ -2,10 +2,10 @@
 doc_id: PRD-001
 title: "Product Requirements Document — eBERlight Explorer"
 status: draft
-version: 0.1.0
-last_updated: 2026-04-08
+version: 0.2.0
+last_updated: 2026-05-05
 supersedes: null
-related: [VIS-001, PER-001, RMP-001, UST-001, NFR-001]
+related: [VIS-001, PER-001, RMP-001, UST-001, NFR-001, ADR-008]
 ---
 
 # Product Requirements Document — eBERlight Explorer
@@ -27,12 +27,13 @@ Three primary personas (see [PER-001](../00_product/personas.md)):
 eBERlight Explorer covers:
 
 - A Streamlit-based web application served locally or via Streamlit Community Cloud.
-- Runtime reading and rendering of the 8+ note folders (single source of truth).
+- Runtime reading and rendering of the 10 note folders (single source of truth).
 - Three task-oriented cluster landing pages with card-based navigation.
 - 4-zoom navigation model with breadcrumb and zoom indicator.
 - Tag-based filtering by modality, beamline, and method category.
 - Full-text search across all notes.
 - ANL/APS-aligned visual design with WCAG 2.1 AA compliance.
+- **Interactive Lab** (added in v0.2 of this PRD per ADR-008) — replays prior-research noise mitigation techniques on real bundled data with parameter tuning.
 
 ## Out of Scope
 
@@ -62,6 +63,12 @@ eBERlight Explorer covers:
 | FR-014 | The application SHALL load the landing page with TTI < 2 seconds on a cached run. | All | D |
 | FR-015 | All pages SHALL be navigable via keyboard only. | All | D |
 | FR-016 | Color contrast ratios SHALL meet WCAG 2.1 AA (≥ 4.5:1 for normal text, ≥ 3:1 for large text). | All | A |
+| FR-017 | The Interactive Lab page SHALL discover noise-mitigation recipes by scanning `experiments/**/recipe.yaml` and present them in a sidebar selector with title and modality. | A, C | E |
+| FR-018 | The Interactive Lab page SHALL auto-generate parameter widgets from the recipe's `parameters` block (int / float / select), apply user-selected values, and re-run the pipeline on parameter change. | A, C | E |
+| FR-019 | The Interactive Lab page SHALL display the original input and the processed output side-by-side and, when a `clean_reference` of matching shape is present, compute and display PSNR and SSIM with delta vs. raw input. | A, C | E |
+| FR-020 | Every bundled `recipe.yaml` SHALL pass an automated contract check: parses cleanly, has a unique `recipe_id`, references a real importable function, points to bundled samples that exist on disk, declares known metric names, and links to an existing `noise_catalog_ref` markdown file. | C | E |
+| FR-021 | The Interactive Lab page SHALL surface each external model or dataset's license string before any lazy download begins (per ADR-008 license-safety contract). | A, C | E |
+| FR-022 | The static GitHub Pages mirror SHALL render a "Interactive Lab — Recipes" gallery section on the Build cluster page, listing each recipe with title, modality badge, sample/parameter counts, and primary citation; the gallery SHALL state explicitly that pipelines run only in the Streamlit Explorer. | All | E |
 
 ## UX Principles
 

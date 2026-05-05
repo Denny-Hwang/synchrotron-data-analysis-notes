@@ -58,7 +58,15 @@ no I/O, no global state. This makes them trivially unit-testable and `@st.cache_
 - **Parameter.** `size` (median window length, 3 ≤ odd ≤ 101).
 - **Citation.** DOI: 10.1364/OE.26.028396 (also in `10_interactive_lab/CITATIONS.bib`).
 
-**2. Cosmic Ray / Zinger — L.A.Cosmic** (`experiments/cross_cutting/cosmic_ray_lacosmic/`)
+**2. Ring Artifact — Wavelet-FFT** (`experiments/tomography/ring_artifact_wavelet/`)
+
+- **Algorithm.** Combined wavelet-Fourier filter from Munch, Trtik, Marone & Stampanoni (2009), *Optics Express*. Multi-level Daubechies DWT, Gaussian-damped FFT along the column direction of each level's vertical-detail band, inverse DWT.
+- **Samples.** Same 6 noisy Sarepy sinograms as recipe 1 — pedagogical "two algorithms, one input" comparison (US-014).
+- **Clean reference.** Same `sinogram_normal.tif`.
+- **Parameters.** `level` (DWT depth, 1-7), `sigma` (FFT damping width), `wname` (`haar | db2 | db5 | db10 | sym4 | coif5`).
+- **Citation.** DOI: 10.1364/OE.17.008567.
+
+**3. Cosmic Ray / Zinger — L.A.Cosmic** (`experiments/cross_cutting/cosmic_ray_lacosmic/`)
 
 - **Algorithm.** Laplacian-edge cosmic ray detection from van Dokkum (2001), *PASP*. Wraps `astroscrappy.detect_cosmics`.
 - **Sample.** Real GMOS CCD frame `gmos.fits` (150 × 200) — proxy for tomography zingers, XRF dead/hot pixels, and outlier spectra.
@@ -94,9 +102,24 @@ New module — single import path for:
 
 ### Static site mirror (ADR-007 / invariant #9)
 
-`scripts/build_static_site.py` requires no changes — it already iterates over `FOLDER_TO_CLUSTER`, so it auto-discovers the new folder. Verified locally: all 12 lab markdown files render in the Build cluster page; binary samples (TIFF, FITS, NumPy) are intentionally not served on Pages.
+`scripts/build_static_site.py` is extended in two complementary ways:
 
-The `4_Experiment.py` page itself is **Streamlit-only** — running pipelines requires a Python runtime. The Pages mirror shows a Build-cluster card pointing to the lab markdown; users wanting interactivity run the Streamlit app locally per `10_interactive_lab/README.md`.
+1. **Auto-discovery** of `10_interactive_lab/`. The generator already iterates over `FOLDER_TO_CLUSTER`, so all 12 lab markdown files render in the Build cluster page with no further work. Binary samples (TIFF, FITS, NumPy) are intentionally not served on Pages.
+2. **Recipe gallery** (FR-022). A new "Interactive Lab — Recipes" section is rendered above the per-folder note grid on the Build cluster page. Each recipe.yaml becomes a card with the recipe title, a modality badge, sample / parameter counts, and the primary citation as a clickable DOI link. The gallery banner explicitly states that pipelines run only in the Streamlit Explorer.
+
+The `4_Experiment.py` page itself remains **Streamlit-only** — running pipelines requires a Python runtime. Users wanting interactivity run the Streamlit app locally per `10_interactive_lab/README.md`.
+
+`.github/workflows/pages.yml` adds `10_interactive_lab/**` and `experiments/**` to the trigger paths so the Pages site rebuilds when lab content or recipes change.
+
+### Continuous integration
+
+New `.github/workflows/test.yml` runs `pytest explorer/tests/` on Python 3.11 + 3.12 for every push and PR touching `explorer/`, `experiments/`, `10_interactive_lab/`, or the workflow itself. Coverage XML is uploaded as an artifact. The recipe-contract tests in `test_experiments.py` now provide drift protection at CI time, not just locally — any future PR that renames a sample, moves a function, or breaks a `noise_catalog_ref` will fail CI.
+
+### PRD revision (v0.2.0)
+
+`docs/01_requirements/PRD.md` is bumped to v0.2.0 and adds **FR-017 through FR-022** covering the Interactive Lab end-to-end: recipe discovery (FR-017), auto-generated parameter widgets (FR-018), before/after with metrics (FR-019), automated recipe-contract validation (FR-020), license-gated lazy downloads (FR-021), and the static-site recipe gallery (FR-022). Scope text now mentions 10 note folders and the Lab.
+
+`docs/01_requirements/user_stories.md` adds **US-013 through US-016** spanning all three personas: replay with parameter tuning (Computational Scientist), compare two algorithms on the same input (Beamline Scientist), spot zingers safely (Beamline Scientist), and license-aware lazy fetch (Computational Scientist).
 
 ### Test coverage
 

@@ -1,0 +1,99 @@
+# Recipe — Ring Artifact Removal (Wavelet-FFT, Munch et al. 2009)
+#
+# Same input data as `ring_artifact_sorting_filter`. Compare side-by-side
+# to see how a frequency-domain method differs from sorting-based.
+
+schema_version: 1
+
+recipe_id: ring_artifact_wavelet_fft
+title: "Ring Artifact — Wavelet-FFT (Munch 2009)"
+modality: tomography
+noise_catalog_ref: 09_noise_catalog/tomography/ring_artifact.md
+
+description: |
+  Combined wavelet-Fourier stripe removal from **Munch, Trtik, Marone &
+  Stampanoni (2009)**, *Optics Express*. Uses a multi-level Daubechies
+  DWT, applies a Gaussian-damped FFT along the column direction of each
+  level's vertical-detail band, and inverts the transform.
+
+  Compare this against the sister recipe
+  `ring_artifact_sorting_filter` (Vo et al. 2018) on the *same* bundled
+  Sarepy sinograms. Two algorithms, one input — pedagogically valuable
+  for understanding which method excels on which kind of stripe.
+
+  - **Sorting-based (Vo)** is non-parametric, operates per-column,
+    excels on strong persistent stripes.
+  - **Wavelet-FFT (Munch)** is multi-scale, operates globally,
+    targets the low-frequency vertical structure of the artifact and
+    is gentler on real angular features.
+
+function: experiments.tomography.ring_artifact_wavelet.pipeline.remove_stripe_wavelet_fft
+
+samples:
+  - manifest_path: datasets/tomography/ring_artifact/sinogram_dead_stripe.tif
+    label: "Dead stripe"
+    role: noisy_input
+  - manifest_path: datasets/tomography/ring_artifact/sinogram_large_stripe.tif
+    label: "Large stripe"
+    role: noisy_input
+  - manifest_path: datasets/tomography/ring_artifact/sinogram_partial_stripe.tif
+    label: "Partial stripe"
+    role: noisy_input
+  - manifest_path: datasets/tomography/ring_artifact/all_stripe_types_sample1.tif
+    label: "All stripe types (challenging)"
+    role: noisy_input
+  - manifest_path: datasets/tomography/ring_artifact/large_partial_rings.tif
+    label: "Large partial rings (challenging)"
+    role: noisy_input
+  - manifest_path: datasets/tomography/ring_artifact/valid_stripes.tif
+    label: "Valid stripes (false-positive trap)"
+    role: false_positive_trap
+
+clean_reference:
+  manifest_path: datasets/tomography/ring_artifact/sinogram_normal.tif
+  label: "Normal (clean reference)"
+
+parameters:
+  - name: level
+    type: int
+    label: "Wavelet decomposition levels"
+    default: 4
+    min: 1
+    max: 7
+    step: 1
+    help: |
+      Higher = wider spatial scales of stripe targeted. Typical 3-6.
+      Beyond 6 the very coarse approximation can wash out real features.
+
+  - name: sigma
+    type: float
+    label: "FFT damping width (sigma)"
+    default: 2.0
+    min: 0.5
+    max: 10.0
+    step: 0.1
+    help: |
+      Width of the Gaussian damping applied to the FFT of each level's
+      vertical-detail band. Smaller values target persistent
+      (low-frequency) stripes more aggressively. Try 1.0-3.0.
+
+  - name: wname
+    type: select
+    label: "Wavelet family"
+    default: db5
+    options: [haar, db2, db5, db10, sym4, coif5]
+    help: |
+      Daubechies-5 (`db5`) is the recommended default in the original
+      paper. `haar` is fastest but blockier; `coif5` gives the smoothest
+      reconstruction at higher cost.
+
+metrics:
+  - psnr
+  - ssim
+
+references:
+  - title: "Stripe and ring artifact removal with combined wavelet-Fourier filtering"
+    authors: "Munch, B., Trtik, P., Marone, F., Stampanoni, M."
+    year: 2009
+    venue: "Optics Express, 17(10), 8567-8591"
+    doi: "10.1364/OE.17.008567"

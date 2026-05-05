@@ -21,6 +21,8 @@ on:
       - '07_data_pipeline/**'
       - '08_references/**'
       - '09_noise_catalog/**'
+      - '10_interactive_lab/**'
+      - 'experiments/**'
       - 'scripts/build_static_site.py'
       - 'scripts/requirements.txt'
       - 'docs/02_design/wireframes/html/**'
