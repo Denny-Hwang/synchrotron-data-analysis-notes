@@ -46,7 +46,11 @@ ignore = [
 "explorer/tests/*" = ["T20", "B", "E402"]
 # Streamlit pages must insert sys.path before importing local modules
 # (Streamlit runs each page as a separate process from `streamlit run`).
-"explorer/pages/*" = ["E402"]
+# RUF001/RUF002: pages legitimately use Unicode like × (modality × method
+# matrix) and → (recipe → noise) in user-facing text and docstrings.
+"explorer/pages/*" = ["E402", "RUF001", "RUF002"]
+# Cross-refs docstring uses ↔ for typed graph notation.
+"explorer/lib/cross_refs.py" = ["RUF002"]
 # The static-site generator legitimately prints progress and inserts
 # sys.path before importing the explorer's lib modules (which is the
 # whole point — single source of truth for IA / notes parsing).
