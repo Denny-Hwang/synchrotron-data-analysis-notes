@@ -24,6 +24,40 @@ def test_render_header(mock_markdown: MagicMock) -> None:
 
 
 @patch("streamlit.markdown")
+def test_render_header_includes_search_form_by_default(mock_markdown: MagicMock) -> None:
+    """FR-009 — every page that calls render_header() gets the search form."""
+    from components.header import render_header
+
+    render_header()
+    html_output = mock_markdown.call_args[0][0]
+    assert 'action="/Search"' in html_output
+    assert 'name="q"' in html_output
+    assert "eberlight-header-search" in html_output
+
+
+@patch("streamlit.markdown")
+def test_render_header_can_suppress_search(mock_markdown: MagicMock) -> None:
+    """The Search page itself opts out via show_search=False."""
+    from components.header import render_header
+
+    render_header(show_search=False)
+    html_output = mock_markdown.call_args[0][0]
+    assert "eberlight-header-search" not in html_output
+
+
+@patch("streamlit.markdown")
+def test_render_header_pre_fills_search_input(mock_markdown: MagicMock) -> None:
+    """initial_query is URL-encoded into the input value attribute."""
+    from components.header import render_header
+
+    render_header(initial_query='ring "vo 2018"')
+    html_output = mock_markdown.call_args[0][0]
+    # Plus-form encoding for spaces is acceptable; check the safe payload.
+    assert "ring" in html_output
+    assert 'value="' in html_output
+
+
+@patch("streamlit.markdown")
 def test_render_breadcrumb_with_items(mock_markdown: MagicMock) -> None:
     """render_breadcrumb() renders linked and current items."""
     from components.breadcrumb import render_breadcrumb

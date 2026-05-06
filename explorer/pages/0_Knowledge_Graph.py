@@ -40,6 +40,8 @@ _EXPLORER_DIR = Path(__file__).resolve().parent.parent
 if str(_EXPLORER_DIR) not in sys.path:
     sys.path.insert(0, str(_EXPLORER_DIR))
 
+from urllib.parse import unquote
+
 from components.footer import render_footer
 from components.header import render_header
 from lib.cross_refs import (
@@ -51,6 +53,7 @@ from lib.cross_refs import (
     kind_color,
     kind_size,
 )
+from lib.detail_level import LEVEL_LABELS, LEVELS, normalise_level
 
 st.set_page_config(page_title="Knowledge Graph — eBERlight", page_icon="🧠", layout="wide")
 
@@ -74,12 +77,62 @@ graph = _cached_graph()
 render_header(active_cluster=None)
 st.markdown(
     '<h1 style="color:#0033A0;">🧠 Knowledge Graph</h1>'
-    '<p style="color:#555;font-size:16px;margin-bottom:24px;">'
+    '<p style="color:#555;font-size:16px;margin-bottom:16px;">'
     "Cross-reference network of every modality, AI/ML method, paper, tool, "
     "Interactive-Lab recipe, and noise/artifact in this repository. "
     "Hover any node for details; use the kind filter to focus.</p>",
     unsafe_allow_html=True,
 )
+
+
+def _query_param(name: str) -> str | None:
+    raw = st.query_params.get(name)
+    if raw is None:
+        return None
+    if isinstance(raw, list):
+        return unquote(raw[0]) if raw else None
+    return unquote(str(raw))
+
+
+# ---------------------------------------------------------------------------
+# Detail level (L0 stats · L1 stats+matrices · L2 full · L3 raw entities)
+# ---------------------------------------------------------------------------
+
+_KG_LEVEL = normalise_level(_query_param("level"), default="L2")
+
+
+def _render_kg_level_pills(current: str) -> None:
+    pills = []
+    for lvl in LEVELS:
+        is_active = lvl == current
+        bg = "#0033A0" if is_active else "#E8EEF6"
+        fg = "#FFFFFF" if is_active else "#0033A0"
+        href = f"?level={lvl}"
+        pills.append(
+            f'<a href="{href}" target="_self" '
+            f'style="text-decoration:none;background:{bg};color:{fg};'
+            f"padding:6px 14px;border-radius:14px;font-size:13px;"
+            f"font-weight:600;margin-right:6px;display:inline-block;"
+            f'margin-bottom:6px;">{LEVEL_LABELS[lvl]}</a>'
+        )
+    descriptions = {
+        "L0": "Counts only — fastest scan of the graph's scale.",
+        "L1": "Counts + cross-reference matrices, no spatial graph.",
+        "L2": "Full graph + counts + matrices — the default working view.",
+        "L3": "Raw entity / edge tables for export and audit.",
+    }
+    st.markdown(
+        '<div style="margin:0 0 16px 0;">'
+        '<div style="font-size:11px;color:#888;text-transform:uppercase;'
+        'letter-spacing:0.5px;margin-bottom:6px;">Detail level</div>'
+        + "".join(pills)
+        + f'<div style="font-size:12px;color:#666;margin-top:6px;">'
+        f"{descriptions[current]}</div></div>",
+        unsafe_allow_html=True,
+    )
+
+
+_render_kg_level_pills(_KG_LEVEL)
 
 # ---------------------------------------------------------------------------
 # Top-row stats
@@ -99,6 +152,15 @@ for col, kind in zip(stat_cols, iter_kinds(), strict=True):
     )
 
 st.markdown("---")
+
+# L0 short-circuits after the stat row.
+if _KG_LEVEL == "L0":
+    st.caption(
+        "L0 Overview — entity counts only. Switch to L1 for matrices, "
+        "L2 for the spatial graph, or L3 for raw export."
+    )
+    render_footer()
+    st.stop()
 
 # ---------------------------------------------------------------------------
 # Kind filter — multiselect
@@ -229,45 +291,78 @@ def _build_plotly_figure(g: nx.Graph, pos: dict[str, tuple[float, float]]) -> go
     )
 
 
-if nx_graph.number_of_nodes() == 0:
-    st.info("No entities visible — enable at least one layer above.")
+if _KG_LEVEL == "L2":
+    if nx_graph.number_of_nodes() == 0:
+        st.info("No entities visible — enable at least one layer above.")
+    else:
+        fig = _build_plotly_figure(nx_graph, layout_map)
+        st.plotly_chart(fig, width="stretch", config={"displaylogo": False})
+
+    st.caption(
+        f"Showing {nx_graph.number_of_nodes()} of {len(graph.entities)} entities, "
+        f"{nx_graph.number_of_edges()} of {len(graph.edges)} edges. Hover any node for details. "
+        "Modality labels are pinned to the plot; other kinds reveal on hover to keep the graph readable."
+    )
 else:
-    fig = _build_plotly_figure(nx_graph, layout_map)
-    st.plotly_chart(fig, width="stretch", config={"displaylogo": False})
+    st.caption(
+        f"L1 — showing matrices for {len(graph.entities)} entities and "
+        f"{len(graph.edges)} edges; switch to L2 for the spatial graph."
+    )
 
-st.caption(
-    f"Showing {nx_graph.number_of_nodes()} of {len(graph.entities)} entities, "
-    f"{nx_graph.number_of_edges()} of {len(graph.edges)} edges. Hover any node for details. "
-    "Modality labels are pinned to the plot; other kinds reveal on hover to keep the graph readable."
-)
+if _KG_LEVEL == "L3":
+    # L3 raw — entity + edge tables for export / audit, no graph at all.
+    st.markdown("### L3 — raw entity / edge tables")
+    ent_df = pd.DataFrame(
+        [
+            {
+                "id": e.id,
+                "kind": e.kind,
+                "label": e.label,
+                "category": e.category,
+                "doc_path": e.doc_path or "",
+            }
+            for e in graph.entities
+        ]
+    )
+    edge_df = pd.DataFrame(
+        [{"source": ed.source_id, "target": ed.target_id, "kind": ed.kind} for ed in graph.edges]
+    )
+    with st.expander(f"Entities — {len(ent_df)} rows", expanded=True):
+        st.dataframe(ent_df, width="stretch", hide_index=True, height=420)
+    with st.expander(f"Edges — {len(edge_df)} rows", expanded=False):
+        st.dataframe(edge_df, width="stretch", hide_index=True, height=420)
+    render_footer()
+    st.stop()
 
 # ---------------------------------------------------------------------------
-# Entity navigator (searchable jump-to)
+# Entity navigator (searchable jump-to) — L2 only.
 # ---------------------------------------------------------------------------
 
-st.markdown("### Jump to an entity")
-nav_options: list[tuple[str, Entity]] = [
-    (f"[{e.kind}] {e.label}", e) for e in sorted(graph.entities, key=lambda x: (x.kind, x.label))
-]
-nav_idx = st.selectbox(
-    "Select",
-    options=list(range(len(nav_options))),
-    format_func=lambda i: nav_options[i][0],
-    label_visibility="collapsed",
-    key="kg_nav",
-)
-selected_label, selected_entity = nav_options[nav_idx]
-target = entity_url(selected_entity)
-nbrs = graph.neighbours(selected_entity.id)
-st.markdown(
-    f"**{selected_entity.label}** "
-    f'<span style="background:{kind_color(selected_entity.kind)};color:white;'
-    f'padding:2px 8px;border-radius:10px;font-size:11px;margin-left:6px;">'
-    f"{selected_entity.kind}</span>"
-    f' &nbsp;·&nbsp; <a href="{target}" target="_self">Open →</a>'
-    f" &nbsp;·&nbsp; {len(nbrs)} connections",
-    unsafe_allow_html=True,
-)
+if _KG_LEVEL == "L2":
+    st.markdown("### Jump to an entity")
+    nav_options: list[tuple[str, Entity]] = [
+        (f"[{e.kind}] {e.label}", e)
+        for e in sorted(graph.entities, key=lambda x: (x.kind, x.label))
+    ]
+    nav_idx = st.selectbox(
+        "Select",
+        options=list(range(len(nav_options))),
+        format_func=lambda i: nav_options[i][0],
+        label_visibility="collapsed",
+        key="kg_nav",
+    )
+    selected_label, selected_entity = nav_options[nav_idx]
+    target = entity_url(selected_entity)
+    nbrs = graph.neighbours(selected_entity.id)
+    st.markdown(
+        f"**{selected_entity.label}** "
+        f'<span style="background:{kind_color(selected_entity.kind)};color:white;'
+        f'padding:2px 8px;border-radius:10px;font-size:11px;margin-left:6px;">'
+        f"{selected_entity.kind}</span>"
+        f' &nbsp;·&nbsp; <a href="{target}" target="_self">Open →</a>'
+        f" &nbsp;·&nbsp; {len(nbrs)} connections",
+        unsafe_allow_html=True,
+    )
 
 # ---------------------------------------------------------------------------
 # Cross-reference matrices

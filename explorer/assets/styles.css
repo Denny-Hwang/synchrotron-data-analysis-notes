@@ -48,6 +48,44 @@
     opacity: 0.5;
 }
 
+/* Header search form (FR-001 + FR-009) — submits to /Search?q=… */
+.eberlight-header-search {
+    display: flex;
+    align-items: center;
+    margin-left: 16px;
+}
+.eberlight-header-search input[type="search"] {
+    width: 220px;
+    padding: 6px 10px;
+    border: 1px solid #C0C0C0;
+    border-radius: 16px 0 0 16px;
+    border-right: 0;
+    font-size: 14px;
+    background: #FFFFFF;
+    color: #1A1A1A;
+    outline-offset: 2px;
+}
+.eberlight-header-search input[type="search"]:focus {
+    border-color: #0033A0;
+    box-shadow: 0 0 0 2px rgba(0, 51, 160, 0.15);
+}
+.eberlight-header-search button {
+    padding: 6px 12px;
+    border: 1px solid #0033A0;
+    border-radius: 0 16px 16px 0;
+    background: #0033A0;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+}
+.eberlight-header-search button:hover {
+    background: #002270;
+}
+@media (max-width: 720px) {
+    .eberlight-header-search input[type="search"] { width: 140px; }
+}
+
 /* === Breadcrumb === */
 .eberlight-breadcrumb {
     font-size: 14px;

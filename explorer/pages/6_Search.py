@@ -62,7 +62,7 @@ def _query_param(name: str) -> str | None:
 idx = _cached_index()
 bibliography = _cached_bibliography()
 
-render_header(active_cluster=None)
+render_header(active_cluster=None, show_search=False)
 st.markdown(
     '<h1 style="color:#0033A0;">🔍 Search</h1>'
     '<p style="color:#555;font-size:16px;margin-bottom:16px;">'

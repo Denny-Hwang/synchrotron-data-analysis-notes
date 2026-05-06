@@ -91,6 +91,88 @@ def find_note_by_url_id(notes: list[Note], repo_root: Path, url_id: str) -> Note
     return None
 
 
+def resolve_publication_ref(notes: list[Note], ref: str, repo_root: Path) -> Note | None:
+    """Resolve a ``related_publications`` entry to the actual Note.
+
+    The frontmatter encodes references as plain filenames (per DC-001),
+    e.g. ``review_tomogan_2020.md``. We search for any note under
+    ``04_publications/`` whose filename matches; the actual file may
+    live one or two folders deep (``04_publications/ai_ml_synchrotron/
+    review_tomogan_2020.md``).
+    """
+    target = ref.strip()
+    if not target:
+        return None
+    if not target.endswith(".md"):
+        target += ".md"
+    for n in notes:
+        if n.folder == "04_publications" and n.path.name == target:
+            return n
+    return None
+
+
+def resolve_tool_ref(notes: list[Note], ref: str, repo_root: Path) -> Note | None:
+    """Resolve a ``related_tools`` entry to the actual Note.
+
+    Tools live under ``05_tools_and_code/<tool_slug>/`` with a
+    ``README.md`` that's the canonical entry. The reference is the
+    tool slug — e.g. ``tomocupy`` → ``05_tools_and_code/tomocupy/README.md``.
+    """
+    slug = ref.strip().lower()
+    if not slug:
+        return None
+    candidate_dir = repo_root / "05_tools_and_code" / slug
+    candidate = candidate_dir / "README.md"
+    for n in notes:
+        if n.path == candidate:
+            return n
+    # Fall back to any *.md inside the tool's folder if no README.
+    for n in notes:
+        if n.folder == "05_tools_and_code" and n.path.parent.name.lower() == slug:
+            return n
+    return None
+
+
+def neighbor_notes(notes: list[Note], current: Note) -> tuple[Note | None, Note | None]:
+    """Return ``(previous, next)`` notes within ``current``'s folder.
+
+    Used by the note-detail view to render "← prev | next →" navigation
+    inside a folder. Notes are ordered by their relative path so the
+    sequence is stable across runs.
+    """
+    siblings = sorted(
+        (n for n in notes if n.folder == current.folder),
+        key=lambda n: n.path.as_posix(),
+    )
+    try:
+        idx = siblings.index(current)
+    except ValueError:
+        return None, None
+    prev_n = siblings[idx - 1] if idx > 0 else None
+    next_n = siblings[idx + 1] if idx + 1 < len(siblings) else None
+    return prev_n, next_n
+
+
+def discover_sibling_notebooks(note: Note, repo_root: Path) -> list[Path]:
+    """Return ``.ipynb`` files in or near the note's folder.
+
+    Notes about tools / data structures often ship Jupyter notebooks
+    in either the same folder as the markdown (
+    ``05_tools_and_code/roi_finder/foo.ipynb``) or in a dedicated
+    ``notebooks/`` subdirectory (the actual layout in this repo —
+    ``05_tools_and_code/roi_finder/notebooks/01_data_loading.ipynb``).
+    We surface both so the explorer can link out to nbviewer / GitHub.
+    """
+    folder = note.path.parent
+    if not folder.exists():
+        return []
+    found = list(folder.glob("*.ipynb"))
+    notebooks_subdir = folder / "notebooks"
+    if notebooks_subdir.is_dir():
+        found.extend(notebooks_subdir.glob("*.ipynb"))
+    return sorted(found)
+
+
 def _title_from_filename(filename: str) -> str:
     """Infer a human-readable title from a filename.
 
