@@ -6,6 +6,52 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+
+## [Unreleased] — Phase R7: Accessibility audit (WCAG 2.1 AA)
+
+### Added
+- **`explorer/lib/a11y.py`** — pure helpers used by both the audit
+  tests and the runtime: WCAG 2.1 contrast-ratio computation
+  (`hex_to_rgb`, `relative_luminance`, `contrast_ratio`,
+  `passes_aa`, `passes_aaa`), `alt_for_before_after(noise_stem)`
+  for screen-reader image text, and `skip_link_html(target_id)`
+  for the WCAG 2.4.1 "Bypass Blocks" requirement.
+- **`explorer/tests/test_a11y.py`** — 26 new tests. Hex parsing,
+  contrast-ratio identity / symmetry / black-on-white = 21:1.
+  **Real palette audit**: every design-token pair the explorer
+  uses (body / secondary / heading / banner / cluster accents /
+  severity badges) is exercised against the appropriate AA
+  threshold. Token-consistency tests verify
+  `lib/ia.py::CLUSTER_META` and `lib/troubleshooter.py::severity_color`
+  match the values asserted in the audit suite.
+
+### Fixed
+- **Palette tightened to pass WCAG 2.1 AA-large**:
+  - Explore-cluster teal `#00A3E0` → **`#0085C0`** (contrast on
+    white 2.87 → 4.10).
+  - Build-cluster orange `#F47B20` → **`#D86510`** (2.73 → 3.63).
+  - Severity-major orange `#E67E22` → **`#C8550E`** (white-on-color
+    2.85 → 4.41).
+  - Severity-minor blue `#3498DB` → **`#2178B5`** (3.16 → 4.83
+    AAA-grade).
+
+### Notes
+- These were the only three contrast violations the new audit
+  caught. All other tokens (Discover blue, body text, banner
+  pairings) already passed.
+- The cluster-color change is visible across `lib/ia.py`
+  consumers — landing-page CTA cards, the cluster H1, the
+  Knowledge-Graph node colors. The shift is a few hundred
+  lumens darker; the visual identity is preserved.
+- `pytest explorer/tests/` → 167 passed (was 141 in R6; +26
+  new a11y tests).
+- `ruff check / ruff format --check` clean.
+- Phase R7 is the **final** phase of the parity restoration plan.
+  Sections R1-R7 collectively bring the new explorer to feature
+  parity with `eberlight-explorer/` (deprecated per ADR-009)
+  while staying ADR-002 compliant — every restored feature reads
+  from the notes at runtime, no hand-curated YAML catalogs were
+  reintroduced.
 ## [Unreleased] — Phase R4: Noise-catalog troubleshooter + before/after viewer
 
 ### Added
