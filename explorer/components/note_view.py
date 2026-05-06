@@ -2,18 +2,110 @@
 
 Renders a single note: breadcrumb, title, markdown body, and a
 right-side metadata panel with tags, modality, and beamline info.
+``‌```mermaid`` fenced code blocks in the body are rendered
+as live diagrams via the Streamlit components iframe (loading
+``mermaid.min.js`` from a public CDN), keeping the rest of the
+markdown in normal Streamlit flow so internal links / cross-page
+deep links still work.
 
 Ref: DS-001 (design_system.md) — MetadataPanel, CodeBlock specs.
 Ref: FR-004 — Note detail view renders markdown.
 Ref: FR-006 — Metadata panel with beamline/modality tags.
 Ref: FR-013 — Code blocks with syntax highlighting.
+Ref: ADR-002 — Notes are the single source of truth (Mermaid blocks
+              live inside the note markdown, not in page-side dicts).
 """
+
+from __future__ import annotations
+
+import re
 
 import markdown
 import streamlit as st
+import streamlit.components.v1 as components
 from pygments.formatters import HtmlFormatter
 
 from .breadcrumb import render_breadcrumb
+
+# A ``‌```mermaid`` fenced code block. We accept either a leading
+# space or none after the language tag and any line endings before
+# the closing fence — markdown is picky about this in the wild.
+_MERMAID_BLOCK = re.compile(
+    r"```mermaid[ \t]*\n(?P<code>.*?)\n```",
+    re.DOTALL,
+)
+
+
+def _md_to_html(body: str) -> str:
+    """Render markdown to HTML using the same extensions as the static site."""
+    return markdown.markdown(
+        body,
+        extensions=["fenced_code", "tables", "toc", "codehilite"],
+        extension_configs={"codehilite": {"css_class": "highlight", "linenums": False}},
+    )
+
+
+def _render_mermaid_iframe(code: str, height: int = 480) -> None:
+    """Render one Mermaid diagram via :mod:`streamlit.components.v1` html.
+
+    Each block lives in its own iframe; that's the only way Streamlit
+    will execute the ``mermaid.initialize(...)`` script. The iframe
+    background is set to match the surrounding page so the diagram
+    visually merges with the rest of the note.
+    """
+    # Defensive — break any unintended ``</script>`` inside the user's
+    # mermaid source. Mermaid syntax does not legitimately need it.
+    safe = code.replace("</", r"<\/")
+    html = f"""<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  html, body {{ margin: 0; padding: 0; background: #FAFBFC; }}
+  .mermaid-wrap {{ padding: 12px; }}
+  .mermaid {{ display: flex; justify-content: center; }}
+</style>
+</head><body>
+<div class="mermaid-wrap"><div class="mermaid">{safe}</div></div>
+<script>
+  mermaid.initialize({{
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: {{ htmlLabels: true, curve: 'basis' }}
+  }});
+</script>
+</body></html>"""
+    components.html(html, height=height, scrolling=True)
+
+
+def _render_body_with_mermaid(body: str, highlight_css: str) -> None:
+    """Render markdown, splitting out ``‌```mermaid`` blocks into iframes.
+
+    Walks through the body emitting alternating segments: a normal
+    markdown segment via ``st.markdown(...)``, then a Mermaid
+    component, then the next markdown segment, etc. The fast path
+    (no Mermaid blocks) is a single ``st.markdown`` call.
+    """
+    matches = list(_MERMAID_BLOCK.finditer(body))
+    if not matches:
+        html = _md_to_html(body)
+        st.markdown(f"<style>{highlight_css}</style>{html}", unsafe_allow_html=True)
+        return
+
+    last_end = 0
+    for match in matches:
+        if match.start() > last_end:
+            seg = body[last_end : match.start()]
+            html = _md_to_html(seg)
+            st.markdown(f"<style>{highlight_css}</style>{html}", unsafe_allow_html=True)
+        _render_mermaid_iframe(match.group("code").strip())
+        last_end = match.end()
+
+    if last_end < len(body):
+        seg = body[last_end:]
+        html = _md_to_html(seg)
+        st.markdown(f"<style>{highlight_css}</style>{html}", unsafe_allow_html=True)
 
 
 def render_note_view(
@@ -31,7 +123,8 @@ def render_note_view(
 
     Args:
         title: Note title.
-        body: Markdown body content.
+        body: Markdown body content. ``‌```mermaid`` fenced code
+            blocks are rendered as live diagrams.
         cluster_name: Human-readable cluster name for breadcrumb.
         tags: List of tag labels.
         modality: Modality value or None.
@@ -58,20 +151,10 @@ def render_note_view(
     with col_main:
         st.markdown(f"# {title}")
 
-        # Render markdown with code highlighting
+        # Render markdown with code highlighting + inline Mermaid blocks.
         formatter = HtmlFormatter(style="monokai", noclasses=True)
         highlight_css = formatter.get_style_defs(".highlight")
-
-        html_body = markdown.markdown(
-            body,
-            extensions=["fenced_code", "tables", "toc", "codehilite"],
-            extension_configs={"codehilite": {"css_class": "highlight", "linenums": False}},
-        )
-
-        st.markdown(
-            f"<style>{highlight_css}</style>{html_body}",
-            unsafe_allow_html=True,
-        )
+        _render_body_with_mermaid(body, highlight_css)
 
     with col_meta:
         _render_metadata_panel(tags, modality, beamline, related_publications, related_tools)

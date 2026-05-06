@@ -6,6 +6,61 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [Unreleased] — Phase R3: Mermaid diagram rendering
+
+### Added
+- **Mermaid diagram rendering** across both surfaces of the
+  explorer (Streamlit + GitHub Pages mirror). Any note can now
+  embed a fenced ```` ```mermaid ```` block in its markdown and
+  the diagram renders live — flowcharts, sequence diagrams,
+  class diagrams, etc. ADR-002 stays intact: diagrams live inside
+  the note markdown, not in page-side dicts (the legacy
+  `eberlight-explorer/` carried 40+ inline diagrams in three
+  hand-curated `*_DIAGRAMS = {…}` dictionaries).
+- **`explorer/components/note_view.py`** — splits the body at
+  every ```` ```mermaid ```` block, renders the surrounding
+  markdown via `st.markdown(...)` as before, and renders each
+  Mermaid block as a `streamlit.components.v1.html` iframe that
+  loads `mermaid@10` from the public jsDelivr CDN.
+- **`scripts/build_static_site.py`** — adds two helpers,
+  `_extract_mermaid_blocks` (lifts each block out of the raw
+  markdown body before codehilite mangles it into a syntax-
+  highlighted listing) and `_replace_mermaid_blocks` (swaps the
+  base64-encoded HTML-comment placeholders back to live
+  `<div class="mermaid">` elements after markdown rendering).
+  The page head injects the Mermaid runtime once per page that
+  actually carries a diagram — no overhead on note pages
+  without one.
+- **3 demo diagrams** added to actual note markdown:
+  - `07_data_pipeline/README.md` — pipeline flowchart
+    (Acquisition → Streaming → Processing → Analysis → Storage).
+  - `03_ai_ml_methods/denoising/tomogan.md` — TomoGAN
+    conditional-GAN architecture (U-Net generator + PatchGAN
+    discriminator + VGG-perceptual loss).
+  - `09_noise_catalog/tomography/ring_artifact.md` — causal
+    flow showing how a defective detector column becomes a
+    sinogram stripe and then a reconstructed ring, plus the
+    three mitigation algorithms (Vo 2018, Munch 2009, DL).
+- **`explorer/tests/test_mermaid.py`** — 13 new tests covering
+  the regex pattern (single / multiple / inline-code-not-matched
+  / non-mermaid-language-not-matched / trailing-whitespace), the
+  static-site round-trip (extract → render → replace preserves
+  arrow operators verbatim), and end-to-end build verification
+  for each demo note.
+
+### Notes
+- `pytest explorer/tests/` → 120 passed (was 107 in R2; +13
+  Mermaid tests).
+- `ruff check / ruff format --check` clean.
+- Static-site build emits `<div class="mermaid">` for every demo
+  note plus the Mermaid runtime script in the page head.
+- `streamlit run explorer/app.py` → `/_stcore/health` returns
+  `ok`; the new diagrams render live in the note-detail view.
+- Phase R4 (Noise-catalog 11-symptom troubleshooter +
+  before/after image viewer) is the next step.
+
+
+
 ## [Unreleased] — Phase R2: Knowledge Graph + cross-reference matrices
 
 ### Added
