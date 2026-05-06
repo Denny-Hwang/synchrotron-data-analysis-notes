@@ -6,6 +6,63 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [Unreleased] — Phase R2: Knowledge Graph + cross-reference matrices
+
+### Added
+- **`explorer/pages/0_Knowledge_Graph.py`** — interactive cross-reference
+  network visualising every modality, AI/ML method, paper, tool,
+  Interactive-Lab recipe (§10), and noise/artifact in the repository
+  on a single page. Plotly + NetworkX spring layout; six entity kinds
+  rendered in distinct colours (Recipes highlighted red so the
+  Interactive Lab is immediately visible). Layer checkboxes hide /
+  show each entity kind. Hover any node for kind, category, doc path.
+- **Entity navigator** — searchable selectbox of all 100+ entities
+  with a live deep-link to the underlying note (or the Experiment
+  page for recipes), reusing the `?note=…` routing introduced in R1.
+- **Cross-reference matrices** (3 expandable tables):
+  - Modality × noise-type count (which modality has the most
+    catalogued artifacts);
+  - **Recipe → noise mapping** with deep links — derived from each
+    `recipe.yaml`'s `noise_catalog_ref`, so section 10 is treated
+    as a first-class graph layer;
+  - Tool ↔ paper mention table (best-effort regex against paper
+    review markdown).
+- **`explorer/lib/cross_refs.py`** — pure data layer that builds the
+  graph at runtime from folder structure plus `experiments/**/recipe.yaml`.
+  Honours ADR-002 ("notes are the single source of truth") — no
+  hand-curated YAML catalogs are reintroduced. Three edge sources:
+  folder structure (always reliable), recipe YAML (precise
+  recipe→modality / recipe→noise edges), and best-effort regex
+  scanning of paper review markdown for tool / method mentions.
+- **`explorer/tests/test_cross_refs.py`** — 16 new tests asserting
+  the schema (every entity has a unique namespaced id, every edge
+  endpoint resolves, no duplicate edges), the canonical six
+  modalities are detected, and every section-10 recipe carries both
+  a modality and a noise edge.
+- **Landing-page CTA grid** — `app.py` now shows a two-column card
+  block with Knowledge Graph + Interactive Lab side-by-side, both
+  with proper deep links to their pages.
+- **Dependencies**: `plotly>=5.18,<7.0`, `networkx>=3.1,<4.0`,
+  `pandas>=2.1,<3.0` added to `explorer/requirements.txt`. (NetworkX
+  was already a transitive dep through scikit-image; we pin it
+  explicitly so future major releases don't surprise the graph.)
+
+### Changed
+- `pyproject.toml`: per-file ruff ignores extended for `RUF001` /
+  `RUF002` on Streamlit pages (legitimate Unicode use: `×` for
+  matrices, `→` for recipe-to-noise, `↔` for typed-graph notation).
+
+### Notes
+- `pytest explorer/tests/` → 107 passed (was 91 in R1; +16 new tests
+  in `test_cross_refs.py`).
+- Static-site mirror still builds: 188 notes from 10 folders, 3 recipes.
+- `streamlit run explorer/app.py` → `/_stcore/health` returns `ok`;
+  the new Knowledge Graph page is discoverable in the sidebar and
+  via the landing-page card.
+- Phase R3 (Mermaid diagram library + 40+ architectural diagrams)
+  and R4 (Noise-catalog troubleshooter + before/after viewer) are
+  scheduled for subsequent PRs.
+
 ## [Unreleased] — Phase R1: Critical UX restoration
 
 The deprecation of `eberlight-explorer/` (ADR-009) shipped before the

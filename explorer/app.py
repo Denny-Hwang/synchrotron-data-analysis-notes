@@ -73,17 +73,35 @@ for col, cluster_id in zip(cols, cluster_order, strict=True):
 
 # --- Interactive Lab CTA (ADR-008) ---
 _LAB_COLOR = CLUSTER_META["build"]["color"]
+_DISCOVER_COLOR = CLUSTER_META["discover"]["color"]
 st.markdown(
     f"""
-    <div style="margin-top: 32px;">
+    <div style="margin-top: 32px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="eberlight-card" style="border-left: 4px solid {_DISCOVER_COLOR};">
+            <h4 style="color: {_DISCOVER_COLOR}; margin: 0 0 8px 0;">
+                🧠 <a href="/Knowledge_Graph" target="_self"
+                       style="color:{_DISCOVER_COLOR};text-decoration:none;">Knowledge Graph</a>
+            </h4>
+            <p style="font-size: 14px; color: #555555; margin: 0 0 8px 0;">
+                Cross-reference network of every modality, AI/ML method, paper, tool,
+                Interactive-Lab recipe, and noise/artifact in one interactive view.
+                Hover for details, click to navigate.
+            </p>
+            <p style="font-size: 13px; color: #888888; margin: 0;">
+                100+ entities · 120+ edges · auto-extracted from notes + recipe.yaml.
+            </p>
+        </div>
         <div class="eberlight-card" style="border-left: 4px solid {_LAB_COLOR};">
-            <h4 style="color: {_LAB_COLOR}; margin: 0 0 8px 0;">🧪 Interactive Lab</h4>
+            <h4 style="color: {_LAB_COLOR}; margin: 0 0 8px 0;">
+                🧪 <a href="/Experiment" target="_self"
+                       style="color:{_LAB_COLOR};text-decoration:none;">Interactive Lab</a>
+            </h4>
             <p style="font-size: 14px; color: #555555; margin: 0 0 8px 0;">
                 Replay noise mitigation techniques from prior research on real bundled data —
                 tune parameters, compare before/after, see PSNR/SSIM against a clean reference.
             </p>
             <p style="font-size: 13px; color: #888888; margin: 0;">
-                Open the <b>Experiment</b> page from the sidebar. New in notes-v0.10.0.
+                3 recipes · 71 real samples · Vo 2018 / Munch 2009 / van Dokkum 2001.
             </p>
         </div>
     </div>
