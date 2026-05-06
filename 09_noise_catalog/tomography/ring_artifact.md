@@ -24,6 +24,23 @@
 
 Ring artifacts appear as concentric circular patterns centered on the rotation axis in reconstructed CT slices. They manifest as bright or dark rings that can partially or fully encircle the reconstruction center. The rings directly correspond to defective or miscalibrated detector pixel columns that produce consistent intensity errors across all projection angles.
 
+```mermaid
+flowchart LR
+    Sample[Sample] -->|projection at θ| Detector
+    Detector -->|"defective column<br/>(constant offset)"| Sino["Sinogram<br/>vertical stripe"]
+    Sino -->|"reconstruction<br/>(FBP / iterative)"| Slice["Slice<br/>concentric ring"]
+    Slice -.mitigated by.-> Vo["Vo et al. 2018<br/>sorting + median"]
+    Slice -.mitigated by.-> Munch["Munch et al. 2009<br/>wavelet-FFT"]
+    Slice -.mitigated by.-> DL["DL stripe removal"]
+
+    classDef bad fill:#FDECEA,stroke:#C0392B,color:#1A1A1A;
+    classDef good fill:#E8F5E9,stroke:#27AE60,color:#1A1A1A;
+    class Sino,Slice bad;
+    class Vo,Munch,DL good;
+```
+
+The Interactive Lab page (`/Experiment`) ships two of these mitigations as runnable recipes on the bundled Sarepy sinograms — see [`10_interactive_lab/datasets/tomography/ring_artifact/`](../../10_interactive_lab/datasets/tomography/ring_artifact/).
+
 ## Root Cause
 
 Dead, hot, or miscalibrated detector pixels produce constant-value or anomalous-response columns in the sinogram. Because each detector column maps to a specific radial distance from the rotation center during filtered back-projection, a faulty column creates a systematic error at that radius in every reconstructed slice. The effect is amplified by flat-field normalization when the flat image itself contains pixel defects, and can also arise from non-uniform scintillator response or dust particles on the detector.

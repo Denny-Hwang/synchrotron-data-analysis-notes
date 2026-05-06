@@ -6,6 +6,22 @@
 
 TomoGAN uses a conditional GAN architecture with a U-Net generator and PatchGAN discriminator.
 
+```mermaid
+flowchart LR
+    NoisyIn["Noisy slice<br/>(1×256×256)"] --> G[U-Net<br/>Generator]
+    G --> Fake["Denoised slice<br/>(1×256×256)"]
+    Fake --> D[PatchGAN<br/>Discriminator]
+    Clean["Clean slice<br/>(1×256×256)"] --> D
+    D --> RealFake["real / fake<br/>per-patch verdict"]
+    Fake -.VGG perceptual.-> Loss["L = λ₁·L1 + λ₂·VGG + λ₃·adv"]
+    Clean -.VGG perceptual.-> Loss
+
+    classDef io fill:#E8EEF6,stroke:#0033A0;
+    classDef net fill:#FFF4E0,stroke:#F47B20,stroke-width:1.5px;
+    class NoisyIn,Clean,Fake,RealFake io;
+    class G,D net;
+```
+
 ### Generator (U-Net)
 
 ```

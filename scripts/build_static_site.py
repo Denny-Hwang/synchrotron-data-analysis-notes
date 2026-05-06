@@ -665,16 +665,102 @@ def _render_cluster(
     target.write_text(html, encoding="utf-8")
 
 
+# Match ``‌```mermaid`` fenced blocks in the **raw markdown body** (not in
+# the rendered HTML — codehilite syntax-highlights every fenced block,
+# which would mangle the diagram source).
+_MERMAID_MD_BLOCK = re.compile(
+    r"```mermaid[ \t]*\n(?P<code>.*?)\n```",
+    re.DOTALL,
+)
+
+
+def _replace_mermaid_blocks(body_html: str) -> tuple[str, bool]:
+    """Convert pre-rendered Mermaid placeholder blocks to live ``<div>``s.
+
+    The render path is split into three steps to avoid codehilite
+    rewriting the diagram source as syntax-highlighted code:
+
+    1. :func:`_extract_mermaid_blocks` lifts every fenced
+       ``‌```mermaid`` block out of the raw markdown body and replaces
+       each with an HTML-safe placeholder (``<!--MERMAID:N-->``).
+    2. The cleaned body goes through ``markdown.markdown(...)`` as
+       usual.
+    3. This function swaps every placeholder for a real
+       ``<div class="mermaid">…</div>`` carrying the original source,
+       and signals via the second return value whether the page needs
+       the runtime ``<script>`` tag.
+    """
+    placeholder_re = re.compile(r"<!--MERMAID:(?P<idx>\d+):(?P<code>[^-]+(?:-(?!-)[^-]*)*)-->")
+    has_mermaid = False
+
+    def _replace(match: re.Match[str]) -> str:
+        nonlocal has_mermaid
+        has_mermaid = True
+        from base64 import b64decode
+
+        code = b64decode(match.group("code")).decode("utf-8")
+        return f'<div class="mermaid">{code}</div>'
+
+    return placeholder_re.sub(_replace, body_html), has_mermaid
+
+
+def _extract_mermaid_blocks(body: str) -> str:
+    """Pre-process the **raw markdown body** to lift Mermaid blocks aside.
+
+    Replaces every ``‌```mermaid`` fenced block with a base64-encoded
+    HTML comment placeholder. The caller renders the cleaned body via
+    ``markdown.markdown(...)``, then runs :func:`_replace_mermaid_blocks`
+    on the rendered HTML to swap each placeholder for a live
+    ``<div class="mermaid">``. Base64 is used because the diagram
+    source can contain ``-->`` arrows that would otherwise close an
+    HTML comment prematurely.
+    """
+    from base64 import b64encode
+
+    counter = [0]
+
+    def _swap(match: re.Match[str]) -> str:
+        encoded = b64encode(match.group("code").encode("utf-8")).decode("ascii")
+        idx = counter[0]
+        counter[0] += 1
+        # Two newlines isolate the placeholder so markdown treats it as
+        # its own block, not part of the surrounding paragraph.
+        return f"\n\n<!--MERMAID:{idx}:{encoded}-->\n\n"
+
+    return _MERMAID_MD_BLOCK.sub(_swap, body)
+
+
+_MERMAID_HEAD = """
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.mermaid) {
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: 'default',
+        securityLevel: 'loose',
+        flowchart: { htmlLabels: true, curve: 'basis' }
+      });
+    }
+  });
+</script>
+"""
+
+
 def _render_note(out_dir: Path, note: Note, highlight_css: str) -> None:
     page_path = _note_output_path(note)
     cluster_meta = CLUSTER_META.get(note.cluster, CLUSTER_META["explore"])
 
+    # Step 1 — lift Mermaid blocks aside before codehilite mangles them.
+    body_with_placeholders = _extract_mermaid_blocks(note.body)
     body_html = markdown.markdown(
-        note.body,
+        body_with_placeholders,
         extensions=["fenced_code", "tables", "toc", "codehilite"],
         extension_configs={"codehilite": {"css_class": "highlight", "linenums": False}},
     )
     body_html = _md_link_rewrite(body_html)
+    # Step 2 — swap each placeholder for a real ``<div class="mermaid">``.
+    body_html, has_mermaid = _replace_mermaid_blocks(body_html)
 
     breadcrumb = _breadcrumb_html(
         page_path,
@@ -698,6 +784,8 @@ def _render_note(out_dir: Path, note: Note, highlight_css: str) -> None:
     </div>
 """
     extra_head = f"<style>{highlight_css}</style>"
+    if has_mermaid:
+        extra_head += _MERMAID_HEAD
     html = _page_shell(
         page_path,
         f"{note.title} — eBERlight Explorer",

@@ -12,6 +12,24 @@ independent scaling, technology upgrades, and fault isolation.
 
 ## Pipeline Stages at a Glance
 
+```mermaid
+flowchart LR
+    A[Acquisition<br/>Detector + Beamline]
+    S[Streaming<br/>EPICS / Bluesky]
+    P[Processing<br/>TomoPy / TomocuPy]
+    N[Analysis<br/>AI/ML Methods]
+    Z[Storage<br/>HDF5 / Petrel / APSDataPool]
+
+    A -->|raw frames| S
+    S -->|projection stack| P
+    P -->|reconstructed volume| N
+    N -->|results / metadata| Z
+    Z -.cold archive.-> N
+
+    classDef stage fill:#E8EEF6,stroke:#0033A0,stroke-width:1.5px,color:#1A1A1A;
+    class A,S,P,N,Z stage;
+```
+
 | Stage | Primary Systems | Typical Latency |
 |---|---|---|
 | Acquisition | EPICS IOC, Area Detector | Real-time (us-ms) |
