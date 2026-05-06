@@ -22,9 +22,24 @@ This project uses two independent SemVer streams per ADR-006:
 ### Notes
 - These were the only three contrast violations the new audit caught. All other tokens (Discover blue, body text, banner pairings) already passed.
 - The cluster-color change is visible across `lib/ia.py` consumers — landing-page CTA cards, the cluster H1, the Knowledge-Graph node colors. The shift is a few hundred lumens darker; the visual identity is preserved.
-- `pytest explorer/tests/` → after merge with R4 + R5 (and R6 once it lands) the total reaches the 165-190 range depending on stack ordering; on this branch alone (R7 over R4) it's 160.
+- `pytest explorer/tests/` → with R6 now on `main`, the full stack reaches ≥190 passing tests; on this branch alone (R7 over R6) the count is 196.
 - `ruff check / ruff format --check` clean against `ruff==0.11.13`.
 - Phase R7 is the **final** phase of the parity restoration plan. Sections R1–R7 collectively bring the new explorer to feature parity with `eberlight-explorer/` (deprecated per ADR-009) while staying ADR-002 compliant — every restored feature reads from the notes at runtime, no hand-curated YAML catalogs were reintroduced.
+
+## [Unreleased] — Phase R6: Search + Bibliography
+
+### Added
+- **`explorer/pages/6_Search.py`** — global full-text search + bibliography in one page. Search supports `?q=<query>` deep links; results show title-boosted relevance scores, modality badges, snippet around the first match, and clickable terms-matched chips. Bibliography section filters by title / author / year / entry type.
+- **`explorer/lib/search.py`** — in-memory inverted index (~5 KB per note, <10 ms typical query). TF-IDF approximation with title-boost ×2, prefix matching for inflections, and a deterministic tie-breaker on note path. No new dependencies — Whoosh / lunr would have been overkill at our 200-note scale.
+- **`explorer/lib/bibliography.py`** — lightweight BibTeX parser that loads both bundled `.bib` files (`08_references/bibliography.bib`, `10_interactive_lab/CITATIONS.bib`). Extracts type, key, title, authors, year, journal/booktitle/venue, DOI, and renders `Author1 et al. (Year). Title. Venue. DOI: …` short-form citations. DOI fields surface as clickable `https://doi.org/…` links.
+- **`explorer/tests/test_search.py`** — 12 tests covering tokenizer (lowercase, trailing-punct stripping, dot/dash preservation), index, title boost, prefix matching, snippet, limit, deterministic ordering, and a real-repo smoke test that finds `tomopy`.
+- **`explorer/tests/test_bibliography.py`** — 9 tests covering parser (article / inproceedings / no-fields edge cases), DOI URL formatting, APA-short rendering, and real-repo loaders.
+
+### Notes
+- ADR-002 stays intact — the index is rebuilt from notes at runtime and never written to disk.
+- `pytest explorer/tests/` → after merge with R4 + R5 the total reaches ≥190.
+- `ruff check / ruff format --check` clean.
+- Phase R7 (Accessibility audit — WCAG 2.1 AA) is the next step.
 
 
 ## [Unreleased] — Phase R5: Detail Level (L0/L1/L2/L3)
