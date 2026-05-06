@@ -96,12 +96,15 @@ def _render_card_grid(
             render_note_card(note, repo_root)
 
 
-def _render_note_detail(note: Note, cluster_id: str) -> None:
-    """Render the note-detail view for a single note."""
+def _render_note_detail(note: Note, cluster_id: str, level: str = "L2") -> None:
+    """Render the note-detail view for a single note at the chosen level."""
+    from lib import detail_level as _dl
+
     cluster_meta = CLUSTER_META[cluster_id]
+    body_for_level = _dl.render(level, note.body)
     render_note_view(
         title=note.title,
-        body=note.body,
+        body=body_for_level,
         cluster_name=cluster_meta["name"],
         cluster_url=f"/{cluster_id.title()}",
         tags=note.tags,
@@ -109,6 +112,41 @@ def _render_note_detail(note: Note, cluster_id: str) -> None:
         beamline=note.beamline,
         related_publications=note.related_publications,
         related_tools=note.related_tools,
+    )
+
+
+def _render_level_selector(current: str, note_url_id: str) -> None:
+    """Sidebar radio that switches the ``?level=`` query parameter.
+
+    Streamlit can't easily read & write the same query param in the
+    same render, so we render a row of HTML anchor links instead. Each
+    link preserves ``?note=…`` and just swaps ``?level=…``.
+    """
+    from urllib.parse import quote as _q
+
+    from lib import detail_level as _dl
+
+    pills = []
+    for lvl in _dl.LEVELS:
+        is_active = lvl == current
+        bg = "#0033A0" if is_active else "#E8EEF6"
+        fg = "#FFFFFF" if is_active else "#0033A0"
+        href = f"?note={_q(note_url_id, safe='/')}&level={lvl}"
+        pills.append(
+            f'<a href="{href}" target="_self" '
+            f'style="text-decoration:none;background:{bg};color:{fg};'
+            f"padding:6px 14px;border-radius:14px;font-size:13px;"
+            f"font-weight:600;margin-right:6px;display:inline-block;"
+            f'margin-bottom:6px;">{_dl.LEVEL_LABELS[lvl]}</a>'
+        )
+    st.markdown(
+        '<div style="margin:8px 0 16px 0;">'
+        '<div style="font-size:11px;color:#888;text-transform:uppercase;'
+        'letter-spacing:0.5px;margin-bottom:6px;">Detail level</div>'
+        + "".join(pills)
+        + f'<div style="font-size:12px;color:#666;margin-top:6px;">'
+        f"{_dl.LEVEL_HELP[current]}</div></div>",
+        unsafe_allow_html=True,
     )
 
 
@@ -124,6 +162,8 @@ def render_cluster_page(
         group_by_folder: When showing the card grid, group by folder
             with a folder-name heading.
     """
+    from lib import detail_level as _dl
+
     explorer_dir = Path(__file__).resolve().parent.parent
     repo_root = explorer_dir.parent
 
@@ -139,13 +179,15 @@ def render_cluster_page(
 
     note_url_id = _query_param("note")
     tag_filter = _query_param("tag")
+    level = _dl.normalise_level(_query_param("level"))
 
     # Mode 1 — note-detail deep link.
     if note_url_id:
         target = find_note_by_url_id(all_notes, repo_root, note_url_id)
         if target is not None:
             render_header(active_cluster=target.cluster)
-            _render_note_detail(target, target.cluster)
+            _render_level_selector(level, note_url_id)
+            _render_note_detail(target, target.cluster, level=level)
             render_footer()
             return
         # Fall through with a warning — show the cluster grid instead.

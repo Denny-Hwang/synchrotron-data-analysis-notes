@@ -25,7 +25,11 @@ repos:
         args: ['--fix=lf']
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.7
+    # Pinned in lockstep with .github/workflows/lint.yml so editor-
+    # side and CI agree on `ruff format` output.  The older 0.5.7 pin
+    # disagreed with newer local ruff on `assert …, (…)` wrapping
+    # (style flipped between 0.8 and 0.9).  See PR #45 review.
+    rev: v0.11.13
     hooks:
       - id: ruff
         args: [--fix]
