@@ -6,6 +6,23 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+
+## [Unreleased] — Phase R5: Detail Level (L0/L1/L2/L3)
+
+### Added
+- **`explorer/lib/detail_level.py`** — pure helpers that derive four reading depths from the same markdown body:
+  - **L0 Overview** — first paragraph (≤600 chars), top H1 stripped.
+  - **L1 Sections** — outline of H2/H3 headings + first sentence per heading.
+  - **L2 Details** — the full body (default, unchanged behaviour).
+  - **L3 Source** — raw markdown in a fenced code block (inner `` ``` `` escaped).
+- **`?level=…` deep linking** — `lib/cluster_page.py` parses `?level=L0|L1|L2|L3` (or the long-form `Overview / Sections / Details / Source` the legacy app used) and renders the chosen level. A pill row above each note shows the four levels with the active one highlighted; clicking switches the param.
+- **`explorer/tests/test_detail_level.py`** — 28 new tests covering vocabulary, every level's output, dispatcher fallback, and the parametrised long-form-label normaliser.
+
+### Notes
+- ADR-002 stays intact — no per-level copies of any note are written to disk; all four levels are derived from the same markdown body.
+- `pytest explorer/tests/` → 148 passed (was 120 in R3; +28 detail-level).
+- `ruff check / ruff format --check` clean.
+- Phase R6 (Search + BibTeX + DOI links) is the next step.
 ## [Unreleased] — Phase R3: Mermaid diagram rendering
 
 ### Added
