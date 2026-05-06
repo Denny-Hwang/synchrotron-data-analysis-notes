@@ -5,7 +5,7 @@ analysis and AI/ML methods at Argonne National Laboratory's Advanced Photon
 Source (APS).
 
 ![notes-v0.10.0](https://img.shields.io/badge/notes-v0.10.0-blue)
-![explorer-v0.4.0](https://img.shields.io/badge/explorer-v0.4.0-green)
+![explorer-v0.5.0](https://img.shields.io/badge/explorer-v0.5.0-green)
 [![tests](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml)
 [![pages](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml)
 ![license: MIT](https://img.shields.io/badge/license-MIT-lightgrey)
@@ -24,7 +24,7 @@ The notes ship as `notes-vX.Y.Z` and the app ships as `explorer-vX.Y.Z` — cont
 | Artifact | Coverage |
 |---|---|
 | **Notes** | 6 X-ray modalities · 14 AI/ML methods · 14 paper reviews · 7 reverse-engineered tools · HDF5 schemas + EDA · end-to-end data pipeline · **47 noise/artifact types** with symptom-based troubleshooter · 71 real sample files (~135 MB) |
-| **Explorer** | 4 Streamlit pages · 3-cluster IA · GitHub Pages static mirror · **Interactive Lab** with 3 noise-mitigation recipes (sorting-based stripe removal, wavelet-FFT, L.A.Cosmic) · auto-generated parameter widgets · PSNR/SSIM metrics |
+| **Explorer** | 7 Streamlit pages · 3-cluster IA · GitHub Pages static mirror · **Knowledge Graph** (100+ entities, 120+ edges) · **Interactive Lab** with 3 noise-mitigation recipes · **Troubleshooter** (11 symptoms × 35 cases) · **Search** + bibliography · L0/L1/L2/L3 progressive disclosure · Mermaid diagrams · WCAG 2.1 AA palette |
 | **CI** | pytest on Python 3.11 + 3.12 · recipe-contract drift protection · static-site rebuild on every push |
 
 ## Repository layout
@@ -43,11 +43,14 @@ synchrotron-data-analysis-notes/
 ├── 10_interactive_lab/         # 71 real sample files + ATTRIBUTION + LICENSES + lazy-download recipes (ADR-008)
 │
 ├── explorer/                   # Streamlit app (ADR-001)
-│   ├── app.py                  # Landing
-│   ├── pages/                  # 1_Discover, 2_Explore, 3_Build, 4_Experiment
-│   ├── lib/                    # ia, notes, experiments, model_zoo
+│   ├── app.py                  # Landing (3 cluster cards + 4 feature CTAs)
+│   ├── pages/                  # 0_Knowledge_Graph, 1_Discover, 2_Explore,
+│   │                           # 3_Build, 4_Experiment, 5_Troubleshooter, 6_Search
+│   ├── lib/                    # ia, notes, experiments, model_zoo, cross_refs,
+│   │                           # troubleshooter, detail_level, search,
+│   │                           # bibliography, a11y, cluster_page
 │   ├── components/             # header, footer, breadcrumb, card, note_view
-│   └── tests/                  # pytest suite (45 tests)
+│   └── tests/                  # pytest suite (220 tests)
 │
 ├── experiments/                # Pure-function noise-mitigation recipes
 │   └── <modality>/<case>/      # recipe.yaml + pipeline.py
@@ -77,16 +80,23 @@ pip install -r explorer/requirements.txt
 streamlit run explorer/app.py    # ← THIS one. NOT eberlight-explorer/app.py.
 ```
 
-The app opens at `http://localhost:8501`. The four pages mirror the
-information architecture (ADR-004):
+The app opens at `http://localhost:8501`. The seven pages mirror the
+information architecture (ADR-004) and the parity-restored feature set
+(`explorer-v0.5.0`):
 
 | Page | What it does |
 |---|---|
-| **Home** (`/`) | Hero + 3 cluster cards + Interactive Lab CTA |
+| **Home** (`/`) | Hero + 3 cluster cards + 4 feature CTAs (KG / Lab / Troubleshooter / Search) |
+| **Knowledge Graph** | Plotly + NetworkX cross-reference network — modality / method / paper / tool / recipe / noise (100+ entities, 120+ edges) |
 | **Discover the Program** | Notes from `01_program_overview/` + `08_references/` |
 | **Explore the Science** | Notes from `02_xray_modalities/`, `03_ai_ml_methods/`, `04_publications/`, `09_noise_catalog/` |
 | **Build and Compute** | Notes from `05_tools_and_code/`, `06_data_structures/`, `07_data_pipeline/`, `10_interactive_lab/` + recipe gallery |
 | **Experiment** | Pick a recipe → choose a real sample → tune parameters → see before/after with PSNR/SSIM |
+| **Troubleshooter** | 11 symptom categories × 35 differential cases with severity, conditions, before/after images, ▶ Run-experiment links |
+| **Search** | Global full-text search + filterable BibTeX bibliography with title-boosted relevance |
+
+Every note page also exposes a **Detail Level** pill row (L0 Overview · L1
+Sections · L2 Details · L3 Source) and renders Mermaid diagrams inline.
 
 ### Try the Interactive Lab
 
@@ -100,7 +110,7 @@ All inputs are **real published research data** bundled under permissive license
 
 ### Browse without Python (GitHub Pages)
 
-A read-only static mirror of the Explorer is published to GitHub Pages on every push to `main`. The Build cluster page on the mirror includes a recipe gallery; live pipelines remain Streamlit-only. See [ADR-007](docs/02_design/decisions/ADR-007.md) and [`docs/03_implementation/github_pages_sync.md`](docs/03_implementation/github_pages_sync.md).
+A read-only static mirror of the Explorer is published to GitHub Pages on every push to `main`. The Build cluster page on the mirror includes a recipe gallery; the four interactive surfaces (Knowledge Graph / Interactive Lab / Troubleshooter / Search) ship as stub pages that point readers to `streamlit run explorer/app.py`. See [ADR-007](docs/02_design/decisions/ADR-007.md) and [`docs/03_implementation/github_pages_sync.md`](docs/03_implementation/github_pages_sync.md).
 
 ### Read the notes directly
 
@@ -123,7 +133,7 @@ The most useful entry points:
 Full project documentation lives in [`docs/`](docs/) — see [`docs/README.md`](docs/README.md) for the index. Key entry points:
 
 - **Product**: [vision](docs/00_product/vision.md) · [personas](docs/00_product/personas.md) · [roadmap](docs/00_product/roadmap.md)
-- **Requirements**: [PRD](docs/01_requirements/PRD.md) (FR-001 … FR-022) · [user stories](docs/01_requirements/user_stories.md) (US-001 … US-016) · [NFRs](docs/01_requirements/non_functional.md)
+- **Requirements**: [PRD](docs/01_requirements/PRD.md) (FR-001 … FR-022) · [user stories](docs/01_requirements/user_stories.md) (US-001 … US-016) · [NFRs](docs/01_requirements/non_functional.md) · [release notes](docs/05_release/release_notes/) (REL-E050 = parity restoration R1 → R7)
 - **Architecture decisions**: 9 ADRs at [`docs/02_design/decisions/`](docs/02_design/decisions/) — Streamlit choice (ADR-001), notes-as-SoT (ADR-002), frontmatter (ADR-003), 3-cluster IA (ADR-004), design tokens (ADR-005), dual SemVer (ADR-006), Pages mirror (ADR-007), Interactive Lab (ADR-008), legacy deprecation (ADR-009)
 - **Implementation**: [coding standards](docs/03_implementation/coding_standards.md) · [data contracts](docs/03_implementation/data_contracts.md) · [Pages sync contract](docs/03_implementation/github_pages_sync.md)
 - **Release notes**: [`docs/05_release/release_notes/`](docs/05_release/release_notes/) — per-version

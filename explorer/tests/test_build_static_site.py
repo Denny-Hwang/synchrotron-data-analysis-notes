@@ -233,3 +233,77 @@ def test_build_static_site_reusable_across_runs(tmp_path, bss) -> None:
     # The build wipes and rewrites — sentinel must be gone.
     assert not sentinel.exists()
     assert (out / "index.html").is_file()
+
+
+# ---------------------------------------------------------------------------
+# Interactive-stub mirror (CLAUDE.md invariant #9)
+# ---------------------------------------------------------------------------
+
+
+def test_interactive_pages_table_covers_streamlit_pages(bss) -> None:
+    """Every Streamlit page outside the 3 clusters must have a static stub.
+
+    Drift protection: when someone adds an 8th Streamlit page they get
+    a CI failure here pointing them at the INTERACTIVE_PAGES table.
+    """
+    pages_dir = bss._REPO_ROOT / "explorer" / "pages"
+    streamlit_pages = sorted(p.stem for p in pages_dir.glob("*.py") if not p.stem.startswith("_"))
+    cluster_streamlit_paths = {"1_Discover", "2_Explore", "3_Build"}
+    expected_streamlit_paths = {
+        # Streamlit derives the URL from the filename: drop the leading
+        # numeric prefix and replace underscores with the same name.
+        "/" + stem.split("_", 1)[1]
+        for stem in streamlit_pages
+        if stem not in cluster_streamlit_paths
+    }
+    declared_paths = {entry["streamlit_path"] for entry in bss.INTERACTIVE_PAGES}
+    assert declared_paths == expected_streamlit_paths, (
+        "INTERACTIVE_PAGES is out of sync with explorer/pages/. "
+        f"Streamlit has {expected_streamlit_paths}, table has {declared_paths}."
+    )
+
+
+def test_build_emits_all_interactive_stub_pages(tmp_path, bss) -> None:
+    """Each entry in INTERACTIVE_PAGES produces an HTML stub at the root."""
+    import html as _html
+
+    out = tmp_path / "site_test"
+    bss.build(out)
+    for entry in bss.INTERACTIVE_PAGES:
+        stub = out / f"{entry['slug']}.html"
+        assert stub.is_file(), f"Missing stub for {entry['title']}: {stub}"
+        text = stub.read_text(encoding="utf-8")
+        # Stub must reference the live Streamlit launch command.
+        assert "streamlit run explorer/app.py" in text
+        # And the surface's Streamlit URL (so a reader knows where to go).
+        assert entry["streamlit_path"] in text
+        # Title surfaces in the H1 (icon + escaped name).
+        assert _html.escape(entry["title"]) in text
+
+
+def test_landing_links_to_every_interactive_stub(tmp_path, bss) -> None:
+    """The landing page CTA grid must link to all 4 interactive stubs."""
+    import html as _html
+
+    out = tmp_path / "site_test"
+    bss.build(out)
+    landing = (out / "index.html").read_text(encoding="utf-8")
+    for entry in bss.INTERACTIVE_PAGES:
+        assert f'href="{entry["slug"]}.html"' in landing, (
+            f"Landing missing CTA for {entry['title']}"
+        )
+        # The stat-line copy travels with the card (HTML-escaped — `<` becomes `&lt;`).
+        assert _html.escape(entry["stat_line"]) in landing
+
+
+def test_interactive_stub_uses_cluster_color(tmp_path, bss) -> None:
+    """The stub heading + landing CTA both render in the correct cluster color."""
+    out = tmp_path / "site_test"
+    bss.build(out)
+    for entry in bss.INTERACTIVE_PAGES:
+        color = bss.CLUSTER_META[entry["color_cluster"]]["color"]
+        stub_html = (out / f"{entry['slug']}.html").read_text(encoding="utf-8")
+        assert color in stub_html, (
+            f"Stub for {entry['title']} should use {entry['color_cluster']} "
+            f"color {color} but did not."
+        )

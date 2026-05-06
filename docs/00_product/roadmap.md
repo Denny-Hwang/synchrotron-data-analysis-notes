@@ -2,15 +2,44 @@
 doc_id: RMP-001
 title: "12-Week Delivery Roadmap"
 status: draft
-version: 0.1.0
-last_updated: 2026-04-08
+version: 0.2.0
+last_updated: 2026-05-06
 supersedes: null
-related: [VIS-001, PRD-001, PER-001]
+related: [VIS-001, PRD-001, PER-001, REL-E050]
 ---
 
 # 12-Week Delivery Roadmap
 
-## Overview
+## Status (as of 2026-05-06)
+
+The original A–E plan (April 2026) is preserved below for historical context. Actual delivery
+diverged once `notes-v0.10.0` introduced Section 10 (Interactive Lab) and a feature-parity
+audit against the legacy `eberlight-explorer/` revealed seven missing surfaces.
+
+Actual ship sequence:
+
+| Version | Theme | Date |
+|-------|-------|------|
+| `explorer-v0.1.0` | Theme + Footer + Breadcrumb (was Phase A) | 2026-04-08 |
+| `explorer-v0.2.0` | IA Restructure + Cluster Landing + Cards (was Phase B) | 2026-04-08 |
+| `explorer-v0.3.0` | GitHub Pages mirror (ADR-007 — not in original plan) | 2026-04-21 |
+| `explorer-v0.4.0` | Interactive Lab page (ADR-008 — not in original plan) | 2026-05-05 |
+| `explorer-v0.5.0` | **Parity restoration R1 → R7** + Pages mirror catch-up | 2026-05-06 |
+
+`explorer-v0.5.0` ships what original Phase D (Search + WCAG 2.1 AA audit) and several
+features from Phase C (note routing, tag filtering) had targeted, plus content the original
+plan did not anticipate (Knowledge Graph, Mermaid library, noise-catalog troubleshooter,
+L0/L1/L2/L3 progressive disclosure). See [`REL-E050`](../05_release/release_notes/explorer-v0.5.0.md)
+for the consolidated changelog.
+
+What's still ahead (Phase E equivalent — original plan intact):
+
+- User testing round 1 with 3–5 representative researchers.
+- Bug triage from user testing.
+- Responsive-layout polish (the WCAG 2.1 AA palette audit landed; mobile-breakpoint
+  polishing did not).
+
+## Original plan — overview
 
 Five phases (A–E) over 12 weeks. Each phase produces a shippable increment.
 
