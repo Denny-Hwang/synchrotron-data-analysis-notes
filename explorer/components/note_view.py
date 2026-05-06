@@ -39,11 +39,13 @@ def render_note_view(
         related_tools: List of related tool names.
     """
     # Breadcrumb
-    render_breadcrumb([
-        ("Home", "/"),
-        (cluster_name, "#"),
-        (title, None),
-    ])
+    render_breadcrumb(
+        [
+            ("Home", "/"),
+            (cluster_name, "#"),
+            (title, None),
+        ]
+    )
 
     # Two-column layout: main content + metadata panel
     col_main, col_meta = st.columns([3, 1])
@@ -58,9 +60,7 @@ def render_note_view(
         html_body = markdown.markdown(
             body,
             extensions=["fenced_code", "tables", "toc", "codehilite"],
-            extension_configs={
-                "codehilite": {"css_class": "highlight", "linenums": False}
-            },
+            extension_configs={"codehilite": {"css_class": "highlight", "linenums": False}},
         )
 
         st.markdown(
@@ -109,7 +109,7 @@ def _render_metadata_panel(
             f'<div style="margin-bottom:20px;">'
             f'<div style="font-size:12px;font-weight:600;text-transform:uppercase;'
             f'letter-spacing:0.5px;color:#555;margin-bottom:8px;">Tags</div>'
-            f'<div>{tags_html}</div></div>'
+            f"<div>{tags_html}</div></div>"
         )
 
     if related_publications:
@@ -121,7 +121,7 @@ def _render_metadata_panel(
             f'<div style="margin-bottom:20px;">'
             f'<div style="font-size:12px;font-weight:600;text-transform:uppercase;'
             f'letter-spacing:0.5px;color:#555;margin-bottom:8px;">Publications</div>'
-            f'{links}</div>'
+            f"{links}</div>"
         )
 
     if related_tools:
@@ -133,7 +133,7 @@ def _render_metadata_panel(
             f'<div style="margin-bottom:20px;">'
             f'<div style="font-size:12px;font-weight:600;text-transform:uppercase;'
             f'letter-spacing:0.5px;color:#555;margin-bottom:8px;">Related Tools</div>'
-            f'{links}</div>'
+            f"{links}</div>"
         )
 
     if sections:

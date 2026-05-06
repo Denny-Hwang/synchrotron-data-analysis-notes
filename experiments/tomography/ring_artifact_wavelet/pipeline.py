@@ -25,7 +25,7 @@ Pure function — no Streamlit, no I/O.
 from __future__ import annotations
 
 import numpy as np
-from numpy.fft import fft, ifft, fftshift, ifftshift
+from numpy.fft import fft, fftshift, ifft, ifftshift
 
 
 def remove_stripe_wavelet_fft(
@@ -84,7 +84,7 @@ def remove_stripe_wavelet_fft(
         new_details.append((cH, cV_new, cD))
 
     # Inverse DWT.
-    new_coeffs: list = [cA] + new_details
+    new_coeffs: list = [cA, *new_details]
     out = pywt.waverec2(new_coeffs, wavelet=wname)
 
     # Trim back to original shape (waverec2 may pad by 1 for odd sizes).

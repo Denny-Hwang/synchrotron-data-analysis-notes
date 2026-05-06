@@ -27,17 +27,17 @@ _REPO_ROOT = _EXPLORER_DIR.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from components.breadcrumb import render_breadcrumb  # noqa: E402
-from components.footer import render_footer  # noqa: E402
-from components.header import render_header  # noqa: E402
-from lib.experiments import (  # noqa: E402
+from components.breadcrumb import render_breadcrumb
+from components.footer import render_footer
+from components.header import render_header
+from lib.experiments import (
     Recipe,
     compute_metrics,
     load_recipes,
     load_sample,
     run_pipeline,
 )
-from lib.ia import CLUSTER_META  # noqa: E402
+from lib.ia import CLUSTER_META
 
 st.set_page_config(page_title="Experiment — eBERlight", page_icon="🧪", layout="wide")
 
@@ -53,11 +53,11 @@ _BUILD_COLOR = CLUSTER_META["build"]["color"]
 st.markdown(
     f'<h1 style="color:{_BUILD_COLOR};">Interactive Lab</h1>'
     '<p style="color:#555;font-size:16px;margin-bottom:8px;">'
-    'Replay noise mitigation techniques from prior research on real bundled data. '
-    'Tune parameters, compare before/after, and see PSNR/SSIM against a clean reference.</p>'
+    "Replay noise mitigation techniques from prior research on real bundled data. "
+    "Tune parameters, compare before/after, and see PSNR/SSIM against a clean reference.</p>"
     '<p style="color:#888;font-size:13px;margin-bottom:24px;">'
-    'See <code>10_interactive_lab/README.md</code> for the full dataset inventory '
-    'and <code>experiments/README.md</code> for the recipe schema.</p>',
+    "See <code>10_interactive_lab/README.md</code> for the full dataset inventory "
+    "and <code>experiments/README.md</code> for the recipe schema.</p>",
     unsafe_allow_html=True,
 )
 
@@ -214,7 +214,7 @@ try:
         sample.manifest_path,
         tuple(sorted(param_values.items())),
     )
-except Exception as exc:  # noqa: BLE001
+except Exception as exc:
     st.error(f"Pipeline failed: {exc}")
     st.exception(exc)
     render_footer()
@@ -230,6 +230,60 @@ with col_right:
     st.markdown("**Processed**")
     st.image(_to_display(sino_output), clamp=True, use_container_width=True)
     st.caption(f"shape={sino_output.shape}, dtype={sino_output.dtype}")
+
+
+# ---------------------------------------------------------------------------
+# Download processed result (FR-XXX follow-up — see ADR-008 / P2-6)
+# ---------------------------------------------------------------------------
+
+
+def _serialise_npy(arr: np.ndarray) -> bytes:
+    """Encode a numpy array as ``.npy`` bytes (no temp files)."""
+    import io
+
+    buf = io.BytesIO()
+    np.save(buf, arr, allow_pickle=False)
+    return buf.getvalue()
+
+
+def _serialise_tiff(arr: np.ndarray) -> bytes:
+    """Encode a 2-D array as a TIFF bytestring."""
+    import io
+
+    import tifffile
+
+    buf = io.BytesIO()
+    tifffile.imwrite(buf, arr)
+    return buf.getvalue()
+
+
+_dl_col1, _dl_col2 = st.columns(2)
+_safe_id = recipe.recipe_id.replace("/", "_")
+_safe_sample = sample.manifest_path.split("/")[-1].rsplit(".", 1)[0]
+_basename = f"{_safe_id}__{_safe_sample}__processed"
+
+with _dl_col1:
+    st.download_button(
+        label="⬇ Download processed (.npy)",
+        data=_serialise_npy(sino_output),
+        file_name=f"{_basename}.npy",
+        mime="application/octet-stream",
+        help=(
+            "Raw float32 array, loadable with numpy.load. Use this when "
+            "you want to plug the result into your own analysis pipeline."
+        ),
+        key=f"{recipe.recipe_id}_dl_npy",
+    )
+with _dl_col2:
+    if sino_output.ndim == 2:
+        st.download_button(
+            label="⬇ Download processed (.tiff)",
+            data=_serialise_tiff(sino_output),
+            file_name=f"{_basename}.tiff",
+            mime="image/tiff",
+            help="Lossless TIFF — for image viewers (ImageJ, Fiji, Tomviz).",
+            key=f"{recipe.recipe_id}_dl_tiff",
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -261,9 +315,7 @@ if recipe.clean_reference and recipe.metrics:
                     f"metrics skipped. Detail: {exc}"
                 )
             else:
-                st.markdown(
-                    f"#### Metrics vs clean reference (`{recipe.clean_reference.label}`)"
-                )
+                st.markdown(f"#### Metrics vs clean reference (`{recipe.clean_reference.label}`)")
                 if ref_arr.shape != sino_input.shape:
                     st.caption(
                         f"Reference {ref_arr.shape} centre-cropped to match "
@@ -294,10 +346,7 @@ if recipe.references:
     with st.expander("References"):
         for ref in recipe.references:
             doi_link = f" [DOI](https://doi.org/{ref.doi})" if ref.doi else ""
-            st.markdown(
-                f"- **{ref.title}** — {ref.authors} ({ref.year}). "
-                f"_{ref.venue}_.{doi_link}"
-            )
+            st.markdown(f"- **{ref.title}** — {ref.authors} ({ref.year}). _{ref.venue}_.{doi_link}")
 
 with st.expander("Recipe metadata"):
     st.code(str(recipe.source_path.relative_to(_REPO_ROOT)), language="text")
