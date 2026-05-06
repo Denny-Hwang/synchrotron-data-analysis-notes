@@ -205,9 +205,15 @@ def list_before_after_images(repo_root: Path) -> dict[str, Path]:
 
 
 def severity_color(severity: str) -> str:
-    """Stable CSS hex per severity for badges."""
+    """Stable CSS hex per severity for badges.
+
+    Colors chosen so white text hits WCAG 2.1 AA-large (≥3.0) — see
+    ``explorer/tests/test_a11y.py::test_severity_badges_have_legible_label``.
+    The "major" hue was darkened from ``#E67E22`` (contrast 2.85)
+    to ``#C8550E`` (contrast 4.41).
+    """
     return {
         "critical": "#C0392B",
-        "major": "#E67E22",
-        "minor": "#3498DB",
-    }.get(severity, "#7F8C8D")
+        "major": "#C8550E",
+        "minor": "#2178B5",
+    }.get(severity, "#5F6E78")

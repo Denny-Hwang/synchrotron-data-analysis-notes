@@ -41,7 +41,9 @@ CLUSTER_META: Final[dict[str, dict[str, str]]] = {
             "6 X-ray modalities, 14 AI/ML methods, 14 publication reviews, "
             "and 29+ noise/artifact types with troubleshooter."
         ),
-        "color": "#00A3E0",
+        # Darkened from #00A3E0 (contrast 2.87 on white) to hit
+        # WCAG 2.1 AA-large (≥3.0). Exercised by test_palette_passes_aa.
+        "color": "#0085C0",
     },
     "build": {
         "name": "Build and Compute",
@@ -50,7 +52,9 @@ CLUSTER_META: Final[dict[str, dict[str, str]]] = {
             "EDA guides, the end-to-end data pipeline architecture, and the "
             "Interactive Lab with real sample data for noise mitigation experiments."
         ),
-        "color": "#F47B20",
+        # Darkened from #F47B20 (contrast 2.73 on white) to hit
+        # WCAG 2.1 AA-large (≥3.0). Exercised by test_palette_passes_aa.
+        "color": "#D86510",
     },
 }
 
