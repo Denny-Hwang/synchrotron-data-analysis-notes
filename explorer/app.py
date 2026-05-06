@@ -71,39 +71,71 @@ for col, cluster_id in zip(cols, cluster_order, strict=True):
             unsafe_allow_html=True,
         )
 
-# --- Interactive Lab CTA (ADR-008) ---
-_LAB_COLOR = CLUSTER_META["build"]["color"]
+# --- Feature CTA grid (mirrored on the static site for invariant #9) ---
 _DISCOVER_COLOR = CLUSTER_META["discover"]["color"]
+_EXPLORE_COLOR = CLUSTER_META["explore"]["color"]
+_BUILD_COLOR = CLUSTER_META["build"]["color"]
+
+
+def _cta_card(color: str, icon: str, title: str, href: str, summary: str, stat: str) -> str:
+    return f"""
+    <div class="eberlight-card" style="border-left: 4px solid {color};">
+        <h4 style="color: {color}; margin: 0 0 8px 0;">
+            {icon} <a href="{href}" target="_self"
+                   style="color:{color};text-decoration:none;">{title}</a>
+        </h4>
+        <p style="font-size: 14px; color: #555555; margin: 0 0 8px 0;">{summary}</p>
+        <p style="font-size: 13px; color: #888888; margin: 0;">{stat}</p>
+    </div>
+    """
+
+
+_FEATURE_CARDS = [
+    _cta_card(
+        _DISCOVER_COLOR,
+        "🧠",
+        "Knowledge Graph",
+        "/Knowledge_Graph",
+        "Cross-reference network of every modality, AI/ML method, paper, tool, "
+        "Interactive-Lab recipe, and noise/artifact in one interactive view. "
+        "Hover for details, click to navigate.",
+        "100+ entities · 120+ edges · auto-extracted from notes + recipe.yaml.",
+    ),
+    _cta_card(
+        _BUILD_COLOR,
+        "🧪",
+        "Interactive Lab",
+        "/Experiment",
+        "Replay noise mitigation techniques from prior research on real bundled "
+        "data — tune parameters, compare before/after, see PSNR/SSIM against a "
+        "clean reference.",
+        "3 recipes · 71 real samples · Vo 2018 / Munch 2009 / van Dokkum 2001.",
+    ),
+    _cta_card(
+        _EXPLORE_COLOR,
+        "🩺",
+        "Troubleshooter",
+        "/Troubleshooter",
+        "Symptom-driven decision tree over the noise catalog. Pick what you see "
+        "in the data; get differential diagnoses with severity, conditions, and "
+        "a one-click jump to the matching Lab recipe.",
+        "11 symptom categories · 35 differential cases · before/after comparisons.",
+    ),
+    _cta_card(
+        _DISCOVER_COLOR,
+        "🔎",
+        "Search & Bibliography",
+        "/Search",
+        "Global full-text search across every note plus a filterable BibTeX "
+        "bibliography. Title-boosted relevance, prefix matching, deep links.",
+        "<10 ms typical query · TF-IDF approx · 19 + 20 BibTeX entries indexed.",
+    ),
+]
+
 st.markdown(
     f"""
     <div style="margin-top: 32px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-        <div class="eberlight-card" style="border-left: 4px solid {_DISCOVER_COLOR};">
-            <h4 style="color: {_DISCOVER_COLOR}; margin: 0 0 8px 0;">
-                🧠 <a href="/Knowledge_Graph" target="_self"
-                       style="color:{_DISCOVER_COLOR};text-decoration:none;">Knowledge Graph</a>
-            </h4>
-            <p style="font-size: 14px; color: #555555; margin: 0 0 8px 0;">
-                Cross-reference network of every modality, AI/ML method, paper, tool,
-                Interactive-Lab recipe, and noise/artifact in one interactive view.
-                Hover for details, click to navigate.
-            </p>
-            <p style="font-size: 13px; color: #888888; margin: 0;">
-                100+ entities · 120+ edges · auto-extracted from notes + recipe.yaml.
-            </p>
-        </div>
-        <div class="eberlight-card" style="border-left: 4px solid {_LAB_COLOR};">
-            <h4 style="color: {_LAB_COLOR}; margin: 0 0 8px 0;">
-                🧪 <a href="/Experiment" target="_self"
-                       style="color:{_LAB_COLOR};text-decoration:none;">Interactive Lab</a>
-            </h4>
-            <p style="font-size: 14px; color: #555555; margin: 0 0 8px 0;">
-                Replay noise mitigation techniques from prior research on real bundled data —
-                tune parameters, compare before/after, see PSNR/SSIM against a clean reference.
-            </p>
-            <p style="font-size: 13px; color: #888888; margin: 0;">
-                3 recipes · 71 real samples · Vo 2018 / Munch 2009 / van Dokkum 2001.
-            </p>
-        </div>
+        {"".join(_FEATURE_CARDS)}
     </div>
     """,
     unsafe_allow_html=True,

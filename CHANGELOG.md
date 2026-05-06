@@ -6,6 +6,38 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [explorer-0.5.0] - 2026-05-06
+
+**Parity restoration (R1 → R7) + GitHub Pages mirror catch-up.** Consolidates seven feature
+PRs (#40, #41, #43, #44, #45, #46, #47) under one SemVer minor bump and closes the static-site
+mirror gap they opened. Release notes: [REL-E050](docs/05_release/release_notes/explorer-v0.5.0.md).
+
+### Added
+- **Static-site mirror catch-up** (CLAUDE.md invariant #9): `scripts/build_static_site.py`
+  now emits four read-only stub pages (`knowledge-graph.html`, `experiment.html`,
+  `troubleshooter.html`, `search.html`) for the interactive surfaces that cannot run as flat
+  HTML. The static landing gains a 4-card CTA grid mirroring the Streamlit landing's CTAs;
+  Streamlit's landing CTAs were extended from 2 (KG + Lab) to 4 (KG + Lab + Troubleshooter
+  + Search) so the surfaces stay parallel. 4 new tests in `test_build_static_site.py`
+  including a drift-protection test that fails CI when a Streamlit page is added without a
+  matching `INTERACTIVE_PAGES` entry.
+- **Release notes — `docs/05_release/release_notes/explorer-v0.5.0.md`** (REL-E050)
+  consolidating R1 – R7.
+
+### Phase summary (each phase has its own block below)
+- **R1** — Note-detail deep linking, header nav, clickable tags, shared cluster-page router.
+- **R2** — Knowledge Graph + 3 cross-reference matrices.
+- **R3** — Mermaid diagram rendering on both Streamlit + Pages mirror.
+- **R4** — 11-symptom troubleshooter + before/after viewer.
+- **R5** — L0/L1/L2/L3 progressive disclosure.
+- **R6** — Full-text search + bibliography.
+- **R7** — WCAG 2.1 AA accessibility audit + palette darkening.
+
+### Testing
+- `pytest explorer/tests/` → **220 passed** on `main`.
+- `ruff check / ruff format --check explorer/ experiments/ scripts/` → clean against `ruff==0.11.13`.
+- `python scripts/build_static_site.py` → 188 notes, 3 recipes, 4 interactive stubs.
+
 ## [Unreleased] — Phase R7: Accessibility audit (WCAG 2.1 AA)
 
 ### Added

@@ -4,11 +4,22 @@ Reads the same note folders and IA mapping the Streamlit explorer uses
 (`explorer/lib/ia.py`, `explorer/lib/notes.py`) and emits a fully static
 HTML site that mirrors the Streamlit app's pages 1:1:
 
-- Landing (hero + 3 cluster cards)     ← explorer/app.py
-- Discover cluster page                ← explorer/pages/1_Discover.py
-- Explore cluster page (grouped)       ← explorer/pages/2_Explore.py
-- Build cluster page (grouped)         ← explorer/pages/3_Build.py
-- Note detail pages (markdown + aside) ← explorer/components/note_view.py
+- Landing (hero + 3 cluster cards + 4 feature CTAs)  ← explorer/app.py
+- Discover cluster page                              ← explorer/pages/1_Discover.py
+- Explore cluster page (grouped)                     ← explorer/pages/2_Explore.py
+- Build cluster page (grouped)                       ← explorer/pages/3_Build.py
+- Knowledge Graph stub (interactive surface)         ← explorer/pages/0_Knowledge_Graph.py
+- Interactive Lab stub (interactive surface)         ← explorer/pages/4_Experiment.py
+- Troubleshooter stub (interactive surface)          ← explorer/pages/5_Troubleshooter.py
+- Search stub (interactive surface)                  ← explorer/pages/6_Search.py
+- Note detail pages (markdown + aside)               ← explorer/components/note_view.py
+
+Pages whose value is in interactive controls (Plotly graph, parameter
+sliders, search box, decision tree) cannot be rendered usefully as
+flat HTML. The generator emits a stub page for each so the static
+site keeps the same URL surface area as Streamlit, with a banner that
+points readers to ``streamlit run explorer/app.py``. This is the same
+pattern FR-022 introduced for the Recipe Gallery.
 
 The generator also copies the design wireframes under /wireframes/ so
 the existing wireframe preview keeps working.
@@ -16,6 +27,7 @@ the existing wireframe preview keeps working.
 Ref: ADR-007 — Static site mirror for GitHub Pages.
 Ref: DS-001 — Design system tokens (reuses explorer/assets/styles.css).
 Ref: IA-001, ADR-004 — 3-cluster IA reused via explorer.lib.ia.
+Ref: CLAUDE.md invariant #9 — Pages MUST mirror the Streamlit explorer.
 """
 
 from __future__ import annotations
@@ -53,6 +65,86 @@ CLUSTER_PAGE = {cid: f"clusters/{slug}.html" for cid, slug in CLUSTER_SLUG.items
 
 # Cluster → display order on the landing page.
 CLUSTER_ORDER = ["discover", "explore", "build"]
+
+
+# Interactive surfaces that ship as full Streamlit pages but degrade to
+# read-only stubs on the static mirror. Order matters — it drives both
+# the landing CTA grid and the loop in ``build()`` that emits the stubs.
+# Each entry is keyed by the URL slug used in the static site (e.g.
+# ``knowledge-graph.html``); ``streamlit_path`` is the path served by
+# ``streamlit run explorer/app.py`` (Streamlit derives it from the
+# pages/ filename).
+INTERACTIVE_PAGES: tuple[dict[str, str], ...] = (
+    {
+        "slug": "knowledge-graph",
+        "title": "Knowledge Graph",
+        "icon": "🧠",
+        "color_cluster": "discover",
+        "streamlit_path": "/Knowledge_Graph",
+        "summary": (
+            "Cross-reference network of every modality, AI/ML method, paper, tool, "
+            "Interactive-Lab recipe, and noise/artifact in one interactive view. "
+            "Hover for details, click to navigate."
+        ),
+        "stat_line": ("100+ entities · 120+ edges · auto-extracted from notes + recipe.yaml."),
+        "what_static_shows": (
+            "The graph layout, layer toggles, and hover tooltips are Plotly-driven "
+            "and need a running Python kernel. The static site cannot replay them."
+        ),
+    },
+    {
+        "slug": "experiment",
+        "title": "Interactive Lab",
+        "icon": "🧪",
+        "color_cluster": "build",
+        "streamlit_path": "/Experiment",
+        "summary": (
+            "Replay noise mitigation techniques from prior research on real bundled "
+            "data — tune parameters, compare before/after, see PSNR/SSIM against a "
+            "clean reference."
+        ),
+        "stat_line": ("3 recipes · 71 real samples · Vo 2018 / Munch 2009 / van Dokkum 2001."),
+        "what_static_shows": (
+            "The recipe pipelines (Sarepy stripe removal, wavelet-Fourier filter, "
+            "L.A.Cosmic) execute server-side on user-tuned parameters; the recipe "
+            "gallery on the Build cluster page is the static-site read-only summary."
+        ),
+    },
+    {
+        "slug": "troubleshooter",
+        "title": "Troubleshooter",
+        "icon": "🩺",
+        "color_cluster": "explore",
+        "streamlit_path": "/Troubleshooter",
+        "summary": (
+            "Symptom-driven decision tree over the noise catalog. Pick what you see "
+            "in the data; get differential diagnoses with severity, conditions, and "
+            "a one-click jump to the matching Lab recipe."
+        ),
+        "stat_line": ("11 symptom categories · 35 differential cases · before/after comparisons."),
+        "what_static_shows": (
+            "The decision tree, modality + severity filters, and ``?symptom=`` deep "
+            "links rely on Streamlit query-param routing."
+        ),
+    },
+    {
+        "slug": "search",
+        "title": "Search & Bibliography",
+        "icon": "🔎",
+        "color_cluster": "discover",
+        "streamlit_path": "/Search",
+        "summary": (
+            "Global full-text search across every note plus a filterable BibTeX "
+            "bibliography. Title-boosted relevance, prefix matching, deep links."
+        ),
+        "stat_line": ("<10 ms typical query · TF-IDF approx · 19 + 20 BibTeX entries indexed."),
+        "what_static_shows": (
+            "Live search needs a running index; the static mirror cannot host it. "
+            "GitHub's repository search is a serviceable fallback while the app is "
+            "offline."
+        ),
+    },
+)
 
 SITE_LAYOUT_CSS = """
 /* === Static site layout (GitHub Pages mirror) === */
@@ -128,6 +220,37 @@ a { color: #0033A0; }
 .cluster-card h4 { margin: 0 0 12px 0; font-size: 20px; font-weight: 700; }
 .cluster-card p { font-size: 14px; color: #555555; margin: 0 0 16px 0; flex: 1; }
 .cluster-card .enter { font-weight: 600; font-size: 15px; }
+
+/* Feature CTA cards on the landing — link out to interactive surfaces
+   (Knowledge Graph, Lab, Troubleshooter, Search) that ship as static
+   stubs on the Pages mirror. */
+.feature-cta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 32px;
+}
+@media (max-width: 900px) {
+    .feature-cta-grid { grid-template-columns: 1fr; }
+}
+.feature-cta {
+    background: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-left-width: 4px;
+    border-left-style: solid;
+    border-radius: 8px;
+    padding: 20px;
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.feature-cta:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+.feature-cta h4 { margin: 0 0 8px 0; font-size: 18px; font-weight: 700; }
+.feature-cta p { font-size: 14px; color: #555555; margin: 0 0 8px 0; }
+.feature-cta p.stat { font-size: 13px; color: #888; margin-bottom: 0; }
 
 /* Cluster / section hero heading */
 .cluster-heading h1 { margin: 0 0 8px 0; font-size: 32px; }
@@ -503,6 +626,71 @@ def _page_shell(
 """
 
 
+def _interactive_stub_page_path(slug: str) -> str:
+    """URL path for an interactive-stub page (e.g. ``knowledge-graph.html``)."""
+    return f"{slug}.html"
+
+
+def _interactive_cta_card_html(page_path: str, entry: dict[str, str]) -> str:
+    """One CTA card on the landing pointing to an interactive-stub page."""
+    color = CLUSTER_META[entry["color_cluster"]]["color"]
+    href = _rel(page_path, _interactive_stub_page_path(entry["slug"]))
+    return (
+        f'<a class="feature-cta" href="{href}" '
+        f'style="border-left-color: {color};">'
+        f'<h4 style="color: {color};">'
+        f"{entry['icon']} {html_escape_mod.escape(entry['title'])}"
+        f"</h4>"
+        f"<p>{html_escape_mod.escape(entry['summary'])}</p>"
+        f'<p class="stat">{html_escape_mod.escape(entry["stat_line"])}</p>'
+        f"</a>"
+    )
+
+
+def _render_interactive_stub(out_dir: Path, entry: dict[str, str]) -> None:
+    """Emit a read-only stub for an interactive page (FR-022 pattern).
+
+    The stub keeps the static site URL surface area aligned with the
+    Streamlit app so external links and the header nav resolve. The
+    body reproduces the page's value proposition and tells the reader
+    how to launch the live version.
+    """
+    page_path = _interactive_stub_page_path(entry["slug"])
+    color = CLUSTER_META[entry["color_cluster"]]["color"]
+    title_html = f"{entry['icon']} {html_escape_mod.escape(entry['title'])}"
+    body = f"""
+    {_breadcrumb_html(page_path, [("Home", "index.html"), (entry["title"], None)])}
+    <section class="cluster-heading">
+        <h1 style="color: {color};">{title_html}</h1>
+        <p>{html_escape_mod.escape(entry["summary"])}</p>
+    </section>
+    <div class="info-box" style="border-left: 4px solid {color};">
+        <p><b>Interactive feature.</b>
+        {html_escape_mod.escape(entry["what_static_shows"])}</p>
+        <p style="margin-bottom:0;">
+        Run the Streamlit app to use the live version:</p>
+        <pre><code>git clone https://github.com/Denny-Hwang/synchrotron-data-analysis-notes.git
+cd synchrotron-data-analysis-notes
+pip install -r explorer/requirements.txt
+streamlit run explorer/app.py
+# then open {html_escape_mod.escape(entry["streamlit_path"])}</code></pre>
+    </div>
+    <section class="folder-section">
+        <h2>What it does</h2>
+        <p>{html_escape_mod.escape(entry["stat_line"])}</p>
+    </section>
+"""
+    html = _page_shell(
+        page_path,
+        f"{entry['title']} — eBERlight Explorer",
+        body,
+        narrow=True,
+    )
+    target = out_dir / page_path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(html, encoding="utf-8")
+
+
 def _render_landing(out_dir: Path) -> None:
     page_path = "index.html"
     cards: list[str] = []
@@ -517,6 +705,9 @@ def _render_landing(out_dir: Path) -> None:
             f'<span class="enter" style="color: {meta["color"]};">Enter →</span>'
             f"</a>"
         )
+    feature_cards = "\n".join(
+        _interactive_cta_card_html(page_path, entry) for entry in INTERACTIVE_PAGES
+    )
     body = f"""
     {_breadcrumb_html(page_path, [("Home", None)])}
     <section class="hero">
@@ -525,6 +716,9 @@ def _render_landing(out_dir: Path) -> None:
     </section>
     <section class="cluster-grid">
         {"".join(cards)}
+    </section>
+    <section class="feature-cta-grid">
+        {feature_cards}
     </section>
 """
     html = _page_shell(page_path, "eBERlight Explorer", body)
@@ -903,6 +1097,8 @@ def build(out_dir: Path) -> None:
     _render_cluster(out_dir, "discover", notes, group_by_folder=False)
     _render_cluster(out_dir, "explore", notes, group_by_folder=True)
     _render_cluster(out_dir, "build", notes, group_by_folder=True)
+    for entry in INTERACTIVE_PAGES:
+        _render_interactive_stub(out_dir, entry)
     _render_404(out_dir)
 
     highlight_css = HtmlFormatter(style="monokai", noclasses=False).get_style_defs(".highlight")
