@@ -39,9 +39,9 @@ _EXPLORER_DIR = _REPO_ROOT / "explorer"
 if str(_EXPLORER_DIR) not in sys.path:
     sys.path.insert(0, str(_EXPLORER_DIR))
 
-from lib.experiments import Recipe, load_recipes  # noqa: E402
-from lib.ia import CLUSTER_META, FOLDER_TO_CLUSTER, get_folders_for_cluster  # noqa: E402
-from lib.notes import Note, load_notes  # noqa: E402
+from lib.experiments import Recipe, load_recipes
+from lib.ia import CLUSTER_META, FOLDER_TO_CLUSTER, get_folders_for_cluster
+from lib.notes import Note, load_notes
 
 logger = logging.getLogger("build_static_site")
 
@@ -297,6 +297,7 @@ def _folder_label(folder: str) -> str:
 
 def _header_html(page_path: str, active_cluster: str | None = None) -> str:
     """Site header with logo + 3 cluster links. Mirrors explorer/components/header.py."""
+
     def link(cid: str, label: str) -> str:
         href = _rel(page_path, CLUSTER_PAGE[cid])
         cls = "active" if active_cluster == cid else ""
@@ -312,9 +313,9 @@ def _header_html(page_path: str, active_cluster: str | None = None) -> str:
         </a>
     </div>
     <nav class="eberlight-header-nav" aria-label="Main navigation">
-        {link('discover', 'Discover')}
-        {link('explore', 'Explore')}
-        {link('build', 'Build')}
+        {link("discover", "Discover")}
+        {link("explore", "Explore")}
+        {link("build", "Build")}
     </nav>
 </div>
 """.strip()
@@ -393,7 +394,9 @@ def _metadata_panel_html(note: Note) -> str:
             for bl in note.beamline
         )
         sections.append(
-            section("Beamlines", f'<div style="display:flex;gap:6px;flex-wrap:wrap;">{badges}</div>')
+            section(
+                "Beamlines", f'<div style="display:flex;gap:6px;flex-wrap:wrap;">{badges}</div>'
+            )
         )
 
     if note.modality:
@@ -510,7 +513,7 @@ def _render_landing(out_dir: Path) -> None:
             f'<a class="cluster-card" href="{href}" '
             f'style="border-top-color: {meta["color"]};">'
             f'<h4 style="color: {meta["color"]};">{html_escape_mod.escape(meta["name"])}</h4>'
-            f'<p>{html_escape_mod.escape(meta["description"])}</p>'
+            f"<p>{html_escape_mod.escape(meta['description'])}</p>"
             f'<span class="enter" style="color: {meta["color"]};">Enter →</span>'
             f"</a>"
         )
@@ -572,7 +575,7 @@ def _recipe_card_html(recipe: Recipe) -> str:
         f"{'s' if len(recipe.samples) != 1 else ''} · "
         f"<b>{len(recipe.parameters)}</b> tunable parameter"
         f"{'s' if len(recipe.parameters) != 1 else ''} · "
-        f'<code>{html_escape_mod.escape(recipe.recipe_id)}</code>'
+        f"<code>{html_escape_mod.escape(recipe.recipe_id)}</code>"
         "</p>"
         f"{ref_html}"
         "</div>"
@@ -590,7 +593,7 @@ def _recipe_gallery_html() -> str:
     cards = "\n".join(_recipe_card_html(r) for r in recipes)
     return (
         '<section class="folder-section">'
-        '<h2>Interactive Lab — Recipes</h2>'
+        "<h2>Interactive Lab — Recipes</h2>"
         '<p style="color:#666;font-size:14px;margin:-8px 0 12px 0;">'
         f"{len(recipes)} bundled noise-mitigation recipe"
         f"{'s' if len(recipes) != 1 else ''}. "
@@ -646,8 +649,8 @@ def _render_cluster(
     body = f"""
     {_breadcrumb_html(page_path, [("Home", "index.html"), (meta["name"], None)])}
     <section class="cluster-heading">
-        <h1 style="color: {meta['color']};">{html_escape_mod.escape(meta['name'])}</h1>
-        <p>{html_escape_mod.escape(meta['description'])}</p>
+        <h1 style="color: {meta["color"]};">{html_escape_mod.escape(meta["name"])}</h1>
+        <p>{html_escape_mod.escape(meta["description"])}</p>
     </section>
     {content}
 """

@@ -35,8 +35,6 @@ def render_breadcrumb(items: list[tuple[str, str | None]]) -> None:
 
     separator = '<span class="separator">&gt;</span>'
     breadcrumb_html = (
-        f'<nav class="eberlight-breadcrumb" aria-label="Breadcrumb">'
-        f'{separator.join(parts)}'
-        f'</nav>'
+        f'<nav class="eberlight-breadcrumb" aria-label="Breadcrumb">{separator.join(parts)}</nav>'
     )
     st.markdown(breadcrumb_html, unsafe_allow_html=True)

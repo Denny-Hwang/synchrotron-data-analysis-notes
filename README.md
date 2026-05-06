@@ -1,156 +1,159 @@
-# Synchrotron Data Analysis Notes
+# Synchrotron Data Analysis Notes & eBERlight Explorer
 
-Personal study notes on synchrotron X-ray data analysis and AI/ML methods at Argonne National Laboratory's Advanced Photon Source (APS).
+Personal study notes plus an interactive portal over synchrotron X-ray data
+analysis and AI/ML methods at Argonne National Laboratory's Advanced Photon
+Source (APS).
 
-## About
+![notes-v0.10.0](https://img.shields.io/badge/notes-v0.10.0-blue)
+![explorer-v0.4.0](https://img.shields.io/badge/explorer-v0.4.0-green)
+[![tests](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml)
+[![pages](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml)
+![license: MIT](https://img.shields.io/badge/license-MIT-lightgrey)
 
-This repository documents the DOE BER (Biological and Environmental Research) program's integrated X-ray capabilities at the upgraded APS facility, which delivers **500x brighter X-rays** since the APS-U completion in 2024. It covers:
+## What's in this repository
 
-- **6 X-ray modalities** — Tomography, XRF Microscopy, Ptychography, Spectroscopy, Crystallography, Scattering
-- **14 AI/ML methods** — organized across 5 categories (Segmentation, Denoising, Reconstruction, Autonomous Experiments, Multimodal Integration)
-- **14 paper reviews** — detailed analyses of key publications in synchrotron AI/ML
-- **7 open-source tools** — reverse-engineered architectures for ROI-Finder, TomocuPy, TomoPy, MAPS, MLExchange, Bluesky/EPICS
-- **HDF5 data schemas** — with EDA notebooks and sample data links
-- **End-to-end data pipeline** — from acquisition to storage with architecture diagrams
-- **29 noise/artifact types** — cataloged with detection code, before/after examples, and symptom-based troubleshooter
+Two independent versioned artifacts (per [ADR-006](docs/02_design/decisions/ADR-006.md)):
 
-## Documentation
+- **Notes** (10 folders, `01_program_overview` … `10_interactive_lab`) — markdown-only knowledge base on the BER program at APS, X-ray modalities, AI/ML methods, publications, tools, data structures, the end-to-end pipeline, references, the noise-and-artifact catalog, and **real bundled sample data for hands-on experimentation**.
+- **Explorer** (`explorer/`) — a Streamlit web app that reads the notes at runtime and lets users navigate them through a 3-cluster information architecture, plus replay noise-mitigation algorithms on the bundled samples interactively.
 
-![notes-v0.1.0](https://img.shields.io/badge/notes-v0.1.0-blue)
-![explorer-v0.3.0](https://img.shields.io/badge/explorer-v0.3.0-green)
+The notes ship as `notes-vX.Y.Z` and the app ships as `explorer-vX.Y.Z` — content velocity differs from app velocity. See [CHANGELOG.md](CHANGELOG.md).
 
-Full project documentation is available in [`docs/README.md`](docs/README.md), including:
+## At a glance
 
-- **Product layer**: Vision, personas, roadmap, PRD, user stories, NFRs
-- **Design layer**: Information architecture, design system, wireframes
-- **Architecture decisions**: 6 ADRs covering framework, IA, schema, tokens, versioning
-- **Implementation**: Setup guide, coding standards, data contracts
-- **Testing**: Test plan, accessibility audit checklist
+| Artifact | Coverage |
+|---|---|
+| **Notes** | 6 X-ray modalities · 14 AI/ML methods · 14 paper reviews · 7 reverse-engineered tools · HDF5 schemas + EDA · end-to-end data pipeline · **47 noise/artifact types** with symptom-based troubleshooter · 71 real sample files (~135 MB) |
+| **Explorer** | 4 Streamlit pages · 3-cluster IA · GitHub Pages static mirror · **Interactive Lab** with 3 noise-mitigation recipes (sorting-based stripe removal, wavelet-FFT, L.A.Cosmic) · auto-generated parameter widgets · PSNR/SSIM metrics |
+| **CI** | pytest on Python 3.11 + 3.12 · recipe-contract drift protection · static-site rebuild on every push |
 
-### Static Site (GitHub Pages)
-
-GitHub Pages hosts a read-only **static mirror** of the Streamlit explorer,
-regenerated automatically on every push to `main` by
-[`.github/workflows/pages.yml`](.github/workflows/pages.yml) via
-[`scripts/build_static_site.py`](scripts/build_static_site.py). The mirror
-reuses `explorer/lib/ia.py`, `explorer/lib/notes.py`, and
-`explorer/assets/styles.css` so the two surfaces cannot drift. See the sync
-contract in [`docs/03_implementation/github_pages_sync.md`](docs/03_implementation/github_pages_sync.md)
-and the rationale in [ADR-007](docs/02_design/decisions/ADR-007.md).
-
-The published site includes:
-- Landing page with 3 cluster cards (mirrors `explorer/app.py`)
-- Discover / Explore / Build cluster pages (mirrors `explorer/pages/`)
-- One page per note (176 notes), with markdown, code highlighting, and metadata panel
-- Design wireframes at `/wireframes/` (preserved from the previous Pages setup)
-
-### Wireframe Preview
-
-Static HTML wireframe mockups — also published on the mirror at `/wireframes/`:
-- [Landing page](docs/02_design/wireframes/html/landing_v0.1.html)
-- [Section page](docs/02_design/wireframes/html/section_v0.1.html)
-- [Tool detail page](docs/02_design/wireframes/html/tool_v0.1.html)
-
-## Explorer (Redesigned)
-
-The **eBERlight Explorer** (`explorer/`) is a redesigned Streamlit portal with ANL-aligned design, 3-cluster IA, and runtime note rendering.
-
-### Running the Explorer
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/Denny-Hwang/synchrotron-data-analysis-notes.git
-cd synchrotron-data-analysis-notes
-
-# 2. Install dependencies
-pip install -r explorer/requirements.txt
-
-# 3. Launch the app
-streamlit run explorer/app.py
-```
-
-The app opens at `http://localhost:8501` in your browser.
-
-### Explorer Pages
-
-| Page | Description |
-|------|-------------|
-| **Home** | Overview dashboard with statistics and quick navigation guides |
-| **Knowledge Graph** | Interactive network visualization of relationships between modalities, methods, tools, and papers |
-| **Modalities** | Explore 6 X-ray techniques with specs, beamlines, and related AI methods |
-| **AI/ML Methods** | Browse 14 methods organized by category with detailed documentation |
-| **Publications** | Archive of 14 paper reviews with TL;DR summaries and workflow diagrams |
-| **Tools** | Catalog of 7 open-source tools with architecture analysis and pros/cons |
-| **Pipeline** | Visual walkthrough of the end-to-end data pipeline (acquisition → storage) |
-| **Data Structures** | HDF5 schemas, EDA guides, and data scale analysis for pre/post APS-U |
-
-### Difficulty Levels
-
-The Explorer provides three levels of detail on each page:
-
-- **L0 (Overview)** — High-level summaries for quick orientation
-- **L1 (Intermediate)** — Detailed content with tables and comparisons
-- **L2 (Deep Dive)** — Full technical details, code examples, and architecture diagrams
-
-## Repository Structure
+## Repository layout
 
 ```
 synchrotron-data-analysis-notes/
-├── 01_program_overview/     # BER program mission, APS facility, 15 beamlines, partners
-├── 02_xray_modalities/      # 6 X-ray techniques: principles, data formats, AI/ML applications
-├── 03_ai_ml_methods/        # AI/ML taxonomy: segmentation, denoising, reconstruction, autonomous
-├── 04_publications/         # 14 paper reviews with detailed analysis and key findings
-├── 05_tools_and_code/       # Tool analysis: ROI-Finder, TomocuPy, TomoPy, Bluesky, etc.
-├── 06_data_structures/      # HDF5 schemas, EDA notebooks, sample data links
-├── 07_data_pipeline/        # End-to-end pipeline: acquisition → streaming → processing → storage
-├── 08_references/           # Bibliography (BibTeX), glossary (A-Z), useful links
-├── 09_noise_catalog/        # Noise/artifact catalog: detection, examples, troubleshooter
-└── eberlight-explorer/      # Streamlit web app for interactive exploration
+├── 01_program_overview/        # BER mission, APS facility, beamlines, partners
+├── 02_xray_modalities/         # 6 X-ray techniques: principles, formats, AI/ML uses
+├── 03_ai_ml_methods/           # 14 methods across 5 categories
+├── 04_publications/            # 14 paper reviews + template
+├── 05_tools_and_code/          # 7 tools: architecture, pros/cons, reproduction
+├── 06_data_structures/         # HDF5 schemas + EDA notebooks + scale analysis
+├── 07_data_pipeline/           # acquisition → streaming → processing → storage
+├── 08_references/              # bibliography (BibTeX), glossary, useful links
+├── 09_noise_catalog/           # 47 noise/artifact types + symptom troubleshooter
+├── 10_interactive_lab/         # 71 real sample files + ATTRIBUTION + LICENSES + lazy-download recipes (ADR-008)
+│
+├── explorer/                   # Streamlit app (ADR-001)
+│   ├── app.py                  # Landing
+│   ├── pages/                  # 1_Discover, 2_Explore, 3_Build, 4_Experiment
+│   ├── lib/                    # ia, notes, experiments, model_zoo
+│   ├── components/             # header, footer, breadcrumb, card, note_view
+│   └── tests/                  # pytest suite (45 tests)
+│
+├── experiments/                # Pure-function noise-mitigation recipes
+│   └── <modality>/<case>/      # recipe.yaml + pipeline.py
+│
+├── scripts/
+│   ├── build_static_site.py    # GitHub Pages mirror generator (ADR-007)
+│   └── requirements.txt
+│
+├── docs/                       # Product, design, ADRs, release notes
+└── .github/workflows/          # test.yml, pages.yml
 ```
 
-## Quick Start
+> The `eberlight-explorer/` directory at the repository root is **legacy** — superseded by `explorer/`. See [ADR-009](docs/02_design/decisions/ADR-009.md) for the deprecation plan.
 
-### New to synchrotron science?
+## Quick start
 
-1. Start with [`01_program_overview/`](01_program_overview/) to understand the BER program and APS facility
-2. Explore [`02_xray_modalities/`](02_xray_modalities/) to learn about X-ray measurement techniques
-3. Check [`08_references/glossary.md`](08_references/glossary.md) for terminology
+### Run the Explorer locally
 
-### Want to apply AI/ML?
+```bash
+git clone https://github.com/Denny-Hwang/synchrotron-data-analysis-notes.git
+cd synchrotron-data-analysis-notes
 
-1. Browse [`03_ai_ml_methods/`](03_ai_ml_methods/) for the method taxonomy
-2. Read [`04_publications/`](04_publications/) for detailed paper reviews
-3. See [`05_tools_and_code/`](05_tools_and_code/) for tool implementations
+python -m venv .venv && source .venv/bin/activate          # Linux/macOS
+# .venv\Scripts\activate                                    # Windows
 
-### Need hands-on code?
+pip install -r explorer/requirements.txt
+streamlit run explorer/app.py
+```
 
-1. Run the Jupyter notebooks in [`05_tools_and_code/roi_finder/notebooks/`](05_tools_and_code/roi_finder/notebooks/)
-2. Explore HDF5 data with [`06_data_structures/hdf5_structure/notebooks/`](06_data_structures/hdf5_structure/notebooks/)
-3. Try the EDA notebooks in [`06_data_structures/eda/notebooks/`](06_data_structures/eda/notebooks/)
+The app opens at `http://localhost:8501`. The four pages mirror the
+information architecture (ADR-004):
 
-### Dealing with noisy data?
+| Page | What it does |
+|---|---|
+| **Home** (`/`) | Hero + 3 cluster cards + Interactive Lab CTA |
+| **Discover the Program** | Notes from `01_program_overview/` + `08_references/` |
+| **Explore the Science** | Notes from `02_xray_modalities/`, `03_ai_ml_methods/`, `04_publications/`, `09_noise_catalog/` |
+| **Build and Compute** | Notes from `05_tools_and_code/`, `06_data_structures/`, `07_data_pipeline/`, `10_interactive_lab/` + recipe gallery |
+| **Experiment** | Pick a recipe → choose a real sample → tune parameters → see before/after with PSNR/SSIM |
 
-1. **Know the modality?** Browse [`09_noise_catalog/`](09_noise_catalog/) by technique
-2. **See something wrong but unsure?** Use the [Symptom-Based Troubleshooter](09_noise_catalog/troubleshooter.md)
-3. **Quick reference**: Check the [Summary Table](09_noise_catalog/summary_table.md) for all 29 types at a glance
+### Try the Interactive Lab
 
-### Just want to browse?
+The Experiment page exposes 3 noise-mitigation recipes from prior research:
 
-Launch the [eBERlight Explorer](#eberlight-explorer-interactive-web-app) for a visual, interactive experience.
+- **Ring artifact — sorting-based filter** (Vo et al. 2018, *Optics Express*) on Sarepy sinograms
+- **Ring artifact — wavelet-FFT** (Munch et al. 2009, *Optics Express*) on the same sinograms — pedagogical "two algorithms, one input"
+- **Cosmic ray / zinger — L.A.Cosmic** (van Dokkum 2001, *PASP*) via `astroscrappy` on a real GMOS CCD frame
 
-## Key Resources
+All inputs are **real published research data** bundled under permissive licenses (Apache-2.0, BSD-3, MIT, LGPL). See [`10_interactive_lab/README.md`](10_interactive_lab/README.md) for the full inventory and [`10_interactive_lab/docs/external_data_sources.md`](10_interactive_lab/docs/external_data_sources.md) for larger datasets you can plug in via `pooch.retrieve(...)`.
+
+### Browse without Python (GitHub Pages)
+
+A read-only static mirror of the Explorer is published to GitHub Pages on every push to `main`. The Build cluster page on the mirror includes a recipe gallery; live pipelines remain Streamlit-only. See [ADR-007](docs/02_design/decisions/ADR-007.md) and [`docs/03_implementation/github_pages_sync.md`](docs/03_implementation/github_pages_sync.md).
+
+### Read the notes directly
+
+You can browse the markdown straight from the GitHub UI — no Python needed.
+The most useful entry points:
+
+| If you want to … | Start here |
+|---|---|
+| Understand the BER program at APS | [`01_program_overview/`](01_program_overview/) |
+| Pick an X-ray technique for a sample | [`02_xray_modalities/`](02_xray_modalities/) |
+| Apply AI/ML to your data | [`03_ai_ml_methods/`](03_ai_ml_methods/) |
+| Read the paper reviews | [`04_publications/`](04_publications/) |
+| Explore tool internals | [`05_tools_and_code/`](05_tools_and_code/) |
+| Diagnose a weird-looking image | [`09_noise_catalog/troubleshooter.md`](09_noise_catalog/troubleshooter.md) |
+| Run a noise-mitigation experiment | [`10_interactive_lab/README.md`](10_interactive_lab/README.md) |
+| Look up an unfamiliar term | [`08_references/glossary.md`](08_references/glossary.md) |
+
+## Project documentation
+
+Full project documentation lives in [`docs/`](docs/) — see [`docs/README.md`](docs/README.md) for the index. Key entry points:
+
+- **Product**: [vision](docs/00_product/vision.md) · [personas](docs/00_product/personas.md) · [roadmap](docs/00_product/roadmap.md)
+- **Requirements**: [PRD](docs/01_requirements/PRD.md) (FR-001 … FR-022) · [user stories](docs/01_requirements/user_stories.md) (US-001 … US-016) · [NFRs](docs/01_requirements/non_functional.md)
+- **Architecture decisions**: 9 ADRs at [`docs/02_design/decisions/`](docs/02_design/decisions/) — Streamlit choice (ADR-001), notes-as-SoT (ADR-002), frontmatter (ADR-003), 3-cluster IA (ADR-004), design tokens (ADR-005), dual SemVer (ADR-006), Pages mirror (ADR-007), Interactive Lab (ADR-008), legacy deprecation (ADR-009)
+- **Implementation**: [coding standards](docs/03_implementation/coding_standards.md) · [data contracts](docs/03_implementation/data_contracts.md) · [Pages sync contract](docs/03_implementation/github_pages_sync.md)
+- **Release notes**: [`docs/05_release/release_notes/`](docs/05_release/release_notes/) — per-version
+- **Glossary & contributing**: [`docs/06_meta/`](docs/06_meta/)
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the branch-naming convention, ADR
+process, and PR checklist. Bug reports and feature ideas: [open an issue](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/issues).
+
+For security issues, see [SECURITY.md](SECURITY.md) — please **do not** open
+public issues for vulnerabilities.
+
+## Key external resources
 
 | Resource | Link |
-|----------|------|
+|---|---|
 | APS BER Program | [eberlight.aps.anl.gov](https://eberlight.aps.anl.gov) |
 | APS Facility | [aps.anl.gov](https://www.aps.anl.gov) |
-| APS GitHub Organization | [github.com/AdvancedPhotonSource](https://github.com/AdvancedPhotonSource) |
-| ROI-Finder | [github.com/arshadzahangirchowdhury/ROI-Finder](https://github.com/arshadzahangirchowdhury/ROI-Finder) |
+| APS GitHub | [github.com/AdvancedPhotonSource](https://github.com/AdvancedPhotonSource) |
+| TomoBank | [tomobank.readthedocs.io](https://tomobank.readthedocs.io) |
+| EMPIAR (cryo-EM data) | [ebi.ac.uk/empiar](https://www.ebi.ac.uk/empiar/) |
+| CXIDB (CDI / ptychography data) | [cxidb.org](https://cxidb.org) |
 | TomoPy | [tomopy.readthedocs.io](https://tomopy.readthedocs.io) |
-| TomocuPy | [github.com/nikitinvv/tomocupy](https://github.com/nikitinvv/tomocupy) |
 | Bluesky Project | [blueskyproject.io](https://blueskyproject.io) |
-| MLExchange | [mlexchange.als.lbl.gov](https://mlexchange.als.lbl.gov) |
 
 ## License
 
-This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
+This project is MIT-licensed — see [LICENSE](LICENSE).
+
+Bundled sample data in [`10_interactive_lab/datasets/`](10_interactive_lab/datasets/) is redistributed under the upstream licenses preserved verbatim in [`10_interactive_lab/LICENSES/`](10_interactive_lab/LICENSES/) (Apache-2.0, BSD-3, MIT, LGPL-2.1+). Each dataset folder ships an `ATTRIBUTION.md` with the original author, citation, and the exact upstream commit we mirrored.
+
+This work acknowledges support from the U.S. Department of Energy, Office of Science, Office of Biological and Environmental Research under Contract No. DE-AC02-06CH11357.
