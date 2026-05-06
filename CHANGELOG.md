@@ -6,6 +6,30 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [Unreleased] — review pass 1
+
+### Fixed
+- **README.md** rewritten end-to-end to match the current state: 10 note folders (was 8), `explorer/` (was `eberlight-explorer/`), 4 Streamlit pages including the Interactive Lab (was 7 hypothetical pages), 47 noise/artifact types (was 29), version badges `notes-v0.10.0` / `explorer-v0.4.0` (were v0.1.0 / v0.3.0), MIT license disclosure for bundled data, ADR / FR / US cross-links.
+- **CLAUDE.md** invariant #1 now correctly states "10 note folders"; "Project Identity" section updated. Resolves the previous 8-vs-10 self-contradiction. Release-note doc_id scheme (`REL-N<MMM>` / `REL-E<MMM>`) documented in invariant #3.
+- **`docs/README.md`** — ADR table now lists ADR-008 and ADR-009 (both had been missing despite being accepted).
+- **`compute_metrics`** is now NaN/inf safe (`_normalize` coerces non-finite values to 0). Inputs with NaN no longer silently propagate to the metric panel (P1-2).
+- **`model_zoo.py` exception handling** — bare `except Exception` replaced with `except (OSError, ValueError, RuntimeError)` so `KeyboardInterrupt`, `SystemExit`, and `MemoryError` propagate. Users can now Ctrl+C a hung download (P1-3).
+- **`_parse_parameter`** validates `default ∈ [min, max]`, rejects `min > max`, requires `options` for `select`, and rejects unknown `type`. Bad recipes fail fast at parse time instead of crashing the Streamlit page later (P1-6, P1-7).
+- **`resolve_function`** has an explicit `Callable[..., np.ndarray]` return type annotation (P1-8).
+- **`requirements.txt`** — added upper bounds to every dependency (e.g. `streamlit>=1.30,<2.0`, `numpy>=1.24,<3.0`). Protects against future major-version breakage (P0-6).
+- **GitHub Actions** — pinned action minor versions (`@v4.1.7`, `@v5.1.1`, `@v4.3.6`, `@v5.0.0`, `@v3.0.1`, `@v4.0.5`); switched to `--only-binary=astroscrappy,PyWavelets,scipy,scikit-image` to skip native compilation (drops the apt build-essential step); set `cache-dependency-path` on the Pages workflow for deterministic caching (P0-6, P1-11, P1-4).
+- **`.gitignore`** — added `.venv/`, `.pytest_cache/`, `.mypy_cache/`, `.ruff_cache/`, `*.egg-info/`, `.coverage*`, editor / OS noise files (P2-3).
+
+### Added
+- **ADR-009** — `Deprecate the legacy eberlight-explorer/ directory`. Documents the deprecation policy and the deletion plan (at `notes-v1.0.0`); the legacy directory now ships a DEPRECATED notice (`eberlight-explorer/README.md`).
+- **`explorer/tests/test_lab_integrity.py`** — 21 new CI tests acting as drift protection for `10_interactive_lab/`: every `manifest.yaml` sample path resolves; every `ATTRIBUTION.md` carries the required YAML frontmatter and references a license + citation; `LICENSES/` holds the verbatim upstream files; the lazy-download YAML loads cleanly; `CITATIONS.bib` has BibTeX entries. Closes ADR-008 follow-up #3 (P0-5).
+- **`explorer/tests/test_experiments.py`** — 8 new tests for parameter parse-time validation (default-in-range, min-not-greater-than-max, select-needs-options, etc.) and `compute_metrics` NaN/inf handling.
+- **`CONTRIBUTING.md`** at the repository root, pointing to the canonical `docs/06_meta/contributing.md` and adding sections for adding recipes / data with research-ethics requirements.
+- **`SECURITY.md`** — vulnerability reporting policy with explicit in-scope / out-of-scope items.
+- **`CODE_OF_CONDUCT.md`** — Contributor Covenant v2.1.
+- **`.github/ISSUE_TEMPLATE/{bug_report,feature_request,config}.yml`** — structured issue templates with surface dropdown, doc-id requirement, and a security-issue redirect.
+- **`.github/PULL_REQUEST_TEMPLATE.md`** — checklist enforcing CLAUDE.md invariants #2/#3/#4/#5/#7 and the free-tier constraints.
+
 ## [explorer-0.4.0] - 2026-05-05
 
 ### Added

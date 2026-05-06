@@ -6,16 +6,16 @@ eBERlight Explorer — an interactive portal over synchrotron-data-analysis-note
 
 This repository contains two versioned artifacts:
 
-1. **Notes** (folders `01_program_overview` through `09_noise_catalog`) — the single source of truth for synchrotron data analysis knowledge.
-2. **Explorer** (`explorer/`) — a Streamlit application that reads and presents the notes interactively.
+1. **Notes** (folders `01_program_overview` through `10_interactive_lab`) — the single source of truth for synchrotron data analysis knowledge plus the bundled real sample data for hands-on experimentation.
+2. **Explorer** (`explorer/`) — a Streamlit application that reads and presents the notes interactively. The accompanying `experiments/` directory holds noise-mitigation recipes wired to the lab samples.
 
 ## Invariants (MUST Rules)
 
-1. **Notes are the single source of truth.** The 8 note folders (01–08, plus 09\_noise\_catalog) are canonical content. `explorer/` reads them at runtime and MUST NOT duplicate or mutate note content.
+1. **Notes are the single source of truth.** The 10 note folders (`01_program_overview` through `10_interactive_lab`) are canonical content. `explorer/` reads them at runtime and MUST NOT duplicate or mutate note content. `experiments/` references samples in `10_interactive_lab/datasets/` by relative path; it does not copy them.
 
 2. **Every code change must reference a PRD section, user story, or ADR.** Traceability is mandatory — cite the relevant doc ID (e.g., FR-003, US-007, ADR-002) in commit messages or PR descriptions.
 
-3. **Every feature PR must update `docs/05_release/release_notes/` and `CHANGELOG.md`.** No feature ships without a release note entry.
+3. **Every feature PR must update `docs/05_release/release_notes/` and `CHANGELOG.md`.** No feature ships without a release note entry. Release-note doc_ids follow the scheme `REL-N<MMM>` for `notes-vM.M.M` (e.g. `REL-N100` → `notes-v1.0.0`) and `REL-E<MMM>` for `explorer-vM.M.M` (e.g. `REL-E040` → `explorer-v0.4.0`).
 
 4. **IA, design\_system, and data\_contracts changes require an ADR status update.** If you change information architecture, the design system, or data contracts, create or update the corresponding ADR and set its status accordingly.
 

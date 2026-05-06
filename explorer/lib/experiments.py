@@ -16,12 +16,16 @@ import importlib
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import numpy as np
 import yaml
 
 logger = logging.getLogger(__name__)
+
+# Public type alias: every pipeline function takes a 2-D array and kwargs
+# and returns a 2-D array of the same shape.
+PipelineFn = Callable[..., np.ndarray]
 
 
 # ---------------------------------------------------------------------------
@@ -97,16 +101,71 @@ def _parse_sample(d: dict) -> Sample:
     )
 
 
+_VALID_PARAM_TYPES = frozenset({"int", "float", "select"})
+
+
 def _parse_parameter(d: dict) -> Parameter:
+    """Parse one ``parameters[]`` entry, validating shape per type.
+
+    Raises:
+        ValueError: For unknown ``type``, missing ``default``, missing
+            ``min``/``max`` on numeric, missing ``options`` on select,
+            ``default`` outside ``[min, max]``, or ``default`` not in
+            ``options``.
+    """
+    name = str(d["name"])
+    p_type = str(d["type"])
+    if p_type not in _VALID_PARAM_TYPES:
+        raise ValueError(
+            f"parameter '{name}': type '{p_type}' not in {sorted(_VALID_PARAM_TYPES)}"
+        )
+
+    if "default" not in d:
+        raise ValueError(f"parameter '{name}': 'default' is required")
+
+    default = d["default"]
+    p_min = d.get("min")
+    p_max = d.get("max")
+    options = list(d["options"]) if d.get("options") is not None else None
+
+    if p_type in ("int", "float"):
+        if p_min is None or p_max is None:
+            raise ValueError(
+                f"parameter '{name}': numeric type requires 'min' and 'max'"
+            )
+        try:
+            d_val = float(default)
+            lo = float(p_min)
+            hi = float(p_max)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"parameter '{name}': non-numeric bound or default ({exc})"
+            ) from exc
+        if lo > hi:
+            raise ValueError(
+                f"parameter '{name}': min ({lo}) > max ({hi})"
+            )
+        if not (lo <= d_val <= hi):
+            raise ValueError(
+                f"parameter '{name}': default {d_val} outside [{lo}, {hi}]"
+            )
+    elif p_type == "select":
+        if not options:
+            raise ValueError(f"parameter '{name}': 'select' requires 'options'")
+        if default not in options:
+            raise ValueError(
+                f"parameter '{name}': default {default!r} not in options {options}"
+            )
+
     return Parameter(
-        name=str(d["name"]),
-        type=str(d["type"]),
-        label=str(d.get("label", d["name"])),
-        default=d.get("default"),
-        min=d.get("min"),
-        max=d.get("max"),
+        name=name,
+        type=p_type,
+        label=str(d.get("label", name)),
+        default=default,
+        min=p_min,
+        max=p_max,
         step=d.get("step"),
-        options=list(d["options"]) if d.get("options") is not None else None,
+        options=options,
         help=str(d.get("help", "")),
     )
 
@@ -218,8 +277,23 @@ def load_sample(repo_root: Path, manifest_path: str) -> np.ndarray:
 # ---------------------------------------------------------------------------
 
 
-def resolve_function(dotted_path: str):
-    """Import and return the function declared by a recipe."""
+def resolve_function(dotted_path: str) -> PipelineFn:
+    """Import and return the function declared by a recipe.
+
+    Args:
+        dotted_path: ``module.submodule.function`` string. Must have at
+            least one dot (i.e. include a module).
+
+    Returns:
+        The resolved callable. Caller is responsible for ensuring it
+        matches the :data:`PipelineFn` shape (no introspection happens
+        here — duck-typed at run time).
+
+    Raises:
+        ValueError: If ``dotted_path`` has no module component.
+        ModuleNotFoundError: If the module cannot be imported.
+        AttributeError: If the function does not exist in the module.
+    """
     module_name, _, func_name = dotted_path.rpartition(".")
     if not module_name or not func_name:
         raise ValueError(f"Invalid function path: {dotted_path!r}")
@@ -255,7 +329,17 @@ def run_pipeline(recipe: Recipe, arr: np.ndarray, params: dict[str, Any]) -> np.
 
 
 def _normalize(arr: np.ndarray) -> np.ndarray:
-    a = arr.astype(np.float32, copy=False)
+    """Min-max normalise to [0, 1], silently zero-out NaN / inf inputs.
+
+    Returns an all-zero array when the input has zero variance (or no
+    finite values), so that downstream PSNR / SSIM see a well-defined
+    operand instead of NaN. This is a defensive choice tuned for
+    metric computation; it is **not** appropriate for general use as
+    a normaliser.
+    """
+    a = arr.astype(np.float32, copy=True)
+    if not np.all(np.isfinite(a)):
+        a = np.nan_to_num(a, nan=0.0, posinf=0.0, neginf=0.0)
     lo = float(a.min())
     hi = float(a.max())
     if hi - lo < 1e-12:

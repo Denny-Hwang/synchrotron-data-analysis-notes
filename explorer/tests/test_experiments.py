@@ -189,6 +189,100 @@ def test_compute_metrics_align_tolerance_kwarg() -> None:
         )
 
 
+def test_compute_metrics_handles_nan_input() -> None:
+    """NaN inputs should be coerced to zero, not propagate to metrics."""
+    rng = np.random.default_rng(1)
+    a = rng.random((32, 32))
+    b = a.copy()
+    b[0, 0] = np.nan
+    out = compute_metrics(a, b, ["psnr", "ssim"])
+    assert np.isfinite(out["psnr"])
+    assert np.isfinite(out["ssim"])
+
+
+def test_compute_metrics_handles_inf_input() -> None:
+    """Inf is coerced to 0; the metric is well-defined (not NaN)."""
+    a = np.zeros((16, 16), dtype=np.float32)
+    b = a.copy()
+    b[0, 0] = np.inf
+    out = compute_metrics(a, b, ["psnr", "ssim"])
+    # After coercion both arrays are all-zero → MSE = 0 → PSNR = +inf
+    # is the legitimate "perfect match" answer. The contract is "no NaN".
+    assert not np.isnan(out["psnr"])
+    assert not np.isnan(out["ssim"])
+
+
+# ---------------------------------------------------------------------------
+# Parameter parse-time validation (P1-7)
+# ---------------------------------------------------------------------------
+
+
+def _write_recipe_with_params(path: Path, params_yaml: str) -> None:
+    path.write_text(
+        textwrap.dedent(
+            f"""\
+            schema_version: 1
+            recipe_id: r
+            title: T
+            modality: tomography
+            function: tests.test_experiments._add_scalar
+            samples:
+              - {{manifest_path: a.npy, label: A}}
+            parameters:
+            {params_yaml}
+            """
+        )
+    )
+
+
+def test_parameter_unknown_type_rejected(tmp_path: Path) -> None:
+    p = tmp_path / "recipe.yaml"
+    _write_recipe_with_params(p, "  - {name: x, type: bogus, default: 1}")
+    with pytest.raises(ValueError, match="not in"):
+        parse_recipe(p)
+
+
+def test_parameter_default_out_of_range_rejected(tmp_path: Path) -> None:
+    p = tmp_path / "recipe.yaml"
+    _write_recipe_with_params(
+        p, "  - {name: x, type: int, default: 200, min: 0, max: 100}"
+    )
+    with pytest.raises(ValueError, match="outside"):
+        parse_recipe(p)
+
+
+def test_parameter_min_gt_max_rejected(tmp_path: Path) -> None:
+    p = tmp_path / "recipe.yaml"
+    _write_recipe_with_params(
+        p, "  - {name: x, type: int, default: 5, min: 100, max: 0}"
+    )
+    with pytest.raises(ValueError, match="min .* > max"):
+        parse_recipe(p)
+
+
+def test_parameter_select_requires_options(tmp_path: Path) -> None:
+    p = tmp_path / "recipe.yaml"
+    _write_recipe_with_params(p, "  - {name: x, type: select, default: a}")
+    with pytest.raises(ValueError, match="requires 'options'"):
+        parse_recipe(p)
+
+
+def test_parameter_select_default_not_in_options_rejected(tmp_path: Path) -> None:
+    p = tmp_path / "recipe.yaml"
+    _write_recipe_with_params(
+        p, '  - {name: x, type: select, default: z, options: [a, b]}'
+    )
+    with pytest.raises(ValueError, match="not in options"):
+        parse_recipe(p)
+
+
+def test_parameter_missing_default_rejected(tmp_path: Path) -> None:
+    p = tmp_path / "recipe.yaml"
+    _write_recipe_with_params(p, "  - {name: x, type: int, min: 0, max: 10}")
+    with pytest.raises(ValueError, match="'default' is required"):
+        parse_recipe(p)
+
+
 def test_compute_metrics_unknown_metric_skipped() -> None:
     """Unknown metric names are silently skipped (logged as warning)."""
     a = np.zeros((8, 8))

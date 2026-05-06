@@ -1,0 +1,70 @@
+name: Bug report
+description: Something is broken in the explorer, the Interactive Lab, the static site, or the bundled data.
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please **do not** report
+        security vulnerabilities here — see [SECURITY.md](../SECURITY.md).
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Affected surface
+      description: Where did you see the issue?
+      options:
+        - Streamlit Explorer (`explorer/`)
+        - Interactive Lab page (`explorer/pages/4_Experiment.py`)
+        - GitHub Pages static mirror
+        - Bundled sample data (`10_interactive_lab/datasets/`)
+        - Recipe (`experiments/`)
+        - Documentation
+        - CI workflow
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Versions / commit
+      description: e.g. `notes-v0.10.0`, `explorer-v0.4.0`, or `git rev-parse HEAD`
+    validations:
+      required: false
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Plain-language description of the problem.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: Step-by-step. If you ran a recipe, include the recipe id and the parameter values.
+      placeholder: |
+        1. `streamlit run explorer/app.py`
+        2. Open the Experiment page
+        3. Pick recipe `ring_artifact_sorting_filter`, sample `Dead stripe`, size=21
+        4. Observe …
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      placeholder: |
+        - OS:
+        - Python:
+        - Streamlit:
+        - Browser (if a UI bug):

@@ -1,13 +1,16 @@
-streamlit>=1.30.0
-python-markdown>=3.5
-pygments>=2.17
-pyyaml>=6.0
-# Interactive Lab (ADR-008): pipelines, sample loading, metrics
-numpy>=1.24
-scipy>=1.11
-scikit-image>=0.22
-tifffile>=2023.7.10
-astropy>=5.3
-astroscrappy>=1.1     # L.A.Cosmic cosmic-ray / zinger detection
-pooch>=1.7            # Lazy-download of large datasets and model weights
-PyWavelets>=1.5       # Wavelet-FFT ring artifact removal (Munch 2009)
+streamlit>=1.30.0,<2.0
+python-markdown>=3.5,<4.0
+pygments>=2.17,<3.0
+pyyaml>=6.0,<7.0
+
+# --- Interactive Lab (ADR-008): pipelines, sample loading, metrics ---
+# Upper bounds: NumPy 2.0 changed dtype repr / SciPy 2.0 removed legacy ndimage
+# helpers; we'll move when transitive ecosystem catches up.
+numpy>=1.24,<3.0
+scipy>=1.11,<2.0
+scikit-image>=0.22,<0.30
+tifffile>=2023.7.10,<2026
+astropy>=5.3,<8.0
+astroscrappy>=1.1,<2.0
+pooch>=1.7,<2.0
+PyWavelets>=1.5,<2.0

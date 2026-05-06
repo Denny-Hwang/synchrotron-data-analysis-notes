@@ -203,7 +203,11 @@ def fetch(entry: ZooEntry, progressbar: bool = False) -> Path:
             path=cache_dir(),
             progressbar=progressbar,
         )
-    except Exception as exc:  # noqa: BLE001
+    except (OSError, ValueError, RuntimeError) as exc:
+        # OSError covers network / disk / SSL / file I/O failures;
+        # ValueError covers pooch hash-mismatch; RuntimeError covers
+        # pooch's wrapper exceptions for missing optional deps.
+        # KeyboardInterrupt / SystemExit / MemoryError propagate.
         raise DownloadError(
             f"Failed to fetch '{entry.name}' from {entry.url}: {exc}"
         ) from exc
@@ -236,7 +240,10 @@ def fetch_huggingface(entry: ZooEntry) -> Path:
             repo_id=entry.hf_model_id,  # type: ignore[arg-type]
             cache_dir=cache_dir() / "hf",
         )
-    except Exception as exc:  # noqa: BLE001
+    except (OSError, ValueError, RuntimeError) as exc:
+        # As above — KeyboardInterrupt / SystemExit / MemoryError
+        # propagate. huggingface_hub raises a `RepositoryNotFoundError`
+        # which is a subclass of `OSError` (so this catches it cleanly).
         raise DownloadError(
             f"Failed to fetch HF model '{entry.hf_model_id}': {exc}"
         ) from exc
