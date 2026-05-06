@@ -12,6 +12,16 @@ from components.mermaid_diagram import render_mermaid
 
 st.set_page_config(page_title="Publications", page_icon="📚", layout="wide")
 
+
+# Hard redirect to the current app — see ADR-009. The legacy page body
+# below is no longer maintained and is preserved only for ADR archival.
+import sys as _sys
+import os as _os
+_sys.path.insert(0, _os.path.join(_os.path.dirname(__file__), ".."))
+from _deprecated import render_deprecation_and_stop  # noqa: E402
+
+render_deprecation_and_stop()
+
 inject_styles()
 
 level = render_level_selector(key="pub_level")
