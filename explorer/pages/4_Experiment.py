@@ -224,11 +224,11 @@ except Exception as exc:
 col_left, col_right = st.columns(2)
 with col_left:
     st.markdown("**Original**")
-    st.image(_to_display(sino_input), clamp=True, use_container_width=True)
+    st.image(_to_display(sino_input), clamp=True, width="stretch")
     st.caption(f"shape={sino_input.shape}, dtype={sino_input.dtype}")
 with col_right:
     st.markdown("**Processed**")
-    st.image(_to_display(sino_output), clamp=True, use_container_width=True)
+    st.image(_to_display(sino_output), clamp=True, width="stretch")
     st.caption(f"shape={sino_output.shape}, dtype={sino_output.dtype}")
 
 
