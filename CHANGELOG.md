@@ -6,6 +6,16 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [Unreleased] — legacy hard-redirect
+
+### Fixed
+- **`eberlight-explorer/app.py`** is now a hard-redirect page: it shows a prominent "⚠️ This is the deprecated legacy app" banner with the launch command for the current app (`streamlit run explorer/app.py`), then calls `st.stop()` so the old portal never renders. Resolves user confusion where someone running `streamlit run eberlight-explorer/app.py` could not find the **Interactive Lab** / **Experiment** page (those live in `explorer/`, not the legacy app).
+- **All 8 legacy pages** (`eberlight-explorer/pages/0_*`, `2_*`, `3_*`, …, `8_*`) now import a shared `_deprecated.render_deprecation_and_stop()` helper right after `st.set_page_config` so any sidebar click also lands on the redirect notice instead of the old content.
+- **`README.md`** quick-start has a `# ← THIS one. NOT eberlight-explorer/app.py.` inline comment on the canonical launch command, plus a stronger "⚠️ Don't run `eberlight-explorer/`" caution under the repository layout.
+
+### Added
+- **`eberlight-explorer/_deprecated.py`** — small helper module that emits the shared redirect banner. Will be removed alongside the rest of `eberlight-explorer/` at the `notes-v1.0.0` cut (per ADR-009).
+
 ## [Unreleased] — review pass 2
 
 ### Added

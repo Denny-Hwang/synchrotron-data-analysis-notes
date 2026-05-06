@@ -60,7 +60,7 @@ synchrotron-data-analysis-notes/
 └── .github/workflows/          # test.yml, pages.yml
 ```
 
-> The `eberlight-explorer/` directory at the repository root is **legacy** — superseded by `explorer/`. See [ADR-009](docs/02_design/decisions/ADR-009.md) for the deprecation plan.
+> ⚠️ **Don't run `eberlight-explorer/` by mistake** — that directory is the **legacy** first-generation app and ships a redirect notice. The current product is `explorer/`. See [ADR-009](docs/02_design/decisions/ADR-009.md) for the deprecation plan.
 
 ## Quick start
 
@@ -74,7 +74,7 @@ python -m venv .venv && source .venv/bin/activate          # Linux/macOS
 # .venv\Scripts\activate                                    # Windows
 
 pip install -r explorer/requirements.txt
-streamlit run explorer/app.py
+streamlit run explorer/app.py    # ← THIS one. NOT eberlight-explorer/app.py.
 ```
 
 The app opens at `http://localhost:8501`. The four pages mirror the
