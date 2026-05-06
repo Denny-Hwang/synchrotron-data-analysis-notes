@@ -238,34 +238,51 @@ with col_right:
 
 
 if recipe.clean_reference and recipe.metrics:
-    try:
-        ref_arr = _cached_sample(recipe.clean_reference.manifest_path)
-        if ref_arr.shape == sino_input.shape:
-            in_metrics = compute_metrics(ref_arr, sino_input, list(recipe.metrics))
-            out_metrics = compute_metrics(ref_arr, sino_output, list(recipe.metrics))
-            st.markdown(
-                f"#### Metrics vs clean reference (`{recipe.clean_reference.label}`)"
-            )
-            metric_cols = st.columns(len(recipe.metrics))
-            for col, name in zip(metric_cols, recipe.metrics, strict=True):
-                in_v = in_metrics.get(name.lower())
-                out_v = out_metrics.get(name.lower())
-                if in_v is None or out_v is None:
-                    continue
-                delta = out_v - in_v
-                col.metric(
-                    label=name.upper(),
-                    value=f"{out_v:.3f}",
-                    delta=f"{delta:+.3f}  vs raw input ({in_v:.3f})",
+    if sample.role == "false_positive_trap":
+        st.info(
+            f"**False-positive trap sample.** `{sample.label}` is a different "
+            f"scene from the clean reference (`{recipe.clean_reference.label}`) — "
+            "what looks like stripes here is real sample structure. "
+            "PSNR/SSIM against the reference are not meaningful, so they are "
+            "skipped. Watch the visual output: a good algorithm should leave "
+            "this image largely unchanged; a too-aggressive filter will smear "
+            "the real features."
+        )
+    else:
+        try:
+            ref_arr = _cached_sample(recipe.clean_reference.manifest_path)
+            try:
+                in_metrics = compute_metrics(ref_arr, sino_input, list(recipe.metrics))
+                out_metrics = compute_metrics(ref_arr, sino_output, list(recipe.metrics))
+            except ValueError as exc:
+                st.info(
+                    f"Reference shape {ref_arr.shape} differs from sample "
+                    f"shape {sino_input.shape} beyond the alignment tolerance; "
+                    f"metrics skipped. Detail: {exc}"
                 )
-        else:
-            st.info(
-                "Reference shape "
-                f"{ref_arr.shape} ≠ sample shape {sino_input.shape}; "
-                "metrics skipped."
-            )
-    except FileNotFoundError as e:
-        st.warning(f"Clean reference not found: {e}")
+            else:
+                st.markdown(
+                    f"#### Metrics vs clean reference (`{recipe.clean_reference.label}`)"
+                )
+                if ref_arr.shape != sino_input.shape:
+                    st.caption(
+                        f"Reference {ref_arr.shape} centre-cropped to match "
+                        f"sample {sino_input.shape} for metric computation."
+                    )
+                metric_cols = st.columns(len(recipe.metrics))
+                for col, name in zip(metric_cols, recipe.metrics, strict=True):
+                    in_v = in_metrics.get(name.lower())
+                    out_v = out_metrics.get(name.lower())
+                    if in_v is None or out_v is None:
+                        continue
+                    delta = out_v - in_v
+                    col.metric(
+                        label=name.upper(),
+                        value=f"{out_v:.3f}",
+                        delta=f"{delta:+.3f}  vs raw input ({in_v:.3f})",
+                    )
+        except FileNotFoundError as e:
+            st.warning(f"Clean reference not found: {e}")
 
 
 # ---------------------------------------------------------------------------

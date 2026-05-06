@@ -24,6 +24,14 @@ description: |
   sinogram against the bundled clean reference (`sinogram_normal.tif`)
   using PSNR and SSIM metrics.
 
+  > **A note on metrics.** Sarepy's `sinogram_normal.tif` is a *visual*
+  > clean reference, not a paired ground truth for every noisy sample.
+  > PSNR/SSIM behave most cleanly on **`all_stripe_types_sample1`** —
+  > there the metrics monotonically improve with larger filter sizes.
+  > For some other samples the reference is approximate and metrics
+  > may stay flat or move slightly the wrong way; in those cases
+  > **trust the visual comparison** more than the numbers.
+
 # Pure-function pipeline. Module path is rooted at the repository root
 # (the Streamlit page adds the repo root to sys.path).
 function: experiments.tomography.ring_artifact.pipeline.remove_stripe_based_sorting

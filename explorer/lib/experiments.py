@@ -263,21 +263,66 @@ def _normalize(arr: np.ndarray) -> np.ndarray:
     return (a - lo) / (hi - lo)
 
 
+def _align_shapes(
+    a: np.ndarray, b: np.ndarray, tolerance: int = 2
+) -> tuple[np.ndarray, np.ndarray] | None:
+    """Centre-crop two 2-D arrays to their common minimum shape.
+
+    Sarepy ships sinograms with off-by-one angular sampling (e.g. clean
+    reference is ``(1801, 2560)`` while the noisy variants are
+    ``(1800, 2560)``). The first 1800 angles are the same scene, so a
+    centre crop of the larger array gives a meaningful PSNR / SSIM.
+
+    Returns ``None`` if the shapes differ by more than ``tolerance`` in
+    any dim — at that point the arrays are different scenes, not
+    misaligned versions of the same one.
+    """
+    if a.shape == b.shape:
+        return a, b
+    if a.ndim != 2 or b.ndim != 2:
+        return None
+    if any(abs(sa - sb) > tolerance for sa, sb in zip(a.shape, b.shape)):
+        return None
+    h = min(a.shape[0], b.shape[0])
+    w = min(a.shape[1], b.shape[1])
+
+    def crop(x: np.ndarray) -> np.ndarray:
+        oh = (x.shape[0] - h) // 2
+        ow = (x.shape[1] - w) // 2
+        return x[oh : oh + h, ow : ow + w]
+
+    return crop(a), crop(b)
+
+
 def compute_metrics(
     reference: np.ndarray,
     candidate: np.ndarray,
     metrics: list[str] | tuple[str, ...],
+    *,
+    align_tolerance: int = 2,
 ) -> dict[str, float]:
     """Compute the requested metrics against ``reference``.
 
-    Both arrays are min-max normalised to ``[0, 1]`` before metric computation
-    so that comparisons across raw / processed dtypes are meaningful.
-    Unknown metric names are silently ignored.
+    Both arrays are min-max normalised to ``[0, 1]`` before metric
+    computation so that comparisons across raw / processed dtypes are
+    meaningful.
+
+    If ``reference.shape != candidate.shape`` but the difference is at
+    most ``align_tolerance`` along each dim, both arrays are
+    centre-cropped to the common minimum shape (handles Sarepy's
+    off-by-one angular sampling).  Beyond that tolerance the function
+    raises :class:`ValueError`.
+
+    Unknown metric names are silently ignored (warning logged).
     """
     if reference.shape != candidate.shape:
-        raise ValueError(
-            f"shape mismatch: reference {reference.shape} vs candidate {candidate.shape}"
-        )
+        aligned = _align_shapes(reference, candidate, tolerance=align_tolerance)
+        if aligned is None:
+            raise ValueError(
+                f"shape mismatch beyond tolerance ({align_tolerance}): "
+                f"reference {reference.shape} vs candidate {candidate.shape}"
+            )
+        reference, candidate = aligned
     ref = _normalize(reference)
     cand = _normalize(candidate)
 
