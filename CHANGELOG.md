@@ -6,6 +6,21 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [Unreleased] — Phase R4: Noise-catalog troubleshooter + before/after viewer
+
+### Added
+- **`explorer/pages/5_Troubleshooter.py`** — symptom-based decision-tree page. Pick one of 11 symptom categories (`Circular/Ring Patterns`, `Isolated Bright/Dark Spots`, `Streak/Stripe Patterns`, `Overall Graininess`, `Blurring`, `Intensity Anomalies`, `Spectral Abnormalities`, `Boundary/Stitching`, `Suspicious "Too-Good" Features`, `Phase Map Discontinuities`, `Ghost/Residual`) → see all differential diagnoses as cards with severity badge, conditions list, ▶ Run-experiment link (when a recipe matches), and the bundled before/after image. Sidebar provides modality + severity filters and `?symptom=<id>` deep linking.
+- **`09_noise_catalog/troubleshooter.yaml`** — machine-readable companion to the prose `troubleshooter.md`. 11 symptoms × 35 differential cases, each carrying `conditions[]`, `diagnosis.{name,severity,guide,recipe?,image?}`, plus optional Python `quick_checks`. ADR-002 stays intact: prose stays canonical; YAML is a structured view for the page + tests.
+- **`explorer/lib/troubleshooter.py`** — typed parser (`Symptom` / `Case` / `Diagnosis` / `QuickCheck`), severity-color helper, and before/after image discovery (maps `<stem>_before_after.png` → `Path` for the 22 bundled comparisons).
+- **`explorer/tests/test_troubleshooter.py`** — 14 new tests asserting: 11 symptoms load, every diagnosis has canonical severity + a guide path that resolves to an existing `09_noise_catalog/*` markdown file, every declared `image` filename exists in `09_noise_catalog/images/`, and every declared `recipe` id resolves to a bundled `experiments/**/recipe.yaml`. **Drift protection at CI time** for the cross-references between sections 9, 10, and the Streamlit page.
+
+### Notes
+- `pytest explorer/tests/` → 134 passed (was 120 in R3; +14 troubleshooter tests).
+- `ruff check / format --check` clean.
+- `streamlit run explorer/app.py` → `/_stcore/health` returns `ok`; the new Troubleshooter page is in the sidebar.
+- Phase R5 (Detail Level L0/L1/L2/L3 progressive disclosure) is the next step.
+
+
 ## [Unreleased] — Phase R3: Mermaid diagram rendering
 
 ### Added

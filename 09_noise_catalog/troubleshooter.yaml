@@ -1,0 +1,436 @@
+# Symptom-based troubleshooter — machine-readable companion to
+# `troubleshooter.md`. Loaded by the Streamlit `5_Troubleshooter`
+# page and unit-tested via `explorer/tests/test_troubleshooter.py`.
+#
+# Schema:
+#   symptoms: list of one symptom block per category (11 total).
+#   Each symptom carries:
+#     - id:         stable slug used in deep links (?symptom=…)
+#     - title:      page heading
+#     - summary:    1-2 line description shown above the cases
+#     - quick_checks: list of optional Python diagnostic snippets
+#     - cases:      flat list of differential diagnoses for the
+#                   symptom; each case carries a `conditions`
+#                   sequence the user steps through plus a single
+#                   `diagnosis` block (name, severity, guide path,
+#                   optional recipe id, optional image filename).
+#
+# Severity vocabulary (matches `summary_table.md`):
+#   critical | major | minor
+#
+# Guide paths are relative to `09_noise_catalog/`. Image filenames
+# live in `09_noise_catalog/images/` and are matched verbatim by
+# the static-site mirror and the Streamlit before/after viewer.
+# Recipe ids must match `recipe_id` in `experiments/**/recipe.yaml`
+# so the troubleshooter can offer a single click into the
+# Interactive Lab when a mitigation recipe exists.
+
+schema_version: 1
+
+symptoms:
+
+  - id: rings
+    title: "Circular / Ring Patterns"
+    summary: |
+      Concentric rings or circular features in the reconstructed image.
+      The ring's centre and crispness are the strongest discriminators
+      between detector defects, flat-field contamination, and centre-of-
+      rotation errors.
+    quick_checks:
+      - title: "Sinogram stripe test"
+        language: python
+        code: |
+          import numpy as np
+          sino = data[data.shape[0] // 2]      # middle slice sinogram
+          col_std = np.std(sino, axis=0)
+          dead = np.where(col_std < np.median(col_std) * 0.1)[0]
+          print(f"Suspect dead detector columns: {dead.tolist()}")
+      - title: "Rotation centre — 0° vs 180° flip"
+        language: python
+        code: |
+          proj0   = data[0]
+          proj180 = data[data.shape[0] // 2]
+          shift   = (proj0 + proj180[:, ::-1]).argmax(axis=1).mean()
+          print(f"Estimated rotation-centre shift: {shift:.2f} px")
+    cases:
+      - conditions:
+          - "Rings are centered on the rotation axis"
+          - "Rings are sharp and well-defined"
+        diagnosis:
+          name: "Ring Artifact (defective detector pixels)"
+          severity: critical
+          guide: tomography/ring_artifact.md
+          recipe: ring_artifact_sorting_filter
+          image: ring_artifact_before_after.png
+      - conditions:
+          - "Rings are centered on the rotation axis"
+          - "Rings are broad / blurry or partial arcs"
+        diagnosis:
+          name: "Flat-Field Contamination"
+          severity: major
+          guide: tomography/flatfield_issues.md
+          image: flatfield_before_after.png
+      - conditions:
+          - "Rings NOT centered on the rotation axis"
+          - "Object edges appear doubled or 'tuning-fork' shaped"
+        diagnosis:
+          name: "Rotation Center Error"
+          severity: critical
+          guide: tomography/rotation_center_error.md
+          image: rotation_center_error_before_after.png
+      - conditions:
+          - "Rings NOT centered"
+          - "Rings appear around dense inclusions"
+        diagnosis:
+          name: "Streak / Beam-Hardening Artifact"
+          severity: critical
+          guide: tomography/streak_artifact.md
+          image: beam_hardening_before_after.png
+      - conditions:
+          - "Vertical stripes visible in the sinogram domain"
+        diagnosis:
+          name: "Ring Artifact (sinogram-domain view)"
+          severity: critical
+          guide: tomography/ring_artifact.md
+          recipe: ring_artifact_wavelet_fft
+
+  - id: spots
+    title: "Isolated Bright / Dark Spots"
+    summary: |
+      Random bright or dark pixels that don't correspond to real
+      features. Whether the spot moves between frames or stays fixed
+      tells you cosmic ray vs. dead/hot pixel.
+    quick_checks:
+      - title: "Zinger detection"
+        language: python
+        code: |
+          import numpy as np
+          diff = np.abs(np.diff(projections, axis=0))
+          thr  = np.median(diff) + 10 * np.std(diff)
+          z    = np.argwhere(diff > thr)
+          print(f"Potential zingers: {len(z)}")
+      - title: "Dead / hot pixel sweep (XRF)"
+        language: python
+        code: |
+          import numpy as np
+          from scipy.ndimage import median_filter
+          med = median_filter(elem_map, size=3)
+          out = np.abs(elem_map - med) > 5 * np.std(elem_map)
+          print(f"Outlier pixels: {out.sum()} ({100*out.mean():.1f}%)")
+    cases:
+      - conditions:
+          - "Spots in raw projections only"
+          - "Spots in single frame, NOT at same position across frames"
+        diagnosis:
+          name: "Zinger (cosmic ray / gamma spike)"
+          severity: major
+          guide: tomography/zinger.md
+          recipe: cosmic_ray_lacosmic
+          image: zinger_before_after.png
+      - conditions:
+          - "Spots in raw projections only"
+          - "Spots at same pixel in every frame"
+        diagnosis:
+          name: "Detector Dead / Hot Pixel"
+          severity: major
+          guide: cross_cutting/detector_common_issues.md
+          image: dead_hot_pixel_before_after.png
+      - conditions:
+          - "Bright spots in XRF elemental map (10× neighbours)"
+        diagnosis:
+          name: "Hot pixel in XRF detector"
+          severity: major
+          guide: xrf_microscopy/dead_hot_pixel.md
+          image: dead_hot_pixel_before_after.png
+      - conditions:
+          - "Zero / near-zero spots surrounded by signal in XRF"
+        diagnosis:
+          name: "Dead pixel in XRF detector"
+          severity: major
+          guide: xrf_microscopy/dead_hot_pixel.md
+      - conditions:
+          - "Bright spots in CT reconstruction tracking zinger positions"
+        diagnosis:
+          name: "Zinger artifact propagated through reconstruction"
+          severity: major
+          guide: tomography/zinger.md
+          recipe: cosmic_ray_lacosmic
+      - conditions:
+          - "Cosmic-ray-like sharp single-pixel hits on a CCD frame"
+        diagnosis:
+          name: "Cosmic ray (LACOSMIC-detectable)"
+          severity: major
+          guide: cross_cutting/detector_common_issues.md
+          recipe: cosmic_ray_lacosmic
+          image: cosmic_ray_before_after.png
+
+  - id: streaks
+    title: "Streak / Stripe Patterns"
+    summary: |
+      Linear streaks, stripes, or banding. Direction (horizontal vs
+      vertical) and context (sinogram vs reconstruction vs XRF map)
+      narrow the cause quickly.
+    cases:
+      - conditions:
+          - "Bright streaks radiating from dense inclusions in CT recon"
+        diagnosis:
+          name: "Metal / Streak Artifact"
+          severity: critical
+          guide: tomography/streak_artifact.md
+          image: metal_artifact_before_after.png
+      - conditions:
+          - "Star-like streaks throughout reconstruction (no specific source)"
+        diagnosis:
+          name: "Sparse-Angle Artifact"
+          severity: major
+          guide: tomography/sparse_angle_artifact.md
+          image: sparse_angle_before_after.png
+      - conditions:
+          - "Horizontal stripes in sinogram, correlated with I0 dropouts"
+        diagnosis:
+          name: "Beam Intensity Drop"
+          severity: major
+          guide: tomography/beam_intensity_drop.md
+          image: i0_drop_before_after.png
+      - conditions:
+          - "Vertical stripes in sinogram"
+        diagnosis:
+          name: "Ring Artifact source (dead detector column)"
+          severity: critical
+          guide: tomography/ring_artifact.md
+          recipe: ring_artifact_sorting_filter
+          image: ring_artifact_before_after.png
+      - conditions:
+          - "Stripes in XRF elemental map aligned with fast-scan direction"
+        diagnosis:
+          name: "Scan Stripe (beam drift or I0 fluctuation)"
+          severity: major
+          guide: xrf_microscopy/scan_stripe.md
+      - conditions:
+          - "Stripes in XRF map correlated with I0 variation"
+        diagnosis:
+          name: "I0 Normalization Issue"
+          severity: major
+          guide: xrf_microscopy/i0_normalization.md
+      - conditions:
+          - "Stripe at tile boundaries (ptychography)"
+        diagnosis:
+          name: "Stitching Artifact"
+          severity: minor
+          guide: ptychography/stitching_artifact.md
+
+  - id: graininess
+    title: "Overall Graininess / Noise"
+    summary: |
+      Random noise covers the whole image. Distinguishing photon-
+      counting noise from electronic / readout noise determines
+      whether a denoising algorithm or a hardware fix is appropriate.
+    cases:
+      - conditions:
+          - "Grain scales with √intensity (Poisson signature)"
+        diagnosis:
+          name: "Photon-Counting Noise / Low-Dose"
+          severity: major
+          guide: tomography/low_dose_noise.md
+          image: low_dose_noise_before_after.png
+      - conditions:
+          - "Grain dominant in dark / low-signal regions, intensity-independent"
+        diagnosis:
+          name: "Read / Electronic Noise"
+          severity: major
+          guide: cross_cutting/detector_common_issues.md
+      - conditions:
+          - "EM micrograph with shot-noise-limited contrast"
+        diagnosis:
+          name: "Shot Noise (low-dose EM)"
+          severity: critical
+          guide: electron_microscopy/shot_noise_low_dose.md
+          image: shot_noise_low_dose_before_after.png
+      - conditions:
+          - "Noise spectrum shows strong high-frequency component on EXAFS"
+        diagnosis:
+          name: "Statistical Noise (EXAFS)"
+          severity: major
+          guide: spectroscopy/statistical_noise_exafs.md
+
+  - id: blur
+    title: "Blurring / Loss of Detail"
+    summary: |
+      Edges look soft, sub-pixel features disappear. Often caused by
+      probe size, sample drift during acquisition, or partial
+      coherence in ptychography.
+    cases:
+      - conditions:
+          - "Uniform blur across the whole frame"
+          - "Sample drift visible in image registration"
+        diagnosis:
+          name: "Drift / Vibration"
+          severity: major
+          guide: electron_microscopy/drift_vibration.md
+          image: drift_vibration_before_after.png
+      - conditions:
+          - "Uniform blur, no sample drift"
+        diagnosis:
+          name: "Probe Blurring (XRF)"
+          severity: minor
+          guide: xrf_microscopy/probe_blurring.md
+      - conditions:
+          - "Ptychography reconstruction: contrast loss, mode-decomposition reveals partial coherence"
+        diagnosis:
+          name: "Partial Coherence"
+          severity: major
+          guide: ptychography/partial_coherence.md
+      - conditions:
+          - "Cryo-EM micrograph: Thon-ring damping in power spectrum"
+        diagnosis:
+          name: "CTF Artifact"
+          severity: critical
+          guide: electron_microscopy/ctf_artifact.md
+          image: ctf_artifact_before_after.png
+
+  - id: intensity_anomalies
+    title: "Intensity / Value Anomalies"
+    summary: |
+      Image values are off — too bright in air regions, gradient where
+      none should exist, or sudden value cliffs across a slice.
+    cases:
+      - conditions:
+          - "Air regions in CT have non-zero (positive) attenuation"
+        diagnosis:
+          name: "Beam Hardening (Cupping)"
+          severity: major
+          guide: medical_imaging/beam_hardening.md
+          image: beam_hardening_before_after.png
+      - conditions:
+          - "Slow intensity gradient across a 2D slice (no structural reason)"
+        diagnosis:
+          name: "Bias Field"
+          severity: major
+          guide: medical_imaging/bias_field.md
+      - conditions:
+          - "Cupping in air with metal nearby"
+        diagnosis:
+          name: "Scatter Artifact"
+          severity: major
+          guide: medical_imaging/scatter_artifact.md
+          image: scatter_artifact_before_after.png
+      - conditions:
+          - "Sample edges fade, FoV truncation visible"
+        diagnosis:
+          name: "Truncation Artifact"
+          severity: major
+          guide: medical_imaging/truncation_artifact.md
+          image: truncation_artifact_before_after.png
+
+  - id: spectral
+    title: "Spectral Abnormalities (XAS / XRF)"
+    summary: |
+      The spectrum doesn't look like prior measurements: edge shifted,
+      white line damped, peaks in unexpected places, or progressive
+      evolution scan-to-scan.
+    cases:
+      - conditions:
+          - "EXAFS edge position drifts across multiple scans"
+        diagnosis:
+          name: "Energy Calibration Drift"
+          severity: critical
+          guide: spectroscopy/energy_calibration_drift.md
+      - conditions:
+          - "White line dampened in fluorescence; transmission looks normal"
+        diagnosis:
+          name: "Self-Absorption (XAS)"
+          severity: major
+          guide: spectroscopy/self_absorption_xas.md
+      - conditions:
+          - "Sharp glitches at known harmonic energies"
+        diagnosis:
+          name: "Harmonics Contamination"
+          severity: major
+          guide: spectroscopy/harmonics_contamination.md
+      - conditions:
+          - "Edge position / feature changes across successive scans on the same spot"
+        diagnosis:
+          name: "Radiation Damage"
+          severity: critical
+          guide: spectroscopy/radiation_damage.md
+      - conditions:
+          - "XRF residual after fit shows unexplained peaks"
+        diagnosis:
+          name: "Peak Overlap"
+          severity: major
+          guide: xrf_microscopy/peak_overlap.md
+      - conditions:
+          - "ICR/OCR ratio out of range; spectrum at high count rate"
+        diagnosis:
+          name: "Dead-time Saturation"
+          severity: critical
+          guide: xrf_microscopy/dead_time_saturation.md
+
+  - id: boundaries
+    title: "Boundary / Stitching Artifacts"
+    summary: |
+      Discontinuities at expected join lines: ptychography tile edges,
+      detector module gaps, multi-probe scan stitches.
+    cases:
+      - conditions:
+          - "Intensity discontinuity at ptychography tile boundary"
+        diagnosis:
+          name: "Stitching Artifact"
+          severity: minor
+          guide: ptychography/stitching_artifact.md
+      - conditions:
+          - "Zero-count columns / rows in scattering image"
+        diagnosis:
+          name: "Detector Gaps"
+          severity: major
+          guide: scattering_diffraction/detector_gaps_parallax.md
+      - conditions:
+          - "Edge oscillation / overshoot near sharp transitions"
+        diagnosis:
+          name: "Gibbs Ringing"
+          severity: minor
+          guide: medical_imaging/gibbs_ringing.md
+          image: gibbs_ringing_before_after.png
+
+  - id: hallucinations
+    title: "Suspicious 'Too-Good' Features"
+    summary: |
+      DL-reconstruction output contains features that look real but
+      aren't. Always verify with traditional methods or held-out
+      ground-truth before trusting.
+    cases:
+      - conditions:
+          - "DL-reconstructed feature has no analog in the raw projections"
+          - "Feature disappears under ensemble averaging or dropout"
+        diagnosis:
+          name: "DL Hallucination"
+          severity: critical
+          guide: cross_cutting/dl_hallucination.md
+
+  - id: phase_wrap
+    title: "Phase Map Discontinuities"
+    summary: |
+      Ptychography or coherent diffraction phase reconstructions show
+      sharp ±π jumps where the underlying object should be smooth.
+    cases:
+      - conditions:
+          - "Phase jumps near ±π across a small spatial neighbourhood"
+        diagnosis:
+          name: "Phase Wrapping"
+          severity: critical
+          guide: scattering_diffraction/phase_wrapping.md
+          image: phase_wrapping_before_after.png
+
+  - id: ghost
+    title: "Ghost / Residual from Previous Exposure"
+    summary: |
+      After-image of a previous frame visible in the current one;
+      typical of CCD afterglow or insufficient detector reset.
+    cases:
+      - conditions:
+          - "Faded copy of previous frame's content visible in current frame"
+        diagnosis:
+          name: "Detector Afterglow / Persistence"
+          severity: major
+          guide: cross_cutting/detector_common_issues.md
+          image: afterglow_before_after.png
