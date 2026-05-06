@@ -1,0 +1,55 @@
+name: Feature request
+description: Propose a new feature, recipe, dataset, or doc change.
+labels: [enhancement, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing an improvement. Per CLAUDE.md invariant #2, every
+        code change must reference a doc id. Substantial changes will need a
+        new ADR or PRD update — please flag that below if you anticipate it.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of feature
+      options:
+        - New noise-mitigation recipe
+        - New bundled sample / dataset
+        - Explorer UI enhancement
+        - Static-site mirror enhancement
+        - Documentation
+        - CI / tooling
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: What user pain point does this solve? Cite a persona or US-* if relevant.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: How would the change look in concrete terms? File paths, schema changes, screenshots all welcome.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Anticipated scope
+      options:
+        - "Small (single PR, no new ADR)"
+        - "Medium (single PR, new ADR or PRD update)"
+        - "Large (multi-PR; needs ADR + PRD)"

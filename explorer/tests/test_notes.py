@@ -7,18 +7,17 @@ Ref: TST-001 (test_plan.md) — Unit tests for note parser.
 Ref: DC-001 (data_contracts.md) — Schema and vocabularies.
 """
 
+import sys
 import textwrap
 from pathlib import Path
 
 import pytest
 
-import sys
-
 _EXPLORER_DIR = Path(__file__).resolve().parent.parent
 if str(_EXPLORER_DIR) not in sys.path:
     sys.path.insert(0, str(_EXPLORER_DIR))
 
-from lib.notes import Note, _parse_note, _title_from_filename, load_notes
+from lib.notes import _parse_note, _title_from_filename, load_notes
 
 
 def test_title_from_filename() -> None:
@@ -31,7 +30,8 @@ def test_title_from_filename() -> None:
 def test_parse_note_with_frontmatter(tmp_path: Path) -> None:
     """Notes with valid YAML frontmatter are parsed correctly."""
     note_file = tmp_path / "test_note.md"
-    note_file.write_text(textwrap.dedent("""\
+    note_file.write_text(
+        textwrap.dedent("""\
         ---
         title: "TomoGAN Denoising"
         cluster: explore
@@ -43,7 +43,8 @@ def test_parse_note_with_frontmatter(tmp_path: Path) -> None:
         # TomoGAN
 
         Body content here.
-    """))
+    """)
+    )
 
     note = _parse_note(note_file, "03_ai_ml_methods")
 
@@ -75,13 +76,15 @@ def test_parse_note_without_frontmatter(tmp_path: Path) -> None:
 def test_parse_note_partial_frontmatter(tmp_path: Path) -> None:
     """Notes with only some frontmatter fields use defaults for the rest."""
     note_file = tmp_path / "partial.md"
-    note_file.write_text(textwrap.dedent("""\
+    note_file.write_text(
+        textwrap.dedent("""\
         ---
         title: "Partial Note"
         tags: [test]
         ---
         Body.
-    """))
+    """)
+    )
 
     note = _parse_note(note_file, "01_program_overview")
 
@@ -95,7 +98,8 @@ def test_parse_note_partial_frontmatter(tmp_path: Path) -> None:
 def test_invalid_vocabulary_warns(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
     """Invalid controlled vocabulary values produce warnings."""
     note_file = tmp_path / "bad.md"
-    note_file.write_text(textwrap.dedent("""\
+    note_file.write_text(
+        textwrap.dedent("""\
         ---
         title: "Bad Values"
         cluster: invalid_cluster
@@ -104,9 +108,11 @@ def test_invalid_vocabulary_warns(tmp_path: Path, caplog: pytest.LogCaptureFixtu
         tags: []
         ---
         Body.
-    """))
+    """)
+    )
 
     import logging
+
     with caplog.at_level(logging.WARNING):
         note = _parse_note(note_file, "01_program_overview")
 
@@ -132,4 +138,6 @@ def test_load_notes_from_real_repo() -> None:
     # All notes should have a valid cluster
     valid_clusters = {"discover", "explore", "build"}
     for note in notes:
-        assert note.cluster in valid_clusters, f"Note {note.path} has invalid cluster: {note.cluster}"
+        assert note.cluster in valid_clusters, (
+            f"Note {note.path} has invalid cluster: {note.cluster}"
+        )
