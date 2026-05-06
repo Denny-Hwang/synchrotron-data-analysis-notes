@@ -1,0 +1,100 @@
+# Tool configuration for eBERlight Explorer.
+#
+# This file configures linters and the type checker. There is intentionally
+# NO [project] table — the repo is not a packaged Python distribution.
+# Dependencies live in `explorer/requirements.txt`.
+#
+# Per CLAUDE.md invariant #2 (traceability), every code change must
+# reference a doc id in the commit / PR body — this is enforced by
+# review, not by tooling.
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [
+  "eberlight-explorer",  # legacy — frozen, see ADR-009
+  "site",                # generated static site
+  ".venv",
+  "10_interactive_lab/datasets",
+  "10_interactive_lab/LICENSES",
+]
+
+[tool.ruff.lint]
+select = [
+  "E",     # pycodestyle errors
+  "W",     # pycodestyle warnings
+  "F",     # pyflakes
+  "I",     # isort (import order)
+  "B",     # flake8-bugbear
+  "UP",    # pyupgrade
+  "SIM",   # flake8-simplify
+  "RET",   # flake8-return
+  "PTH",   # use pathlib
+  "PIE",   # flake8-pie
+  "T20",   # flake8-print (no print() in shipped code)
+  "RUF",   # ruff-specific
+]
+ignore = [
+  "E501",  # line too long — handled by formatter
+  "B008",  # function call in default argument — common Streamlit pattern
+  "RUF012",  # mutable class attrs — frozen dataclasses use field(default_factory=…) intentionally
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests can use print() and lower-case noise. They also legitimately do
+# sys.path manipulation before importing local modules under test (E402).
+"explorer/tests/*" = ["T20", "B", "E402"]
+# Streamlit pages must insert sys.path before importing local modules
+# (Streamlit runs each page as a separate process from `streamlit run`).
+"explorer/pages/*" = ["E402"]
+# The static-site generator legitimately prints progress and inserts
+# sys.path before importing the explorer's lib modules (which is the
+# whole point — single source of truth for IA / notes parsing).
+"scripts/build_static_site.py" = ["T20", "E402"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.11"
+strict = false           # Aim for strict gradually; start with conservative defaults.
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+no_implicit_optional = true
+check_untyped_defs = true
+disallow_untyped_defs = false   # tests are not fully typed yet
+exclude = [
+  "eberlight-explorer/",        # legacy
+  "site/",
+  "build/",
+  "dist/",
+]
+
+[[tool.mypy.overrides]]
+# Lazy-imported optional deps — typed via stubs only when present.
+module = [
+  "astroscrappy",
+  "astropy.*",
+  "skimage.*",
+  "scipy.*",
+  "tifffile",
+  "pywt",
+  "pooch",
+  "huggingface_hub",
+  "yaml",
+  "markdown",
+  "pygments.*",
+  "streamlit",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+# Keep CI parity with local runs.
+testpaths = ["explorer/tests"]
+addopts = "-ra --tb=short --strict-markers"
+filterwarnings = [
+  "ignore::RuntimeWarning:skimage.metrics.simple_metrics",
+]

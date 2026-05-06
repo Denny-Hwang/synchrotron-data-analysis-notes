@@ -131,7 +131,7 @@ def _parse_note(path: Path, folder: str) -> Note:
         except yaml.YAMLError:
             logger.warning("Invalid YAML frontmatter in %s", path)
             fm = {}
-        body = content[fm_match.end():]
+        body = content[fm_match.end() :]
         has_frontmatter = bool(fm)
     else:
         fm = {}

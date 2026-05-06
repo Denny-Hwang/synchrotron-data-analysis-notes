@@ -208,9 +208,7 @@ def fetch(entry: ZooEntry, progressbar: bool = False) -> Path:
         # ValueError covers pooch hash-mismatch; RuntimeError covers
         # pooch's wrapper exceptions for missing optional deps.
         # KeyboardInterrupt / SystemExit / MemoryError propagate.
-        raise DownloadError(
-            f"Failed to fetch '{entry.name}' from {entry.url}: {exc}"
-        ) from exc
+        raise DownloadError(f"Failed to fetch '{entry.name}' from {entry.url}: {exc}") from exc
 
     return Path(path_str)
 
@@ -224,16 +222,11 @@ def fetch_huggingface(entry: ZooEntry) -> Path:
         DownloadError: If the entry is not an HF entry or hub is unavailable.
     """
     if not entry.is_huggingface:
-        raise DownloadError(
-            f"Entry '{entry.name}' is not a Hugging Face entry "
-            f"(no hf_model_id)"
-        )
+        raise DownloadError(f"Entry '{entry.name}' is not a Hugging Face entry (no hf_model_id)")
     try:
         from huggingface_hub import snapshot_download  # type: ignore[import-not-found]
     except ImportError as e:
-        raise DownloadError(
-            "huggingface_hub not installed; pip install huggingface-hub"
-        ) from e
+        raise DownloadError("huggingface_hub not installed; pip install huggingface-hub") from e
 
     try:
         path_str = snapshot_download(
@@ -244,7 +237,5 @@ def fetch_huggingface(entry: ZooEntry) -> Path:
         # As above — KeyboardInterrupt / SystemExit / MemoryError
         # propagate. huggingface_hub raises a `RepositoryNotFoundError`
         # which is a subclass of `OSError` (so this catches it cleanly).
-        raise DownloadError(
-            f"Failed to fetch HF model '{entry.hf_model_id}': {exc}"
-        ) from exc
+        raise DownloadError(f"Failed to fetch HF model '{entry.hf_model_id}': {exc}") from exc
     return Path(path_str)

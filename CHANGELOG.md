@@ -6,6 +6,18 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [Unreleased] — review pass 2
+
+### Added
+- **Pre-commit + linting** (`.pre-commit-config.yaml`, `pyproject.toml`, `.github/workflows/lint.yml`). Runs `ruff check` (E/W/F/I/B/UP/SIM/RET/PTH/PIE/T20/RUF), `ruff format --check`, and `mypy` (informational). The same suite runs locally via `pre-commit install` and in CI via the new `Lint` workflow on Python 3.12. Ruff configuration is per-file: tests get `T20`/`B`/`E402` leeway, Streamlit pages get `E402` leeway (legitimate `sys.path` setup), the static-site generator gets `T20`/`E402` leeway. Closes P1-9.
+- **`explorer/pages/4_Experiment.py`** now offers a **download button** for the processed array — `.npy` (raw float32 for downstream analysis) and `.tiff` (lossless, ImageJ-compatible). Helps users plug Lab outputs into their own pipelines (P2-6).
+- **`explorer/tests/test_build_static_site.py`** — 17 new tests for `scripts/build_static_site.py`. Covers `_rel`, `_md_link_rewrite`, `_folder_label`, `_card_html` (incl. HTML-escaping of titles), `_recipe_card_html`, `_recipe_gallery_html` (verifies FR-022), and a full `build()` end-to-end run that asserts every cluster page, the recipe gallery banner, the 404 page, and the `.nojekyll` guard. Closes P1-10.
+- 30+ ruff-driven cleanups across `explorer/` and `experiments/` — sorted imports, list spread instead of `+`, explicit `strict=` on every `zip(...)`, raw strings on regex `match=` patterns, dropped unused `noqa`, `pyupgrade` syntactic fixes.
+
+### Changed
+- All Python source under `explorer/`, `experiments/`, `scripts/` is now `ruff format`ed (line-length 100, double quotes). Future PRs will keep this clean via the pre-commit hook + Lint workflow.
+- `pyproject.toml` introduced as the single tool-config source — `[tool.ruff]`, `[tool.mypy]`, `[tool.pytest.ini_options]`. There is intentionally no `[project]` table — the repo is not a packaged distribution.
+
 ## [Unreleased] — review pass 1
 
 ### Fixed

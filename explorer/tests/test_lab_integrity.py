@@ -148,8 +148,7 @@ def _all_attribution_files() -> list[Path]:
 def test_attribution_files_present() -> None:
     files = _all_attribution_files()
     assert len(files) >= 5, (
-        f"expected at least 5 ATTRIBUTION.md files (one per dataset folder), "
-        f"found {len(files)}"
+        f"expected at least 5 ATTRIBUTION.md files (one per dataset folder), found {len(files)}"
     )
 
 
@@ -178,28 +177,21 @@ def test_attribution_mentions_license_and_citation(attr_path: Path) -> None:
     """Body of each ATTRIBUTION.md must include a license name and a citation."""
     text = attr_path.read_text(encoding="utf-8")
     body_lower = text.lower()
-    has_license_section = (
-        "license" in body_lower
-        and any(
-            keyword in body_lower
-            for keyword in (
-                "apache",
-                "bsd",
-                "mit",
-                "lgpl",
-                "gpl",
-                "cc0",
-                "creative commons",
-                "public domain",
-            )
+    has_license_section = "license" in body_lower and any(
+        keyword in body_lower
+        for keyword in (
+            "apache",
+            "bsd",
+            "mit",
+            "lgpl",
+            "gpl",
+            "cc0",
+            "creative commons",
+            "public domain",
         )
     )
-    assert has_license_section, (
-        f"{attr_path}: no recognisable license section found in body"
-    )
-    has_citation = any(
-        keyword in body_lower for keyword in ("citation", "cite", "doi:", "doi.org")
-    )
+    assert has_license_section, f"{attr_path}: no recognisable license section found in body"
+    has_citation = any(keyword in body_lower for keyword in ("citation", "cite", "doi:", "doi.org"))
     assert has_citation, f"{attr_path}: no citation / DOI mention in body"
 
 
@@ -246,6 +238,4 @@ def test_citations_bib_present() -> None:
     assert bib.exists(), "CITATIONS.bib missing"
     text = bib.read_text(encoding="utf-8")
     # Sanity: at least one BibTeX entry.
-    assert re.search(r"^@\w+\{", text, re.MULTILINE), (
-        "CITATIONS.bib has no @entry{...} blocks"
-    )
+    assert re.search(r"^@\w+\{", text, re.MULTILINE), "CITATIONS.bib has no @entry{...} blocks"

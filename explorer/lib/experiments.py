@@ -14,9 +14,10 @@ from __future__ import annotations
 
 import importlib
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import numpy as np
 import yaml
@@ -116,9 +117,7 @@ def _parse_parameter(d: dict) -> Parameter:
     name = str(d["name"])
     p_type = str(d["type"])
     if p_type not in _VALID_PARAM_TYPES:
-        raise ValueError(
-            f"parameter '{name}': type '{p_type}' not in {sorted(_VALID_PARAM_TYPES)}"
-        )
+        raise ValueError(f"parameter '{name}': type '{p_type}' not in {sorted(_VALID_PARAM_TYPES)}")
 
     if "default" not in d:
         raise ValueError(f"parameter '{name}': 'default' is required")
@@ -130,32 +129,22 @@ def _parse_parameter(d: dict) -> Parameter:
 
     if p_type in ("int", "float"):
         if p_min is None or p_max is None:
-            raise ValueError(
-                f"parameter '{name}': numeric type requires 'min' and 'max'"
-            )
+            raise ValueError(f"parameter '{name}': numeric type requires 'min' and 'max'")
         try:
             d_val = float(default)
             lo = float(p_min)
             hi = float(p_max)
         except (TypeError, ValueError) as exc:
-            raise ValueError(
-                f"parameter '{name}': non-numeric bound or default ({exc})"
-            ) from exc
+            raise ValueError(f"parameter '{name}': non-numeric bound or default ({exc})") from exc
         if lo > hi:
-            raise ValueError(
-                f"parameter '{name}': min ({lo}) > max ({hi})"
-            )
+            raise ValueError(f"parameter '{name}': min ({lo}) > max ({hi})")
         if not (lo <= d_val <= hi):
-            raise ValueError(
-                f"parameter '{name}': default {d_val} outside [{lo}, {hi}]"
-            )
+            raise ValueError(f"parameter '{name}': default {d_val} outside [{lo}, {hi}]")
     elif p_type == "select":
         if not options:
             raise ValueError(f"parameter '{name}': 'select' requires 'options'")
         if default not in options:
-            raise ValueError(
-                f"parameter '{name}': default {default!r} not in options {options}"
-            )
+            raise ValueError(f"parameter '{name}': default {default!r} not in options {options}")
 
     return Parameter(
         name=name,
@@ -365,7 +354,7 @@ def _align_shapes(
         return a, b
     if a.ndim != 2 or b.ndim != 2:
         return None
-    if any(abs(sa - sb) > tolerance for sa, sb in zip(a.shape, b.shape)):
+    if any(abs(sa - sb) > tolerance for sa, sb in zip(a.shape, b.shape, strict=True)):
         return None
     h = min(a.shape[0], b.shape[0])
     w = min(a.shape[1], b.shape[1])

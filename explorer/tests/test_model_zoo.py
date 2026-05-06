@@ -22,7 +22,7 @@ if str(_EXPLORER_DIR) not in sys.path:
 
 _REPO_ROOT = _EXPLORER_DIR.parent
 
-from lib.model_zoo import (  # noqa: E402
+from lib.model_zoo import (
     DownloadError,
     ZooEntry,
     fetch,

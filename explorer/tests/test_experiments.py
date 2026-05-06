@@ -21,7 +21,7 @@ _REPO_ROOT = _EXPLORER_DIR.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from lib.experiments import (  # noqa: E402
+from lib.experiments import (
     Recipe,
     compute_metrics,
     load_recipes,
@@ -30,7 +30,6 @@ from lib.experiments import (  # noqa: E402
     resolve_function,
     run_pipeline,
 )
-
 
 # ---------------------------------------------------------------------------
 # Recipe parsing
@@ -184,9 +183,7 @@ def test_compute_metrics_aligns_within_tolerance() -> None:
 def test_compute_metrics_align_tolerance_kwarg() -> None:
     """The tolerance can be tightened to disable alignment entirely."""
     with pytest.raises(ValueError, match="shape mismatch beyond tolerance"):
-        compute_metrics(
-            np.zeros((100, 100)), np.zeros((101, 100)), ["psnr"], align_tolerance=0
-        )
+        compute_metrics(np.zeros((100, 100)), np.zeros((101, 100)), ["psnr"], align_tolerance=0)
 
 
 def test_compute_metrics_handles_nan_input() -> None:
@@ -244,19 +241,15 @@ def test_parameter_unknown_type_rejected(tmp_path: Path) -> None:
 
 def test_parameter_default_out_of_range_rejected(tmp_path: Path) -> None:
     p = tmp_path / "recipe.yaml"
-    _write_recipe_with_params(
-        p, "  - {name: x, type: int, default: 200, min: 0, max: 100}"
-    )
+    _write_recipe_with_params(p, "  - {name: x, type: int, default: 200, min: 0, max: 100}")
     with pytest.raises(ValueError, match="outside"):
         parse_recipe(p)
 
 
 def test_parameter_min_gt_max_rejected(tmp_path: Path) -> None:
     p = tmp_path / "recipe.yaml"
-    _write_recipe_with_params(
-        p, "  - {name: x, type: int, default: 5, min: 100, max: 0}"
-    )
-    with pytest.raises(ValueError, match="min .* > max"):
+    _write_recipe_with_params(p, "  - {name: x, type: int, default: 5, min: 100, max: 0}")
+    with pytest.raises(ValueError, match=r"min .* > max"):
         parse_recipe(p)
 
 
@@ -269,9 +262,7 @@ def test_parameter_select_requires_options(tmp_path: Path) -> None:
 
 def test_parameter_select_default_not_in_options_rejected(tmp_path: Path) -> None:
     p = tmp_path / "recipe.yaml"
-    _write_recipe_with_params(
-        p, '  - {name: x, type: select, default: z, options: [a, b]}'
-    )
+    _write_recipe_with_params(p, "  - {name: x, type: select, default: z, options: [a, b]}")
     with pytest.raises(ValueError, match="not in options"):
         parse_recipe(p)
 
@@ -353,8 +344,7 @@ def test_ring_artifact_pipeline_reduces_stripes() -> None:
     raw_metrics = compute_metrics(ref, raw, ["psnr"])
     proc_metrics = compute_metrics(ref, processed, ["psnr"])
     assert proc_metrics["psnr"] > raw_metrics["psnr"], (
-        f"PSNR did not improve: raw={raw_metrics['psnr']:.3f} "
-        f"proc={proc_metrics['psnr']:.3f}"
+        f"PSNR did not improve: raw={raw_metrics['psnr']:.3f} proc={proc_metrics['psnr']:.3f}"
     )
 
 
@@ -372,12 +362,8 @@ def test_wavelet_fft_pipeline_runs_and_metrics_meaningful() -> None:
     )
     recipe = parse_recipe(recipe_path)
 
-    raw = load_sample(
-        _REPO_ROOT, "datasets/tomography/ring_artifact/sinogram_dead_stripe.tif"
-    )
-    ref = load_sample(
-        _REPO_ROOT, "datasets/tomography/ring_artifact/sinogram_normal.tif"
-    )
+    raw = load_sample(_REPO_ROOT, "datasets/tomography/ring_artifact/sinogram_dead_stripe.tif")
+    ref = load_sample(_REPO_ROOT, "datasets/tomography/ring_artifact/sinogram_normal.tif")
     processed = run_pipeline(recipe, raw, {"level": 4, "sigma": 2.0, "wname": "db5"})
 
     assert processed.shape == raw.shape
@@ -458,9 +444,7 @@ def test_all_bundled_recipe_parameters_have_valid_types() -> None:
                 assert p.min is not None and p.max is not None, (
                     f"{r.recipe_id}: numeric parameter '{p.name}' missing min/max"
                 )
-                assert p.default is not None, (
-                    f"{r.recipe_id}: parameter '{p.name}' missing default"
-                )
+                assert p.default is not None, f"{r.recipe_id}: parameter '{p.name}' missing default"
             if p.type == "select":
                 assert p.options, f"{r.recipe_id}: select parameter '{p.name}' missing options"
 
@@ -479,6 +463,4 @@ def test_all_bundled_recipe_noise_catalog_refs_exist() -> None:
         if not r.noise_catalog_ref:
             continue
         full = _REPO_ROOT / r.noise_catalog_ref
-        assert full.exists(), (
-            f"{r.recipe_id}: noise_catalog_ref {r.noise_catalog_ref} not found"
-        )
+        assert full.exists(), f"{r.recipe_id}: noise_catalog_ref {r.noise_catalog_ref} not found"
