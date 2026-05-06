@@ -6,7 +6,6 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
-
 ## [Unreleased] — Phase R6: Search + Bibliography
 
 ### Added
@@ -18,9 +17,139 @@ This project uses two independent SemVer streams per ADR-006:
 
 ### Notes
 - ADR-002 stays intact — the index is rebuilt from notes at runtime and never written to disk.
-- `pytest explorer/tests/` → 141 passed on this branch (after merge with R4 + R5 the total reaches ≥190).
+- `pytest explorer/tests/` → after merge with R4 + R5 the total reaches ≥190.
 - `ruff check / ruff format --check` clean.
 - Phase R7 (Accessibility audit — WCAG 2.1 AA) is the next step.
+
+
+## [Unreleased] — Phase R5: Detail Level (L0/L1/L2/L3)
+
+### Added
+- **`explorer/lib/detail_level.py`** — pure helpers that derive four reading depths from the same markdown body:
+  - **L0 Overview** — first paragraph (≤600 chars), top H1 stripped, fenced code blocks ignored.
+  - **L1 Sections** — outline of H2/H3 headings + first sentence per heading. Lines starting with `#` inside fenced code blocks (Python comments, shell, etc.) are correctly skipped — closes Codex review P2 on PR #45.
+  - **L2 Details** — the full body (default, unchanged behaviour).
+  - **L3 Source** — raw markdown in a fenced code block whose outer fence length is **dynamically chosen** (`max(3, longest_inner_run + 1)`) so embedded ``‌```mermaid`` / ``‌```python`` blocks round-trip verbatim with no backslash escapes — closes the second Codex P2 finding.
+- **`?level=…` deep linking** — `lib/cluster_page.py` parses `?level=L0|L1|L2|L3` (or the long-form `Overview / Sections / Details / Source` the legacy app used) and renders the chosen level. A pill row above each note shows the four levels with the active one highlighted; clicking switches the param.
+- **`explorer/tests/test_detail_level.py`** — 32 tests covering vocabulary, every level's output, dispatcher fallback, the parametrised long-form-label normaliser, plus three new **regression tests** targeting the Codex findings (in-fence Python-comment headings; in-fence shell-comment headings; verbatim L3 round-trip with quadruple-fence containment).
+
+### Changed
+- **`.github/workflows/lint.yml` + `.pre-commit-config.yaml`** bump ruff from `0.5.7` to `0.11.13`. The older pin's `ruff format` output disagreed with newer local installs on `assert …, (…)` wrapping (style flipped between 0.8 and 0.9). 0.11.13 is the first stable line where editor-side and CI converge in May 2026 — this resolves the lint-job failure on PR #45.
+
+### Notes
+- ADR-002 stays intact — no per-level copies of any note are written to disk; all four levels are derived from the same markdown body.
+- `pytest explorer/tests/` → 152 passed on this branch (after merge with R4 the total reaches ≥166: R4 baseline 134 + R5 net 32 - 4 helper duplicates).
+- `ruff check / ruff format --check` clean against `ruff==0.11.13`.
+- Phase R6 (Search + BibTeX + DOI links) is the next step.
+
+## [Unreleased] — Phase R4: Noise-catalog troubleshooter + before/after viewer
+
+### Added
+- **`explorer/pages/5_Troubleshooter.py`** — symptom-based decision-tree page. Pick one of 11 symptom categories (`Circular/Ring Patterns`, `Isolated Bright/Dark Spots`, `Streak/Stripe Patterns`, `Overall Graininess`, `Blurring`, `Intensity Anomalies`, `Spectral Abnormalities`, `Boundary/Stitching`, `Suspicious "Too-Good" Features`, `Phase Map Discontinuities`, `Ghost/Residual`) → see all differential diagnoses as cards with severity badge, conditions list, ▶ Run-experiment link (when a recipe matches), and the bundled before/after image. Sidebar provides modality + severity filters and `?symptom=<id>` deep linking.
+- **`09_noise_catalog/troubleshooter.yaml`** — machine-readable companion to the prose `troubleshooter.md`. 11 symptoms × 35 differential cases, each carrying `conditions[]`, `diagnosis.{name,severity,guide,recipe?,image?}`, plus optional Python `quick_checks`. ADR-002 stays intact: prose stays canonical; YAML is a structured view for the page + tests.
+- **`explorer/lib/troubleshooter.py`** — typed parser (`Symptom` / `Case` / `Diagnosis` / `QuickCheck`), severity-color helper, and before/after image discovery (maps `<stem>_before_after.png` → `Path` for the 22 bundled comparisons).
+- **`explorer/tests/test_troubleshooter.py`** — 14 new tests asserting: 11 symptoms load, every diagnosis has canonical severity + a guide path that resolves to an existing `09_noise_catalog/*` markdown file, every declared `image` filename exists in `09_noise_catalog/images/`, and every declared `recipe` id resolves to a bundled `experiments/**/recipe.yaml`. **Drift protection at CI time** for the cross-references between sections 9, 10, and the Streamlit page.
+
+### Notes
+- `pytest explorer/tests/` → 134 passed (was 120 in R3; +14 troubleshooter tests).
+- `ruff check / format --check` clean.
+- `streamlit run explorer/app.py` → `/_stcore/health` returns `ok`; the new Troubleshooter page is in the sidebar.
+- Phase R5 (Detail Level L0/L1/L2/L3 progressive disclosure) is the next step.
+
+## [Unreleased] — Phase R3: Mermaid diagram rendering
+
+### Added
+- **Mermaid diagram rendering** across both surfaces of the
+  explorer (Streamlit + GitHub Pages mirror). Any note can now
+  embed a fenced ```` ```mermaid ```` block in its markdown and
+  the diagram renders live — flowcharts, sequence diagrams,
+  class diagrams, etc. ADR-002 stays intact: diagrams live inside
+  the note markdown, not in page-side dicts (the legacy
+  `eberlight-explorer/` carried 40+ inline diagrams in three
+  hand-curated `*_DIAGRAMS = {…}` dictionaries).
+- **`explorer/components/note_view.py`** — splits the body at
+  every ```` ```mermaid ```` block, renders the surrounding
+  markdown via `st.markdown(...)` as before, and renders each
+  Mermaid block as a `streamlit.components.v1.html` iframe that
+  loads `mermaid@10` from the public jsDelivr CDN.
+- **`scripts/build_static_site.py`** — adds two helpers,
+  `_extract_mermaid_blocks` (lifts each block out of the raw
+  markdown body before codehilite mangles it into a syntax-
+  highlighted listing) and `_replace_mermaid_blocks` (swaps the
+  base64-encoded HTML-comment placeholders back to live
+  `<div class="mermaid">` elements after markdown rendering).
+  The page head injects the Mermaid runtime once per page that
+  actually carries a diagram — no overhead on note pages
+  without one.
+- **3 demo diagrams** added to actual note markdown:
+  - `07_data_pipeline/README.md` — pipeline flowchart
+    (Acquisition → Streaming → Processing → Analysis → Storage).
+  - `03_ai_ml_methods/denoising/tomogan.md` — TomoGAN
+    conditional-GAN architecture (U-Net generator + PatchGAN
+    discriminator + VGG-perceptual loss).
+  - `09_noise_catalog/tomography/ring_artifact.md` — causal
+    flow showing how a defective detector column becomes a
+    sinogram stripe and then a reconstructed ring, plus the
+    three mitigation algorithms (Vo 2018, Munch 2009, DL).
+- **`explorer/tests/test_mermaid.py`** — 13 new tests covering
+  the regex pattern (single / multiple / inline-code-not-matched
+  / non-mermaid-language-not-matched / trailing-whitespace), the
+  static-site round-trip (extract → render → replace preserves
+  arrow operators verbatim), and end-to-end build verification
+  for each demo note.
+
+### Notes
+- `pytest explorer/tests/` → 120 passed (was 107 in R2; +13
+  Mermaid tests).
+- `ruff check / ruff format --check` clean.
+- Static-site build emits `<div class="mermaid">` for every demo
+  note plus the Mermaid runtime script in the page head.
+- `streamlit run explorer/app.py` → `/_stcore/health` returns
+  `ok`; the new diagrams render live in the note-detail view.
+- Phase R4 (Noise-catalog 11-symptom troubleshooter +
+  before/after image viewer) is the next step.
+
+
+
+## [Unreleased] — Phase R2: Knowledge Graph + cross-reference matrices
+
+### Added
+- **`explorer/pages/0_Knowledge_Graph.py`** — interactive cross-reference
+  network visualising every modality, AI/ML method, paper, tool,
+  Interactive-Lab recipe (§10), and noise/artifact in the repository
+  on a single page. Plotly + NetworkX spring layout; six entity kinds
+  rendered in distinct colours (Recipes highlighted red so the
+  Interactive Lab is immediately visible). Layer checkboxes hide /
+  show each entity kind. Hover any node for kind, category, doc path.
+- **Entity navigator** — searchable selectbox of all 100+ entities
+  with a live deep-link to the underlying note (or the Experiment
+  page for recipes), reusing the `?note=…` routing introduced in R1.
+- **Cross-reference matrices** (3 expandable tables):
+  - Modality × noise-type count (which modality has the most
+    catalogued artifacts);
+  - **Recipe → noise mapping** with deep links — derived from each
+    `recipe.yaml`'s `noise_catalog_ref`, so section 10 is treated
+    as a first-class graph layer;
+  - Tool ↔ paper mention table (best-effort regex against paper
+    review markdown).
+- **`explorer/lib/cross_refs.py`** — pure data layer that builds the
+  graph at runtime from folder structure plus `experiments/**/recipe.yaml`.
+  Honours ADR-002 ("notes are the single source of truth") — no
+  hand-curated YAML catalogs are reintroduced. Three edge sources:
+  folder structure (always reliable), recipe YAML (precise
+  recipe→modality / recipe→noise edges), and best-effort regex
+  scanning of paper review markdown for tool / method mentions.
+- **`explorer/tests/test_cross_refs.py`** — 16 new tests asserting
+  the schema (every entity has a unique namespaced id, every edge
+  endpoint resolves, no duplicate edges), the canonical six
+  modalities are detected, and every section-10 recipe carries both
+  a modality and a noise edge.
+- **Landing-page CTA grid** — `app.py` now shows a two-column card
+  block with Knowledge Graph + Interactive Lab side-by-side, both
+  with proper deep links to their pages.
+- **Dependencies**: `plotly>=5.18,<7.0`, `networkx>=3.1,<4.0`,
+  `pandas>=2.1,<3.0` added to `explorer/requirements.txt`. (NetworkX
+  was already a transitive dep through scikit-image; we pin it
   explicitly so future major releases don't surprise the graph.)
 
 ### Changed
