@@ -6,6 +6,27 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+
+## [Unreleased] — Phase R5: Detail Level (L0/L1/L2/L3)
+
+### Added
+- **`explorer/lib/detail_level.py`** — pure helpers that derive four reading depths from the same markdown body:
+  - **L0 Overview** — first paragraph (≤600 chars), top H1 stripped, fenced code blocks ignored.
+  - **L1 Sections** — outline of H2/H3 headings + first sentence per heading. Lines starting with `#` inside fenced code blocks (Python comments, shell, etc.) are correctly skipped — closes Codex review P2 on PR #45.
+  - **L2 Details** — the full body (default, unchanged behaviour).
+  - **L3 Source** — raw markdown in a fenced code block whose outer fence length is **dynamically chosen** (`max(3, longest_inner_run + 1)`) so embedded ``‌```mermaid`` / ``‌```python`` blocks round-trip verbatim with no backslash escapes — closes the second Codex P2 finding.
+- **`?level=…` deep linking** — `lib/cluster_page.py` parses `?level=L0|L1|L2|L3` (or the long-form `Overview / Sections / Details / Source` the legacy app used) and renders the chosen level. A pill row above each note shows the four levels with the active one highlighted; clicking switches the param.
+- **`explorer/tests/test_detail_level.py`** — 32 tests covering vocabulary, every level's output, dispatcher fallback, the parametrised long-form-label normaliser, plus three new **regression tests** targeting the Codex findings (in-fence Python-comment headings; in-fence shell-comment headings; verbatim L3 round-trip with quadruple-fence containment).
+
+### Changed
+- **`.github/workflows/lint.yml` + `.pre-commit-config.yaml`** bump ruff from `0.5.7` to `0.11.13`. The older pin's `ruff format` output disagreed with newer local installs on `assert …, (…)` wrapping (style flipped between 0.8 and 0.9). 0.11.13 is the first stable line where editor-side and CI converge in May 2026 — this resolves the lint-job failure on PR #45.
+
+### Notes
+- ADR-002 stays intact — no per-level copies of any note are written to disk; all four levels are derived from the same markdown body.
+- `pytest explorer/tests/` → 152 passed on this branch (after merge with R4 the total reaches ≥166: R4 baseline 134 + R5 net 32 - 4 helper duplicates).
+- `ruff check / ruff format --check` clean against `ruff==0.11.13`.
+- Phase R6 (Search + BibTeX + DOI links) is the next step.
+
 ## [Unreleased] — Phase R4: Noise-catalog troubleshooter + before/after viewer
 
 ### Added
@@ -19,7 +40,6 @@ This project uses two independent SemVer streams per ADR-006:
 - `ruff check / format --check` clean.
 - `streamlit run explorer/app.py` → `/_stcore/health` returns `ok`; the new Troubleshooter page is in the sidebar.
 - Phase R5 (Detail Level L0/L1/L2/L3 progressive disclosure) is the next step.
-
 
 ## [Unreleased] — Phase R3: Mermaid diagram rendering
 
