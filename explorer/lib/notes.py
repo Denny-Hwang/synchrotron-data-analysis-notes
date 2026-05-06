@@ -73,6 +73,23 @@ class Note:
     category: str = ""
     has_frontmatter: bool = False
 
+    def url_id(self, repo_root: Path) -> str:
+        """Stable URL-safe identifier for this note (path relative to repo root).
+
+        Used as the ``?note=...`` query-parameter value so the Streamlit
+        cluster pages can deep-link to a specific note. Always uses
+        forward slashes to match the static-site mirror's URL scheme.
+        """
+        return self.path.relative_to(repo_root).as_posix()
+
+
+def find_note_by_url_id(notes: list[Note], repo_root: Path, url_id: str) -> Note | None:
+    """Reverse lookup of :meth:`Note.url_id`. Returns the matching note or None."""
+    for n in notes:
+        if n.url_id(repo_root) == url_id:
+            return n
+    return None
+
 
 def _title_from_filename(filename: str) -> str:
     """Infer a human-readable title from a filename.

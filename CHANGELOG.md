@@ -6,6 +6,65 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [Unreleased] — Phase R1: Critical UX restoration
+
+The deprecation of `eberlight-explorer/` (ADR-009) shipped before the
+new `explorer/` had reached feature parity. This first restoration
+pass fixes the most painful regressions where core navigation was
+silently broken.
+
+### Fixed
+- **FR-004 — Note detail deep linking**. Cards on cluster pages
+  previously rendered with `href="#"` — clicking did nothing. Cards
+  now link to `?note=<path>` and the cluster page (via the new
+  `lib/cluster_page.py` router) detects the query parameter and
+  switches to the note-detail view (`components/note_view.py`),
+  which already existed but had no callsite.
+- **FR-011 — Header navigation**. Header cluster links were
+  hard-coded to `href="#"` with `pointer-events:none`. They now
+  point to `/Discover`, `/Explore`, `/Build`, plus a 🧪 Experiment
+  shortcut. Streamlit's auto-discovered page slugs handle the
+  routing. The active cluster is highlighted via a translucent
+  pill background.
+- **FR-005 — Breadcrumb on note view**. The cluster crumb's URL was
+  `"#"`. It now points to the actual cluster page so the user can
+  navigate up one level.
+- **FR-007 — Clickable tags**. Tag pills were inert `<span>`s; they
+  are now `<a>` links to `?tag=<value>` and the cluster page filters
+  the card grid to matching notes plus a "Filtering by tag: …
+  ✕ clear filter" banner.
+
+### Added
+- `explorer/lib/cluster_page.py` — single shared router for the
+  three cluster landing pages. Three modes: note-detail deep link,
+  tag-filtered grid, default folder-grouped grid.
+- `Note.url_id(repo_root)` and `find_note_by_url_id(...)` helpers in
+  `explorer/lib/notes.py`.
+- `render_note_card(note, repo_root)` convenience wrapper in
+  `explorer/components/card.py`.
+- `render_header(active_cluster=…)` parameter so each page can
+  highlight its own cluster.
+- `cluster_url` parameter on `render_note_view(...)` so the
+  breadcrumb's cluster crumb is a real link instead of `"#"`.
+
+### Changed
+- `explorer/pages/1_Discover.py`, `2_Explore.py`, `3_Build.py`
+  reduced to thin delegators that call `render_cluster_page(...)`
+  with their cluster id. ~50 lines of duplication removed across
+  the three.
+
+### Notes
+- This is **Phase R1 of a 7-phase parity restoration plan**. Phases
+  R2–R7 (Knowledge Graph + Mermaid library + Noise-catalog
+  troubleshooter + Detail Level + search + bibliography +
+  accessibility) ship in subsequent PRs.
+- `pytest explorer/tests/` → 91 passed, 0 failed (unchanged from
+  before — R1 doesn't add tests yet; component tests for the new
+  router land in R2 along with Knowledge Graph tests).
+- Static-site mirror builds cleanly: 188 notes from 10 folders.
+
+
+
 ## [Unreleased] — legacy hard-redirect
 
 ### Fixed
