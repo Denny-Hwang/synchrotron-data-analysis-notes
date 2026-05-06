@@ -11,18 +11,36 @@ This project uses two independent SemVer streams per ADR-006:
 
 ### Added
 - **`explorer/lib/detail_level.py`** — pure helpers that derive four reading depths from the same markdown body:
-  - **L0 Overview** — first paragraph (≤600 chars), top H1 stripped.
-  - **L1 Sections** — outline of H2/H3 headings + first sentence per heading.
+  - **L0 Overview** — first paragraph (≤600 chars), top H1 stripped, fenced code blocks ignored.
+  - **L1 Sections** — outline of H2/H3 headings + first sentence per heading. Lines starting with `#` inside fenced code blocks (Python comments, shell, etc.) are correctly skipped — closes Codex review P2 on PR #45.
   - **L2 Details** — the full body (default, unchanged behaviour).
-  - **L3 Source** — raw markdown in a fenced code block (inner `` ``` `` escaped).
+  - **L3 Source** — raw markdown in a fenced code block whose outer fence length is **dynamically chosen** (`max(3, longest_inner_run + 1)`) so embedded ``‌```mermaid`` / ``‌```python`` blocks round-trip verbatim with no backslash escapes — closes the second Codex P2 finding.
 - **`?level=…` deep linking** — `lib/cluster_page.py` parses `?level=L0|L1|L2|L3` (or the long-form `Overview / Sections / Details / Source` the legacy app used) and renders the chosen level. A pill row above each note shows the four levels with the active one highlighted; clicking switches the param.
-- **`explorer/tests/test_detail_level.py`** — 28 new tests covering vocabulary, every level's output, dispatcher fallback, and the parametrised long-form-label normaliser.
+- **`explorer/tests/test_detail_level.py`** — 32 tests covering vocabulary, every level's output, dispatcher fallback, the parametrised long-form-label normaliser, plus three new **regression tests** targeting the Codex findings (in-fence Python-comment headings; in-fence shell-comment headings; verbatim L3 round-trip with quadruple-fence containment).
+
+### Changed
+- **`.github/workflows/lint.yml` + `.pre-commit-config.yaml`** bump ruff from `0.5.7` to `0.11.13`. The older pin's `ruff format` output disagreed with newer local installs on `assert …, (…)` wrapping (style flipped between 0.8 and 0.9). 0.11.13 is the first stable line where editor-side and CI converge in May 2026 — this resolves the lint-job failure on PR #45.
 
 ### Notes
 - ADR-002 stays intact — no per-level copies of any note are written to disk; all four levels are derived from the same markdown body.
-- `pytest explorer/tests/` → 148 passed (was 120 in R3; +28 detail-level).
-- `ruff check / ruff format --check` clean.
+- `pytest explorer/tests/` → 152 passed on this branch (after merge with R4 the total reaches ≥166: R4 baseline 134 + R5 net 32 - 4 helper duplicates).
+- `ruff check / ruff format --check` clean against `ruff==0.11.13`.
 - Phase R6 (Search + BibTeX + DOI links) is the next step.
+
+## [Unreleased] — Phase R4: Noise-catalog troubleshooter + before/after viewer
+
+### Added
+- **`explorer/pages/5_Troubleshooter.py`** — symptom-based decision-tree page. Pick one of 11 symptom categories (`Circular/Ring Patterns`, `Isolated Bright/Dark Spots`, `Streak/Stripe Patterns`, `Overall Graininess`, `Blurring`, `Intensity Anomalies`, `Spectral Abnormalities`, `Boundary/Stitching`, `Suspicious "Too-Good" Features`, `Phase Map Discontinuities`, `Ghost/Residual`) → see all differential diagnoses as cards with severity badge, conditions list, ▶ Run-experiment link (when a recipe matches), and the bundled before/after image. Sidebar provides modality + severity filters and `?symptom=<id>` deep linking.
+- **`09_noise_catalog/troubleshooter.yaml`** — machine-readable companion to the prose `troubleshooter.md`. 11 symptoms × 35 differential cases, each carrying `conditions[]`, `diagnosis.{name,severity,guide,recipe?,image?}`, plus optional Python `quick_checks`. ADR-002 stays intact: prose stays canonical; YAML is a structured view for the page + tests.
+- **`explorer/lib/troubleshooter.py`** — typed parser (`Symptom` / `Case` / `Diagnosis` / `QuickCheck`), severity-color helper, and before/after image discovery (maps `<stem>_before_after.png` → `Path` for the 22 bundled comparisons).
+- **`explorer/tests/test_troubleshooter.py`** — 14 new tests asserting: 11 symptoms load, every diagnosis has canonical severity + a guide path that resolves to an existing `09_noise_catalog/*` markdown file, every declared `image` filename exists in `09_noise_catalog/images/`, and every declared `recipe` id resolves to a bundled `experiments/**/recipe.yaml`. **Drift protection at CI time** for the cross-references between sections 9, 10, and the Streamlit page.
+
+### Notes
+- `pytest explorer/tests/` → 134 passed (was 120 in R3; +14 troubleshooter tests).
+- `ruff check / format --check` clean.
+- `streamlit run explorer/app.py` → `/_stcore/health` returns `ok`; the new Troubleshooter page is in the sidebar.
+- Phase R5 (Detail Level L0/L1/L2/L3 progressive disclosure) is the next step.
+
 ## [Unreleased] — Phase R3: Mermaid diagram rendering
 
 ### Added

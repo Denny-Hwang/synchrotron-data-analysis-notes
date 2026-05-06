@@ -90,28 +90,110 @@ def test_l1_falls_back_to_l0_for_no_headings() -> None:
     assert render_l1(body) == render_l0(body)
 
 
+def test_l1_ignores_hashes_inside_python_code_fence() -> None:
+    """Codex P2: lines starting with `#` inside a ``‌```python`` block
+    are Python comments, not markdown headings."""
+    body = textwrap.dedent(
+        """\
+        # Real Title
+
+        ## Real Section
+
+        ```python
+        # this is a python comment, NOT a markdown heading
+        # neither is this
+        x = 1
+        ```
+
+        ## Another Real Section
+        """
+    )
+    out = render_l1(body)
+    # Real headings are present.
+    assert "**Real Section**" in out
+    assert "**Another Real Section**" in out
+    # Phantom headings from the Python comments must NOT appear.
+    assert "this is a python comment" not in out
+    assert "neither is this" not in out
+
+
+def test_l1_ignores_hashes_inside_shell_code_fence() -> None:
+    """Same bug class with ``‌```bash`` blocks."""
+    body = textwrap.dedent(
+        """\
+        ## Setup
+
+        ```bash
+        # install deps
+        pip install foo
+        ```
+
+        ## Run
+        """
+    )
+    out = render_l1(body)
+    assert "**Setup**" in out
+    assert "**Run**" in out
+    assert "install deps" not in out
+
+
+def test_l0_skips_fenced_code_when_finding_first_paragraph() -> None:
+    """L0 must not reach into a fenced code block for its excerpt."""
+    body = textwrap.dedent(
+        """\
+        # Title
+
+        ```python
+        # leading hash here is a comment, not the answer
+        ```
+
+        Real intro paragraph here.
+        """
+    )
+    out = render_l0(body)
+    assert "Real intro paragraph" in out
+    assert "leading hash" not in out
+
+
 def test_l2_returns_body_verbatim() -> None:
     assert render_l2(_SAMPLE) == _SAMPLE
 
 
 def test_l3_wraps_in_markdown_fence() -> None:
     out = render_l3(_SAMPLE)
+    # No inner backticks in the simple sample → 3-backtick fence is fine.
     assert out.startswith("```markdown\n")
     assert out.endswith("\n```")
-    # Original content must be preserved (modulo backtick escaping).
+    # Original content must be preserved verbatim.
     assert "# Ring Artifact" in out
 
 
-def test_l3_escapes_inner_fences() -> None:
+def test_l3_preserves_inner_fences_verbatim() -> None:
+    """Codex P2: notes with ```mermaid / ```python blocks must round-trip
+    through L3 without backslash escapes — copy/paste must yield the
+    exact original markdown."""
     body = "Has a fenced block:\n```python\nprint('x')\n```\n"
     out = render_l3(body)
-    # Inner triple-backticks must not break the outer fence.
-    assert out.startswith("```markdown\n")
-    assert out.endswith("\n```")
-    # The escape token uses backslashes — the actual ``` should NOT
-    # appear unescaped inside the wrapped body.
-    inner = out[len("```markdown\n") : -len("\n```")]
-    assert "```" not in inner
+    # Outer fence must be longer (≥4 backticks) so the inner triple
+    # doesn't terminate it prematurely.
+    assert out.startswith("````markdown\n")
+    assert out.endswith("\n````")
+    inner = out[len("````markdown\n") : -len("\n````")]
+    # The inner ``` MUST appear verbatim — no \`\`\` escape, no replacement.
+    assert "```python" in inner
+    assert "```\n" in inner
+    # The escape token from the buggy implementation must NOT leak in.
+    assert "\\`" not in inner
+
+
+def test_l3_handles_quadruple_fence_inside() -> None:
+    """If the body itself contains a 4-backtick fence, outer must be ≥5."""
+    body = "Outer 4-tick block:\n````\n```inner\n````\n"
+    out = render_l3(body)
+    assert out.startswith("`````markdown\n")
+    assert out.endswith("\n`````")
+    inner = out[len("`````markdown\n") : -len("\n`````")]
+    assert "````" in inner
 
 
 # ---------------------------------------------------------------------------

@@ -60,7 +60,10 @@ LEVEL_HELP: dict[str, str] = {
 # --------------------------------------------------------------------------
 
 
-_HEADING_RE = re.compile(r"^(?P<hashes>#{1,6})\s+(?P<title>.+?)\s*$", re.MULTILINE)
+_HEADING_LINE_RE = re.compile(r"^(?P<hashes>#{1,6})\s+(?P<title>.+?)\s*$")
+# Opening / closing of a fenced code block — ``` or ~~~, optionally
+# preceded by whitespace (indented fences are tolerated by markdown).
+_FENCE_RE = re.compile(r"^[ \t]*(?P<fence>`{3,}|~{3,})")
 _FRONTMATTER_RE = re.compile(r"^---\s*\n.*?\n---\s*\n", re.DOTALL)
 
 
@@ -81,11 +84,43 @@ def _strip_top_h1(body: str) -> str:
     return body
 
 
+def _strip_code_fences(body: str) -> str:
+    """Remove every fenced code block from a markdown body.
+
+    Used so a leading prose paragraph isn't mistaken for the contents
+    of a ``# heading-like`` Python comment that lives inside a fenced
+    block. Paragraph boundaries (blank lines) outside fences are
+    preserved.
+    """
+    out_lines: list[str] = []
+    in_fence = False
+    fence_marker: str | None = None
+    for line in body.splitlines():
+        m = _FENCE_RE.match(line)
+        if m:
+            marker = m.group("fence")
+            if not in_fence:
+                in_fence = True
+                fence_marker = marker
+                continue
+            if (
+                fence_marker is not None
+                and len(marker) >= len(fence_marker)
+                and marker[0] == fence_marker[0]
+            ):
+                in_fence = False
+                fence_marker = None
+                continue
+        if in_fence:
+            continue
+        out_lines.append(line)
+    return "\n".join(out_lines)
+
+
 def _first_paragraph(body: str, *, max_chars: int = 600) -> str:
-    """Return the first non-heading paragraph as plain markdown."""
+    """Return the first non-heading, non-fenced paragraph as plain markdown."""
     text = _strip_top_h1(_strip_frontmatter(body)).strip()
-    # Pull paragraphs separated by a blank line, skip ones that start
-    # with a heading marker (we want prose, not the next H2).
+    text = _strip_code_fences(text).strip()
     for chunk in re.split(r"\n{2,}", text):
         chunk = chunk.strip()
         if not chunk:
@@ -99,28 +134,69 @@ def _first_paragraph(body: str, *, max_chars: int = 600) -> str:
 
 
 def _outline(body: str) -> list[tuple[int, str, str]]:
-    """Return a list of ``(depth, heading, first-sentence)`` triples.
+    """Return ``(depth, heading, first-sentence)`` triples for the body.
 
-    ``depth`` is the heading level (1 for H1, 2 for H2, …). The
-    ``first-sentence`` is the first non-empty line under that heading
-    that doesn't itself start with ``#`` or a fenced ``​```.
+    Walks the body line by line tracking whether we're currently inside
+    a fenced code block (``` or ~~~), so lines starting with ``#``
+    inside a Python / shell code listing are NOT mistaken for section
+    headings (Codex review of PR #45).
     """
     text = _strip_frontmatter(body)
+    lines = text.splitlines()
+
+    in_fence = False
+    fence_marker: str | None = None
+    headings: list[tuple[int, int, str]] = []  # (line_idx, depth, title)
+    for line_idx, line in enumerate(lines):
+        m = _FENCE_RE.match(line)
+        if m:
+            marker = m.group("fence")
+            if not in_fence:
+                in_fence = True
+                fence_marker = marker
+            elif (
+                fence_marker is not None
+                and len(marker) >= len(fence_marker)
+                and marker[0] == fence_marker[0]
+            ):
+                in_fence = False
+                fence_marker = None
+            continue
+        if in_fence:
+            continue
+        h = _HEADING_LINE_RE.match(line)
+        if h:
+            headings.append((line_idx, len(h.group("hashes")), h.group("title").strip()))
+
     out: list[tuple[int, str, str]] = []
-    matches = list(_HEADING_RE.finditer(text))
-    for i, m in enumerate(matches):
-        depth = len(m.group("hashes"))
-        title = m.group("title").strip()
-        # Slice between this heading and the next (or end of body).
-        start = m.end()
-        end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
-        section = text[start:end]
-        first_sentence = _first_paragraph(section, max_chars=180)
-        # Strip code fences / list markers from the snippet so the
-        # outline preview reads as prose.
-        first_sentence = re.sub(r"^```.*$", "", first_sentence, flags=re.MULTILINE)
-        first_sentence = first_sentence.strip().split("\n")[0]
-        out.append((depth, title, first_sentence))
+    for i, (line_idx, depth, title) in enumerate(headings):
+        next_line_idx = headings[i + 1][0] if i + 1 < len(headings) else len(lines)
+        snippet = ""
+        sub_in_fence = False
+        sub_marker: str | None = None
+        for sub_line in lines[line_idx + 1 : next_line_idx]:
+            fm = _FENCE_RE.match(sub_line)
+            if fm:
+                marker = fm.group("fence")
+                if not sub_in_fence:
+                    sub_in_fence = True
+                    sub_marker = marker
+                elif (
+                    sub_marker is not None
+                    and len(marker) >= len(sub_marker)
+                    and marker[0] == sub_marker[0]
+                ):
+                    sub_in_fence = False
+                    sub_marker = None
+                continue
+            if sub_in_fence:
+                continue
+            stripped = sub_line.strip()
+            if not stripped or stripped.startswith("#"):
+                continue
+            snippet = stripped[:180]
+            break
+        out.append((depth, title, snippet))
     return out
 
 
@@ -162,16 +238,23 @@ def render_l2(body: str) -> str:
     return body
 
 
+_BACKTICK_RUN_RE = re.compile(r"`+")
+
+
 def render_l3(body: str) -> str:
     """L3 — raw markdown source in a fenced code block.
 
-    Markdown viewers can choose to render the fence as syntax-
-    highlighted text. The fence language is ``markdown`` so a
-    pygments-aware renderer picks the right lexer.
+    The outer fence is **as long as needed** to contain any inner
+    backtick run verbatim — this preserves embedded ``‌```mermaid`` /
+    ``‌```python`` blocks so users can copy / paste / fork the page
+    source without backslash-escapes leaking into their workflow.
+    Per CommonMark §4.5: a fenced code block ends only on a fence
+    of the same character class with at least as many backticks, so
+    bumping the outer length by one always wins.
     """
-    # Make sure the user's content doesn't break our fence.
-    safe = body.replace("```", "\\`\\`\\`")
-    return f"```markdown\n{safe}\n```"
+    longest_run = max((len(m.group()) for m in _BACKTICK_RUN_RE.finditer(body)), default=0)
+    fence = "`" * max(3, longest_run + 1)
+    return f"{fence}markdown\n{body}\n{fence}"
 
 
 def render(level: str, body: str) -> str:
