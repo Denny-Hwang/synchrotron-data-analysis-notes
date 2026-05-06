@@ -25,6 +25,7 @@ def render_note_view(
     beamline: list[str],
     related_publications: list[str],
     related_tools: list[str],
+    cluster_url: str = "#",
 ) -> None:
     """Render a full note detail view with metadata panel.
 
@@ -37,12 +38,16 @@ def render_note_view(
         beamline: List of beamline identifiers.
         related_publications: List of related publication filenames.
         related_tools: List of related tool names.
+        cluster_url: URL the breadcrumb's cluster crumb links back to.
+            Defaults to ``"#"`` for backward compatibility; the
+            cluster-page router passes a real path like ``"/Build"``
+            so the user can navigate up one level.
     """
     # Breadcrumb
     render_breadcrumb(
         [
             ("Home", "/"),
-            (cluster_name, "#"),
+            (cluster_name, cluster_url),
             (title, None),
         ]
     )
