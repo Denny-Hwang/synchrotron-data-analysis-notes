@@ -6,6 +6,45 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [explorer-0.7.1] - 2026-05-08
+
+**Phase R12 — four-bug bugfix release** based on a real-user review
+of the v0.7.0 deploy. Pure bugfix; no new features. Release notes:
+[REL-E071](docs/05_release/release_notes/explorer-v0.7.1.md).
+
+### Fixed
+- **B1** Lab page no longer crashes with ``AttributeError`` on
+  ``recipe.problem`` when a stale cached ``Recipe`` from a previous
+  deploy lacks the new R11 narrative fields. ``getattr`` fallback +
+  bumped Streamlit cache-helper names (``_cached_recipes_v3``).
+- **B2** Compare-table no longer shows rows with identical titles
+  for every sibling note. Title-resolution waterfall in
+  ``lib.notes._parse_note``: frontmatter title → first body H1 →
+  parent-aware filename fallback. Plus a new "Section" column on
+  the cluster compare-table carrying the immediate parent
+  sub-folder.
+- **B3** Troubleshooter "📖 Full guide" link now opens the matching
+  noise-catalog note via ``/Explore?note=09_noise_catalog/...``
+  (was emitting a bare ``?note=`` that the Troubleshooter page had
+  no handler for, so the click only re-rendered the page). The
+  "▶ Run experiment" link likewise now actually selects the
+  matching recipe on ``/Experiment?recipe=<id>``.
+- **B4** Bibliography page decodes LaTeX accent escapes
+  (``{\\'e}``, ``{\\^o}``, ``{\\"u}``, ``\\ss``, ``\\AA``, …) into
+  Unicode (``é``, ``ô``, ``ü``, ``ß``, ``Å``). Author names like
+  ``J{\\'e}r{\\^o}me`` and ``Schr{\\"o}dinger`` now render correctly.
+
+### Added
+- ``lib.notes._title_from_body_h1`` (in-fence-aware H1 extractor).
+- ``lib.bibliography._decode_latex_accents`` covering the standard
+  accent set + braced bare commands + trailing-space separator.
+- 8 new tests (4 H1/parent-aware title cases + 4 LaTeX accent cases).
+
+### Notes
+- 264 passed (was 256 in R11).
+- ``ruff check / format --check`` clean.
+- No notes modified, no new dependencies.
+
 ## [explorer-0.7.0] - 2026-05-08
 
 **Phase R11 — refactor pass driven by user feedback.** Six substantial

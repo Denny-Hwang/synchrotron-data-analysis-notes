@@ -180,9 +180,31 @@ def _diagnosis_severity_badge(d: Diagnosis) -> str:
 
 
 def _guide_url(guide_path: str) -> str:
-    """Map ``tomography/ring_artifact.md`` → ``?note=09_noise_catalog/...``."""
-    full = f"09_noise_catalog/{guide_path}" if guide_path else ""
-    return f"?note={quote(full, safe='/')}" if full else "#"
+    """Map ``tomography/ring_artifact.md`` to a full cluster-page URL.
+
+    R12 B3 — previously returned ``?note=…`` only, which appended the
+    query to the *current* (Troubleshooter) page; Streamlit had no
+    ``?note=`` handler there, so clicking did nothing visible. The
+    ``09_noise_catalog/`` folder belongs to the Explore cluster, so
+    we now route through ``/Explore?note=…``. Relative ``../foo.md``
+    paths are resolved against the noise-catalog root before being
+    handed to the router.
+    """
+    if not guide_path:
+        return "#"
+    # Resolve relative parents inside the catalog (e.g. ``../troubleshooter.md``).
+    parts = [p for p in guide_path.split("/") if p]
+    base = ["09_noise_catalog"]
+    for p in parts:
+        if p == "..":
+            if len(base) > 1:
+                base.pop()
+        elif p == ".":
+            continue
+        else:
+            base.append(p)
+    full = "/".join(base)
+    return f"/Explore?note={quote(full, safe='/')}"
 
 
 def _matches_filter(d: Diagnosis) -> bool:

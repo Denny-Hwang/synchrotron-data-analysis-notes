@@ -78,15 +78,151 @@ class BibEntry:
         return f"{attribution} {year}. {title}.{venue}{doi}".strip()
 
 
+# R12 B4 — BibTeX preserves accented characters via LaTeX escapes
+# (``{\'e}`` for ``é``, ``{\^o}`` for ``ô``, ``{\"u}`` for ``ü`` …).
+# The bibliography page used to render those literally, leaving
+# ``J{\'e}r{\^o}me`` instead of ``Jérôme`` in author bylines.
+# Mapping below covers every accent that appears in a typical
+# scientific bibliography; non-listed escapes fall through unchanged.
+# R12 B4 — also match a trailing space-separator after bare commands so
+# ``\AA ngstr...`` yields ``Ångstr...`` (LaTeX consumes the separator
+# that terminates the command name; Python regex doesn't, hence the
+# explicit `[ \t]?` in the lone arm).
+_LATEX_ACCENT_RE = re.compile(
+    r"""
+    \{\\
+    (?P<accent>['`^"~=.uvHrco]|[a-zA-Z]+)   # accent or special name
+    \s*
+    \{?(?P<base>[A-Za-z]?)\}?               # base letter (optional)
+    \}
+    |
+    \\(?P<lone>[a-zA-Z]+)[ \t]?             # bare commands like \aa, \ss
+    """,
+    re.VERBOSE,
+)
+
+# (accent, base) → unicode replacement. Populated explicitly so each
+# entry is greppable and the table is easy to extend later.
+_ACCENT_MAP: dict[tuple[str, str], str] = {
+    # Acute (\')
+    ("'", "a"): "á",
+    ("'", "e"): "é",
+    ("'", "i"): "í",
+    ("'", "o"): "ó",
+    ("'", "u"): "ú",
+    ("'", "y"): "ý",
+    ("'", "A"): "Á",
+    ("'", "E"): "É",
+    ("'", "I"): "Í",
+    ("'", "O"): "Ó",
+    ("'", "U"): "Ú",
+    ("'", "Y"): "Ý",
+    # Grave (\`)
+    ("`", "a"): "à",
+    ("`", "e"): "è",
+    ("`", "i"): "ì",
+    ("`", "o"): "ò",
+    ("`", "u"): "ù",
+    ("`", "A"): "À",
+    ("`", "E"): "È",
+    ("`", "I"): "Ì",
+    ("`", "O"): "Ò",
+    ("`", "U"): "Ù",
+    # Circumflex (\^)
+    ("^", "a"): "â",
+    ("^", "e"): "ê",
+    ("^", "i"): "î",
+    ("^", "o"): "ô",
+    ("^", "u"): "û",
+    ("^", "A"): "Â",
+    ("^", "E"): "Ê",
+    ("^", "I"): "Î",
+    ("^", "O"): "Ô",
+    ("^", "U"): "Û",
+    # Diaeresis / umlaut (\")
+    ('"', "a"): "ä",
+    ('"', "e"): "ë",
+    ('"', "i"): "ï",
+    ('"', "o"): "ö",
+    ('"', "u"): "ü",
+    ('"', "y"): "ÿ",
+    ('"', "A"): "Ä",
+    ('"', "E"): "Ë",
+    ('"', "I"): "Ï",
+    ('"', "O"): "Ö",
+    ('"', "U"): "Ü",
+    # Tilde (\~)
+    ("~", "a"): "ã",
+    ("~", "n"): "ñ",
+    ("~", "o"): "õ",
+    ("~", "A"): "Ã",
+    ("~", "N"): "Ñ",
+    ("~", "O"): "Õ",
+    # Cedilla (\c)
+    ("c", "c"): "ç",
+    ("c", "C"): "Ç",
+    # Caron / hacek (\v)
+    ("v", "c"): "č",
+    ("v", "s"): "š",
+    ("v", "z"): "ž",
+    ("v", "C"): "Č",
+    ("v", "S"): "Š",
+    ("v", "Z"): "Ž",
+}
+
+_LONE_LATEX_MAP: dict[str, str] = {
+    "ss": "ß",
+    "aa": "å",
+    "AA": "Å",
+    "o": "ø",
+    "O": "Ø",
+    "ae": "æ",
+    "AE": "Æ",
+    "oe": "œ",
+    "OE": "Œ",
+    "l": "ł",
+    "L": "Ł",
+}
+
+
+def _decode_latex_accents(text: str) -> str:
+    """Replace common LaTeX accent escapes with their Unicode equivalents."""
+    if not text or "\\" not in text:
+        return text
+
+    def _sub(m: re.Match[str]) -> str:
+        if m.group("lone"):
+            cmd = m.group("lone")
+            return _LONE_LATEX_MAP.get(cmd, "\\" + cmd)
+        accent = m.group("accent") or ""
+        base = m.group("base") or ""
+        if (accent, base) in _ACCENT_MAP:
+            return _ACCENT_MAP[(accent, base)]
+        # ``{\ss}`` / ``{\aa}`` / ``{\oe}`` etc. — bare command inside
+        # protective braces. Empty base + accent in the lone-command
+        # map → use that.
+        if not base and accent in _LONE_LATEX_MAP:
+            return _LONE_LATEX_MAP[accent]
+        # Unknown accent — strip LaTeX braces but keep the base
+        # letter so the author name is still legible.
+        return base
+
+    return _LATEX_ACCENT_RE.sub(_sub, text)
+
+
 def _clean(value: str) -> str:
-    """Strip outer braces/whitespace and collapse internal whitespace."""
-    return re.sub(r"\s+", " ", value.strip().strip("{}").strip())
+    """Strip outer braces/whitespace, collapse whitespace, decode accents."""
+    cleaned = re.sub(r"\s+", " ", value.strip().strip("{}").strip())
+    return _decode_latex_accents(cleaned)
 
 
 def _parse_authors(raw: str) -> tuple[str, ...]:
     if not raw:
         return ()
-    parts = [_clean(p) for p in _AUTHOR_AND_RE.split(raw)]
+    # Decode accents first so author splitting on `` and `` doesn't break
+    # inside an accent escape.
+    decoded = _decode_latex_accents(raw)
+    parts = [_clean(p) for p in _AUTHOR_AND_RE.split(decoded)]
     return tuple(p for p in parts if p)
 
 

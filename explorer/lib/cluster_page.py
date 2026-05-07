@@ -225,12 +225,23 @@ def _render_compare_table(notes: list[Note], repo_root: Path, cluster_id: str) -
     # ``Open`` column rendered via ``column_config.LinkColumn`` so the
     # title cell stays plain text (sortable + searchable) and the link
     # is a proper clickable column.
+    # R12 B2 — add a "Section" column carrying the immediate parent
+    # subfolder so two notes with the same Title (e.g. multiple
+    # "README" entries across modalities) can be told apart at a
+    # glance. Title is now resolved via H1 fallback in _parse_note,
+    # so Title is usually unique on its own — Section is the
+    # belt-and-braces guarantee.
     rows: list[dict[str, object]] = []
     for n in notes:
         href = f"/{cluster_id.title()}?note={quote(n.url_id(repo_root), safe='/')}"
+        url_id = n.url_id(repo_root)
+        # The note's path is folder/<section>/<file>.md or folder/<file>.md.
+        rel_parts = url_id.split("/")
+        section = rel_parts[1] if len(rel_parts) > 2 else "—"
         rows.append(
             {
                 "Title": n.title,
+                "Section": section.replace("_", " ").title() if section != "—" else "—",
                 "Folder": _folder_label(n.folder),
                 "Modality": n.modality or "—",
                 "Beamlines": ", ".join(n.beamline) if n.beamline else "—",
@@ -249,6 +260,11 @@ def _render_compare_table(notes: list[Note], repo_root: Path, cluster_id: str) -
         hide_index=True,
         column_config={
             "Title": st.column_config.Column("Title", width="medium"),
+            "Section": st.column_config.Column(
+                "Section",
+                help="Immediate sub-folder — disambiguates same-named notes.",
+                width="small",
+            ),
             "Open": st.column_config.LinkColumn(
                 "Open",
                 help="Click to open the note detail.",

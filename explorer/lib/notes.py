@@ -217,17 +217,67 @@ def discover_sibling_notebooks(note: Note, repo_root: Path) -> list[Path]:
     return sorted(found)
 
 
-def _title_from_filename(filename: str) -> str:
+_BODY_H1_RE = re.compile(r"^[ \t]*#\s+(?P<title>.+?)\s*$", re.MULTILINE)
+
+
+def _title_from_body_h1(body: str) -> str | None:
+    """Return the first H1 heading from the body, or None if missing.
+
+    R12 B2 — same-named files (every modality's ``data_format.md``,
+    every tool's ``README.md``) used to collapse to identical
+    titles in the compare table because no frontmatter ``title``
+    was set. The body's H1 is always present and unique, so we
+    use it as the primary fallback before stem-based formatting.
+    Skips H1s that appear inside fenced code blocks.
+    """
+    in_fence = False
+    fence_marker: str | None = None
+    for raw in body.splitlines():
+        stripped = raw.lstrip()
+        if stripped.startswith(("```", "~~~")):
+            marker = stripped[:3]
+            if not in_fence:
+                in_fence = True
+                fence_marker = marker
+            elif fence_marker is not None and stripped.startswith(fence_marker):
+                in_fence = False
+                fence_marker = None
+            continue
+        if in_fence:
+            continue
+        m = _BODY_H1_RE.match(raw)
+        if m:
+            return m.group("title").strip()
+    return None
+
+
+def _title_from_filename(filename: str, *, parent: str | None = None) -> str:
     """Infer a human-readable title from a filename.
+
+    R12 B2 — when the file is a generic ``README.md`` / ``data_format.md``
+    / ``ai_ml_methods.md`` (i.e. a name shared across many sibling
+    folders), prefix the parent directory so the rendered title is
+    unique. ``crystallography/README.md`` becomes "Crystallography —
+    README" instead of just "README".
 
     Args:
         filename: The filename without extension (e.g., 'ai_ml_methods').
+        parent: Parent directory name (or ``None`` for top-level notes).
 
     Returns:
-        Title-cased string with underscores replaced by spaces.
+        Title-cased string with underscores replaced by spaces, optionally
+        prefixed with the parent directory's title-cased name.
     """
-    name = filename.replace("_", " ").replace("-", " ")
-    return name.title()
+    name = filename.replace("_", " ").replace("-", " ").title()
+    # Generic file basenames are shared across many sibling folders
+    # (every README, every data_format, every ai_ml_methods). Prefix
+    # the parent dir to keep titles unique without dropping the H1
+    # body fallback.
+    _GENERIC = {"Readme", "Data Format", "Ai Ml Methods", "Index"}
+    if name in _GENERIC and parent:
+        parent_label = parent.replace("_", " ").replace("-", " ").title()
+        return f"{parent_label} — {name}"
+    return name
 
 
 def _validate_vocabulary(value: str, valid_set: set[str], field_name: str, path: Path) -> bool:
@@ -322,10 +372,25 @@ def _parse_note(path: Path, folder: str) -> Note:
                 return False
         return None
 
+    # R12 B2 — title-resolution waterfall:
+    #   1) frontmatter ``title`` (canonical when authored).
+    #   2) the body's first H1 heading (almost every note has one,
+    #      and H1s are typically more specific than the filename —
+    #      e.g. ``# Crystallography Data Formats``).
+    #   3) parent-aware filename fallback (so generic basenames like
+    #      ``data_format.md`` don't collapse to identical titles).
+    fm_title = fm.get("title")
+    if isinstance(fm_title, str) and fm_title.strip():
+        resolved_title = fm_title.strip()
+    else:
+        h1 = _title_from_body_h1(body)
+        parent = path.parent.name if path.parent.name != folder else None
+        resolved_title = h1 if h1 else _title_from_filename(path.stem, parent=parent)
+
     return Note(
         path=path,
         folder=folder,
-        title=fm.get("title", _title_from_filename(path.stem)),
+        title=resolved_title,
         body=body,
         cluster=cluster if isinstance(cluster, str) else "explore",
         tags=fm.get("tags", []) if isinstance(fm.get("tags"), list) else [],
