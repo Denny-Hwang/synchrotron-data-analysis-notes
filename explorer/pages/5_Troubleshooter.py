@@ -106,37 +106,43 @@ symptom_ids = [s.id for s in troubleshooter.symptoms]
 deep_link_id = _query_param("symptom")
 default_idx = symptom_ids.index(deep_link_id) if deep_link_id in symptom_ids else 0
 
-with st.sidebar:
-    st.markdown("### Symptom category")
-    symptom_idx = st.selectbox(
-        "Symptom",
-        options=list(range(len(troubleshooter.symptoms))),
-        index=default_idx,
-        format_func=lambda i: troubleshooter.symptoms[i].title,
-        label_visibility="collapsed",
-        key="ts_symptom_picker",
-    )
+# R10 P0-4: pickers were in the sidebar (collapsed by default + invisible
+# on mobile); moved to the main column. R10 P1-7: numbered stepper.
 
-    st.markdown("---")
-    st.markdown("### Filter")
-    modalities = sorted(
-        {
-            d.guide.split("/", 1)[0] if "/" in d.guide else "(uncategorised)"
-            for d in troubleshooter.all_diagnoses()
-            if d.guide
-        }
-    )
+st.markdown("#### 1️⃣ Pick the symptom you observe")
+symptom_idx = st.selectbox(
+    "Symptom",
+    options=list(range(len(troubleshooter.symptoms))),
+    index=default_idx,
+    format_func=lambda i: troubleshooter.symptoms[i].title,
+    label_visibility="collapsed",
+    key="ts_symptom_picker",
+)
+
+st.markdown("#### 2️⃣ Narrow down (optional)")
+modalities = sorted(
+    {
+        d.guide.split("/", 1)[0] if "/" in d.guide else "(uncategorised)"
+        for d in troubleshooter.all_diagnoses()
+        if d.guide
+    }
+)
+filt_cols = st.columns(2)
+with filt_cols[0]:
     chosen_modalities = st.multiselect(
-        "Modality (filters cases)",
+        "Modality",
         options=modalities,
         default=modalities,
         key="ts_mod_filter",
+        help="Show only diagnoses whose guide lives in these modality folders.",
     )
+with filt_cols[1]:
     severity_filter = st.multiselect(
         "Severity",
         options=["critical", "major", "minor"],
         default=["critical", "major", "minor"],
         key="ts_sev_filter",
+        help="Filter to differential cases of these severities only.",
     )
 
 symptom: Symptom = troubleshooter.symptoms[symptom_idx]
@@ -190,7 +196,12 @@ def _matches_filter(d: Diagnosis) -> bool:
 
 
 visible_cases = [c for c in symptom.cases if _matches_filter(c.diagnosis)]
-st.markdown(f"### Differential diagnoses — {len(visible_cases)} of {len(symptom.cases)}")
+st.markdown(
+    f"#### 3️⃣ Read the differential diagnoses "
+    f"<span style='color:#888;font-weight:400;font-size:14px;'>"
+    f"({len(visible_cases)} of {len(symptom.cases)})</span>",
+    unsafe_allow_html=True,
+)
 
 if not visible_cases:
     st.info("No cases match the current modality / severity filters.")

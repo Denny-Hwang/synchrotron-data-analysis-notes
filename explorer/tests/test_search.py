@@ -139,3 +139,41 @@ def test_real_repo_index_finds_known_notes() -> None:
     # `tomopy` should be present somewhere in the corpus.
     hits = search(idx, "tomopy")
     assert hits, "expected at least one hit for 'tomopy' in the real repo"
+
+
+# ---------------------------------------------------------------------------
+# Index.suggest — Phase R10 P1-5
+# ---------------------------------------------------------------------------
+
+
+def test_suggest_offers_close_terms_on_typo() -> None:
+    """A near-miss query should yield indexed terms that share a prefix."""
+    from lib.search import build_index
+
+    notes = [
+        _note("explore", "Tomography Overview", body="tomography is great"),
+        _note("build", "TomoPy Guide", body="tomopy reconstruction tomography"),
+    ]
+    idx = build_index(notes)
+    out = idx.suggest("tomograhy")  # missing 'p'
+    # Should suggest 'tomography' (or at least one tomo-prefixed term).
+    assert any(s.startswith("tomo") for s in out), f"got {out!r}"
+
+
+def test_suggest_returns_empty_on_blank_query() -> None:
+    from lib.search import build_index
+
+    idx = build_index([])
+    assert idx.suggest("") == []
+    assert idx.suggest("   ") == []
+
+
+def test_suggest_does_not_return_exact_query_term() -> None:
+    """``suggest()`` should never echo back a token that's already an
+    exact index hit (the user would have got results for it)."""
+    from lib.search import build_index
+
+    notes = [_note("explore", "Tomography", body="tomography rocks")]
+    idx = build_index(notes)
+    out = idx.suggest("tomography")
+    assert "tomography" not in out

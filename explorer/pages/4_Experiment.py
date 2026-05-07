@@ -109,23 +109,22 @@ if not recipes:
     render_footer()
     st.stop()
 
-with st.sidebar:
-    st.markdown("### Recipe")
-    recipe_idx = st.selectbox(
-        "Choose experiment",
-        options=list(range(len(recipes))),
-        format_func=lambda i: f"{recipes[i].title}  ({recipes[i].modality})",
-        label_visibility="collapsed",
-    )
+# ---------------------------------------------------------------------------
+# Step 1 — recipe picker (R10 P0-4: was in sidebar; moved to main column so
+# mobile users can actually change it. R10 P1-7: numbered stepper headings.)
+# ---------------------------------------------------------------------------
+
+
+st.markdown("#### 1️⃣ Pick a recipe")
+recipe_idx = st.selectbox(
+    "Recipe",
+    options=list(range(len(recipes))),
+    format_func=lambda i: f"{recipes[i].title}  ({recipes[i].modality})",
+    label_visibility="collapsed",
+    key="exp_recipe_picker",
+)
 recipe = recipes[recipe_idx]
 
-
-# ---------------------------------------------------------------------------
-# Recipe header
-# ---------------------------------------------------------------------------
-
-
-st.markdown(f"### {recipe.title}")
 st.markdown(
     f'<p style="color:#666;font-size:13px;margin-top:-8px;">'
     f"Modality: <b>{recipe.modality}</b> &nbsp;·&nbsp; "
@@ -138,11 +137,11 @@ st.markdown(recipe.description)
 
 
 # ---------------------------------------------------------------------------
-# Sample picker
+# Step 2 — sample picker
 # ---------------------------------------------------------------------------
 
 
-st.markdown("#### Sample")
+st.markdown("#### 2️⃣ Pick a sample")
 sample_idx = st.selectbox(
     "Sample",
     options=list(range(len(recipe.samples))),
@@ -151,16 +150,17 @@ sample_idx = st.selectbox(
         + (f" — {recipe.samples[i].description}" if recipe.samples[i].description else "")
     ),
     label_visibility="collapsed",
+    key="exp_sample_picker",
 )
 sample = recipe.samples[sample_idx]
 
 
 # ---------------------------------------------------------------------------
-# Parameter widgets (auto-generated from recipe.yaml)
+# Step 3 — parameter widgets (auto-generated from recipe.yaml)
 # ---------------------------------------------------------------------------
 
 
-st.markdown("#### Parameters")
+st.markdown("#### 3️⃣ Tune parameters")
 param_values: dict[str, Any] = {}
 param_cols = st.columns(min(3, max(1, len(recipe.parameters))))
 for i, param in enumerate(recipe.parameters):
@@ -220,6 +220,8 @@ except Exception as exc:
     render_footer()
     st.stop()
 
+
+st.markdown("#### 4️⃣ Compare before / after")
 
 col_left, col_right = st.columns(2)
 with col_left:

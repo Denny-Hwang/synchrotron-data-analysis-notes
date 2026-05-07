@@ -166,20 +166,30 @@ if _KG_LEVEL == "L0":
 # Kind filter — multiselect
 # ---------------------------------------------------------------------------
 
+# R10 P1-6: first impression of the graph used to be ALL six layers on,
+# which renders 100+ nodes packed tight — overwhelming for a first
+# visitor. Now we ship with the 4-layer "core" view (modality + method +
+# recipe + noise: the entities that drive the Interactive Lab + the
+# scientific workflow story) on by default, and let the user opt-in to
+# the citation-heavy ``paper`` and ``tool`` layers.
+_DEFAULT_VISIBLE_KINDS = {"modality", "method", "recipe", "noise"}
+
 with st.container():
     st.markdown("#### Layers visible")
     visible_kinds: set[str] = set()
     kind_cols = st.columns(len(list(iter_kinds())))
     for col, kind in zip(kind_cols, iter_kinds(), strict=True):
-        # Recipes default-on AND noticeably highlighted — the user explicitly
-        # asked for section 10 to be first-class in the graph.
-        default_on = True
+        default_on = kind in _DEFAULT_VISIBLE_KINDS
         if col.checkbox(
             f"{kind.title()} ({len(graph.by_kind(kind))})",
             value=default_on,
             key=f"kg_kind_{kind}",
         ):
             visible_kinds.add(kind)
+    st.caption(
+        "Tip: papers + tools are off by default to keep the first view "
+        "uncluttered. Enable them above to widen the lens."
+    )
 
 
 # ---------------------------------------------------------------------------

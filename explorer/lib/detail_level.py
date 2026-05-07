@@ -292,12 +292,31 @@ def normalise_level(raw: str | None, *, default: str = "L2") -> str:
     return default
 
 
-_ANCHOR_SAFE_RE = re.compile(r"[^a-z0-9-]+")
-
-
 def _heading_anchor(title: str) -> str:
-    """Convert a heading text into a GitHub-style markdown anchor slug."""
-    slug = _ANCHOR_SAFE_RE.sub("-", title.lower()).strip("-")
+    """Convert a heading text into a slug that **matches** the id attribute
+    Python-Markdown's ``toc`` extension assigns to the rendered heading.
+
+    Streamlit renders the TOC sidebar and the body in the same parent
+    document, so anchor navigation (``<a href="#root-cause">`` →
+    ``<h2 id="root-cause">``) works only when the slug emitted here
+    is identical to the slug Python-Markdown emits. Earlier R8 used a
+    custom regex that diverged on punctuation (e.g. apostrophes,
+    em-dashes), silently breaking the TOC for any heading that
+    contained those characters.
+
+    Algorithm matches ``markdown.extensions.toc.slugify``:
+
+    1. Unicode-normalise (NFKD) to fold accented characters.
+    2. ASCII-encode (drop bytes that don't survive NFKD).
+    3. Lowercase.
+    4. Strip every byte that isn't ``[\\w\\s-]``.
+    5. Collapse runs of whitespace / dashes into a single ``-``.
+    """
+    import unicodedata
+
+    value = unicodedata.normalize("NFKD", title).encode("ascii", "ignore")
+    value = re.sub(rb"[^\w\s-]", b"", value).strip().lower()
+    slug = re.sub(rb"[-\s]+", b"-", value).decode("ascii")
     return slug or "section"
 
 

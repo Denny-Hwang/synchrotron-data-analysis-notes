@@ -128,6 +128,7 @@ def render_note_view(
     toc_items: list[tuple[int, str, str]] | None = None,
     metrics: list[tuple[str, str]] | None = None,
     section_tabs: list[tuple[str, str]] | None = None,
+    last_reviewed: str | None = None,
 ) -> None:
     """Render a full note detail view with metadata panel.
 
@@ -202,6 +203,7 @@ def render_note_view(
             related_tools,
             publication_links=publication_links,
             tool_links=tool_links,
+            last_reviewed=last_reviewed,
         )
 
 
@@ -228,6 +230,11 @@ def _render_section_tabs(sections: list[tuple[str, str]], highlight_css: str) ->
     Method, Key Results, … each got their own tab. We do the H2 split
     on the markdown body at runtime; sections without a body fall back
     to a brief "(empty section)" hint to avoid a silent gap.
+
+    R10 P1-4: each tab routes through ``_render_body_with_mermaid`` so
+    Mermaid blocks inside a section render as live diagrams instead of
+    plain code listings (the previous direct ``_md_to_html`` path lost
+    the diagrams).
     """
     if not sections:
         return
@@ -239,31 +246,75 @@ def _render_section_tabs(sections: list[tuple[str, str]], highlight_css: str) ->
             if not text:
                 st.caption("(empty section)")
                 continue
-            html = _md_to_html(text)
-            st.markdown(f"<style>{highlight_css}</style>{html}", unsafe_allow_html=True)
+            _render_body_with_mermaid(text, highlight_css)
 
 
 def _render_permalink_button(url: str) -> None:
-    """Small "Copy permalink" button that uses the navigator clipboard API."""
-    safe = url.replace("'", "&#39;").replace('"', "&quot;")
-    st.markdown(
-        f"""
-        <div style="margin:-12px 0 16px 0;">
-            <button onclick="navigator.clipboard.writeText('{safe}');
-                             this.innerText='✓ Copied'"
-                    style="background:#E8EEF6;border:1px solid #0033A0;
-                           color:#0033A0;border-radius:14px;
-                           padding:4px 12px;font-size:12px;cursor:pointer;
-                           font-weight:600;">
-                🔗 Copy permalink
-            </button>
-            <span style="font-size:12px;color:#888;margin-left:8px;">
-                Share this exact view
-            </span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    """Render a "Copy permalink" button that actually copies on click.
+
+    R10 P0-3 fix: Streamlit's ``st.markdown(unsafe_allow_html=True)``
+    sanitises inline ``onclick`` handlers, so the previous button looked
+    clickable but never copied. We use ``streamlit.components.v1.html``
+    which runs in an iframe with full JS execution, then surface the
+    raw URL underneath in a ``st.code(...)`` block as a copy-paste
+    fallback for browsers that block the clipboard API.
+    """
+    # JS-side string escape so a stray apostrophe doesn't break the
+    # navigator.clipboard.writeText('…') call.
+    js_safe = url.replace("\\", "\\\\").replace("'", "\\'")
+    html = f"""
+<div style="display:flex;align-items:center;gap:8px;margin:0 0 4px 0;
+            font-family:'Source Sans 3', system-ui, -apple-system, sans-serif;">
+  <button id="copy-permalink-btn" type="button"
+          style="background:#E8EEF6;border:1px solid #0033A0;
+                 color:#0033A0;border-radius:14px;
+                 padding:6px 14px;font-size:13px;cursor:pointer;
+                 font-weight:600;line-height:1;">
+    🔗 Copy permalink
+  </button>
+  <span style="font-size:12px;color:#888;">Share this exact view</span>
+</div>
+<script>
+(function() {{
+  var btn = document.getElementById("copy-permalink-btn");
+  if (!btn) return;
+  btn.addEventListener("click", function() {{
+    var url = '{js_safe}';
+    var done = function() {{
+      btn.innerText = '✓ Copied';
+      btn.style.background = '#D4EDDA';
+      btn.style.borderColor = '#2E7D32';
+      btn.style.color = '#2E7D32';
+      setTimeout(function() {{
+        btn.innerText = '🔗 Copy permalink';
+        btn.style.background = '#E8EEF6';
+        btn.style.borderColor = '#0033A0';
+        btn.style.color = '#0033A0';
+      }}, 1800);
+    }};
+    if (navigator.clipboard && navigator.clipboard.writeText) {{
+      navigator.clipboard.writeText(url).then(done).catch(function() {{
+        // Fallback for older browsers / strict permission contexts.
+        var ta = document.createElement('textarea');
+        ta.value = url; document.body.appendChild(ta);
+        ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+        done();
+      }});
+    }} else {{
+      var ta = document.createElement('textarea');
+      ta.value = url; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      done();
+    }}
+  }});
+}})();
+</script>
+"""
+    components.html(html, height=46)
+    # Visible URL fallback so users without clipboard permission can
+    # still copy by hand.
+    with st.expander("Show full URL", expanded=False):
+        st.code(url, language="text")
 
 
 def _render_toc(items: list[tuple[int, str, str]]) -> None:
@@ -418,6 +469,7 @@ def _render_metadata_panel(
     *,
     publication_links: list[tuple[str, str | None]] | None = None,
     tool_links: list[tuple[str, str | None]] | None = None,
+    last_reviewed: str | None = None,
 ) -> None:
     """Render the right-side metadata panel."""
     sections: list[str] = []
@@ -468,6 +520,16 @@ def _render_metadata_panel(
             f'<div style="font-size:12px;font-weight:600;text-transform:uppercase;'
             f'letter-spacing:0.5px;color:#555;margin-bottom:8px;">Related Tools</div>'
             f"{links_html}</div>"
+        )
+
+    if last_reviewed:
+        # R10 P1-8: surface DC-001's optional last_reviewed date so the
+        # reader knows when an author last vouched for the note's content.
+        sections.append(
+            f'<div style="margin-bottom:20px;">'
+            f'<div style="font-size:12px;font-weight:600;text-transform:uppercase;'
+            f'letter-spacing:0.5px;color:#555;margin-bottom:8px;">Last reviewed</div>'
+            f'<div style="font-size:14px;color:#333;">{last_reviewed}</div></div>'
         )
 
     if sections:

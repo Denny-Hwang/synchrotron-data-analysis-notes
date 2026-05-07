@@ -2,6 +2,15 @@
    Design tokens from docs/02_design/design_system.md (DS-001)
    Ref: ADR-005 */
 
+/* In-page anchor scroll polish (R10 P1-3). Streamlit's main column
+   has a sticky header that overlaps with anchor jump positions; a
+   72px scroll-margin offsets that. ``scroll-behavior: smooth`` makes
+   TOC clicks animate instead of teleporting. */
+html { scroll-behavior: smooth; }
+h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
+    scroll-margin-top: 72px;
+}
+
 /* === Header === */
 .eberlight-header {
     display: flex;
@@ -36,7 +45,13 @@
 .eberlight-header-nav {
     display: flex;
     gap: 16px;
+    flex-wrap: wrap;
 }
+/* The legacy CSS rule disabled these links via pointer-events:none + opacity:0.5
+   when the cluster pages were stubs (notes-v0.1 era). Cluster pages have been
+   live since v0.2 and the static-site mirror has long forced pointer-events
+   back on with !important — but the Streamlit shell was still picking up the
+   disabled rule. R10 P0-1: enable on both surfaces. */
 .eberlight-header-nav a {
     text-decoration: none;
     color: #555555;
@@ -44,8 +59,14 @@
     font-size: 15px;
     padding: 8px 16px;
     border-radius: 8px;
-    pointer-events: none;
-    opacity: 0.5;
+}
+.eberlight-header-nav a:hover {
+    background: rgba(0, 51, 160, 0.06);
+    color: #0033A0;
+}
+.eberlight-header-nav a.active {
+    background: rgba(0, 51, 160, 0.10);
+    color: #0033A0;
 }
 
 /* Header search form (FR-001 + FR-009) — submits to /Search?q=… */
@@ -152,10 +173,10 @@
     border: 1px solid #E0E0E0;
     border-radius: 8px;
     padding: 24px;
-    transition: box-shadow 0.2s;
+    transition: box-shadow 0.2s, transform 0.2s;
 }
 .eberlight-card:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 .eberlight-card h4 {
     font-size: 18px;
@@ -167,6 +188,18 @@
     font-size: 14px;
     color: #555555;
     line-height: 1.5;
+}
+/* Cluster cards on the landing page lift slightly on hover so the
+   "this whole tile is clickable" affordance is unambiguous. */
+.eberlight-cluster-card-link:hover .eberlight-cluster-card,
+.eberlight-cluster-card-link:focus-visible .eberlight-cluster-card {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+}
+.eberlight-cluster-card-link:focus-visible {
+    outline: 2px solid #0033A0;
+    outline-offset: 4px;
+    border-radius: 8px;
 }
 
 /* === Tag === */
@@ -180,4 +213,42 @@
     color: #555555;
     margin-right: 4px;
     margin-bottom: 4px;
+}
+
+/* === Responsive (R10 P1-1 — only one media query existed before for the
+       header search; cluster grids relied on Streamlit's column reflow,
+       which doesn't apply to inline grids in unsafe-html markdown). === */
+@media (max-width: 720px) {
+    .eberlight-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 0;
+    }
+    .eberlight-header-brand { width: 100%; }
+    .eberlight-header-nav {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 4px;
+    }
+    .eberlight-header-nav a { padding: 6px 10px; font-size: 14px; }
+    .eberlight-header-search { margin-left: 0; width: 100%; }
+    .eberlight-header-search input[type="search"] { flex: 1; width: auto; }
+}
+@media (max-width: 540px) {
+    .eberlight-card { padding: 16px; }
+    .eberlight-card h4 { font-size: 16px; }
+}
+
+/* Inline grid containers Streamlit can't reflow on its own. The
+   selectors are deliberately broad (any descendant grid with the
+   1fr / 1fr / 1fr column shape) so app.py and cluster_page.py grids
+   collapse together. */
+@media (max-width: 720px) {
+    div[style*="grid-template-columns:1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+    div[style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
 }

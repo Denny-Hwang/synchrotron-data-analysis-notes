@@ -52,6 +52,36 @@ class Index:
     def __len__(self) -> int:
         return len(self.notes)
 
+    def suggest(self, query: str, *, limit: int = 6) -> list[str]:
+        """Return up to ``limit`` indexed terms close to the user's query.
+
+        Used by the Search page when a query produced zero hits — we
+        offer "did you mean" links to indexed tokens that share a
+        non-trivial common prefix with one of the query tokens. No
+        external dependency (no Levenshtein library); we lean on the
+        plain inverted-index keys plus length/prefix heuristics.
+
+        Picks the longer of the query tokens (more discriminating),
+        keeps tokens whose first 3 characters match, ranks by
+        document-frequency descending so the most popular candidate
+        comes first.
+        """
+        q_tokens = sorted(set(_tokenize(query)), key=len, reverse=True)
+        if not q_tokens:
+            return []
+        candidates: dict[str, int] = {}
+        for q_tok in q_tokens:
+            prefix = q_tok[: max(3, min(4, len(q_tok)))]
+            for term, postings in self.inverted.items():
+                if term == q_tok:
+                    continue
+                if term.startswith(prefix) or (
+                    len(term) >= 4 and len(q_tok) >= 4 and term[:4] == q_tok[:4]
+                ):
+                    candidates[term] = max(candidates.get(term, 0), len(postings))
+        ranked = sorted(candidates.items(), key=lambda kv: (-kv[1], kv[0]))
+        return [term for term, _ in ranked[:limit]]
+
 
 def build_index(notes: list[Note]) -> Index:
     """Build the in-memory index from a sequence of parsed notes.

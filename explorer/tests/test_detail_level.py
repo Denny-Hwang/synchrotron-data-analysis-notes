@@ -292,6 +292,36 @@ def test_extract_toc_anchors_are_lowercase_hyphenated() -> None:
     assert out == [(1, "a-long-punctuated-title", "A Long, Punctuated Title!")]
 
 
+def test_extract_toc_anchor_matches_python_markdown_slugify() -> None:
+    """R10 P1-3 — our slug must match what Python-Markdown's ``toc``
+    extension assigns to the rendered ``<h2 id=...>``. If they diverge,
+    the TOC sidebar links go nowhere (the heading id won't match).
+    """
+    import markdown
+    from lib.detail_level import _heading_anchor
+    from markdown.extensions.toc import slugify
+
+    cases = [
+        "Root Cause",
+        "Don't do this",
+        "PSNR / SSIM",
+        "X-ray methods",
+        "100% coverage",
+        "Évolution Métrique",
+        "Multi-Word Heading: With Punctuation!",
+    ]
+    for h in cases:
+        ours = _heading_anchor(h)
+        theirs = slugify(h, "-")
+        assert ours == theirs, f"slug mismatch for {h!r}: ours={ours} theirs={theirs}"
+
+    # And — round-trip — the actual rendered markdown must have an id
+    # equal to the one extract_toc would point at.
+    body = "## " + cases[0] + "\n\nbody"
+    html = markdown.markdown(body, extensions=["toc"])
+    assert f'id="{_heading_anchor(cases[0])}"' in html
+
+
 def test_extract_toc_max_depth_filter() -> None:
     from lib.detail_level import extract_toc
 
