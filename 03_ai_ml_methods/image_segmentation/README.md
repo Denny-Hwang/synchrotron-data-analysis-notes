@@ -42,3 +42,23 @@ quantification depends on accurate segmentation.
 | [unet_variants.md](unet_variants.md) | U-Net architecture family and adaptations |
 | [xrf_cell_segmentation.md](xrf_cell_segmentation.md) | Cell segmentation pipeline for XRF data |
 | [tomography_segmentation.md](tomography_segmentation.md) | Phase/feature segmentation in µCT |
+
+## Architecture diagram
+
+_U-Net segmentation pipeline: encoder extracts multi-scale features, decoder with skip connections produces pixel-level classification._
+
+```mermaid
+graph LR
+    A["Raw Image
+2D/3D Volume"] --> B["Encoder
+Feature Extraction"]
+    B --> C["Bottleneck
+Compressed Features"]
+    C --> D["Decoder
+Upsampling + Skip"]
+    D --> E["Pixel-wise
+Class Map"]
+    F["Ground Truth
+Labeled Mask"] -.->|"Dice + CE Loss"| D
+    style E fill:#00D4AA,color:#fff
+```

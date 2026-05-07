@@ -157,3 +157,17 @@ def adaptive_xanes(element_edge, E_range, n_seed=8, n_max=50):
 | **AI-NERD** | XPCS | Temporal | Next measurement time |
 | **ROI-Finder** | XRF | Spatial (x, y) | Next scan region |
 | **Standard BO** | General | Any | Next parameter set |
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Seed Points"] --> B["GP Surrogate"]
+    B --> C["Knowledge-Injected
+Acquisition"]
+    C --> D["Next Energy E*"]
+    D --> E["Measure XANES"]
+    E -->|"update GP"| B
+    F["Edge Prior"] -.-> C
+    G["Gradient ∂μ/∂E"] -.-> C
+```

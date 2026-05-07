@@ -254,3 +254,14 @@ and structural biology programs:
 ---
 
 *Reviewed for the eBERlight Research Archive, 2026-02-27.*
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Amino Acid Sequence"] --> B["MSA + Templates"]
+    B --> C["Evoformer"]
+    C --> D["Structure Module"]
+    D --> E["3D Coordinates"]
+    E --> F["Confidence pLDDT"]
+```

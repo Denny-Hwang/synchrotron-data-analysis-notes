@@ -247,3 +247,21 @@ def focal_loss(pred, target, alpha=0.25, gamma=2.0):
 - Class imbalance can dominate training (need Dice/focal loss)
 - Domain shift: model trained on one beamline may fail on another
 - No built-in uncertainty quantification (need ensemble or MC dropout)
+
+## Architecture diagram
+
+```mermaid
+graph TB
+    A["Input Image"] --> B["Conv+BN+ReLU x2"]
+    B --> C["MaxPool"]
+    C --> D["Conv+BN+ReLU x2"]
+    D --> E["MaxPool"]
+    E --> F["Bottleneck"]
+    F --> G["UpConv + Skip"]
+    G --> H["Conv+BN+ReLU x2"]
+    H --> I["UpConv + Skip"]
+    I --> J["Conv 1x1"]
+    J --> K["Segmentation Map"]
+    B -.->|skip| I
+    D -.->|skip| G
+```

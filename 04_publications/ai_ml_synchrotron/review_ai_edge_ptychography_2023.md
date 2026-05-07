@@ -289,3 +289,14 @@ deterministic latency matter.
 | **Tags** | ptychography, edge-compute, CNN, FPGA, GPU, real-time, streaming, autonomous |
 
 *Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Detector Stream"] --> B["Edge FPGA/GPU"]
+    B --> C["Lightweight CNN"]
+    C --> D["Real-time Phase"]
+    D --> E["Feedback to Scan"]
+    F["Full Recon on HPC"] -.-> D
+```

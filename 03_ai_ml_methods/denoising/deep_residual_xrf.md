@@ -169,3 +169,16 @@ class XRFResolutionEnhancer(nn.Module):
         enhanced = self.output_conv(initial + residual)
         return x + enhanced  # Global residual connection
 ```
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Low-res XRF"] --> B["Bicubic Upscale"]
+    B --> C["Deep Residual
+Blocks x16"]
+    C --> D["Residual
+Learning"]
+    D --> E["Super-resolved
+XRF Map"]
+```

@@ -406,3 +406,20 @@ Recommendation: Use TomoGAN when training data is available.
    IEEE ISBI 2020. arXiv: 1911.12420
 
 **GitHub**: [https://github.com/juglab/n2v](https://github.com/juglab/n2v) (BSD-3 License)
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Single Noisy
+Image"] --> B["Blind-Spot
+Masking"]
+    B --> C["U-Net
+Encoder-Decoder"]
+    C --> D["Predict Masked
+Center Pixel"]
+    D --> E["Self-supervised
+Loss"]
+    E -->|"iterate"| B
+    style D fill:#00D4AA,color:#fff
+```

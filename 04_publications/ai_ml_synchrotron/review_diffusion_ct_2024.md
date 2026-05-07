@@ -221,3 +221,18 @@ trustworthy than GANs for scientific imaging.
 | **Review date** | 2026-04-05 |
 | **Last updated** | 2026-04-05 |
 | **Tags** | reconstruction, diffusion-models, sparse-view, dose-reduction, deep-learning, uncertainty |
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Sparse-View Sinogram"] --> B["FBP Initial Recon"]
+    B --> C["Forward Diffusion
+(Add Noise)"]
+    C --> D["Score Network
+Reverse Diffusion"]
+    D --> E["Data Consistency
+Step"]
+    E --> F["Clean Reconstruction"]
+    D -->|"iterate T steps"| D
+```

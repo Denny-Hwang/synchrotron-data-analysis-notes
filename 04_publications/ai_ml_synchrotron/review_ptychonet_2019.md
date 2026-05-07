@@ -289,3 +289,15 @@ developments alongside the edge deployment work.
 | **Tags** | ptychography, CNN, phase-retrieval, encoder-decoder, simulation, foundational |
 
 *Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Diffraction Patterns"] --> B["Log-scale & Normalize"]
+    B --> C["CNN Encoder-Decoder"]
+    C --> D["Amplitude & Phase Patches"]
+    D --> E["Overlap-weighted Stitching"]
+    E --> F["Optional ePIE Refinement"]
+    F --> G["Final Reconstruction"]
+```

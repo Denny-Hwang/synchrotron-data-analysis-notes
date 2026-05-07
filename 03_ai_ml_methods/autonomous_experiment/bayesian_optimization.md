@@ -178,3 +178,17 @@ from botorch.acquisition.multi_objective import ExpectedHypervolumeImprovement
 3. **Discrete parameters**: Requires extensions for discrete choices
 4. **GP assumptions**: Stationarity, smoothness may not always hold
 5. **Implementation complexity**: Requires ML expertise to configure properly
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Initial Samples"] --> B["Surrogate Model
+Gaussian Process"]
+    B --> C["Acquisition
+Function"]
+    C --> D["Next Sample
+Point"]
+    D --> E["Experiment"]
+    E -->|"update"| B
+```

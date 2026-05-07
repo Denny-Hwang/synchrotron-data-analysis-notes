@@ -425,3 +425,22 @@ and for new experimental campaigns.
    Recognition at Scale." ICLR 2021. arXiv: 2010.11929
 4. Brown, T., et al. "Language Models are Few-Shot Learners." NeurIPS 2020.
    DOI: [10.48550/arXiv.2005.14165](https://doi.org/10.48550/arXiv.2005.14165)
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Natural Language
+Command"] --> B["LLM/VLM
+Foundation Model"]
+    B --> C["Experiment
+Plan"]
+    C --> D["Beamline
+Execution"]
+    D --> E["Live Data
+Feedback"]
+    E -->|"adapt"| B
+    F["Pre-trained
+Vision Model"] -.-> B
+    style B fill:#E8515D,color:#fff
+```

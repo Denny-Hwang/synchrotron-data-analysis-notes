@@ -168,3 +168,14 @@ This hybrid approach achieves:
 - Optimized PtychoNet deployed on edge GPU/FPGA at beamline
 - Inference during data acquisition
 - Streaming reconstruction pipeline
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Diffraction Pattern"] --> B["CNN Encoder"]
+    B --> C["Latent 4x4x512"]
+    C --> D["CNN Decoder"]
+    D --> E["Phase + Amplitude"]
+    E --> F["ePIE Refine 5-20 iter"]
+```

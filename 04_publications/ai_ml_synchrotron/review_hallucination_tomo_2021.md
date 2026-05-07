@@ -233,3 +233,14 @@ framework proposed here.
 | **Review date** | 2026-04-05 |
 | **Last updated** | 2026-04-05 |
 | **Tags** | reconstruction, hallucination, quality-control, deep-learning, safety, tomography |
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Sparse-View Data"] --> B["DL Reconstruction"]
+    B --> C["Output Image"]
+    C --> D["sFRC Analysis"]
+    D --> E["Hallucination Map"]
+    F["Reference FBP"] -.-> D
+```

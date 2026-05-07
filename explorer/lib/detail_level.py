@@ -310,3 +310,66 @@ def extract_toc(body: str, *, max_depth: int = 3) -> list[tuple[int, str, str]]:
     """
     out = _outline(body)
     return [(d, _heading_anchor(t), t) for d, t, _ in out if 1 <= d <= max_depth]
+
+
+def split_into_sections(body: str, *, level: int = 2) -> list[tuple[str, str]]:
+    """Split a markdown body into ``(heading, body-without-heading)`` chunks.
+
+    The split points are the H``level`` headings only — any H1 title
+    above and any preamble is stitched together as a leading
+    ``"Overview"`` section. Code-fence-aware (a ``# comment`` inside a
+    Python fence does not start a new section). This powers the
+    note-detail "Tabs" view that mirrors the legacy Publications
+    page L2 (Background / Method / Key Results / …).
+    """
+    text = _strip_frontmatter(body)
+    lines = text.splitlines()
+    in_fence = False
+    fence_marker: str | None = None
+
+    sections: list[tuple[str, list[str]]] = []
+    current_label = "Overview"
+    current_lines: list[str] = []
+    target_hashes = "#" * level
+
+    for raw_line in lines:
+        m = _FENCE_RE.match(raw_line)
+        if m:
+            marker = m.group("fence")
+            if not in_fence:
+                in_fence = True
+                fence_marker = marker
+            elif (
+                fence_marker is not None
+                and len(marker) >= len(fence_marker)
+                and marker[0] == fence_marker[0]
+            ):
+                in_fence = False
+                fence_marker = None
+            current_lines.append(raw_line)
+            continue
+
+        if not in_fence:
+            stripped = raw_line.lstrip()
+            if stripped.startswith(target_hashes + " "):
+                heading = stripped[len(target_hashes) :].strip()
+                # Flush the in-progress section (skip if first heading
+                # found and current section is empty preamble — keeps
+                # output free of empty Overview tabs).
+                if sections or any(s.strip() for s in current_lines):
+                    sections.append((current_label, current_lines))
+                current_label = heading
+                current_lines = []
+                continue
+            # Strip the H1 title line entirely — the page renders it.
+            if stripped.startswith("# ") and not sections and not current_lines:
+                continue
+
+        current_lines.append(raw_line)
+
+    # Always flush the trailing section once any heading has been seen — an
+    # empty body under the last H2 is still a valid (empty) section.
+    if sections or any(s.strip() for s in current_lines):
+        sections.append((current_label, current_lines))
+
+    return [(label, "\n".join(body_lines).strip()) for label, body_lines in sections]

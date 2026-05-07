@@ -299,3 +299,86 @@ def test_extract_toc_max_depth_filter() -> None:
     out = extract_toc(body, max_depth=3)
     depths = [d for d, _, _ in out]
     assert depths == [1, 2, 3]
+
+
+# ---------------------------------------------------------------------------
+# split_into_sections — Phase R9 (auto-tabs view)
+# ---------------------------------------------------------------------------
+
+
+def test_split_into_sections_returns_h2_chunks() -> None:
+    from lib.detail_level import split_into_sections
+
+    out = split_into_sections(_SAMPLE)
+    labels = [label for label, _ in out]
+    # H1 title is removed; first H2 starts an Overview chunk for the
+    # opening paragraph above it.
+    assert "Overview" in labels
+    assert "Root Cause" in labels
+    assert "Mitigations" in labels
+
+
+def test_split_into_sections_first_section_holds_preamble() -> None:
+    from lib.detail_level import split_into_sections
+
+    body = textwrap.dedent(
+        """\
+        # Title
+
+        Lead paragraph that lives above any H2.
+
+        ## First Section
+
+        Content under first.
+        """
+    )
+    out = split_into_sections(body)
+    assert out[0][0] == "Overview"
+    assert "Lead paragraph" in out[0][1]
+    assert out[1][0] == "First Section"
+    assert "Content under first." in out[1][1]
+
+
+def test_split_into_sections_skips_in_fence_h2() -> None:
+    """An ``## H2`` line inside a Python code fence is NOT a section break."""
+    from lib.detail_level import split_into_sections
+
+    body = textwrap.dedent(
+        """\
+        # Title
+
+        ## Real Section
+
+        ```python
+        ## this is a python comment, not a section
+        x = 1
+        ```
+
+        ## Another Real
+        """
+    )
+    out = split_into_sections(body)
+    labels = [label for label, _ in out]
+    assert "Real Section" in labels
+    assert "Another Real" in labels
+    assert "this is a python comment, not a section" not in labels
+
+
+def test_split_into_sections_no_h2_returns_one_section() -> None:
+    from lib.detail_level import split_into_sections
+
+    out = split_into_sections("# Title\n\nJust prose, no headings.\n")
+    assert len(out) == 1
+    assert out[0][0] == "Overview"
+    assert "Just prose" in out[0][1]
+
+
+def test_split_into_sections_custom_level() -> None:
+    """``level=3`` splits at H3 instead."""
+    from lib.detail_level import split_into_sections
+
+    body = "# Title\n\n## Big\n\n### Sub A\n\nA body\n\n### Sub B\n\nB body\n"
+    out = split_into_sections(body, level=3)
+    labels = [label for label, _ in out]
+    assert "Sub A" in labels
+    assert "Sub B" in labels

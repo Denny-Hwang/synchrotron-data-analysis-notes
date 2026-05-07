@@ -448,3 +448,21 @@ PINNs + Neural Operators bridge the gap between:
    Nature Machine Intelligence 2021. DOI: [10.1038/s42256-021-00302-5](https://doi.org/10.1038/s42256-021-00302-5)
 4. Sun, Y., et al. "Physics-informed deep learning for computational imaging."
    Optica 2022.
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Sparse
+Measurements"] --> B["Neural Network
+f(x,y,z)"]
+    B --> C["Physics Loss
+Forward Model"]
+    C --> D["Data Loss
+Measurement Fit"]
+    D --> E["Physically
+Consistent Recon"]
+    F["PDE
+Constraints"] -.-> C
+    style E fill:#9B59B6,color:#fff
+```

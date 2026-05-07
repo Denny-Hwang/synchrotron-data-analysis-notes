@@ -200,3 +200,17 @@ both leverage this dataset for model development and contribute to its expansion
 | **Review date** | 2026-04-05 |
 | **Last updated** | 2026-04-05 |
 | **Tags** | multimodal_integration, benchmark, dataset, machine-learning, open-data |
+
+## Architecture diagram
+
+```mermaid
+graph TB
+    A["Sample"] --> B["XRF Mapping"]
+    A --> C["Ptychography"]
+    A --> D["Micro-CT"]
+    B --> E["Paired 3D Dataset"]
+    C --> E
+    D --> E
+    E --> F["ML Benchmark
+Training"]
+```

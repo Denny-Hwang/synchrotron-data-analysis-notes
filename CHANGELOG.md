@@ -6,6 +6,52 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [explorer-0.6.0] - 2026-05-07
+
+**Phase R9 — final feature parity.** Closes the last five gaps identified in the
+legacy-vs-new audit. After R9 the new explorer matches the legacy `eberlight-explorer/`
+on every measured surface and exceeds it on governance, accessibility, search,
+Interactive Lab, static-site mirror, and power-user UX. Release notes:
+[REL-E060](docs/05_release/release_notes/explorer-v0.6.0.md).
+
+### Added
+- **Mermaid library restoration (35 diagrams).** `scripts/migrate_legacy_mermaid.py`
+  lifts the legacy ``CATEGORY_DIAGRAMS`` / ``METHOD_DIAGRAMS`` / ``PAPER_DIAGRAMS``
+  page-side dictionaries into the matching note markdown so every category README,
+  method note, and paper review opens with an inline architecture diagram. Idempotent
+  (R3's two existing diagrams are preserved).
+- **`?doc=<basename>` deep links** restored on every cluster page.
+  `lib/notes.py::find_note_by_basename` resolves bare filenames with optional folder
+  hints; cluster pages prefer matches in their own scope.
+- **Frontmatter-driven metric row** on note-detail. New optional fields (`resolution`,
+  `maturity`, `language`, `gpu`, `year`, `journal`, `authors`, `doi`, `priority`,
+  `pipeline_stage`) appear as `st.metric()` cards above the body when declared. Notes
+  without rich frontmatter render unchanged.
+- **`?view=tabs` auto-section-tabs view.** `lib/detail_level.py::split_into_sections`
+  splits the body at every H2 heading and the note-view renders each chunk in its own
+  `st.tabs(...)` panel. The level pill row gains a 📑 Tabs toggle. In-fence-aware (a
+  ``## comment`` inside a Python code fence does NOT start a section).
+- **Knowledge Graph hierarchical layout toggle.** Plotly + NetworkX via
+  `nx.multipartite_layout` — modality → noise → method → recipe → paper → tool columns.
+  Pill row above the graph switches between spring (default) and hierarchical.
+
+### Changed
+- `lib/notes.py::Note` dataclass extended with 10 optional fields and parsers for
+  string / int / bool frontmatter values.
+- `lib/cluster_page.py::render_cluster_page` accepts the legacy `?doc=` query
+  parameter in addition to `?note=`, `?tag=`, `?level=`, `?view=`.
+- `pyproject.toml` per-file ruff ignores: `scripts/migrate_legacy_mermaid.py` exempt
+  from `T20` (one-shot script with progress prints).
+
+### Notes
+- 16 new tests (251 passed total). 5 drift-protection tests in
+  `test_legacy_mermaid_migration.py` lock the migration in CI: every diagram in the
+  migration table has a counterpart in note markdown, total count is 35, and a
+  re-run is a no-op.
+- `ruff check / format --check explorer/ experiments/ scripts/` clean.
+- ADR-002 stays intact — every restored capability is derived at runtime from notes,
+  recipes, or frontmatter; no YAML catalogs were reintroduced.
+
 ## [explorer-0.5.0] - 2026-05-06
 
 **Parity restoration (R1 → R7) + GitHub Pages mirror catch-up.** Consolidates seven feature

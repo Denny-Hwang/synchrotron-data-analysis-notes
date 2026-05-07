@@ -312,3 +312,15 @@ as the highest-priority ML application area across DOE light sources.
 | **Tags** | XPCS, unsupervised, UMAP, HDBSCAN, dynamics, autonomous, manifold-learning |
 
 *Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["XPCS Measurement"] --> B["Speckle Pattern Analysis"]
+    B --> C["AI-NERD Feature Extraction"]
+    C --> D["Unsupervised Fingerprinting"]
+    D --> E["Dynamics Classification"]
+    E --> F["Autonomous Decision"]
+    F -->|"next measurement"| A
+```

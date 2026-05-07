@@ -45,3 +45,21 @@ Current state: Most systems at Level 1-2; research pushing toward Level 3-4.
 | [bayesian_optimization.md](bayesian_optimization.md) | Bayesian parameter optimization |
 | [ai_nerd.md](ai_nerd.md) | Unsupervised dynamics fingerprinting |
 | [foundation_models_beamline.md](foundation_models_beamline.md) | Foundation models (LLMs, ViTs) for beamline control and autonomous operation |
+
+## Architecture diagram
+
+_Autonomous experiment loop: AI analyzes live measurement data and decides next experimental action without human intervention._
+
+```mermaid
+graph LR
+    A["Measurement"] --> B["Feature
+Extraction"]
+    B --> C["AI Decision
+Engine"]
+    C --> D["Next Action:
+Scan / Move / Stop"]
+    D -->|"feedback loop"| A
+    E["Prior
+Knowledge"] -.-> C
+    style C fill:#E8515D,color:#fff
+```

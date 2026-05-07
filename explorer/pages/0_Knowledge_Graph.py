@@ -199,19 +199,84 @@ def _build_networkx(graph: Graph, visible_kinds: set[str]) -> nx.Graph:
     return g
 
 
+# Layout-mode toggle — restores the legacy vis.js hierarchical option.
+# "spring" packs related entities tightly (good for navigation),
+# "hierarchical" lays kinds out in fixed columns left-to-right (good
+# for understanding category structure).
+_LAYOUT_MODES = ("spring", "hierarchical")
+_layout_mode_label = {
+    "spring": "🕸️ Force-directed (spring)",
+    "hierarchical": "🪜 Hierarchical (kind columns)",
+}
+# kind → x-bucket order for hierarchical multipartite layout.
+_KIND_LAYER_ORDER = {
+    "modality": 0,
+    "noise": 1,
+    "method": 2,
+    "recipe": 3,
+    "paper": 4,
+    "tool": 5,
+}
+
+
 @st.cache_data(show_spinner=False)
-def _layout(visible_kinds_key: tuple[str, ...]) -> dict[str, tuple[float, float]]:
-    """Cache layout computation per visible-kind selection."""
+def _layout(
+    visible_kinds_key: tuple[str, ...],
+    mode: str = "spring",
+) -> dict[str, tuple[float, float]]:
+    """Cache layout computation per visible-kind selection + mode."""
     g = _build_networkx(graph, set(visible_kinds_key))
     if g.number_of_nodes() == 0:
         return {}
+    if mode == "hierarchical":
+        # Multipartite: each entity kind gets its own column; nodes
+        # within a kind spread vertically by index. Reproduces the
+        # legacy vis.js `hierarchical=True` layout intent.
+        for nid in g.nodes():
+            ent = g.nodes[nid]["entity"]
+            g.nodes[nid]["layer"] = _KIND_LAYER_ORDER.get(ent.kind, 99)
+        try:
+            return nx.multipartite_layout(g, subset_key="layer", align="vertical")  # type: ignore[return-value]
+        except Exception:
+            # Fallback if multipartite raises (e.g. all-same-layer);
+            # spring is always safe.
+            pass
     # Spring layout with deterministic seed so the graph doesn't dance
     # on every rerender. ``k`` is tuned for 100+ nodes so isolated
     # nodes don't fly off the edge.
     return nx.spring_layout(g, k=0.55, iterations=80, seed=42)  # type: ignore[return-value]
 
 
-layout_map = _layout(tuple(sorted(visible_kinds)))
+layout_mode = _query_param("layout") or "spring"
+if layout_mode not in _LAYOUT_MODES:
+    layout_mode = "spring"
+
+# Layout-mode pill row — sits next to the kind filter so users can
+# flip between force-directed and hierarchical views without a reload
+# fight. Only meaningful at L2 (graph) so we render it conditionally.
+if _KG_LEVEL == "L2":
+    pills = []
+    for mode in _LAYOUT_MODES:
+        is_active = mode == layout_mode
+        bg = "#0033A0" if is_active else "#E8EEF6"
+        fg = "#FFFFFF" if is_active else "#0033A0"
+        # Preserve current ?level= so toggle stays in L2.
+        href = f"?level={_KG_LEVEL}&layout={mode}"
+        pills.append(
+            f'<a href="{href}" target="_self" '
+            f'style="text-decoration:none;background:{bg};color:{fg};'
+            f"padding:6px 14px;border-radius:14px;font-size:13px;"
+            f"font-weight:600;margin-right:6px;display:inline-block;"
+            f'margin-bottom:6px;">{_layout_mode_label[mode]}</a>'
+        )
+    st.markdown(
+        '<div style="margin:8px 0 8px 0;">'
+        '<div style="font-size:11px;color:#888;text-transform:uppercase;'
+        'letter-spacing:0.5px;margin-bottom:6px;">Layout</div>' + "".join(pills) + "</div>",
+        unsafe_allow_html=True,
+    )
+
+layout_map = _layout(tuple(sorted(visible_kinds)), layout_mode)
 nx_graph = _build_networkx(graph, visible_kinds)
 
 

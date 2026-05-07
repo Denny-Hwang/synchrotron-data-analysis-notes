@@ -298,3 +298,18 @@ Cross-references:
 | **Review date** | 2026-03-06 |
 | **Last updated** | 2026-03-06 |
 | **Tags** | XANES, Bayesian-optimization, adaptive-sampling, autonomous, spectroscopy, operando, Bluesky |
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Seed Points 5-10"] --> B["GP Surrogate Fit"]
+    B --> C["Knowledge-Injected
+Acquisition Function"]
+    C --> D["Select Next Energy E*"]
+    D --> E["Monochromator + Measure"]
+    E --> F["Update GP"]
+    F -->|"iterate"| B
+    G["Edge Prior P_edge"] -.-> C
+    H["Gradient |∂μ/∂E|"] -.-> C
+```

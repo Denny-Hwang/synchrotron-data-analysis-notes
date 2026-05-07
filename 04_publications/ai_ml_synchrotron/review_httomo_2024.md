@@ -221,3 +221,17 @@ reviewed in this collection. The companion tool entry in
 | **Review date** | 2026-04-05 |
 | **Last updated** | 2026-04-05 |
 | **Tags** | reconstruction, pipeline, GPU, high-throughput, tomography, modular |
+
+## Architecture diagram
+
+```mermaid
+graph TB
+    A["Raw Projections"] --> B["YAML Pipeline Config"]
+    B --> C["GPU Preprocessing
+(Ring, Stripe, Norm)"]
+    C --> D["GPU Reconstruction
+(FBP/Gridrec/CGLS)"]
+    D --> E["Post-processing
+(Segmentation)"]
+    E --> F["HDF5/TIFF Output"]
+```

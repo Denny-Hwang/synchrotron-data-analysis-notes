@@ -275,3 +275,15 @@ training as a second-phase optimization once individual modules are validated.
 | **Tags** | tomography, deep-learning, pipeline, review, denoising, reconstruction, segmentation, full-stack |
 
 *Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*
+
+## Architecture diagram
+
+```mermaid
+graph TB
+    A["Raw Projections"] --> B["Preprocessing"]
+    B --> C["Reconstruction"]
+    C --> D["Denoising"]
+    D --> E["Segmentation"]
+    E --> F["Quantification"]
+    F --> G["Visualization"]
+```

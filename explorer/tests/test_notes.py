@@ -248,3 +248,131 @@ def test_discover_sibling_notebooks_real_repo() -> None:
                 assert all(p.suffix == ".ipynb" for p in books)
                 return
     pytest.skip("No tool README has a sibling .ipynb in this repo state.")
+
+
+# ---------------------------------------------------------------------------
+# Phase R9 — find_note_by_basename + optional metric frontmatter
+# ---------------------------------------------------------------------------
+
+
+def test_find_note_by_basename_resolves_unique(tmp_path: Path) -> None:
+    """A unique basename match resolves to the matching Note."""
+    from lib.notes import Note, find_note_by_basename
+
+    a = Note(
+        path=tmp_path / "ring_artifact.md",
+        folder="09_noise_catalog",
+        title="Ring Artifact",
+        body="",
+        cluster="explore",
+    )
+    b = Note(
+        path=tmp_path / "zinger.md",
+        folder="09_noise_catalog",
+        title="Zinger",
+        body="",
+        cluster="explore",
+    )
+    out = find_note_by_basename([a, b], "ring_artifact")
+    assert out is a
+    # `.md` suffix tolerated.
+    assert find_note_by_basename([a, b], "ring_artifact.md") is a
+
+
+def test_find_note_by_basename_uses_folder_hint(tmp_path: Path) -> None:
+    """Two notes with same basename are disambiguated by folder hint."""
+    from lib.notes import Note, find_note_by_basename
+
+    a = Note(
+        path=tmp_path / "foo" / "x.md",
+        folder="03_ai_ml_methods",
+        title="X (methods)",
+        body="",
+        cluster="explore",
+    )
+    b = Note(
+        path=tmp_path / "bar" / "x.md",
+        folder="04_publications",
+        title="X (paper)",
+        body="",
+        cluster="explore",
+    )
+    # Without hint, ambiguous → None.
+    assert find_note_by_basename([a, b], "x") is None
+    # Hinted → exactly the right one.
+    assert find_note_by_basename([a, b], "x", folder_hint="04_publications") is b
+
+
+def test_find_note_by_basename_returns_none_for_unknown(tmp_path: Path) -> None:
+    from lib.notes import Note, find_note_by_basename
+
+    a = Note(
+        path=tmp_path / "x.md",
+        folder="foo",
+        title="X",
+        body="",
+        cluster="discover",
+    )
+    assert find_note_by_basename([a], "no_such") is None
+    assert find_note_by_basename([a], "") is None
+
+
+def test_optional_frontmatter_fields_parse(tmp_path: Path) -> None:
+    """The R9 optional fields land on Note when declared in frontmatter."""
+    from lib.notes import _parse_note
+
+    p = tmp_path / "test.md"
+    p.write_text(
+        "---\n"
+        "title: 'Tool Demo'\n"
+        "cluster: build\n"
+        "tags: [demo]\n"
+        "language: Python\n"
+        "gpu: true\n"
+        "maturity: Production\n"
+        "pipeline_stage: processing\n"
+        "year: 2024\n"
+        "priority: High\n"
+        "doi: 10.1234/example\n"
+        "---\n"
+        "Body.\n",
+        encoding="utf-8",
+    )
+    n = _parse_note(p, "05_tools_and_code")
+    assert n.language == "Python"
+    assert n.gpu is True
+    assert n.maturity == "Production"
+    assert n.pipeline_stage == "processing"
+    assert n.year == 2024
+    assert n.priority == "High"
+    assert n.doi == "10.1234/example"
+
+
+def test_gpu_frontmatter_string_yes_no(tmp_path: Path) -> None:
+    """``gpu: yes`` and ``gpu: no`` parse to bool too (data_contracts has both forms)."""
+    from lib.notes import _parse_note
+
+    for value, expected in [("yes", True), ("no", False), ("True", True)]:
+        p = tmp_path / f"x_{value}.md"
+        p.write_text(
+            f"---\ntitle: T\ncluster: build\ntags: []\ngpu: {value}\n---\n",
+            encoding="utf-8",
+        )
+        n = _parse_note(p, "05_tools_and_code")
+        assert n.gpu is expected, f"value={value!r}"
+
+
+def test_optional_frontmatter_unset_stays_none(tmp_path: Path) -> None:
+    """A note with no rich metadata leaves all optional fields at None."""
+    from lib.notes import _parse_note
+
+    p = tmp_path / "plain.md"
+    p.write_text(
+        "---\ntitle: Plain\ncluster: discover\ntags: []\n---\nBody.\n",
+        encoding="utf-8",
+    )
+    n = _parse_note(p, "01_program_overview")
+    assert n.gpu is None
+    assert n.year is None
+    assert n.maturity is None
+    assert n.language is None
