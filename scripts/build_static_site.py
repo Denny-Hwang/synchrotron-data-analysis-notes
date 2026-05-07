@@ -163,16 +163,8 @@ a { color: #0033A0; }
 }
 .site-container.narrow { max-width: 960px; }
 
-/* Re-enable the cluster links on the static site header (Streamlit stubbed them). */
-.eberlight-header-nav a {
-    pointer-events: auto !important;
-    opacity: 1 !important;
-}
-.eberlight-header-nav a:hover { background: #F5F5F5; }
-.eberlight-header-nav a.active {
-    color: #0033A0;
-    background: rgba(0, 51, 160, 0.08);
-}
+/* (R11 I4 — styles.css now ships readable nav colors directly; the
+   legacy ``pointer-events:none`` override is no longer needed.) */
 
 /* Hero on the landing page */
 .hero { text-align: center; padding: 48px 0; }
@@ -950,7 +942,16 @@ def _render_note(out_dir: Path, note: Note, highlight_css: str) -> None:
     body_html = markdown.markdown(
         body_with_placeholders,
         extensions=["fenced_code", "tables", "toc", "codehilite"],
-        extension_configs={"codehilite": {"css_class": "highlight", "linenums": False}},
+        extension_configs={
+            "codehilite": {
+                "css_class": "highlight",
+                "linenums": False,
+                # R11 I1 — same fix as note_view._md_to_html: never guess
+                # a lexer for unlabeled code blocks, otherwise ASCII tree
+                # diagrams become a span soup.
+                "guess_lang": False,
+            }
+        },
     )
     body_html = _md_link_rewrite(body_html)
     # Step 2 — swap each placeholder for a real ``<div class="mermaid">``.

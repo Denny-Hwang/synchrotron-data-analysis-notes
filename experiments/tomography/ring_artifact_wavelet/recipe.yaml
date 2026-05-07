@@ -10,6 +10,21 @@ title: "Ring Artifact — Wavelet-FFT (Munch 2009)"
 modality: tomography
 noise_catalog_ref: 09_noise_catalog/tomography/ring_artifact.md
 
+problem: |
+  Same ring-artifact source as the Vo recipe: detector columns add a
+  fixed offset to every angle, producing concentric rings after
+  reconstruction. Pedagogically — same input, different fix.
+fix: |
+  Decompose the sinogram with a Daubechies wavelet, FFT the vertical
+  detail bands, multiply by a damped-Gaussian notch (suppresses
+  vertical-frequency stripes), inverse-FFT, then inverse-wavelet.
+  Smaller `sigma` = sharper notch = more aggressive cleaning.
+observe: |
+  Compared to the Vo filter, this leaves slightly less low-frequency
+  smear but can introduce wavelet ringing if `sigma` is too small.
+  Run the same sample through both recipes and compare the |Δ| panels
+  — they show how the two algorithms touch the data differently.
+
 description: |
   Combined wavelet-Fourier stripe removal from **Munch, Trtik, Marone &
   Stampanoni (2009)**, *Optics Express*. Uses a multi-level Daubechies

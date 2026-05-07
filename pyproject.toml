@@ -63,6 +63,9 @@ ignore = [
 "scripts/build_static_site.py" = ["T20", "E402"]
 # One-shot migration script — emits progress lines to stdout deliberately.
 "scripts/migrate_legacy_mermaid.py" = ["T20"]
+# Experiment pipeline docstrings legitimately use Greek + math notation
+# (σ, ε, −) — RUF002 trips on every ambiguous-character variant.
+"experiments/**/pipeline.py" = ["RUF002"]
 
 [tool.ruff.format]
 quote-style = "double"
