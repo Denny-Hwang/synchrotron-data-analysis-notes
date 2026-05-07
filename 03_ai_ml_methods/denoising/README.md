@@ -39,3 +39,22 @@ Denoising is critical in synchrotron science because:
 | [noise2noise.md](noise2noise.md) | Self-supervised denoising without clean targets |
 | [deep_residual_xrf.md](deep_residual_xrf.md) | Resolution enhancement via probe deconvolution |
 | [noise2void.md](noise2void.md) | Self-supervised denoising from single noisy images (N2V, N2S, Neighbor2Neighbor) |
+
+## Architecture diagram
+
+_GAN-based denoising: generator produces clean images while discriminator and perceptual losses preserve texture realism._
+
+```mermaid
+graph LR
+    A["Low-dose
+Noisy Input"] --> B["Generator
+U-Net"]
+    B --> C["Denoised
+Output"]
+    D["Discriminator
+PatchGAN"] -.->|"Adversarial"| B
+    E["VGG-16"] -.->|"Perceptual"| B
+    F["Clean
+Target"] -.->|"L1 Pixel"| B
+    style C fill:#FFB800,color:#fff
+```

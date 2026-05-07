@@ -213,3 +213,14 @@ providing a fallback when paired training data cannot be collected.
 | **Review date** | 2026-04-05 |
 | **Last updated** | 2026-04-05 |
 | **Tags** | denoising, self-supervised, blind-spot, dose-reduction, deep-learning |
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Single Noisy Image"] --> B["Random Blind-Spot Masking"]
+    B --> C["U-Net Prediction"]
+    C --> D["Self-supervised Loss"]
+    D --> E["Denoised Output"]
+    F["No Clean Target Needed"] -.-> D
+```

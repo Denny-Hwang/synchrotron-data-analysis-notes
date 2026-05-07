@@ -61,6 +61,8 @@ ignore = [
 # sys.path before importing the explorer's lib modules (which is the
 # whole point — single source of truth for IA / notes parsing).
 "scripts/build_static_site.py" = ["T20", "E402"]
+# One-shot migration script — emits progress lines to stdout deliberately.
+"scripts/migrate_legacy_mermaid.py" = ["T20"]
 
 [tool.ruff.format]
 quote-style = "double"

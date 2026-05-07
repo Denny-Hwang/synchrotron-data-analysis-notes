@@ -295,3 +295,15 @@ reviewed in the other papers in this collection: edge compute for ptychography
 | **Tags** | workshop, survey, strategic-planning, autonomous, infrastructure, workforce, cross-facility |
 
 *Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*
+
+## Architecture diagram
+
+```mermaid
+graph TB
+    A["AI@ALS Workshop 2024"] --> B["Autonomous Experiments"]
+    A --> C["Real-time Analysis"]
+    A --> D["Data Management"]
+    B --> E["Adaptive Scanning"]
+    C --> F["Edge Computing"]
+    D --> G["FAIR Data Practices"]
+```

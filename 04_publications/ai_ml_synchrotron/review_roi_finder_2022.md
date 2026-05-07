@@ -279,3 +279,17 @@ on the enhanced map.
 | **Review date** | 2025-10-15 |
 | **Last updated** | 2025-10-15 |
 | **Tags** | XRF, clustering, unsupervised, PCA, fuzzy-c-means, ROI, autonomous, beamline |
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Multi-element XRF Survey"] --> B["Spectral Fitting MAPS"]
+    B --> C["Elemental Concentration Maps"]
+    C --> D["PCA k=3-5"]
+    D --> E["Fuzzy C-Means c=3-8"]
+    E --> F["Membership Thresholding"]
+    F --> G["ROI Scoring"]
+    G --> H["Ranked ROI Boxes"]
+    H --> I["Beamline Controller"]
+```

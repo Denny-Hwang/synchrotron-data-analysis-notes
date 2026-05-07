@@ -298,3 +298,16 @@ statistical rigor of mixture models.
 | **Review date** | 2025-10-15 |
 | **Last updated** | 2025-10-15 |
 | **Tags** | XRF, GMM, clustering, unsupervised, probabilistic, subcellular, malaria, biological |
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["XRF Raster Scan"] --> B["Spectral Fitting"]
+    B --> C["7-Channel Elemental Maps"]
+    C --> D["Normalize"]
+    D --> E["GMM via EM"]
+    E --> F["BIC Sweep K=2-8"]
+    F --> G["Posterior Probability Maps"]
+    G --> H["Component Identification"]
+```

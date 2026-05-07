@@ -295,3 +295,14 @@ comprehensive error handling, and automated quality monitoring.
 | **Tags** | tomography, micro-CT, HPC, real-time, pipeline, streaming, infrastructure, TomoPy |
 
 *Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Detector @ 2-BM"] --> B["Streaming to HPC"]
+    B --> C["TomoPy Recon"]
+    C --> D["GPU Filtering"]
+    D --> E["Real-time 3D Volume"]
+    E --> F["Live Visualization"]
+```

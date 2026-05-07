@@ -280,3 +280,18 @@ TomoGAN has been integrated into streaming analysis systems.
 | **Review date** | 2025-10-16 |
 | **Last updated** | 2025-10-16 |
 | **Tags** | tomography, GAN, denoising, dose-reduction, deep-learning, real-time |
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["High-Dose Projections"] --> B["Dose Reduction"]
+    B --> C["FBP Recon via TomoPy"]
+    C --> D["Noisy Slices"]
+    D --> E["TomoGAN Generator"]
+    E --> F["Denoised Slices"]
+    F --> G["Segmentation & Analysis"]
+    H["PatchGAN Discriminator"] -.-> E
+    I["VGG-16 Perceptual Loss"] -.-> E
+    J["L1 Pixel Loss"] -.-> E
+```

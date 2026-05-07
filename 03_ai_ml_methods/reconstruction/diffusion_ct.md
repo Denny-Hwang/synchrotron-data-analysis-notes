@@ -370,3 +370,20 @@ def diffusion_ct_reconstruct(score_model, sinogram, angles, n_steps=200,
    OpenReview, 2024.
 4. Song, J., Meng, C., Ermon, S. "Denoising Diffusion Implicit Models."
    ICLR 2021. arXiv: 2010.02502
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Sparse-View
+Sinogram"] --> B["Score Network
+Estimate ∇log p"]
+    B --> C["Reverse
+Diffusion"]
+    C --> D["Data Consistency
+Projection"]
+    D --> E["Reconstructed
+Volume"]
+    C -->|"denoise step"| C
+    style E fill:#1B3A5C,color:#fff
+```

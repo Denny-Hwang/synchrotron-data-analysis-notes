@@ -267,3 +267,14 @@ knowledge about elemental co-localization patterns.
 | **Tags** | XRF, super-resolution, deep-residual-network, resolution-enhancement, multi-element |
 
 *Reviewed for the Synchrotron Data Analysis Notes, 2026-02-27.*
+
+## Architecture diagram
+
+```mermaid
+graph LR
+    A["Low-res XRF Map"] --> B["Upscale Interpolation"]
+    B --> C["Deep Residual Network"]
+    C --> D["Residual Learning"]
+    D --> E["Super-resolved XRF Map"]
+    F["High-res Ground Truth"] -.-> C
+```

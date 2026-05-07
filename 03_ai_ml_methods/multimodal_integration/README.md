@@ -47,3 +47,20 @@ This workflow is slow, subjective, and underutilizes complementary information.
 | [xrf_ptychography.md](xrf_ptychography.md) | Simultaneous structure + elemental mapping |
 | [ct_xas_correlation.md](ct_xas_correlation.md) | Structural + chemical speciation |
 | [optical_xray_registration.md](optical_xray_registration.md) | Image registration across modalities |
+
+## Architecture diagram
+
+_Multimodal integration fuses data from multiple X-ray techniques into a shared representation for richer scientific insight._
+
+```mermaid
+graph TB
+    A["XRF Maps"] --> D["Joint
+Feature Space"]
+    B["Ptychography"] --> D
+    C["Spectroscopy"] --> D
+    D --> E["Correlation
+Analysis"]
+    E --> F["Fused
+Insight"]
+    style D fill:#9B59B6,color:#fff
+```

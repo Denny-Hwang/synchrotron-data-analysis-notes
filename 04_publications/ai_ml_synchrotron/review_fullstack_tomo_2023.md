@@ -250,3 +250,15 @@ This paper serves as an architectural blueprint for eBERlight's tomography pipel
 ---
 
 *Reviewed for the eBERlight Research Archive, 2026-02-27.*
+
+## Architecture diagram
+
+```mermaid
+graph TB
+    A["Raw Projections"] --> B["Preprocessing"]
+    B --> C["Reconstruction"]
+    C --> D["Denoising"]
+    D --> E["Segmentation"]
+    E --> F["Quantification"]
+    F --> G["Visualization"]
+```

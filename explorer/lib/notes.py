@@ -72,6 +72,19 @@ class Note:
     description: str = ""
     category: str = ""
     has_frontmatter: bool = False
+    # Optional rich metadata used by the note-detail metric panel.
+    # All of these come from frontmatter — Notes that don't declare
+    # them simply leave the metric panel hidden.
+    resolution: str | None = None
+    maturity: str | None = None
+    language: str | None = None
+    gpu: bool | None = None
+    year: int | None = None
+    journal: str | None = None
+    authors: str | None = None
+    doi: str | None = None
+    priority: str | None = None
+    pipeline_stage: str | None = None
 
     def url_id(self, repo_root: Path) -> str:
         """Stable URL-safe identifier for this note (path relative to repo root).
@@ -88,6 +101,36 @@ def find_note_by_url_id(notes: list[Note], repo_root: Path, url_id: str) -> Note
     for n in notes:
         if n.url_id(repo_root) == url_id:
             return n
+    return None
+
+
+def find_note_by_basename(
+    notes: list[Note], basename: str, *, folder_hint: str | None = None
+) -> Note | None:
+    """Resolve a bare filename (with or without ``.md``) to a unique note.
+
+    Restores the legacy ``?doc=ring_artifact`` style deep links that
+    ``8_📡_Noise_Catalog.py`` and ``7_📊_Data_Structures.py`` accepted.
+    Where multiple notes share the same basename across folders, an
+    optional ``folder_hint`` (e.g. ``09_noise_catalog``) disambiguates.
+
+    Returns ``None`` when nothing matches or when the match is ambiguous
+    and no folder hint disambiguates it — the caller should then fall
+    through to the cluster overview with a warning.
+    """
+    target = basename.strip()
+    if not target:
+        return None
+    if target.endswith(".md"):
+        target = target[: -len(".md")]
+
+    matches = [n for n in notes if n.path.stem == target]
+    if folder_hint:
+        scoped = [n for n in matches if n.folder == folder_hint]
+        if scoped:
+            matches = scoped
+    if len(matches) == 1:
+        return matches[0]
     return None
 
 
@@ -254,6 +297,30 @@ def _parse_note(path: Path, folder: str) -> Note:
         if isinstance(bl, str):
             _validate_vocabulary(bl, VALID_BEAMLINES, "beamline", path)
 
+    def _opt_str(key: str) -> str | None:
+        v = fm.get(key)
+        return v.strip() if isinstance(v, str) and v.strip() else None
+
+    def _opt_int(key: str) -> int | None:
+        v = fm.get(key)
+        if isinstance(v, int):
+            return v
+        if isinstance(v, str) and v.strip().isdigit():
+            return int(v.strip())
+        return None
+
+    def _opt_bool(key: str) -> bool | None:
+        v = fm.get(key)
+        if isinstance(v, bool):
+            return v
+        if isinstance(v, str):
+            lo = v.strip().lower()
+            if lo in {"true", "yes", "y", "1"}:
+                return True
+            if lo in {"false", "no", "n", "0"}:
+                return False
+        return None
+
     return Note(
         path=path,
         folder=folder,
@@ -268,6 +335,16 @@ def _parse_note(path: Path, folder: str) -> Note:
         description=fm.get("description", ""),
         category=fm.get("category", ""),
         has_frontmatter=has_frontmatter,
+        resolution=_opt_str("resolution"),
+        maturity=_opt_str("maturity"),
+        language=_opt_str("language"),
+        gpu=_opt_bool("gpu"),
+        year=_opt_int("year"),
+        journal=_opt_str("journal"),
+        authors=_opt_str("authors"),
+        doi=_opt_str("doi"),
+        priority=_opt_str("priority"),
+        pipeline_stage=_opt_str("pipeline_stage"),
     )
 
 

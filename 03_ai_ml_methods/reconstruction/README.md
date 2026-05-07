@@ -48,3 +48,23 @@ Reconstruction Methods
 | [inr_dynamic.md](inr_dynamic.md) | Implicit Neural Representations for dynamic tomography |
 | [diffusion_ct.md](diffusion_ct.md) | Score-based diffusion models for CT reconstruction |
 | [pinns_xray.md](pinns_xray.md) | Physics-Informed Neural Networks and Neural Operators for X-ray reconstruction |
+
+## Architecture diagram
+
+_CNN replaces iterative phase retrieval: single forward pass produces initial reconstruction, optional refinement recovers fine details._
+
+```mermaid
+graph LR
+    A["Diffraction
+Patterns"] --> B["CNN
+Encoder-Decoder"]
+    B --> C["Phase +
+Amplitude"]
+    C --> D["Overlap
+Stitching"]
+    D --> E["Optional
+Iterative Refine"]
+    E --> F["Reconstructed
+Object"]
+    style F fill:#1B3A5C,color:#fff
+```

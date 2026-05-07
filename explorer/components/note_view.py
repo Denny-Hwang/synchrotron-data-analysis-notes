@@ -126,6 +126,8 @@ def render_note_view(
     next_note: tuple[str, str] | None = None,
     permalink: str | None = None,
     toc_items: list[tuple[int, str, str]] | None = None,
+    metrics: list[tuple[str, str]] | None = None,
+    section_tabs: list[tuple[str, str]] | None = None,
 ) -> None:
     """Render a full note detail view with metadata panel.
 
@@ -172,10 +174,16 @@ def render_note_view(
         if permalink:
             _render_permalink_button(permalink)
 
+        if metrics:
+            _render_metric_row(metrics)
+
         # Render markdown with code highlighting + inline Mermaid blocks.
         formatter = HtmlFormatter(style="monokai", noclasses=True)
         highlight_css = formatter.get_style_defs(".highlight")
-        _render_body_with_mermaid(body, highlight_css)
+        if section_tabs:
+            _render_section_tabs(section_tabs, highlight_css)
+        else:
+            _render_body_with_mermaid(body, highlight_css)
 
         if notebooks:
             _render_notebooks_section(notebooks)
@@ -195,6 +203,44 @@ def render_note_view(
             publication_links=publication_links,
             tool_links=tool_links,
         )
+
+
+def _render_metric_row(metrics: list[tuple[str, str]]) -> None:
+    """Render a row of ``st.metric`` cards above the body.
+
+    The legacy Modalities / Tools / Publications pages each had a row
+    of 3-4 ``st.metric`` widgets right under the title (resolution,
+    GPU, maturity, year, …). We surface the same control here driven
+    purely by frontmatter, so the legacy "L2 with metrics" UX returns
+    without re-introducing YAML catalogs.
+    """
+    if not metrics:
+        return
+    cols = st.columns(min(4, len(metrics)))
+    for col, (label, value) in zip(cols, metrics, strict=False):
+        col.metric(label=label, value=value)
+
+
+def _render_section_tabs(sections: list[tuple[str, str]], highlight_css: str) -> None:
+    """Render an H2-section-per-tab view of the body.
+
+    Reproduces the legacy Publications page L2 UX where Background,
+    Method, Key Results, … each got their own tab. We do the H2 split
+    on the markdown body at runtime; sections without a body fall back
+    to a brief "(empty section)" hint to avoid a silent gap.
+    """
+    if not sections:
+        return
+    labels = [label for label, _ in sections]
+    tabs = st.tabs(labels)
+    for tab, (_, content) in zip(tabs, sections, strict=False):
+        with tab:
+            text = content.strip()
+            if not text:
+                st.caption("(empty section)")
+                continue
+            html = _md_to_html(text)
+            st.markdown(f"<style>{highlight_css}</style>{html}", unsafe_allow_html=True)
 
 
 def _render_permalink_button(url: str) -> None:

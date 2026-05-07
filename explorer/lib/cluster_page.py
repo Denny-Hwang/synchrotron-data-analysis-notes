@@ -37,12 +37,31 @@ from lib.ia import CLUSTER_META, get_folders_for_cluster
 from lib.notes import (
     Note,
     discover_sibling_notebooks,
+    find_note_by_basename,
     find_note_by_url_id,
     load_notes,
     neighbor_notes,
     resolve_publication_ref,
     resolve_tool_ref,
 )
+
+# Folders the legacy ``?doc=`` parameter targeted; we use them as the
+# folder-hint for basename resolution when the cluster matches.
+_CLUSTER_DOC_FOLDER_HINTS: dict[str, list[str]] = {
+    "discover": ["01_program_overview", "08_references"],
+    "explore": [
+        "02_xray_modalities",
+        "03_ai_ml_methods",
+        "04_publications",
+        "09_noise_catalog",
+    ],
+    "build": [
+        "05_tools_and_code",
+        "06_data_structures",
+        "07_data_pipeline",
+        "10_interactive_lab",
+    ],
+}
 
 # GitHub blob URL prefix for sibling-notebook links rendered on note-detail.
 _GITHUB_BLOB_PREFIX = "https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/blob/main/"
@@ -238,11 +257,40 @@ def _render_compare_table(notes: list[Note], repo_root: Path, cluster_id: str) -
     st.caption(f"Compare table — {len(df)} notes · sort any column · click a title to open.")
 
 
+def _build_metric_pairs(note: Note) -> list[tuple[str, str]]:
+    """Translate optional frontmatter into ``(label, value)`` metric pairs.
+
+    Only fields the author actually declared are surfaced; a note with
+    no rich metadata returns an empty list and the metric row hides.
+    """
+    pairs: list[tuple[str, str]] = []
+    if note.modality:
+        pairs.append(("Modality", note.modality))
+    if note.resolution:
+        pairs.append(("Resolution", note.resolution))
+    if note.beamline:
+        pairs.append(("Beamlines", str(len(note.beamline))))
+    if note.year is not None:
+        pairs.append(("Year", str(note.year)))
+    if note.maturity:
+        pairs.append(("Maturity", note.maturity))
+    if note.language:
+        pairs.append(("Language", note.language))
+    if note.gpu is not None:
+        pairs.append(("GPU", "Yes" if note.gpu else "No"))
+    if note.priority:
+        pairs.append(("Priority", note.priority))
+    if note.pipeline_stage:
+        pairs.append(("Pipeline stage", note.pipeline_stage.title()))
+    return pairs[:6]  # Cap at 6 — beyond that the row wraps awkwardly.
+
+
 def _render_note_detail(
     note: Note,
     cluster_id: str,
     *,
     level: str = "L2",
+    view_mode: str = "default",
     all_notes: list[Note] | None = None,
     repo_root: Path | None = None,
 ) -> None:
@@ -315,6 +363,18 @@ def _render_note_detail(
         permalink = f"/{cluster_id.title()}?note={quote(url_id, safe='/')}&level={level}"
 
     toc = _dl.extract_toc(note.body) if level == "L2" else None
+    metrics = _build_metric_pairs(note) if level == "L2" else None
+
+    section_tabs: list[tuple[str, str]] | None = None
+    if view_mode == "tabs" and level == "L2":
+        # Pass the original body (NOT body_for_level) so section split
+        # happens against the canonical markdown — and force the body
+        # parameter below to empty so we don't render the body twice.
+        sections = _dl.split_into_sections(note.body, level=2)
+        if sections:
+            section_tabs = sections
+            body_for_level = ""
+
     render_note_view(
         title=note.title,
         body=body_for_level,
@@ -332,15 +392,19 @@ def _render_note_detail(
         next_note=next_link,
         permalink=permalink,
         toc_items=toc,
+        metrics=metrics,
+        section_tabs=section_tabs,
     )
 
 
-def _render_level_selector(current: str, note_url_id: str) -> None:
-    """Sidebar radio that switches the ``?level=`` query parameter.
+def _render_level_selector(current: str, note_url_id: str, *, view_mode: str = "default") -> None:
+    """Pill row that switches ``?level=…`` and toggles ``?view=tabs``.
 
-    Streamlit can't easily read & write the same query param in the
-    same render, so we render a row of HTML anchor links instead. Each
-    link preserves ``?note=…`` and just swaps ``?level=…``.
+    The L0..L3 pills work as before; an extra **📑 Tabs** pill toggles
+    section-tab rendering of the body. Tabs are only meaningful at L2
+    (the only level that renders the full body) — at other levels the
+    pill greys out by including an info caption rather than disabling
+    the link.
     """
     from urllib.parse import quote as _q
 
@@ -359,13 +423,36 @@ def _render_level_selector(current: str, note_url_id: str) -> None:
             f"font-weight:600;margin-right:6px;display:inline-block;"
             f'margin-bottom:6px;">{_dl.LEVEL_LABELS[lvl]}</a>'
         )
+
+    # Section-tabs toggle pill — switches `?view=tabs` on/off.
+    is_tabs = view_mode == "tabs"
+    bg = "#0033A0" if is_tabs else "#E8EEF6"
+    fg = "#FFFFFF" if is_tabs else "#0033A0"
+    target_view = "default" if is_tabs else "tabs"
+    href = f"?note={_q(note_url_id, safe='/')}&level={current}"
+    if target_view == "tabs":
+        href += "&view=tabs"
+    pills.append(
+        f'<a href="{href}" target="_self" '
+        f'style="text-decoration:none;background:{bg};color:{fg};'
+        f"padding:6px 14px;border-radius:14px;font-size:13px;"
+        f"font-weight:600;margin-left:12px;display:inline-block;"
+        f'margin-bottom:6px;">📑 Tabs</a>'
+    )
+
+    helper_msg = _dl.LEVEL_HELP[current]
+    if is_tabs:
+        helper_msg += " · Body is split into tabs by H2 heading."
+    elif current == "L2":
+        helper_msg += " · Click 📑 Tabs to split the body into H2-section tabs."
+
     st.markdown(
         '<div style="margin:8px 0 16px 0;">'
         '<div style="font-size:11px;color:#888;text-transform:uppercase;'
         'letter-spacing:0.5px;margin-bottom:6px;">Detail level</div>'
         + "".join(pills)
         + f'<div style="font-size:12px;color:#666;margin-top:6px;">'
-        f"{_dl.LEVEL_HELP[current]}</div></div>",
+        f"{helper_msg}</div></div>",
         unsafe_allow_html=True,
     )
 
@@ -398,23 +485,37 @@ def render_cluster_page(
     cluster_notes = [n for n in all_notes if n.folder in cluster_folders]
 
     note_url_id = _query_param("note")
+    doc_param = _query_param("doc")
     tag_filter = _query_param("tag")
     level = _dl.normalise_level(_query_param("level"))
-    view_mode = (_query_param("view") or "cards").lower()
-    if view_mode not in {"cards", "table"}:
-        view_mode = "cards"
+    raw_view = (_query_param("view") or "cards").lower()
+    grid_view_mode = raw_view if raw_view in {"cards", "table"} else "cards"
+    detail_view_mode = "tabs" if raw_view == "tabs" else "default"
+
+    # ``?doc=<basename>`` is the legacy URL shape. Resolve it to a real
+    # ``url_id`` so the rest of the router (Mode 1) just works. Folder
+    # hints are scoped to the current cluster so e.g. ``?doc=ring_artifact``
+    # on /Explore lands on ``09_noise_catalog/tomography/ring_artifact.md``.
+    if doc_param and not note_url_id:
+        hint_folders = _CLUSTER_DOC_FOLDER_HINTS.get(cluster_id, [])
+        for folder in [*hint_folders, None]:
+            target = find_note_by_basename(all_notes, doc_param, folder_hint=folder)
+            if target is not None:
+                note_url_id = target.url_id(repo_root)
+                break
 
     # Mode 1 — note-detail deep link.
     if note_url_id:
         target = find_note_by_url_id(all_notes, repo_root, note_url_id)
         if target is not None:
             render_header(active_cluster=target.cluster)
-            _render_level_selector(level, note_url_id)
+            _render_level_selector(level, note_url_id, view_mode=detail_view_mode)
             _track_recently_viewed(target, repo_root)
             _render_note_detail(
                 target,
                 target.cluster,
                 level=level,
+                view_mode=detail_view_mode,
                 all_notes=all_notes,
                 repo_root=repo_root,
             )
@@ -438,8 +539,8 @@ def render_cluster_page(
         visible_notes = [n for n in cluster_notes if tag_filter in (n.tags or [])]
         _render_filter_banner(tag_filter, cluster_id)
 
-    _render_view_toggle(view_mode, cluster_id, tag=tag_filter)
-    if view_mode == "table":
+    _render_view_toggle(grid_view_mode, cluster_id, tag=tag_filter)
+    if grid_view_mode == "table":
         _render_compare_table(visible_notes, repo_root, cluster_id)
     else:
         _render_card_grid(visible_notes, repo_root, group_by_folder=group_by_folder)
