@@ -132,3 +132,53 @@ def test_real_repo_doi_links_well_formed() -> None:
         if e.doi:
             assert e.doi_url.startswith("https://doi.org/")
             assert " " not in e.doi
+
+
+# ---------------------------------------------------------------------------
+# R12 B4 — LaTeX-accent decoding
+# ---------------------------------------------------------------------------
+
+
+def test_decode_latex_accents_braced_forms() -> None:
+    """Common BibTeX accent escapes decode to Unicode."""
+    from lib.bibliography import _decode_latex_accents
+
+    cases = {
+        "J{\\'e}r{\\^o}me": "Jérôme",
+        "Val{\\'e}rie": "Valérie",
+        'M{\\"u}ller': "Müller",
+        'Schr{\\"o}dinger': "Schrödinger",
+        "Fran{\\c c}ois": "François",
+        "Ja{\\v c}ek": "Jaček",
+        "Stra{\\ss}e": "Straße",
+        "No accents here": "No accents here",
+    }
+    for src, want in cases.items():
+        got = _decode_latex_accents(src)
+        assert got == want, f"{src!r} -> {got!r}, want {want!r}"
+
+
+def test_decode_latex_accents_lone_commands() -> None:
+    """``\\AA``, ``\\ss``, ``\\o`` etc. with their trailing space."""
+    from lib.bibliography import _decode_latex_accents
+
+    assert _decode_latex_accents('\\AA ngstr{\\"o}m') == "Ångström"
+    assert _decode_latex_accents("Ka\\ss el") == "Kaßel"
+
+
+def test_parse_authors_decodes_accents() -> None:
+    """End-to-end: a BibTeX author field with accents flows through clean."""
+    from lib.bibliography import _parse_authors
+
+    raw = "Kieffer, J{\\'e}r{\\^o}me and Valls, Val{\\'e}rie and Schr{\\\"o}dinger, Erwin"
+    out = _parse_authors(raw)
+    # Expect 3 authors, each containing the decoded characters.
+    assert len(out) == 3
+    assert any("Jérôme" in a for a in out)
+    assert any("Valérie" in a for a in out)
+    assert any("Schrödinger" in a for a in out)
+    # No backslash-curly residue.
+    for a in out:
+        assert "\\" not in a, a
+        assert "{" not in a, a
+        assert "}" not in a, a

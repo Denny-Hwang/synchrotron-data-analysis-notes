@@ -67,22 +67,36 @@ st.markdown(
 # ---------------------------------------------------------------------------
 
 
+# R12 B1 — bumping the cache version forces ``@st.cache_resource`` /
+# ``@st.cache_data`` on Streamlit Cloud to re-fetch fresh Recipe
+# instances. Without this, deploys that add new dataclass fields hand
+# back stale objects that AttributeError on the new attribute access.
+_CACHE_VERSION = "v3-r12"
+
+
 @st.cache_resource
-def _cached_recipes() -> list[Recipe]:
+def _cached_recipes_v3() -> list[Recipe]:
     return load_recipes(_REPO_ROOT / "experiments")
 
 
 @st.cache_data(show_spinner="Loading sample…")
-def _cached_sample(manifest_path: str) -> np.ndarray:
+def _cached_sample_v3(manifest_path: str) -> np.ndarray:
     return load_sample(_REPO_ROOT, manifest_path)
 
 
 @st.cache_data(show_spinner="Running pipeline…")
-def _cached_run(recipe_id: str, manifest_path: str, params_items: tuple) -> np.ndarray:
-    recipes = _cached_recipes()
+def _cached_run_v3(recipe_id: str, manifest_path: str, params_items: tuple) -> np.ndarray:
+    recipes = _cached_recipes_v3()
     recipe = next(r for r in recipes if r.recipe_id == recipe_id)
     arr = load_sample(_REPO_ROOT, manifest_path)
     return run_pipeline(recipe, arr, dict(params_items))
+
+
+# Public aliases so the rest of the page (and any old call site that
+# survived) still finds the helpers under their original names.
+_cached_recipes = _cached_recipes_v3
+_cached_sample = _cached_sample_v3
+_cached_run = _cached_run_v3
 
 
 def _to_display(arr: np.ndarray) -> np.ndarray:
@@ -115,6 +129,27 @@ if not recipes:
 # ---------------------------------------------------------------------------
 
 
+# R12 B3 — honour ``/Experiment?recipe=<id>`` deep-links sent from
+# the Troubleshooter "▶ Run experiment" affordance. Without this, the
+# Run-experiment link landed on the page with the first recipe still
+# selected and the user had to find the right one manually.
+def _query_param(name: str) -> str | None:
+    raw = st.query_params.get(name)
+    if raw is None:
+        return None
+    if isinstance(raw, list):
+        return raw[0] if raw else None
+    return str(raw)
+
+
+_recipe_param = _query_param("recipe")
+_default_idx = 0
+if _recipe_param:
+    for i, r in enumerate(recipes):
+        if r.recipe_id == _recipe_param:
+            _default_idx = i
+            break
+
 st.markdown("#### 1️⃣ Pick a recipe")
 recipe_idx = st.selectbox(
     "Recipe",
@@ -122,6 +157,7 @@ recipe_idx = st.selectbox(
     format_func=lambda i: f"{recipes[i].title}  ({recipes[i].modality})",
     label_visibility="collapsed",
     key="exp_recipe_picker",
+    index=_default_idx,
 )
 recipe = recipes[recipe_idx]
 
@@ -138,13 +174,22 @@ st.markdown(
 # to look for" narrative as a 3-card row so users understand the impact
 # story before they even press a slider. Falls back to the description
 # block when the optional structured fields aren't filled in.
-_narrative = recipe.problem or recipe.fix or recipe.observe
+#
+# R12 B1 — Streamlit's @st.cache_resource on Cloud will hand back a
+# Recipe instance pickled from a prior deploy that predates these
+# fields, raising AttributeError. ``getattr`` makes the access
+# version-tolerant so the page renders even when the cache hasn't
+# been invalidated.
+_problem = getattr(recipe, "problem", "") or ""
+_fix = getattr(recipe, "fix", "") or ""
+_observe = getattr(recipe, "observe", "") or ""
+_narrative = _problem or _fix or _observe
 if _narrative:
     n_cols = st.columns(3)
     cards = [
-        ("⚠️", "What was wrong", recipe.problem or "—", "#C8550E"),
-        ("🛠️", "How we fix it", recipe.fix or "—", "#0033A0"),
-        ("👀", "What you should observe", recipe.observe or "—", "#2E7D32"),
+        ("⚠️", "What was wrong", _problem or "—", "#C8550E"),
+        ("🛠️", "How we fix it", _fix or "—", "#0033A0"),
+        ("👀", "What you should observe", _observe or "—", "#2E7D32"),
     ]
     for col, (icon, title, body, color) in zip(n_cols, cards, strict=True):
         col.markdown(

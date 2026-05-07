@@ -22,9 +22,61 @@ from lib.notes import _parse_note, _title_from_filename, load_notes
 
 def test_title_from_filename() -> None:
     """Underscores and hyphens become spaces, result is title-cased."""
-    assert _title_from_filename("ai_ml_methods") == "Ai Ml Methods"
-    assert _title_from_filename("tomography") == "Tomography"
+    # Specific filenames pass through unchanged.
+    assert _title_from_filename("tomogan") == "Tomogan"
     assert _title_from_filename("xrf-microscopy") == "Xrf Microscopy"
+    # R12 B2: generic basenames + a parent dir become unique.
+    assert (
+        _title_from_filename("data_format", parent="crystallography")
+        == "Crystallography — Data Format"
+    )
+    assert _title_from_filename("README", parent="ptychography") == "Ptychography — Readme"
+    # Non-generic basename + parent → still just the basename, no
+    # parent prefix (avoids "Crystallography — Tomogan" noise).
+    assert _title_from_filename("tomogan", parent="denoising") == "Tomogan"
+
+
+def test_title_from_body_h1_extracts_first_heading() -> None:
+    from lib.notes import _title_from_body_h1
+
+    body = "# Crystallography Data Formats\n\n## Raw Data\n\nbody"
+    assert _title_from_body_h1(body) == "Crystallography Data Formats"
+
+
+def test_title_from_body_h1_skips_in_fence() -> None:
+    """A ``# heading`` inside a Python code fence is not a real H1."""
+    from lib.notes import _title_from_body_h1
+
+    body = "```python\n# this is a comment\n```\n\n# Real Title\n"
+    assert _title_from_body_h1(body) == "Real Title"
+
+
+def test_title_from_body_h1_returns_none_when_missing() -> None:
+    from lib.notes import _title_from_body_h1
+
+    assert _title_from_body_h1("Just prose, no headings.\n") is None
+    assert _title_from_body_h1("") is None
+
+
+def test_parse_note_title_fallback_uses_h1(tmp_path: Path) -> None:
+    """A note without frontmatter title gets the H1 from the body."""
+    p = tmp_path / "data_format.md"
+    p.write_text(
+        "# Crystallography Data Formats\n\nBody.\n",
+        encoding="utf-8",
+    )
+    n = _parse_note(p, "02_xray_modalities")
+    assert n.title == "Crystallography Data Formats"
+
+
+def test_parse_note_title_fallback_uses_parent_when_no_h1(tmp_path: Path) -> None:
+    """When neither frontmatter title nor body H1 exists, use parent dir."""
+    folder_dir = tmp_path / "crystallography"
+    folder_dir.mkdir()
+    p = folder_dir / "data_format.md"
+    p.write_text("Body without any heading.\n", encoding="utf-8")
+    n = _parse_note(p, "02_xray_modalities")
+    assert n.title == "Crystallography — Data Format"
 
 
 def test_parse_note_with_frontmatter(tmp_path: Path) -> None:
@@ -59,13 +111,18 @@ def test_parse_note_with_frontmatter(tmp_path: Path) -> None:
 
 
 def test_parse_note_without_frontmatter(tmp_path: Path) -> None:
-    """Notes without frontmatter get inferred title and cluster."""
+    """Notes without frontmatter prefer the body's H1 heading over the
+    filename — R12 B2 fix so same-named files (every README, every
+    data_format) don't collapse to identical titles in the
+    compare-table view."""
     note_file = tmp_path / "xrf_microscopy.md"
     note_file.write_text("# XRF Microscopy\n\nContent about XRF.")
 
     note = _parse_note(note_file, "02_xray_modalities")
 
-    assert note.title == "Xrf Microscopy"  # inferred from filename
+    # R12 B2 — title comes from the body's H1, not the filename, so
+    # capitalisation like ``XRF`` is preserved.
+    assert note.title == "XRF Microscopy"
     assert note.cluster == "explore"  # inferred from folder mapping
     assert note.tags == []
     assert note.modality is None
