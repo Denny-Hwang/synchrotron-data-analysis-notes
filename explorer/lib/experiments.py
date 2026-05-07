@@ -86,6 +86,12 @@ class Recipe:
     metrics: tuple[str, ...]
     references: tuple[Reference, ...]
     source_path: Path = field(default_factory=Path)
+    # R11 I5 — narrative fields surfaced as a 3-card row in the Lab so
+    # the user sees the impact story before tuning parameters. All
+    # optional; ``description`` remains the canonical long-form text.
+    problem: str = ""
+    fix: str = ""
+    observe: str = ""
 
 
 # ---------------------------------------------------------------------------
@@ -199,6 +205,9 @@ def parse_recipe(recipe_path: Path) -> Recipe:
         metrics=tuple(str(m) for m in data.get("metrics", [])),
         references=tuple(_parse_reference(r) for r in data.get("references", [])),
         source_path=recipe_path,
+        problem=str(data.get("problem", "")).strip(),
+        fix=str(data.get("fix", "")).strip(),
+        observe=str(data.get("observe", "")).strip(),
     )
 
 

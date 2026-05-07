@@ -37,11 +37,26 @@ _MERMAID_BLOCK = re.compile(
 
 
 def _md_to_html(body: str) -> str:
-    """Render markdown to HTML using the same extensions as the static site."""
+    """Render markdown to HTML using the same extensions as the static site.
+
+    ``codehilite`` is configured with ``guess_lang=False`` so an
+    unlabeled fenced code block renders as plain ``<pre><code>`` rather
+    than getting routed through Pygments' lexer guesser. The guesser
+    likes to call boxed ASCII tree diagrams (``├──`` / ``│``) and
+    HDF5 schema listings JavaScript, then emits a dense
+    ``<span class="nx">`` soup that Streamlit's React layer collapses
+    to ``[object Object]`` rows. R11 I1.
+    """
     return markdown.markdown(
         body,
         extensions=["fenced_code", "tables", "toc", "codehilite"],
-        extension_configs={"codehilite": {"css_class": "highlight", "linenums": False}},
+        extension_configs={
+            "codehilite": {
+                "css_class": "highlight",
+                "linenums": False,
+                "guess_lang": False,
+            }
+        },
     )
 
 

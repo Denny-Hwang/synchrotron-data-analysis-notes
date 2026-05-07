@@ -1,0 +1,87 @@
+# Recipe — Flat-Field Correction (the I0 step every pipeline runs).
+#
+# Schema documented in experiments/README.md.
+
+schema_version: 1
+
+recipe_id: flatfield_correction
+title: "Flat-field correction (I0 normalisation)"
+modality: tomography
+noise_catalog_ref: 09_noise_catalog/tomography/flatfield_issues.md
+
+problem: |
+  Every X-ray detector has its own pixel response: scintillator
+  inhomogeneity, dust spots, vignetting at the field corners. Without
+  correction every projection carries the **detector's signature**
+  baked in, and reconstruction can't tell that signature apart from
+  the sample.
+fix: |
+  Subtract the dark current from both numerator and denominator and
+  divide by an open-beam (no-sample) flat field:
+  `corrected = (raw − dark) / (flat − dark + ε)`. This is the
+  textbook **I0 normalisation** step.
+observe: |
+  The corrected image should be uniform in the open-beam regions
+  (no fringes, no diagonal gradient). The |Δ| panel highlights every
+  pixel the correction touched — typically dust + vignette patterns
+  more than sample features.
+
+description: |
+  Flat-field (also called I0 or shading) correction is the **first**
+  step in any X-ray imaging pipeline. The bundled sample is a single
+  raw projection from the `flatfield_correction` dataset. With no
+  paired flat field provided, the recipe computes a column-wise mean
+  pseudo-flat — useful for the visual demo, but real pipelines use
+  the open-beam frame collected at the start of the scan.
+
+  Tune `epsilon` to see what happens when the denominator can go to
+  zero (dramatic blowups in dim regions). Tune the clip range to see
+  how outlier pixels — cosmic rays, dust shadows — get suppressed.
+
+function: experiments.tomography.flatfield_correction.pipeline.correct_flatfield
+
+samples:
+  - manifest_path: datasets/tomography/flatfield_correction/distortion_proj.npy
+    label: "Distorted projection (uncorrected)"
+    role: noisy_input
+    description: "Raw projection with detector vignetting + ring-noise pattern"
+  - manifest_path: datasets/tomography/flatfield_correction/sinogram.npy
+    label: "Sinogram with stripe artifacts"
+    role: noisy_input
+    description: "Stripe-rich sinogram benefiting from baseline normalisation"
+
+parameters:
+  - name: epsilon
+    type: float
+    label: "ε (denominator stabiliser)"
+    min: 0.0
+    max: 5.0
+    default: 1.0
+    step: 0.1
+    help: "Added to flat − dark to avoid divide-by-zero in dim regions."
+  - name: clip_low
+    type: float
+    label: "Clip min"
+    min: -2.0
+    max: 1.0
+    default: 0.0
+    step: 0.05
+    help: "Clip the corrected image's minimum (suppresses negative outliers)."
+  - name: clip_high
+    type: float
+    label: "Clip max"
+    min: 0.5
+    max: 5.0
+    default: 2.0
+    step: 0.05
+    help: "Clip the corrected image's maximum (suppresses positive outliers / dust)."
+
+# No paired clean reference — the demo is qualitative.
+metrics: []
+
+references:
+  - title: "Stripe and ring artifact removal with combined wavelet-Fourier filtering"
+    authors: "Münch, Trtik, Marone, Stampanoni"
+    year: 2009
+    venue: "Optics Express"
+    doi: "10.1364/OE.17.008567"

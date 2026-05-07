@@ -1,0 +1,95 @@
+# Recipe — Classical denoising baseline (Gaussian / Median)
+#
+# Schema documented in experiments/README.md.
+
+schema_version: 1
+
+recipe_id: gaussian_denoise_baseline
+title: "Classical denoise (Gaussian / Median baseline)"
+modality: cross_cutting
+noise_catalog_ref: 09_noise_catalog/cross_cutting/noise_estimation_methods.md
+
+problem: |
+  Photon counting noise + electronic readout noise leave a high-
+  frequency speckle on every detector frame. Before reaching for a
+  U-Net or noise2void, the question is always: **how much can a
+  classical filter accomplish, and at what cost in resolution?**
+fix: |
+  Two baselines compete here. **Gaussian blur** is a linear convolution
+  — fastest, separable, but blurs every edge. **Median filter** is
+  non-linear and edge-preserving on impulse-style outliers (zingers,
+  hot pixels) but slower and softens texture.
+observe: |
+  Switch ``method`` and the |Δ| panel changes shape: Gaussian removes
+  smooth-frequency noise (mostly background), median picks off
+  isolated bright/dark pixels (cosmic rays). Notice the resolution
+  cost — sharp features blur as you raise σ; the impact card tells you
+  whether PSNR / SSIM actually improved despite that.
+
+description: |
+  This is the **baseline every denoising paper compares to**, packaged
+  for you to feel directly. Run it on a Sarepy ring-artifact sinogram
+  to see how a classical filter trades stripe suppression against
+  angular blurring; compare with the Vo 2018 sorting filter to see why
+  task-specific algorithms exist. Run it on the GMOS cosmic-ray frame
+  to see how a median filter alone (without Laplacian edge detection)
+  catches some hits but smears real point sources.
+
+function: experiments.cross_cutting.gaussian_denoise.pipeline.denoise_classical
+
+samples:
+  - manifest_path: datasets/tomography/ring_artifact/all_stripe_types_sample1.tif
+    label: "Sarepy sinogram — all stripes (Sample 1)"
+    role: noisy_input
+    description: "All stripe types — comparable to the Vo / Munch recipes"
+  - manifest_path: datasets/tomography/ring_artifact/sinogram_normal.tif
+    label: "Sarepy sinogram — clean reference"
+    role: noisy_input
+    description: "Effect on the clean reference (a feel for resolution loss)"
+  - manifest_path: datasets/cross_cutting/cosmic_rays/gmos.fits
+    label: "GMOS CCD frame (cosmic rays)"
+    role: noisy_input
+    description: "How a generic blur handles cosmic rays vs the L.A.Cosmic recipe"
+
+clean_reference:
+  manifest_path: datasets/tomography/ring_artifact/sinogram_normal.tif
+  label: "sinogram_normal.tif"
+  role: clean_reference
+
+parameters:
+  - name: method
+    type: select
+    label: "Filter"
+    options: [gaussian, median]
+    default: gaussian
+    help: "Switch between linear Gaussian blur and non-linear median filter."
+  - name: sigma
+    type: float
+    label: "Gaussian σ"
+    min: 0.0
+    max: 5.0
+    default: 1.5
+    step: 0.1
+    help: "Gaussian kernel σ. Larger = smoother, but more resolution loss."
+  - name: size
+    type: int
+    label: "Median footprint"
+    min: 1
+    max: 9
+    default: 3
+    step: 2
+    help: "Median filter side length (pixels). Odd values recommended."
+
+metrics: [psnr, ssim]
+
+references:
+  - title: "Restoration of synchrotron tomography volumes"
+    authors: "Münch, Trtik, Marone, Stampanoni"
+    year: 2009
+    venue: "Optics Express"
+    doi: "10.1364/OE.17.008567"
+  - title: "Cosmic-ray rejection by Laplacian edge detection"
+    authors: "van Dokkum, P. G."
+    year: 2001
+    venue: "PASP"
+    doi: "10.1086/323894"

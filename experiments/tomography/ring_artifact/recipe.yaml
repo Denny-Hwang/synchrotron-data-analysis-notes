@@ -11,6 +11,24 @@ title: "Ring Artifact — Sorting-Based Filter"
 modality: tomography
 noise_catalog_ref: 09_noise_catalog/tomography/ring_artifact.md
 
+# R11 I5 — short narrative cards rendered above the parameter sliders so
+# users grasp the impact story at a glance.
+problem: |
+  One or more detector columns have a constant offset, so every
+  projection records the same vertical stripe. After back-projection
+  those stripes wrap into **concentric rings** around the rotation
+  axis — a textbook tomography artifact.
+fix: |
+  Sort each detector column across all projection angles, smooth the
+  sorted profile with a 1-D median filter, then unsort. The persistent
+  column-wise offset is what survives sorting; real sample features
+  scramble the sort order and pass through.
+observe: |
+  Stripes in the sinogram should fade as you raise the filter size.
+  PSNR / SSIM against the clean reference improves monotonically on
+  `all_stripe_types_sample1`. The |Δ| panel shows mostly the stripes —
+  if it shows large blotches, the filter is too aggressive.
+
 description: |
   Sorting-based stripe removal from **Vo, Atwood & Drakopoulos (2018)**
   *Optics Express*. For each detector column the values across all

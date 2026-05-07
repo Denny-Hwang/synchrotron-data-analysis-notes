@@ -7,6 +7,22 @@ title: "Cosmic Ray / Zinger — L.A.Cosmic"
 modality: cross_cutting
 noise_catalog_ref: 09_noise_catalog/tomography/zinger.md
 
+problem: |
+  Cosmic-ray hits, hot pixels, and detector zingers leave **bright,
+  sharply-edged single-pixel outliers** that ruin downstream
+  reconstruction or peak fitting. They look like real features at a
+  glance — fast-rising and pixel-sized.
+fix: |
+  Compute a Laplacian of the input (sharp gradients pop), threshold
+  at `sigclip * σ` to mask candidates, then replace masked pixels with
+  the local-neighbourhood mean. Lower `sigclip` = catches dimmer hits
+  but also more false positives on real edges.
+observe: |
+  The |Δ| panel should show pinpoint dots only — that's the algorithm
+  catching the cosmic rays. If |Δ| starts highlighting compact real
+  features (the centre of nuclei, point sources), you've over-cleaned;
+  raise `sigclip` to be more conservative.
+
 description: |
   Laplacian-edge cosmic ray detection from **van Dokkum (2001)**, *PASP*.
   Repeatedly applies a Laplacian filter to detect sharp single-pixel

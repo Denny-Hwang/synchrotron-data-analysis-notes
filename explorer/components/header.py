@@ -32,18 +32,14 @@ _CLUSTER_SLUGS = {
 def _nav_link(label: str, slug: str, *, active: bool) -> str:
     """Render one header nav link as plain HTML.
 
-    We avoid ``st.page_link`` here because the header lives outside
-    Streamlit's main column layout; HTML anchors with ``target=_self``
-    let Streamlit's router pick up the navigation while keeping the
-    flexbox header intact.
+    R11 I4 — previously emitted inline ``color:#FFFFFF`` which made the
+    nav links invisible on the white header background (the legacy
+    design assumed a navy bar). All visual styling now comes from
+    ``.eberlight-header-nav a`` in styles.css; here we only flip the
+    ``active`` class so the current cluster gets highlighted.
     """
-    style = (
-        "color:#FFFFFF;text-decoration:none;padding:6px 12px;"
-        "border-radius:4px;font-weight:500;margin-left:6px;"
-    )
-    if active:
-        style += "background:rgba(255,255,255,0.18);"
-    return f'<a href="/{slug}" target="_self" style="{style}">{label}</a>'
+    cls = "active" if active else ""
+    return f'<a href="/{slug}" target="_self" class="{cls}">{label}</a>'
 
 
 def _search_form_html(initial_query: str = "") -> str:
@@ -85,10 +81,12 @@ def render_header(
             current page already received a query via ``?q=…`` so
             the user sees what they searched for.
     """
+    # R11 I4 — brand link uses the title token color directly so it
+    # reads on the white header instead of the legacy navy-bar white.
     home_link_open = (
-        '<a href="/" target="_self" '
-        'style="color:#FFFFFF;text-decoration:none;display:flex;'
-        'align-items:center;gap:8px;">'
+        '<a href="/" target="_self" class="eberlight-header-brand-link" '
+        'style="text-decoration:none;display:flex;align-items:center;'
+        'gap:8px;color:#0033A0;">'
     )
     nav_html = "".join(
         _nav_link(label, slug, active=(active_cluster == cluster))

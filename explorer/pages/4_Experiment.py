@@ -133,7 +133,33 @@ st.markdown(
     "</p>",
     unsafe_allow_html=True,
 )
-st.markdown(recipe.description)
+
+# R11 I5 — surface the recipe's "what was wrong / how it's fixed / what
+# to look for" narrative as a 3-card row so users understand the impact
+# story before they even press a slider. Falls back to the description
+# block when the optional structured fields aren't filled in.
+_narrative = recipe.problem or recipe.fix or recipe.observe
+if _narrative:
+    n_cols = st.columns(3)
+    cards = [
+        ("⚠️", "What was wrong", recipe.problem or "—", "#C8550E"),
+        ("🛠️", "How we fix it", recipe.fix or "—", "#0033A0"),
+        ("👀", "What you should observe", recipe.observe or "—", "#2E7D32"),
+    ]
+    for col, (icon, title, body, color) in zip(n_cols, cards, strict=True):
+        col.markdown(
+            f'<div class="eberlight-card" style="border-left:4px solid {color};'
+            f'min-height:140px;">'
+            f'<div style="font-size:11px;color:#888;text-transform:uppercase;'
+            f'letter-spacing:0.5px;font-weight:700;margin-bottom:6px;">'
+            f"{icon} {title}</div>"
+            f'<div style="font-size:14px;color:#1A1A1A;line-height:1.45;">{body}</div>'
+            "</div>",
+            unsafe_allow_html=True,
+        )
+
+with st.expander("Background & method detail", expanded=not _narrative):
+    st.markdown(recipe.description)
 
 
 # ---------------------------------------------------------------------------
@@ -223,15 +249,50 @@ except Exception as exc:
 
 st.markdown("#### 4️⃣ Compare before / after")
 
-col_left, col_right = st.columns(2)
-with col_left:
+
+def _difference_map(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """Return |a − b| min-max normalised to [0, 1] for ``st.image``.
+
+    The output is what the recipe **changed** about the input —
+    bright pixels are where the algorithm acted, dark pixels are
+    where the input passed through unchanged. Centre-crops to the
+    common minimum shape if the two arrays differ slightly.
+    """
+    a32 = a.astype(np.float32, copy=False)
+    b32 = b.astype(np.float32, copy=False)
+    if a32.shape != b32.shape:
+        # Centre-crop to the minimum shape on each axis.
+        slices = tuple(slice(0, min(a32.shape[i], b32.shape[i])) for i in range(a32.ndim))
+        a32 = a32[slices]
+        b32 = b32[slices]
+    delta = np.abs(a32 - b32)
+    lo, hi = float(delta.min()), float(delta.max())
+    if hi - lo < 1e-12:
+        return np.zeros_like(delta)
+    return (delta - lo) / (hi - lo)
+
+
+# 3-panel comparison: Original · Processed · |Δ| difference map. R11 I5 —
+# the diff panel makes the algorithm's actual effect visible at a glance,
+# instead of the user having to flick their eyes back and forth.
+_compare_cols = st.columns(3)
+with _compare_cols[0]:
     st.markdown("**Original**")
     st.image(_to_display(sino_input), clamp=True, width="stretch")
     st.caption(f"shape={sino_input.shape}, dtype={sino_input.dtype}")
-with col_right:
+with _compare_cols[1]:
     st.markdown("**Processed**")
     st.image(_to_display(sino_output), clamp=True, width="stretch")
     st.caption(f"shape={sino_output.shape}, dtype={sino_output.dtype}")
+with _compare_cols[2]:
+    st.markdown("**|Δ| — what changed**")
+    if sino_input.shape == sino_output.shape:
+        delta_img = _difference_map(sino_input, sino_output)
+    else:
+        delta_img = _difference_map(sino_input, sino_output)
+    st.image(delta_img, clamp=True, width="stretch")
+    nonzero = float((delta_img > 0.05).mean())
+    st.caption(f"Bright pixels = where the algorithm acted (~{nonzero * 100:.1f}% of the area).")
 
 
 # ---------------------------------------------------------------------------
@@ -317,12 +378,23 @@ if recipe.clean_reference and recipe.metrics:
                     f"metrics skipped. Detail: {exc}"
                 )
             else:
-                st.markdown(f"#### Metrics vs clean reference (`{recipe.clean_reference.label}`)")
+                # R11 I5 — bigger, more dramatic impact card. The bare
+                # st.metric row was too easy to miss; we now lead with
+                # a "🎯 Impact" headline and a coloured wins/loses
+                # banner so users see how much the algorithm helped at
+                # a single glance.
+                st.markdown(
+                    f"#### 🎯 Impact &nbsp;<span style='color:#888;font-size:14px;'>"
+                    f"vs clean reference (<code>{recipe.clean_reference.label}</code>)</span>",
+                    unsafe_allow_html=True,
+                )
                 if ref_arr.shape != sino_input.shape:
                     st.caption(
                         f"Reference {ref_arr.shape} centre-cropped to match "
                         f"sample {sino_input.shape} for metric computation."
                     )
+                wins = 0
+                losses = 0
                 metric_cols = st.columns(len(recipe.metrics))
                 for col, name in zip(metric_cols, recipe.metrics, strict=True):
                     in_v = in_metrics.get(name.lower())
@@ -330,10 +402,46 @@ if recipe.clean_reference and recipe.metrics:
                     if in_v is None or out_v is None:
                         continue
                     delta = out_v - in_v
+                    # PSNR + SSIM both improve when they go up; treat
+                    # ``higher is better`` as the convention. Recipes
+                    # that introduce a "lower is better" metric will
+                    # need to surface that explicitly later.
+                    if delta > 0:
+                        wins += 1
+                    elif delta < 0:
+                        losses += 1
                     col.metric(
                         label=name.upper(),
                         value=f"{out_v:.3f}",
                         delta=f"{delta:+.3f}  vs raw input ({in_v:.3f})",
+                    )
+                if wins or losses:
+                    if losses == 0:
+                        banner_bg, banner_fg, banner_msg = (
+                            "#E6F4EA",
+                            "#1E6B33",
+                            f"✅ All {wins} metric{'s' if wins != 1 else ''} improved.",
+                        )
+                    elif wins == 0:
+                        banner_bg, banner_fg, banner_msg = (
+                            "#FDECEA",
+                            "#A82618",
+                            (
+                                f"⚠️ All {losses} metric{'s' if losses != 1 else ''} "
+                                "regressed — try different parameters."
+                            ),
+                        )
+                    else:
+                        banner_bg, banner_fg, banner_msg = (
+                            "#FFF7DB",
+                            "#7A5A00",
+                            f"➡️ {wins} improved, {losses} regressed — partial win.",
+                        )
+                    st.markdown(
+                        f'<div style="background:{banner_bg};color:{banner_fg};'
+                        f"padding:10px 14px;border-radius:8px;margin-top:8px;"
+                        f'font-size:14px;font-weight:600;">{banner_msg}</div>',
+                        unsafe_allow_html=True,
                     )
         except FileNotFoundError as e:
             st.warning(f"Clean reference not found: {e}")

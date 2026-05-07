@@ -6,6 +6,56 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [explorer-0.7.0] - 2026-05-08
+
+**Phase R11 — refactor pass driven by user feedback.** Six substantial
+issues from a real-user review: a markdown bug producing
+`[object Object]`, a non-draggable Knowledge Graph, illegible header
+nav, a confusing Cards/Table toggle, a Lab page that didn't sell its
+own impact, and only 3 example recipes. All six fixed; 2 new recipes
+added (5 total). Release notes:
+[REL-E070](docs/05_release/release_notes/explorer-v0.7.0.md).
+
+### Fixed
+- **I1** `[object Object]` in code blocks — `codehilite` now uses
+  `guess_lang=False` in both note_view and the static-site generator;
+  unlabeled fenced blocks render as plain `<pre><code>`.
+- **I4** Header cluster-nav links readable on every page; styles.css
+  owns the active/hover state instead of inline `color:#FFFFFF`.
+- **I3** Cluster pages no longer have a Cards/Compare-table toggle.
+  Default is the dense table + a folder-filter chip row.
+
+### Added
+- **I2** `components/visjs_graph.py` — vis-network 9.1.9 component
+  with draggable nodes, three layout modes (force-directed,
+  hierarchical, freeze), click-to-highlight neighbours, and
+  double-click-to-open. Replaces the Plotly + NetworkX renderer.
+- **I5** Interactive Lab dramatic impact display:
+  - 3-panel before/after: `Original | Processed | |Δ| difference`.
+  - 🎯 Impact card with win/loss banner (green/yellow/red).
+  - 3-card narrative row (problem / fix / observe) above sliders.
+  - 2 new recipes: `flatfield_correction` (I0 normalisation) and
+    `gaussian_denoise_baseline` (Gaussian / median switcher).
+  - Recipe count: **3 → 5**.
+- **I6** Polish: tinted breadcrumb background, denser tag-pill
+  contrast, shared `.eberlight-chip` component, navy focus rings.
+
+### Changed
+- `Recipe` dataclass gained 3 optional narrative fields:
+  `problem`, `fix`, `observe`. All 3 existing recipes shipped with
+  populated narratives.
+- `pyproject.toml`: per-file ruff ignore for
+  `experiments/**/pipeline.py` (RUF002 — Greek σ + math − are
+  legitimate in scientific docstrings).
+- `render_cluster_page(group_by_folder=…)` is now a deprecated
+  no-op kept for backward compatibility with the cluster page files
+  that still pass it.
+
+### Notes
+- 256 passed (unchanged).
+- ruff + format clean.
+- vis.js loads from jsDelivr CDN; no new Python dependency.
+
 ## [explorer-0.6.1] - 2026-05-07
 
 **Phase R10 — first-impression UX polish.** Fixes 4 P0 + 8 P1 issues

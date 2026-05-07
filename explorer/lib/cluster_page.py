@@ -22,13 +22,12 @@ Ref: FR-007 — Clickable tag filtering.
 
 from __future__ import annotations
 
-from itertools import groupby
+from collections import defaultdict
 from pathlib import Path
 from urllib.parse import quote, unquote
 
 import streamlit as st
 from components.breadcrumb import render_breadcrumb
-from components.card import render_note_card
 from components.footer import render_footer
 from components.header import render_header
 from components.note_view import render_note_view
@@ -159,52 +158,50 @@ def _render_filter_banner(tag: str, cluster_id: str) -> None:
     )
 
 
-def _render_card_grid(
+def _render_folder_filter_chips(
     notes: list[Note],
-    repo_root: Path,
+    cluster_id: str,
     *,
-    group_by_folder: bool,
+    active_folder: str | None,
+    tag: str | None,
 ) -> None:
-    if not notes:
-        st.info("No notes match this view.")
-        return
+    """Render folder-filter chips above the cluster table (R11 I3).
 
-    if group_by_folder:
-        for folder, folder_notes_iter in groupby(notes, key=lambda n: n.folder):
-            folder_notes = list(folder_notes_iter)
-            st.markdown(f"### {_folder_label(folder)}")
-            for note in folder_notes:
-                render_note_card(note, repo_root)
-    else:
-        for note in notes:
-            render_note_card(note, repo_root)
-
-
-def _render_view_toggle(current_view: str, cluster_id: str, *, tag: str | None) -> None:
-    """Pill row letting the user switch between 'cards' and 'table' views.
-
-    Restores the legacy L0/L1 capability where a cluster could be
-    inspected as a sortable comparison table — this is one of the
-    biggest information-density wins versus a pure card grid.
+    Replaces the old ``?view=cards|table`` toggle. The cluster page now
+    has a single dense compare-table view; instead of switching layouts,
+    the user narrows the view by folder via a chip row. "All" resets
+    to the full cluster.
     """
+    folder_counts: dict[str, int] = defaultdict(int)
+    for n in notes:
+        folder_counts[n.folder] += 1
+    folders = sorted(folder_counts.keys())
+
     base = f"/{cluster_id.title()}"
-    extra = f"&tag={quote(tag, safe='')}" if tag else ""
-    pills = []
-    for view, label, icon in [("cards", "Cards", "🗂"), ("table", "Compare table", "📊")]:
-        is_active = view == current_view
-        bg = "#0033A0" if is_active else "#E8EEF6"
-        fg = "#FFFFFF" if is_active else "#0033A0"
-        pills.append(
-            f'<a href="{base}?view={view}{extra}" target="_self" '
-            f'style="text-decoration:none;background:{bg};color:{fg};'
-            f"padding:6px 14px;border-radius:14px;font-size:13px;"
-            f"font-weight:600;margin-right:6px;display:inline-block;"
-            f'margin-bottom:6px;">{icon} {label}</a>'
+    tag_extra = f"&tag={quote(tag, safe='')}" if tag else ""
+
+    chips: list[str] = []
+    is_all_active = active_folder is None
+    chips.append(
+        f'<a href="{base}?{("tag=" + quote(tag, safe="")) if tag else ""}" '
+        f'target="_self" '
+        f'class="eberlight-chip {"active" if is_all_active else ""}">'
+        f'All <span class="eberlight-chip-count">({len(notes)})</span></a>'
+    )
+    for folder in folders:
+        count = folder_counts[folder]
+        is_active = folder == active_folder
+        href = f"{base}?folder={quote(folder, safe='')}{tag_extra}"
+        chips.append(
+            f'<a href="{href}" target="_self" '
+            f'class="eberlight-chip {"active" if is_active else ""}">'
+            f"{_folder_label(folder)} "
+            f'<span class="eberlight-chip-count">({count})</span></a>'
         )
     st.markdown(
-        '<div style="margin:8px 0 16px 0;">'
-        '<div style="font-size:11px;color:#888;text-transform:uppercase;'
-        'letter-spacing:0.5px;margin-bottom:6px;">View</div>' + "".join(pills) + "</div>",
+        '<div class="eberlight-chip-row" role="tablist" aria-label="Filter by folder">'
+        + "".join(chips)
+        + "</div>",
         unsafe_allow_html=True,
     )
 
@@ -480,15 +477,17 @@ def _render_level_selector(current: str, note_url_id: str, *, view_mode: str = "
 def render_cluster_page(
     cluster_id: str,
     *,
-    group_by_folder: bool = True,
+    group_by_folder: bool = True,  # deprecated, kept for backward compat
 ) -> None:
     """Top-level entry called by every cluster page file.
 
     Args:
         cluster_id: One of ``"discover"``, ``"explore"``, ``"build"``.
-        group_by_folder: When showing the card grid, group by folder
-            with a folder-name heading.
+        group_by_folder: Deprecated since R11 — the page now uses a
+            single dense compare-table view with folder-filter chips.
+            Argument retained so unmodified callers don't fail.
     """
+    del group_by_folder  # silence linters; argument retained for compat.
     from lib import detail_level as _dl
 
     explorer_dir = Path(__file__).resolve().parent.parent
@@ -507,9 +506,11 @@ def render_cluster_page(
     note_url_id = _query_param("note")
     doc_param = _query_param("doc")
     tag_filter = _query_param("tag")
+    folder_filter = _query_param("folder")
     level = _dl.normalise_level(_query_param("level"))
-    raw_view = (_query_param("view") or "cards").lower()
-    grid_view_mode = raw_view if raw_view in {"cards", "table"} else "cards"
+    # R11 I3 — `?view=cards|table` toggle is gone; only `?view=tabs`
+    # (the note-detail section-tabs mode) is honoured.
+    raw_view = (_query_param("view") or "").lower()
     detail_view_mode = "tabs" if raw_view == "tabs" else "default"
 
     # ``?doc=<basename>`` is the legacy URL shape. Resolve it to a real
@@ -559,9 +560,19 @@ def render_cluster_page(
         visible_notes = [n for n in cluster_notes if tag_filter in (n.tags or [])]
         _render_filter_banner(tag_filter, cluster_id)
 
-    _render_view_toggle(grid_view_mode, cluster_id, tag=tag_filter)
-    if grid_view_mode == "table":
-        _render_compare_table(visible_notes, repo_root, cluster_id)
-    else:
-        _render_card_grid(visible_notes, repo_root, group_by_folder=group_by_folder)
+    # R11 I3 — folder-filter chips replace the Cards/Table toggle. The
+    # cluster page now has one dense table view; the chip row narrows
+    # by folder. ``?folder=`` is preserved across tag filtering.
+    active_folder = (
+        folder_filter
+        if folder_filter and any(n.folder == folder_filter for n in cluster_notes)
+        else None
+    )
+    _render_folder_filter_chips(
+        cluster_notes, cluster_id, active_folder=active_folder, tag=tag_filter
+    )
+    if active_folder:
+        visible_notes = [n for n in visible_notes if n.folder == active_folder]
+
+    _render_compare_table(visible_notes, repo_root, cluster_id)
     render_footer()
