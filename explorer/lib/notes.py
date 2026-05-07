@@ -85,6 +85,7 @@ class Note:
     doi: str | None = None
     priority: str | None = None
     pipeline_stage: str | None = None
+    last_reviewed: str | None = None
 
     def url_id(self, repo_root: Path) -> str:
         """Stable URL-safe identifier for this note (path relative to repo root).
@@ -345,6 +346,7 @@ def _parse_note(path: Path, folder: str) -> Note:
         doi=_opt_str("doi"),
         priority=_opt_str("priority"),
         pipeline_stage=_opt_str("pipeline_stage"),
+        last_reviewed=_opt_str("last_reviewed"),
     )
 
 

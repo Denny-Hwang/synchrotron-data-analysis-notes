@@ -6,6 +6,50 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [explorer-0.6.1] - 2026-05-07
+
+**Phase R10 — first-impression UX polish.** Fixes 4 P0 + 8 P1 issues
+identified in the post-R9 user-perspective review. No new feature
+surface; existing surfaces just behave correctly now. Release notes:
+[REL-E061](docs/05_release/release_notes/explorer-v0.6.1.md).
+
+### Fixed
+- **P0-1** Header cluster nav links re-enabled (CSS rule was dimming
+  + disabling them in the Streamlit shell).
+- **P0-2** Landing 3-cluster cards are real ``<a href>`` anchors with
+  hover lift + focus-visible outline.
+- **P0-3** Permalink button uses ``streamlit.components.v1.html`` so
+  the clipboard JS actually runs; ``st.code`` fallback exposes the
+  raw URL.
+- **P0-4** Lab + Troubleshooter selectors moved out of the sidebar
+  into the main column — mobile users can finally change them.
+- **P1-1** Mobile media queries for header / cluster grid / CTA grid.
+- **P1-2** Compare-table title column uses ``LinkColumn`` instead of
+  emitting raw ``<a>`` HTML into a dataframe cell.
+- **P1-3** TOC slug now matches ``markdown.extensions.toc.slugify``
+  exactly so anchor jumps actually land; adds ``scroll-margin-top``
+  + ``scroll-behavior:smooth``.
+- **P1-4** Section-tab view renders Mermaid blocks via
+  ``_render_body_with_mermaid`` (was ``_md_to_html`` direct, dropping
+  the diagram split).
+- **P1-5** Empty search results offer "Did you mean…", popular
+  queries, and a Knowledge-Graph fallback link.
+- **P1-6** Knowledge Graph default view: 4 layers
+  (modality+method+recipe+noise) instead of all 6 — less overwhelming.
+- **P1-7** Numbered 1️⃣2️⃣3️⃣ stepper headings on Lab + Troubleshooter.
+- **P1-8** ``last_reviewed`` (DC-001 optional frontmatter) surfaced
+  in the note-detail metadata panel.
+
+### Added
+- ``Index.suggest(query, *, limit)`` — empty-search "did you mean"
+  helper. Pure function, no new deps.
+- 5 new tests: anchor-slug drift protection, suggest helper (3),
+  ``last_reviewed`` parse.
+
+### Notes
+- Total tests: **256 passed** (251 → 256).
+- ``ruff check / format --check explorer/ experiments/ scripts/`` clean.
+
 ## [explorer-0.6.0] - 2026-05-07
 
 **Phase R9 — final feature parity.** Closes the last five gaps identified in the

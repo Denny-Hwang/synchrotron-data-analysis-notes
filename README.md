@@ -5,7 +5,7 @@ analysis and AI/ML methods at Argonne National Laboratory's Advanced Photon
 Source (APS).
 
 ![notes-v0.10.0](https://img.shields.io/badge/notes-v0.10.0-blue)
-![explorer-v0.6.0](https://img.shields.io/badge/explorer-v0.6.0-green)
+![explorer-v0.6.1](https://img.shields.io/badge/explorer-v0.6.1-green)
 [![tests](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml)
 [![pages](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml)
 ![license: MIT](https://img.shields.io/badge/license-MIT-lightgrey)

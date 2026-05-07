@@ -376,3 +376,22 @@ def test_optional_frontmatter_unset_stays_none(tmp_path: Path) -> None:
     assert n.year is None
     assert n.maturity is None
     assert n.language is None
+    assert n.last_reviewed is None
+
+
+def test_last_reviewed_frontmatter_parses(tmp_path: Path) -> None:
+    """R10 P1-8 — DC-001's optional last_reviewed date lands on Note."""
+    from lib.notes import _parse_note
+
+    p = tmp_path / "reviewed.md"
+    p.write_text(
+        "---\n"
+        "title: 'Some Note'\n"
+        "cluster: explore\n"
+        "tags: []\n"
+        "last_reviewed: '2026-04-15'\n"
+        "---\nBody.\n",
+        encoding="utf-8",
+    )
+    n = _parse_note(p, "02_xray_modalities")
+    assert n.last_reviewed == "2026-04-15"

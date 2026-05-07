@@ -75,21 +75,34 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- Cluster Cards ---
+# --- Cluster Cards (R10 P0-2: each card is a real anchor so the whole tile
+#     is clickable, not just inert "Enter →" text). ---
 cols = st.columns(3)
 cluster_order = ["discover", "explore", "build"]
-cluster_pages = {"discover": "1_Discover", "explore": "2_Explore", "build": "3_Build"}
+cluster_paths = {"discover": "/Discover", "explore": "/Explore", "build": "/Build"}
 
 for col, cluster_id in zip(cols, cluster_order, strict=True):
     meta = CLUSTER_META[cluster_id]
+    href = cluster_paths[cluster_id]
     with col:
         st.markdown(
             f"""
-            <div class="eberlight-card" style="border-top: 4px solid {meta["color"]}; min-height: 200px;">
-                <h4 style="color: {meta["color"]}; margin: 0 0 12px 0;">{meta["name"]}</h4>
-                <p style="font-size: 14px; color: #555555; margin: 0 0 16px 0;">{meta["description"]}</p>
-                <span style="color: {meta["color"]}; font-weight: 600; font-size: 15px;">Enter →</span>
-            </div>
+            <a href="{href}" target="_self" class="eberlight-cluster-card-link"
+               style="text-decoration:none;color:inherit;display:block;">
+                <div class="eberlight-card eberlight-cluster-card"
+                     style="border-top: 4px solid {meta["color"]}; min-height: 200px;
+                            cursor:pointer;">
+                    <h4 style="color: {meta["color"]}; margin: 0 0 12px 0;">
+                        {meta["name"]}
+                    </h4>
+                    <p style="font-size: 14px; color: #555555; margin: 0 0 16px 0;">
+                        {meta["description"]}
+                    </p>
+                    <span style="color: {meta["color"]}; font-weight: 600; font-size: 15px;">
+                        Enter →
+                    </span>
+                </div>
+            </a>
             """,
             unsafe_allow_html=True,
         )

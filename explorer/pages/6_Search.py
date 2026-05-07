@@ -89,7 +89,32 @@ if query:
     hits: list[SearchHit] = search(idx, query, limit=30)
     st.markdown(f"### Results — {len(hits)} match{'es' if len(hits) != 1 else ''}")
     if not hits:
-        st.info("No matches. Try fewer / shorter terms.")
+        # R10 P1-5: empty-result state with concrete next steps so the
+        # user isn't stranded.
+        suggestions = idx.suggest(query, limit=6) if hasattr(idx, "suggest") else []
+        st.markdown(
+            "**No notes matched that query.**  "
+            "Try the suggestions below, broaden the terms, or browse "
+            "the [Knowledge Graph](/Knowledge_Graph) to find related entities."
+        )
+        if suggestions:
+            sug_links = " · ".join(
+                f'<a href="?q={quote(s, safe="")}" target="_self">{s}</a>' for s in suggestions
+            )
+            st.markdown(
+                f'<p style="font-size:13px;color:#555;margin-top:8px;">'
+                f"Did you mean: {sug_links}?</p>",
+                unsafe_allow_html=True,
+            )
+        st.markdown(
+            "**Popular queries:** "
+            '<a href="?q=tomogan" target="_self">tomogan</a> · '
+            '<a href="?q=ring%20artifact" target="_self">ring artifact</a> · '
+            '<a href="?q=noise2void" target="_self">noise2void</a> · '
+            '<a href="?q=tomopy" target="_self">tomopy</a> · '
+            '<a href="?q=ptychography" target="_self">ptychography</a>',
+            unsafe_allow_html=True,
+        )
     for hit in hits:
         href = f"?note={quote(hit.note.url_id(_REPO_ROOT), safe='/')}"
         terms_html = " · ".join(

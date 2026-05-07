@@ -223,38 +223,57 @@ def _render_compare_table(notes: list[Note], repo_root: Path, cluster_id: str) -
 
     import pandas as pd
 
-    rows: list[dict[str, str]] = []
+    # R10 P1-2: previously emitted ``<a href="...">title</a>`` into the cell
+    # which ``st.dataframe`` showed as raw HTML. Switch to a parallel
+    # ``Open`` column rendered via ``column_config.LinkColumn`` so the
+    # title cell stays plain text (sortable + searchable) and the link
+    # is a proper clickable column.
+    rows: list[dict[str, object]] = []
     for n in notes:
         href = f"/{cluster_id.title()}?note={quote(n.url_id(repo_root), safe='/')}"
-        title_link = f'<a href="{href}" target="_self">{n.title}</a>'
         rows.append(
             {
-                "Title": title_link,
+                "Title": n.title,
                 "Folder": _folder_label(n.folder),
                 "Modality": n.modality or "—",
                 "Beamlines": ", ".join(n.beamline) if n.beamline else "—",
                 "Tags": ", ".join(n.tags[:6]) if n.tags else "—",
-                "Pubs": str(len(n.related_publications)) if n.related_publications else "—",
-                "Tools": str(len(n.related_tools)) if n.related_tools else "—",
+                "Pubs": len(n.related_publications) or None,
+                "Tools": len(n.related_tools) or None,
                 "Description": n.description or "",
+                "Open": href,
             }
         )
     df = pd.DataFrame(rows)
-    # Streamlit's column_config makes Title clickable while keeping the
-    # other columns plain; we use Markdown rendering for the title cell.
     st.dataframe(
         df,
         width="stretch",
         height=min(560, 60 + 35 * len(df)),
         hide_index=True,
         column_config={
-            "Title": st.column_config.Column(
-                "Title",
-                help="Click a title to open the note detail.",
+            "Title": st.column_config.Column("Title", width="medium"),
+            "Open": st.column_config.LinkColumn(
+                "Open",
+                help="Click to open the note detail.",
+                display_text="Open →",
+                width="small",
+            ),
+            "Pubs": st.column_config.NumberColumn(
+                "Pubs",
+                help="Number of related publication references.",
+                format="%d",
+            ),
+            "Tools": st.column_config.NumberColumn(
+                "Tools",
+                help="Number of related tool references.",
+                format="%d",
             ),
         },
     )
-    st.caption(f"Compare table — {len(df)} notes · sort any column · click a title to open.")
+    st.caption(
+        f"Compare table — {len(df)} notes · sort any column · use the **Open** "
+        "column to jump to a note."
+    )
 
 
 def _build_metric_pairs(note: Note) -> list[tuple[str, str]]:
@@ -394,6 +413,7 @@ def _render_note_detail(
         toc_items=toc,
         metrics=metrics,
         section_tabs=section_tabs,
+        last_reviewed=note.last_reviewed,
     )
 
 
