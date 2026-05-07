@@ -24,7 +24,7 @@ from __future__ import annotations
 
 from itertools import groupby
 from pathlib import Path
-from urllib.parse import unquote
+from urllib.parse import quote, unquote
 
 import streamlit as st
 from components.breadcrumb import render_breadcrumb
@@ -34,7 +34,18 @@ from components.header import render_header
 from components.note_view import render_note_view
 
 from lib.ia import CLUSTER_META, get_folders_for_cluster
-from lib.notes import Note, find_note_by_url_id, load_notes
+from lib.notes import (
+    Note,
+    discover_sibling_notebooks,
+    find_note_by_url_id,
+    load_notes,
+    neighbor_notes,
+    resolve_publication_ref,
+    resolve_tool_ref,
+)
+
+# GitHub blob URL prefix for sibling-notebook links rendered on note-detail.
+_GITHUB_BLOB_PREFIX = "https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/blob/main/"
 
 
 def _folder_label(folder: str) -> str:
@@ -54,6 +65,60 @@ def _query_param(name: str) -> str | None:
     if isinstance(raw, list):
         return unquote(raw[0]) if raw else None
     return unquote(str(raw))
+
+
+_RECENT_KEY = "_eberlight_recently_viewed"
+_RECENT_LIMIT = 8
+
+
+def _track_recently_viewed(note: Note, repo_root: Path) -> None:
+    """Push the just-viewed note onto the session-state recents list."""
+    url_id = note.url_id(repo_root)
+    history: list[dict[str, str]] = st.session_state.get(_RECENT_KEY, [])
+    history = [item for item in history if item.get("url_id") != url_id]
+    history.insert(
+        0,
+        {
+            "url_id": url_id,
+            "title": note.title,
+            "cluster": note.cluster,
+        },
+    )
+    st.session_state[_RECENT_KEY] = history[:_RECENT_LIMIT]
+
+
+def _render_recently_viewed_sidebar(
+    all_notes: list[Note], repo_root: Path, *, current: Note | None
+) -> None:
+    """Render a sidebar block listing recently viewed notes.
+
+    The sidebar lives outside the main two-column layout so it doesn't
+    compete with the note body. The current note is highlighted but
+    not deduped (so a refresh keeps the page in the list).
+    """
+    history: list[dict[str, str]] = st.session_state.get(_RECENT_KEY, [])
+    if not history:
+        return
+    current_url_id = current.url_id(repo_root) if current is not None else None
+    valid_url_ids = {n.url_id(repo_root) for n in all_notes}
+
+    with st.sidebar:
+        st.markdown("#### 🕘 Recently viewed")
+        for item in history:
+            uid = item.get("url_id", "")
+            if uid not in valid_url_ids:
+                continue
+            cluster = item.get("cluster") or "discover"
+            title = item.get("title") or uid
+            href = f"/{cluster.title()}?note={quote(uid, safe='/')}"
+            mark = " · *current*" if uid == current_url_id else ""
+            st.markdown(
+                f'<div style="font-size:13px;margin:2px 0;">'
+                f'<a href="{href}" target="_self" '
+                f'style="color:#0033A0;text-decoration:none;">{title}</a>'
+                f'<span style="color:#888;">{mark}</span></div>',
+                unsafe_allow_html=True,
+            )
 
 
 def _render_filter_banner(tag: str, cluster_id: str) -> None:
@@ -96,12 +161,160 @@ def _render_card_grid(
             render_note_card(note, repo_root)
 
 
-def _render_note_detail(note: Note, cluster_id: str, level: str = "L2") -> None:
-    """Render the note-detail view for a single note at the chosen level."""
+def _render_view_toggle(current_view: str, cluster_id: str, *, tag: str | None) -> None:
+    """Pill row letting the user switch between 'cards' and 'table' views.
+
+    Restores the legacy L0/L1 capability where a cluster could be
+    inspected as a sortable comparison table — this is one of the
+    biggest information-density wins versus a pure card grid.
+    """
+    base = f"/{cluster_id.title()}"
+    extra = f"&tag={quote(tag, safe='')}" if tag else ""
+    pills = []
+    for view, label, icon in [("cards", "Cards", "🗂"), ("table", "Compare table", "📊")]:
+        is_active = view == current_view
+        bg = "#0033A0" if is_active else "#E8EEF6"
+        fg = "#FFFFFF" if is_active else "#0033A0"
+        pills.append(
+            f'<a href="{base}?view={view}{extra}" target="_self" '
+            f'style="text-decoration:none;background:{bg};color:{fg};'
+            f"padding:6px 14px;border-radius:14px;font-size:13px;"
+            f"font-weight:600;margin-right:6px;display:inline-block;"
+            f'margin-bottom:6px;">{icon} {label}</a>'
+        )
+    st.markdown(
+        '<div style="margin:8px 0 16px 0;">'
+        '<div style="font-size:11px;color:#888;text-transform:uppercase;'
+        'letter-spacing:0.5px;margin-bottom:6px;">View</div>' + "".join(pills) + "</div>",
+        unsafe_allow_html=True,
+    )
+
+
+def _render_compare_table(notes: list[Note], repo_root: Path, cluster_id: str) -> None:
+    """Render the cluster's notes as a sortable dataframe.
+
+    Columns surface the same frontmatter the metadata panel uses on
+    note detail — title, folder, modality, beamlines, tags, related
+    publications/tools count, last_reviewed if available — so the
+    comparison view is the legacy L0/L1 power-user surface.
+    """
+    if not notes:
+        st.info("No notes match this view.")
+        return
+
+    import pandas as pd
+
+    rows: list[dict[str, str]] = []
+    for n in notes:
+        href = f"/{cluster_id.title()}?note={quote(n.url_id(repo_root), safe='/')}"
+        title_link = f'<a href="{href}" target="_self">{n.title}</a>'
+        rows.append(
+            {
+                "Title": title_link,
+                "Folder": _folder_label(n.folder),
+                "Modality": n.modality or "—",
+                "Beamlines": ", ".join(n.beamline) if n.beamline else "—",
+                "Tags": ", ".join(n.tags[:6]) if n.tags else "—",
+                "Pubs": str(len(n.related_publications)) if n.related_publications else "—",
+                "Tools": str(len(n.related_tools)) if n.related_tools else "—",
+                "Description": n.description or "",
+            }
+        )
+    df = pd.DataFrame(rows)
+    # Streamlit's column_config makes Title clickable while keeping the
+    # other columns plain; we use Markdown rendering for the title cell.
+    st.dataframe(
+        df,
+        width="stretch",
+        height=min(560, 60 + 35 * len(df)),
+        hide_index=True,
+        column_config={
+            "Title": st.column_config.Column(
+                "Title",
+                help="Click a title to open the note detail.",
+            ),
+        },
+    )
+    st.caption(f"Compare table — {len(df)} notes · sort any column · click a title to open.")
+
+
+def _render_note_detail(
+    note: Note,
+    cluster_id: str,
+    *,
+    level: str = "L2",
+    all_notes: list[Note] | None = None,
+    repo_root: Path | None = None,
+) -> None:
+    """Render the note-detail view for a single note at the chosen level.
+
+    Resolves ``related_publications`` / ``related_tools`` strings into
+    real ``?note=…`` deep links, computes the prev/next-in-folder
+    neighbours, surfaces sibling Jupyter notebooks, and provides a
+    permalink + table-of-contents — all derived at runtime from the
+    repo so ADR-002 stays intact.
+    """
     from lib import detail_level as _dl
 
     cluster_meta = CLUSTER_META[cluster_id]
     body_for_level = _dl.render(level, note.body)
+
+    publication_links: list[tuple[str, str | None]] | None = None
+    tool_links: list[tuple[str, str | None]] | None = None
+    notebooks: list[tuple[str, str]] | None = None
+    prev_link: tuple[str, str] | None = None
+    next_link: tuple[str, str] | None = None
+
+    if all_notes is not None and repo_root is not None:
+        publication_links = []
+        for ref in note.related_publications:
+            target = resolve_publication_ref(all_notes, ref, repo_root)
+            if target is not None:
+                href = f"/{target.cluster.title()}?note={quote(target.url_id(repo_root), safe='/')}"
+                publication_links.append((target.title, href))
+            else:
+                publication_links.append((ref, None))
+
+        tool_links = []
+        for ref in note.related_tools:
+            target = resolve_tool_ref(all_notes, ref, repo_root)
+            if target is not None:
+                href = f"/{target.cluster.title()}?note={quote(target.url_id(repo_root), safe='/')}"
+                tool_links.append((target.title, href))
+            else:
+                tool_links.append((ref, None))
+
+        # Sibling notebooks for the Tools / Data-Structures pages.
+        ipynbs = discover_sibling_notebooks(note, repo_root)
+        if ipynbs:
+            notebooks = [
+                (
+                    p.name,
+                    _GITHUB_BLOB_PREFIX + p.relative_to(repo_root).as_posix(),
+                )
+                for p in ipynbs
+            ]
+
+        prev_n, next_n = neighbor_notes(all_notes, note)
+        if prev_n is not None:
+            prev_link = (
+                prev_n.title,
+                f"/{prev_n.cluster.title()}?note={quote(prev_n.url_id(repo_root), safe='/')}",
+            )
+        if next_n is not None:
+            next_link = (
+                next_n.title,
+                f"/{next_n.cluster.title()}?note={quote(next_n.url_id(repo_root), safe='/')}",
+            )
+
+    permalink = None
+    if repo_root is not None:
+        # The same query the user is on, written with the explicit
+        # cluster route so it works from any tab.
+        url_id = note.url_id(repo_root)
+        permalink = f"/{cluster_id.title()}?note={quote(url_id, safe='/')}&level={level}"
+
+    toc = _dl.extract_toc(note.body) if level == "L2" else None
     render_note_view(
         title=note.title,
         body=body_for_level,
@@ -112,6 +325,13 @@ def _render_note_detail(note: Note, cluster_id: str, level: str = "L2") -> None:
         beamline=note.beamline,
         related_publications=note.related_publications,
         related_tools=note.related_tools,
+        publication_links=publication_links,
+        tool_links=tool_links,
+        notebooks=notebooks,
+        prev_note=prev_link,
+        next_note=next_link,
+        permalink=permalink,
+        toc_items=toc,
     )
 
 
@@ -180,6 +400,9 @@ def render_cluster_page(
     note_url_id = _query_param("note")
     tag_filter = _query_param("tag")
     level = _dl.normalise_level(_query_param("level"))
+    view_mode = (_query_param("view") or "cards").lower()
+    if view_mode not in {"cards", "table"}:
+        view_mode = "cards"
 
     # Mode 1 — note-detail deep link.
     if note_url_id:
@@ -187,7 +410,15 @@ def render_cluster_page(
         if target is not None:
             render_header(active_cluster=target.cluster)
             _render_level_selector(level, note_url_id)
-            _render_note_detail(target, target.cluster, level=level)
+            _track_recently_viewed(target, repo_root)
+            _render_note_detail(
+                target,
+                target.cluster,
+                level=level,
+                all_notes=all_notes,
+                repo_root=repo_root,
+            )
+            _render_recently_viewed_sidebar(all_notes, repo_root, current=target)
             render_footer()
             return
         # Fall through with a warning — show the cluster grid instead.
@@ -207,5 +438,9 @@ def render_cluster_page(
         visible_notes = [n for n in cluster_notes if tag_filter in (n.tags or [])]
         _render_filter_banner(tag_filter, cluster_id)
 
-    _render_card_grid(visible_notes, repo_root, group_by_folder=group_by_folder)
+    _render_view_toggle(view_mode, cluster_id, tag=tag_filter)
+    if view_mode == "table":
+        _render_compare_table(visible_notes, repo_root, cluster_id)
+    else:
+        _render_card_grid(visible_notes, repo_root, group_by_folder=group_by_folder)
     render_footer()

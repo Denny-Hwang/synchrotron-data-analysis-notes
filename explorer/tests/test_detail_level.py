@@ -239,3 +239,63 @@ def test_normalise_level(raw: str | None, expected: str) -> None:
 
 def test_normalise_level_custom_default() -> None:
     assert normalise_level(None, default="L0") == "L0"
+
+
+# ---------------------------------------------------------------------------
+# extract_toc — table-of-contents helper for note-detail (Phase R8)
+# ---------------------------------------------------------------------------
+
+
+def test_extract_toc_returns_depth_anchor_heading() -> None:
+    from lib.detail_level import extract_toc
+
+    out = extract_toc(_SAMPLE)
+    titles = [t for _, _, t in out]
+    assert "Ring Artifact" in titles
+    assert "Root Cause" in titles
+    assert "Mitigations" in titles
+
+
+def test_extract_toc_skips_in_fence_python_comments() -> None:
+    """Lines starting with `#` inside a ``‌```python`` fence must not be
+    surfaced as TOC entries — same regression test as the L1 outline
+    helper from PR #45."""
+    from lib.detail_level import extract_toc
+
+    body = textwrap.dedent(
+        """\
+        # Real Title
+
+        ## Real Section
+
+        ```python
+        # this is a comment
+        x = 1
+        ```
+
+        ## Another Real
+        """
+    )
+    out = extract_toc(body)
+    titles = [t for _, _, t in out]
+    assert "Real Title" in titles
+    assert "Real Section" in titles
+    assert "Another Real" in titles
+    assert "this is a comment" not in titles
+
+
+def test_extract_toc_anchors_are_lowercase_hyphenated() -> None:
+    from lib.detail_level import extract_toc
+
+    body = "# A Long, Punctuated Title!\n\nbody"
+    out = extract_toc(body)
+    assert out == [(1, "a-long-punctuated-title", "A Long, Punctuated Title!")]
+
+
+def test_extract_toc_max_depth_filter() -> None:
+    from lib.detail_level import extract_toc
+
+    body = "# H1\n\n## H2\n\n### H3\n\n#### H4 should be filtered\n"
+    out = extract_toc(body, max_depth=3)
+    depths = [d for d, _, _ in out]
+    assert depths == [1, 2, 3]

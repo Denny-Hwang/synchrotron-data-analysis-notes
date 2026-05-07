@@ -36,16 +36,39 @@ render_header()
 # --- Breadcrumb ---
 render_breadcrumb([("Home", None)])
 
-# --- Hero ---
+# --- Hero (FR-001 — hero + search bar + 3 cluster cards) ---
 st.markdown(
     """
-    <div style="text-align: center; padding: 48px 0;">
+    <div style="text-align: center; padding: 48px 0 24px 0;">
         <h1 style="color: #0033A0; font-size: 36px; margin-bottom: 12px;">
             eBERlight Research Explorer
         </h1>
-        <p style="color: #555555; font-size: 18px; max-width: 600px; margin: 0 auto;">
+        <p style="color: #555555; font-size: 18px; max-width: 600px;
+                  margin: 0 auto 24px auto;">
             Navigate synchrotron data analysis knowledge at
             Argonne's Advanced Photon Source
+        </p>
+        <form action="/Search" method="get" role="search"
+              aria-label="Site search"
+              style="display:flex;justify-content:center;gap:0;
+                     max-width:540px;margin:0 auto;">
+            <input type="search" name="q"
+                   placeholder="Search 188 notes — modality, method, paper, tool…"
+                   aria-label="Search query" autocomplete="off" spellcheck="false"
+                   style="flex:1;padding:10px 14px;border:1px solid #C0C0C0;
+                          border-radius:24px 0 0 24px;border-right:0;
+                          font-size:15px;outline-offset:2px;background:#FFFFFF;">
+            <button type="submit" aria-label="Search"
+                    style="padding:10px 24px;border:1px solid #0033A0;
+                           border-radius:0 24px 24px 0;background:#0033A0;
+                           color:#FFFFFF;cursor:pointer;font-size:15px;
+                           font-weight:600;">
+                🔎 Search
+            </button>
+        </form>
+        <p style="color:#888888;font-size:13px;margin:8px 0 0 0;">
+            Tip: try <code>tomogan</code>, <code>vo 2018</code>,
+            <code>ring artifact</code>, or <code>tomopy</code>
         </p>
     </div>
     """,

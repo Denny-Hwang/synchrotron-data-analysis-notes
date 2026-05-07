@@ -290,3 +290,23 @@ def normalise_level(raw: str | None, *, default: str = "L2") -> str:
     if s in {"l3", "source", "raw", "markdown"}:
         return "L3"
     return default
+
+
+_ANCHOR_SAFE_RE = re.compile(r"[^a-z0-9-]+")
+
+
+def _heading_anchor(title: str) -> str:
+    """Convert a heading text into a GitHub-style markdown anchor slug."""
+    slug = _ANCHOR_SAFE_RE.sub("-", title.lower()).strip("-")
+    return slug or "section"
+
+
+def extract_toc(body: str, *, max_depth: int = 3) -> list[tuple[int, str, str]]:
+    """Return ``(depth, anchor, heading)`` triples for every H1..H``max_depth``.
+
+    Used by the note-detail view to render an in-page table of
+    contents. Headings inside fenced code blocks are skipped via the
+    same line-by-line walker the L1 outline helper uses.
+    """
+    out = _outline(body)
+    return [(d, _heading_anchor(t), t) for d, t, _ in out if 1 <= d <= max_depth]

@@ -141,3 +141,110 @@ def test_load_notes_from_real_repo() -> None:
         assert note.cluster in valid_clusters, (
             f"Note {note.path} has invalid cluster: {note.cluster}"
         )
+
+
+# ---------------------------------------------------------------------------
+# Resolvers + helpers (Phase R8)
+# ---------------------------------------------------------------------------
+
+
+def test_resolve_publication_ref_finds_match() -> None:
+    """resolve_publication_ref maps a filename to the matching note."""
+    from lib.notes import resolve_publication_ref
+
+    repo_root = _EXPLORER_DIR.parent
+    notes = load_notes(repo_root)
+    pub_notes = [n for n in notes if n.folder == "04_publications"]
+    if not pub_notes:
+        pytest.skip("No publication notes to test against.")
+    a_pub = pub_notes[0]
+    found = resolve_publication_ref(notes, a_pub.path.name, repo_root)
+    assert found is not None
+    assert found.path == a_pub.path
+
+
+def test_resolve_publication_ref_appends_md_extension() -> None:
+    """A reference without .md is normalised before lookup."""
+    from lib.notes import resolve_publication_ref
+
+    repo_root = _EXPLORER_DIR.parent
+    notes = load_notes(repo_root)
+    pub_notes = [n for n in notes if n.folder == "04_publications"]
+    if not pub_notes:
+        pytest.skip("No publication notes to test against.")
+    stem = pub_notes[0].path.stem  # filename without ".md"
+    found = resolve_publication_ref(notes, stem, repo_root)
+    assert found is not None
+
+
+def test_resolve_publication_ref_returns_none_for_unknown() -> None:
+    from lib.notes import resolve_publication_ref
+
+    repo_root = _EXPLORER_DIR.parent
+    notes = load_notes(repo_root)
+    assert resolve_publication_ref(notes, "no_such_file.md", repo_root) is None
+    assert resolve_publication_ref(notes, "", repo_root) is None
+
+
+def test_resolve_tool_ref_finds_readme() -> None:
+    """resolve_tool_ref('tomocupy') → the README in 05_tools_and_code/tomocupy/."""
+    from lib.notes import resolve_tool_ref
+
+    repo_root = _EXPLORER_DIR.parent
+    notes = load_notes(repo_root)
+    found = resolve_tool_ref(notes, "tomocupy", repo_root)
+    if found is None:
+        pytest.skip("Repo has no 05_tools_and_code/tomocupy/ directory.")
+    assert found.folder == "05_tools_and_code"
+    assert found.path.parent.name.lower() == "tomocupy"
+
+
+def test_resolve_tool_ref_returns_none_for_unknown() -> None:
+    from lib.notes import resolve_tool_ref
+
+    repo_root = _EXPLORER_DIR.parent
+    notes = load_notes(repo_root)
+    assert resolve_tool_ref(notes, "no_such_tool", repo_root) is None
+    assert resolve_tool_ref(notes, "", repo_root) is None
+
+
+def test_neighbor_notes_returns_prev_and_next(tmp_path: Path) -> None:
+    """neighbor_notes orders siblings deterministically by path."""
+    from lib.notes import Note, neighbor_notes
+
+    a = Note(path=tmp_path / "a.md", folder="x", title="A", body="", cluster="discover")
+    b = Note(path=tmp_path / "b.md", folder="x", title="B", body="", cluster="discover")
+    c = Note(path=tmp_path / "c.md", folder="x", title="C", body="", cluster="discover")
+    notes = [c, a, b]  # unsorted on purpose
+    prev_n, next_n = neighbor_notes(notes, b)
+    assert prev_n is a
+    assert next_n is c
+    # First / last edges
+    assert neighbor_notes(notes, a) == (None, b)
+    assert neighbor_notes(notes, c) == (b, None)
+
+
+def test_neighbor_notes_only_walks_same_folder(tmp_path: Path) -> None:
+    from lib.notes import Note, neighbor_notes
+
+    a = Note(path=tmp_path / "a.md", folder="x", title="A", body="", cluster="discover")
+    b = Note(path=tmp_path / "b.md", folder="other", title="B", body="", cluster="discover")
+    prev_n, next_n = neighbor_notes([a, b], a)
+    assert prev_n is None and next_n is None
+
+
+def test_discover_sibling_notebooks_real_repo() -> None:
+    """At least one tool folder ships .ipynb files; discover_sibling_notebooks
+    must surface them on the README note."""
+    from lib.notes import discover_sibling_notebooks
+
+    repo_root = _EXPLORER_DIR.parent
+    notes = load_notes(repo_root)
+    # Find any tool README that has a sibling .ipynb.
+    for n in notes:
+        if n.folder == "05_tools_and_code" and n.path.name == "README.md":
+            books = discover_sibling_notebooks(n, repo_root)
+            if books:
+                assert all(p.suffix == ".ipynb" for p in books)
+                return
+    pytest.skip("No tool README has a sibling .ipynb in this repo state.")

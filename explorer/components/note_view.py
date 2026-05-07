@@ -118,6 +118,14 @@ def render_note_view(
     related_publications: list[str],
     related_tools: list[str],
     cluster_url: str = "#",
+    *,
+    publication_links: list[tuple[str, str | None]] | None = None,
+    tool_links: list[tuple[str, str | None]] | None = None,
+    notebooks: list[tuple[str, str]] | None = None,
+    prev_note: tuple[str, str] | None = None,
+    next_note: tuple[str, str] | None = None,
+    permalink: str | None = None,
+    toc_items: list[tuple[int, str, str]] | None = None,
 ) -> None:
     """Render a full note detail view with metadata panel.
 
@@ -132,9 +140,20 @@ def render_note_view(
         related_publications: List of related publication filenames.
         related_tools: List of related tool names.
         cluster_url: URL the breadcrumb's cluster crumb links back to.
-            Defaults to ``"#"`` for backward compatibility; the
-            cluster-page router passes a real path like ``"/Build"``
-            so the user can navigate up one level.
+        publication_links: Optional ``(label, href)`` tuples — when
+            present, overrides ``related_publications`` to render
+            clickable links instead of plain text.
+        tool_links: Same idea for ``related_tools``.
+        notebooks: Optional ``(filename, github_url)`` tuples for
+            sibling ``*.ipynb`` files; rendered as a "Notebooks"
+            section under the body.
+        prev_note: Optional ``(title, href)`` to render as "← prev".
+        next_note: Optional ``(title, href)`` to render as "next →".
+        permalink: Optional shareable URL — when set, renders a
+            "Copy permalink" button that copies it to the clipboard.
+        toc_items: Optional ``(depth, anchor, heading)`` triples —
+            when present, renders an in-page table of contents
+            sidebar above the metadata panel.
     """
     # Breadcrumb
     render_breadcrumb(
@@ -150,14 +169,198 @@ def render_note_view(
 
     with col_main:
         st.markdown(f"# {title}")
+        if permalink:
+            _render_permalink_button(permalink)
 
         # Render markdown with code highlighting + inline Mermaid blocks.
         formatter = HtmlFormatter(style="monokai", noclasses=True)
         highlight_css = formatter.get_style_defs(".highlight")
         _render_body_with_mermaid(body, highlight_css)
 
+        if notebooks:
+            _render_notebooks_section(notebooks)
+
+        if prev_note or next_note:
+            _render_prev_next_nav(prev_note, next_note)
+
     with col_meta:
-        _render_metadata_panel(tags, modality, beamline, related_publications, related_tools)
+        if toc_items:
+            _render_toc(toc_items)
+        _render_metadata_panel(
+            tags,
+            modality,
+            beamline,
+            related_publications,
+            related_tools,
+            publication_links=publication_links,
+            tool_links=tool_links,
+        )
+
+
+def _render_permalink_button(url: str) -> None:
+    """Small "Copy permalink" button that uses the navigator clipboard API."""
+    safe = url.replace("'", "&#39;").replace('"', "&quot;")
+    st.markdown(
+        f"""
+        <div style="margin:-12px 0 16px 0;">
+            <button onclick="navigator.clipboard.writeText('{safe}');
+                             this.innerText='✓ Copied'"
+                    style="background:#E8EEF6;border:1px solid #0033A0;
+                           color:#0033A0;border-radius:14px;
+                           padding:4px 12px;font-size:12px;cursor:pointer;
+                           font-weight:600;">
+                🔗 Copy permalink
+            </button>
+            <span style="font-size:12px;color:#888;margin-left:8px;">
+                Share this exact view
+            </span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_toc(items: list[tuple[int, str, str]]) -> None:
+    """Render the in-page table of contents above the metadata panel."""
+    if not items:
+        return
+    rows: list[str] = []
+    for depth, anchor, heading in items:
+        if depth == 1:
+            continue  # the page already prints the H1 title above
+        indent = "  " * max(depth - 2, 0)
+        safe_h = heading.replace("<", "&lt;").replace(">", "&gt;")
+        rows.append(
+            f'<div style="font-size:13px;margin:2px 0;padding-left:{len(indent) * 8}px;">'
+            f'<a href="#{anchor}" style="color:#0033A0;text-decoration:none;">'
+            f"{safe_h}</a></div>"
+        )
+    if not rows:
+        return
+    st.markdown(
+        f"""
+        <aside aria-label="On this page" style="background:#FFFFFF;
+               border:1px solid #E0E0E0;border-radius:8px;
+               padding:16px;margin-bottom:16px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;
+                        letter-spacing:0.5px;color:#555;margin-bottom:8px;">
+                On this page
+            </div>
+            {"".join(rows)}
+        </aside>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_notebooks_section(notebooks: list[tuple[str, str]]) -> None:
+    """Render a 'Notebooks' section listing each .ipynb sibling.
+
+    Args:
+        notebooks: List of ``(filename, github_blob_url)`` tuples.
+            The GitHub URL is the canonical home; we also synthesise
+            an nbviewer link so the user can preview without GitHub.
+    """
+    items: list[str] = []
+    for filename, github_url in notebooks:
+        nbviewer = github_url.replace(
+            "https://github.com/",
+            "https://nbviewer.org/github/",
+            1,
+        ).replace("/blob/", "/blob/", 1)
+        items.append(
+            f'<li style="margin-bottom:6px;">'
+            f"<code>{filename}</code> &nbsp;·&nbsp; "
+            f'<a href="{github_url}" target="_blank" rel="noopener" '
+            f'style="color:#0033A0;">GitHub ↗</a> &nbsp;·&nbsp; '
+            f'<a href="{nbviewer}" target="_blank" rel="noopener" '
+            f'style="color:#0033A0;">nbviewer ↗</a></li>'
+        )
+    st.markdown(
+        f"""
+        <section style="margin-top:32px;padding:20px;background:#FAFBFC;
+                        border-left:4px solid #D86510;border-radius:8px;">
+            <h3 style="margin:0 0 8px 0;font-size:18px;color:#D86510;">
+                📓 Notebooks
+            </h3>
+            <p style="font-size:13px;color:#555;margin:0 0 12px 0;">
+                Sibling Jupyter notebooks in this note's folder.
+                Open in your browser via nbviewer (read-only) or fork via GitHub.
+            </p>
+            <ul style="margin:0;padding-left:20px;">{"".join(items)}</ul>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_prev_next_nav(
+    prev_note: tuple[str, str] | None,
+    next_note: tuple[str, str] | None,
+) -> None:
+    """Render bottom-of-page prev/next-in-folder navigation."""
+    prev_html = (
+        f'<a href="{prev_note[1]}" target="_self" '
+        f'style="color:#0033A0;text-decoration:none;font-size:14px;">'
+        f"← {prev_note[0]}</a>"
+        if prev_note
+        else "<span></span>"
+    )
+    next_html = (
+        f'<a href="{next_note[1]}" target="_self" '
+        f'style="color:#0033A0;text-decoration:none;font-size:14px;">'
+        f"{next_note[0]} →</a>"
+        if next_note
+        else "<span></span>"
+    )
+    st.markdown(
+        f"""
+        <nav aria-label="Folder navigation" style="display:flex;
+             justify-content:space-between;margin-top:32px;padding:16px 0;
+             border-top:1px solid #E0E0E0;">
+            <div style="text-align:left;max-width:45%;">
+                <div style="font-size:11px;color:#888;text-transform:uppercase;
+                            letter-spacing:0.5px;">Previous</div>
+                {prev_html}
+            </div>
+            <div style="text-align:right;max-width:45%;">
+                <div style="font-size:11px;color:#888;text-transform:uppercase;
+                            letter-spacing:0.5px;">Next</div>
+                {next_html}
+            </div>
+        </nav>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _format_link_list(
+    raw: list[str],
+    overrides: list[tuple[str, str | None]] | None,
+) -> str:
+    """Render a list of metadata-panel entries.
+
+    If ``overrides`` is provided it takes precedence and entries with
+    a non-None href become anchor links; entries with ``None`` href
+    fall back to plain text (e.g. unresolved references). Without
+    overrides the raw strings are rendered as plain text — the legacy
+    behaviour preserved for backwards-compatible callers.
+    """
+    rows = overrides if overrides is not None else [(label, None) for label in raw]
+    pieces: list[str] = []
+    for label, href in rows:
+        if href:
+            pieces.append(
+                f'<div style="font-size:14px;margin-bottom:4px;">'
+                f'<a href="{href}" target="_self" '
+                f'style="color:#0033A0;text-decoration:none;">{label}</a></div>'
+            )
+        else:
+            pieces.append(
+                f'<div style="font-size:14px;color:#555;margin-bottom:4px;" '
+                f'title="No matching note found">{label}</div>'
+            )
+    return "".join(pieces)
 
 
 def _render_metadata_panel(
@@ -166,6 +369,9 @@ def _render_metadata_panel(
     beamline: list[str],
     related_publications: list[str],
     related_tools: list[str],
+    *,
+    publication_links: list[tuple[str, str | None]] | None = None,
+    tool_links: list[tuple[str, str | None]] | None = None,
 ) -> None:
     """Render the right-side metadata panel."""
     sections: list[str] = []
@@ -200,28 +406,22 @@ def _render_metadata_panel(
             f"<div>{tags_html}</div></div>"
         )
 
-    if related_publications:
-        links = "".join(
-            f'<div style="font-size:14px;color:#0033A0;margin-bottom:4px;">{p}</div>'
-            for p in related_publications
-        )
+    if related_publications or publication_links:
+        links_html = _format_link_list(related_publications, publication_links)
         sections.append(
             f'<div style="margin-bottom:20px;">'
             f'<div style="font-size:12px;font-weight:600;text-transform:uppercase;'
             f'letter-spacing:0.5px;color:#555;margin-bottom:8px;">Publications</div>'
-            f"{links}</div>"
+            f"{links_html}</div>"
         )
 
-    if related_tools:
-        links = "".join(
-            f'<div style="font-size:14px;color:#0033A0;margin-bottom:4px;">{t}</div>'
-            for t in related_tools
-        )
+    if related_tools or tool_links:
+        links_html = _format_link_list(related_tools, tool_links)
         sections.append(
             f'<div style="margin-bottom:20px;">'
             f'<div style="font-size:12px;font-weight:600;text-transform:uppercase;'
             f'letter-spacing:0.5px;color:#555;margin-bottom:8px;">Related Tools</div>'
-            f"{links}</div>"
+            f"{links_html}</div>"
         )
 
     if sections:
