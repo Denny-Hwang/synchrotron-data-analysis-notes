@@ -87,6 +87,45 @@ modalities:
         - {file: datasets/tomography/flatfield_correction/stripes_mask3d.npy,   role: noisy_input,    format: npy}
         - {file: datasets/tomography/flatfield_correction/angle.npy,            role: metadata,       format: npy}
 
+    low_dose:
+      noise_catalog_ref: 09_noise_catalog/tomography/low_dose_noise.md
+      source:
+        repo: https://github.com/nghia-vo/sarepy
+        commit: 2d00b05eb2c1e0d3bad20b4883b70448d0179818
+        license: Apache-2.0
+        notes: "Sarepy clean reference + simulated photon-counting noise; targets the regime in Liu et al. 2020 TomoGAN."
+      attribution: datasets/tomography/low_dose/ATTRIBUTION.md
+      samples:
+        - {file: datasets/tomography/low_dose/sinogram_clean.npy,                role: clean_reference, format: npy, description: "512x512 crop of Sarepy clean sinogram"}
+        - {file: datasets/tomography/low_dose/sinogram_lowdose_high_snr.npy,     role: noisy_input,     format: npy, description: "200 photons/pixel — mild low-dose"}
+        - {file: datasets/tomography/low_dose/sinogram_lowdose_medium.npy,       role: noisy_input,     format: npy, description: "50 photons/pixel — typical low-dose"}
+        - {file: datasets/tomography/low_dose/sinogram_lowdose_severe.npy,       role: noisy_input,     format: npy, description: "12 photons/pixel — TomoGAN-paper regime"}
+
+    beam_hardening:
+      noise_catalog_ref: 09_noise_catalog/tomography/streak_artifact.md
+      source:
+        repo: https://github.com/nghia-vo/sarepy
+        commit: 2d00b05eb2c1e0d3bad20b4883b70448d0179818
+        license: Apache-2.0
+        notes: "Sarepy clean reference + deterministic polynomial hardening transform."
+      attribution: datasets/tomography/beam_hardening/ATTRIBUTION.md
+      samples:
+        - {file: datasets/tomography/beam_hardening/sinogram_clean.npy,    role: clean_reference, format: npy}
+        - {file: datasets/tomography/beam_hardening/sinogram_hardened.npy, role: noisy_input,     format: npy, description: "Polynomial cupping non-linearity applied"}
+
+    dead_pixel:
+      noise_catalog_ref: 09_noise_catalog/cross_cutting/detector_common_issues.md
+      source:
+        repo: https://github.com/nghia-vo/sarepy
+        commit: 2d00b05eb2c1e0d3bad20b4883b70448d0179818
+        license: Apache-2.0
+        notes: "Sarepy clean reference + simulated dead/hot pixels and dead columns."
+      attribution: datasets/tomography/dead_pixel/ATTRIBUTION.md
+      samples:
+        - {file: datasets/tomography/dead_pixel/sinogram_clean.npy,             role: clean_reference, format: npy}
+        - {file: datasets/tomography/dead_pixel/sinogram_with_dead_pixels.npy,  role: noisy_input,     format: npy, description: "2 dead columns + 200 random faults"}
+        - {file: datasets/tomography/dead_pixel/dead_pixel_mask.npy,            role: metadata,        format: npy, description: "uint8 fault mask"}
+
   xrf:
 
     xrf_spectra:
@@ -159,6 +198,24 @@ modalities:
           role: theoretical_reference
 
   scattering_diffraction:
+
+    phase_wrapping:
+      noise_catalog_ref: 09_noise_catalog/scattering_diffraction/phase_wrapping.md
+      source:
+        repo: synthesised in-tree (deterministic seeded NumPy)
+        commit: ""
+        license: CC0
+        notes: "Canonical Itoh / Goldstein / Ghiglia-Pritt 2-D phase-unwrapping test patterns."
+      attribution: datasets/scattering_diffraction/phase_wrapping/ATTRIBUTION.md
+      samples:
+        - {file: datasets/scattering_diffraction/phase_wrapping/phase_wrapped_gaussian.npy, role: noisy_input,     format: npy, description: "Gaussian + ramp, ~5 wrap cycles"}
+        - {file: datasets/scattering_diffraction/phase_wrapping/phase_clean_gaussian.npy,   role: clean_reference, format: npy}
+        - {file: datasets/scattering_diffraction/phase_wrapping/phase_wrapped_twobump.npy,  role: noisy_input,     format: npy, description: "+5π / -4π Gaussians (CDI exit-wave proxy)"}
+        - {file: datasets/scattering_diffraction/phase_wrapping/phase_clean_twobump.npy,    role: clean_reference, format: npy}
+        - {file: datasets/scattering_diffraction/phase_wrapping/phase_wrapped_noisy.npy,    role: noisy_input,     format: npy, description: "Gaussian + 0.20 rad speckle"}
+        - {file: datasets/scattering_diffraction/phase_wrapping/phase_clean_noisy.npy,      role: clean_reference, format: npy}
+        - {file: datasets/scattering_diffraction/phase_wrapping/phase_wrapped_vortex.npy,   role: false_positive_trap, format: npy, description: "Pure azimuthal phase (4 turns) — branch-cut residue test"}
+        - {file: datasets/scattering_diffraction/phase_wrapping/phase_clean_vortex.npy,     role: clean_reference, format: npy}
 
     pyFAI_calibrants:
       noise_catalog_ref: 09_noise_catalog/scattering_diffraction/detector_gaps_parallax.md

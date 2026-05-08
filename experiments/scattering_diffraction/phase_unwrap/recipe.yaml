@@ -1,0 +1,118 @@
+# Recipe — 2-D Phase Unwrapping (Herraez 2002, skimage implementation)
+#
+# Targets phase-contrast imaging and coherent diffraction imaging (CDI)
+# exit-wave reconstruction. Bundled samples are synthetic Gaussian /
+# two-bump / vortex / noisy phase fields with paired ground truth so
+# PSNR/SSIM are meaningful.
+
+schema_version: 1
+
+recipe_id: phase_unwrap_2d
+title: "Phase Wrapping — 2-D Phase Unwrapping (Herraez 2002)"
+modality: scattering
+noise_catalog_ref: 09_noise_catalog/scattering_diffraction/phase_wrapping.md
+
+problem: |
+  Phase-contrast imaging and CDI return phase modulo 2π — every
+  excursion beyond ±π gets wrapped back into (-π, π]. The image
+  shows **2π discontinuities** (sharp lines where the colour scale
+  jumps) that are not real features but bookkeeping artefacts.
+fix: |
+  Walk the array following a **reliability map** — start at the
+  most reliable pixel and add or subtract 2π whenever a neighbour
+  differs by more than π. Herraez et al. (2002) is the canonical
+  algorithm; ``skimage.restoration.unwrap_phase`` ships it.
+observe: |
+  The 2π discontinuities should disappear and the colour scale
+  becomes monotonic (or smoothly varying) across the field. PSNR
+  and SSIM against the ground-truth phase are computed for each
+  bundled sample. The vortex / branch-cut sample is genuinely
+  *not* unwrappable — even a perfect algorithm leaves residue —
+  so PSNR there will plateau, illustrating a fundamental limit.
+
+description: |
+  Phase wrapping appears any time a measurement returns the **angle**
+  of a complex quantity: phase-contrast X-ray imaging, CDI exit-wave
+  retrieval, holography, InSAR. The raw phase is in (-π, π]; the
+  underlying physical phase can extend over many cycles. Unwrapping
+  recovers the smooth physical phase by tracking 2π jumps.
+
+  Four bundled test patterns let you compare algorithm performance:
+
+  * **Gaussian bump** — the canonical Itoh test surface, smoothly
+    increasing then decreasing with several wrap cycles.
+  * **Two-bump (CDI exit-wave proxy)** — a positive + negative bump
+    pattern resembling the kind of shape CDI reconstructions return
+    on a single object.
+  * **Noisy** — same Gaussian + speckle. Tests the algorithm's noise
+    robustness; in the limit of very high noise, even a perfect
+    algorithm cannot recover the true phase.
+  * **Vortex / branch-cut** — a pure azimuthal phase (4 turns). This
+    has a real topological discontinuity at the centre that *cannot*
+    be unwrapped continuously; the algorithm should converge to the
+    minimum-residue cut, not to the ground truth.
+
+  Each pair `(phase_clean_*, phase_wrapped_*)` lets us compute
+  PSNR/SSIM of the unwrapped output against the ground truth.
+
+function: experiments.scattering_diffraction.phase_unwrap.pipeline.unwrap_phase_2d
+
+samples:
+  - manifest_path: datasets/scattering_diffraction/phase_wrapping/phase_wrapped_gaussian.npy
+    label: "Gaussian bump (canonical Itoh test)"
+    role: noisy_input
+    description: "Smooth Gaussian + linear ramp, ~5 wrap cycles"
+  - manifest_path: datasets/scattering_diffraction/phase_wrapping/phase_wrapped_twobump.npy
+    label: "Two-bump (CDI exit-wave proxy)"
+    role: noisy_input
+    description: "+5π and −4π Gaussian peaks — typical CDI shape"
+  - manifest_path: datasets/scattering_diffraction/phase_wrapping/phase_wrapped_noisy.npy
+    label: "Noisy Gaussian (speckle robustness)"
+    role: noisy_input
+    description: "Gaussian + 0.20 rad Gaussian noise — tests robustness"
+  - manifest_path: datasets/scattering_diffraction/phase_wrapping/phase_wrapped_vortex.npy
+    label: "Vortex / branch-cut (residue trap)"
+    role: false_positive_trap
+    description: "Pure azimuthal phase with topological discontinuity"
+
+# Note: the clean reference is the **Gaussian** ground truth. Other samples
+# have their own paired clean files but the lab's metric pipeline only takes
+# one reference. We document the alternatives in the description.
+clean_reference:
+  manifest_path: datasets/scattering_diffraction/phase_wrapping/phase_clean_gaussian.npy
+  label: "phase_clean_gaussian.npy"
+
+parameters:
+  - name: seed
+    type: int
+    label: "Random seed (tie-breaking)"
+    default: 0
+    min: 0
+    max: 1000
+    step: 1
+    help: |
+      Forwarded to ``skimage.restoration.unwrap_phase``. Different
+      seeds break ties differently when two candidate paths have
+      equal reliability — useful only at boundary cases. Default 0
+      gives a fully deterministic result.
+
+metrics:
+  - psnr
+  - ssim
+
+references:
+  - title: "Fast two-dimensional phase-unwrapping algorithm based on sorting by reliability following a noncontinuous path"
+    authors: "Herráez, M. A., Burton, D. R., Lalor, M. J., Gdeisat, M. A."
+    year: 2002
+    venue: "Applied Optics, 41(35), 7437-7444"
+    doi: "10.1364/AO.41.007437"
+  - title: "Analysis of the phase unwrapping algorithm"
+    authors: "Itoh, K."
+    year: 1982
+    venue: "Applied Optics, 21(14), 2470"
+    doi: "10.1364/AO.21.002470"
+  - title: "scikit-image: image processing in Python"
+    authors: "van der Walt, S. et al."
+    year: 2014
+    venue: "PeerJ, 2, e453"
+    doi: "10.7717/peerj.453"

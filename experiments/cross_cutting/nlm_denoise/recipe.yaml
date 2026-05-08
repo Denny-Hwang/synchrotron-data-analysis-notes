@@ -1,0 +1,101 @@
+# Recipe — Non-Local Means Denoising (Buades 2005)
+
+schema_version: 1
+
+recipe_id: nlm_denoise
+title: "Non-Local Means Denoising — Buades (2005)"
+modality: cross_cutting
+noise_catalog_ref: 09_noise_catalog/cross_cutting/noise_estimation_methods.md
+
+problem: |
+  Repeating sample features — grain boundaries, fibre cross-sections,
+  periodic crystal lattices — show up many times in a typical
+  synchrotron image. A local denoiser (Gaussian / TV) ignores this
+  redundancy.
+fix: |
+  Non-Local Means averages each pixel with **similar patches** found
+  anywhere in the search window. Repeating features get strong
+  suppression because many near-identical copies average out;
+  unique features stay sharp because they have no copies to average
+  with.
+observe: |
+  On textured samples (the cosmic-ray GMOS frame, the ring sinogram)
+  NLM gives noticeably crisper output than Gaussian/TV at comparable
+  noise reduction. PSNR/SSIM should improve over the baselines on
+  the low-dose samples. Cost: NLM is ~20× slower than TV; the patch
+  search is quadratic in window size.
+
+description: |
+  Non-Local Means (NLM) replaces each pixel with a weighted average
+  of similar patches sampled across the image. The trick: *similar*
+  is measured by patch-level intensity comparison, not just spatial
+  proximity. So a noise-free copy of a noisy patch — which exists
+  somewhere if the texture repeats — provides a clean estimate.
+
+  Compare against Gaussian / TV on the same samples. NLM typically
+  preserves fine textural detail better at the cost of substantially
+  more computation. For very large sinograms, you may need to crop
+  before applying NLM.
+
+function: experiments.cross_cutting.nlm_denoise.pipeline.denoise_nlm
+
+samples:
+  - manifest_path: datasets/tomography/low_dose/sinogram_lowdose_medium.npy
+    label: "Low-dose sinogram (medium, 50 ph/pix)"
+    role: noisy_input
+  - manifest_path: datasets/tomography/low_dose/sinogram_lowdose_severe.npy
+    label: "Low-dose sinogram (severe, 12 ph/pix)"
+    role: noisy_input
+  - manifest_path: datasets/cross_cutting/cosmic_rays/gmos.fits
+    label: "GMOS CCD frame (cosmic rays)"
+    role: noisy_input
+    description: "Compare against L.A.Cosmic — NLM doesn't *remove* cosmics, smooths around them"
+
+clean_reference:
+  manifest_path: datasets/tomography/low_dose/sinogram_clean.npy
+  label: "sinogram_clean.npy"
+
+parameters:
+  - name: h_factor
+    type: float
+    label: "Smoothing strength multiplier"
+    default: 1.0
+    min: 0.1
+    max: 5.0
+    step: 0.1
+    help: |
+      Multiplier on the auto-estimated noise σ. >1 smooths more
+      aggressively (kills more noise but blurs detail); <1 keeps
+      more texture.
+  - name: patch_size
+    type: int
+    label: "Patch size (px, odd)"
+    default: 5
+    min: 3
+    max: 11
+    step: 2
+    help: "Side length of the comparison patch. Smaller = finer detail; larger = stronger smoothing."
+  - name: patch_distance
+    type: int
+    label: "Search radius (px)"
+    default: 6
+    min: 3
+    max: 15
+    step: 1
+    help: "Patch search-window radius. Quadratic in cost; values >10 noticeably slow."
+
+metrics:
+  - psnr
+  - ssim
+
+references:
+  - title: "A non-local algorithm for image denoising"
+    authors: "Buades, A., Coll, B., Morel, J.-M."
+    year: 2005
+    venue: "CVPR 2005, 60-65"
+    doi: "10.1109/CVPR.2005.38"
+  - title: "Image denoising methods: A new non-local principle"
+    authors: "Buades, A., Coll, B., Morel, J.-M."
+    year: 2010
+    venue: "SIAM Review, 52(1), 113-147"
+    doi: "10.1137/090773908"

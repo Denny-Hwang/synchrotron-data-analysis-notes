@@ -1,0 +1,96 @@
+# Recipe — Wavelet Shrinkage (cross-cutting baseline)
+
+schema_version: 1
+
+recipe_id: wavelet_shrinkage_denoise
+title: "Wavelet Shrinkage Denoising — Donoho 1994"
+modality: cross_cutting
+noise_catalog_ref: 09_noise_catalog/cross_cutting/noise_estimation_methods.md
+
+problem: |
+  Generic high-frequency noise on a 2-D image — could be photon
+  counting, electronic readout, dark-current speckle. The user wants
+  a fast, parameter-light denoiser to compare against TV, NLM, and
+  bilateral.
+fix: |
+  Decompose with a Daubechies / Symlet wavelet, threshold the
+  high-frequency coefficients with BayesShrink (Chang 2000) or
+  VisuShrink (Donoho & Johnstone 1994), reconstruct. Sigma is
+  auto-estimated from the data so there's no user-side tuning needed
+  for typical cases.
+observe: |
+  Side-by-side with TV / NLM / bilateral on the same low-dose
+  sinogram, wavelet shrinkage is the fastest of the four and gives
+  competitive PSNR/SSIM. Edges are slightly less crisp than TV;
+  texture is preserved better than Gaussian.
+
+description: |
+  The textbook fast baseline for general-purpose denoising. Shares
+  the same algorithm as `low_dose_wavelet_denoise` but as a
+  cross-cutting recipe so users can apply it to any 2-D image (not
+  just the low-dose tomography samples) and compare against
+  TV / NLM / bilateral on identical input.
+
+function: experiments.cross_cutting.wavelet_denoise.pipeline.denoise_wavelet_generic
+
+samples:
+  - manifest_path: datasets/tomography/low_dose/sinogram_lowdose_medium.npy
+    label: "Low-dose sinogram (medium, 50 ph/pix)"
+    role: noisy_input
+  - manifest_path: datasets/tomography/low_dose/sinogram_lowdose_severe.npy
+    label: "Low-dose sinogram (severe, 12 ph/pix)"
+    role: noisy_input
+  - manifest_path: datasets/tomography/ring_artifact/all_stripe_types_sample1.tif
+    label: "Sarepy ring sinogram (all stripes)"
+    role: noisy_input
+  - manifest_path: datasets/cross_cutting/cosmic_rays/gmos.fits
+    label: "GMOS CCD frame (cosmic rays)"
+    role: noisy_input
+
+clean_reference:
+  manifest_path: datasets/tomography/low_dose/sinogram_clean.npy
+  label: "sinogram_clean.npy"
+
+parameters:
+  - name: method
+    type: select
+    label: "Shrinkage method"
+    default: BayesShrink
+    options: [BayesShrink, VisuShrink]
+    help: "BayesShrink is level-adaptive; VisuShrink uses the universal threshold."
+  - name: mode
+    type: select
+    label: "Threshold mode"
+    default: soft
+    options: [soft, hard]
+    help: "Soft is the standard Donoho choice; hard preserves edges but is unstable."
+  - name: wavelet
+    type: select
+    label: "Wavelet family"
+    default: sym8
+    options: [haar, db2, db5, db10, sym4, sym8, coif5]
+    help: "sym8 = Symmlet-8, well-balanced. db5 matches the ring-FFT recipe."
+  - name: levels
+    type: int
+    label: "Decomposition levels"
+    default: 4
+    min: 1
+    max: 6
+    step: 1
+    help: "Higher = noise on wider scales targeted; eats real low-frequency structure."
+
+metrics:
+  - psnr
+  - ssim
+
+references:
+  - title: "Ideal spatial adaptation by wavelet shrinkage"
+    authors: "Donoho, D. L., Johnstone, J. M."
+    year: 1994
+    venue: "Biometrika, 81(3), 425-455"
+    doi: "10.1093/biomet/81.3.425"
+  - title: "Adaptive wavelet thresholding for image denoising and compression"
+    authors: "Chang, S. G., Yu, B., Vetterli, M."
+    year: 2000
+    venue: "IEEE Trans. Image Proc., 9(9), 1532-1546"
+    doi: "10.1109/83.862633"

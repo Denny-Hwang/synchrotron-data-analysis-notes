@@ -1,0 +1,96 @@
+# Recipe — Beam Hardening Correction (Polynomial Linearisation)
+
+schema_version: 1
+
+recipe_id: beam_hardening_polynomial
+title: "Beam Hardening — Polynomial Linearisation (Krumm 2008)"
+modality: tomography
+noise_catalog_ref: 09_noise_catalog/tomography/streak_artifact.md
+
+problem: |
+  Polychromatic X-ray sources are not monoenergetic — soft photons
+  are preferentially absorbed by high-attenuation rays. The sinogram
+  loses its linear relationship with path length, and reconstruction
+  shows the **cupping artefact**: dark cup-shaped halos around
+  high-attenuation regions and bright streaks between them.
+fix: |
+  Calibrate a polynomial that maps the measured non-linear sinogram
+  back to a linear path-length proxy. The classical form is
+  `corrected = norm + a·norm² + b·norm³`. The bundled hardening
+  simulation uses a forward polynomial `norm + 0.35·norm² −
+  0.25·norm³`, so the inverse is around (`a≈-0.30`, `b≈+0.20`).
+observe: |
+  Tune `quad_coef` and `cubic_coef` until the |Δ| panel turns
+  largely uniform — that's the algorithm undoing the simulated
+  hardening. PSNR/SSIM against the clean reference should peak
+  near (`-0.30`, `+0.20`); anything else either over- or
+  under-corrects.
+
+description: |
+  Beam hardening is a fundamental physics artefact of polychromatic
+  imaging. The classical correction is a one-time per-material
+  calibration: scan a phantom of the same material at multiple
+  thicknesses, fit a polynomial that maps measured sinogram values
+  back to expected path lengths, then apply that polynomial to every
+  projection.
+
+  This recipe lets you experiment with the coefficient choice on a
+  bundled sample where the forward "hardening" was applied
+  deterministically, so the inverse is known. The exercise
+  illustrates **why per-material calibration matters** — the wrong
+  coefficients leave residual cupping or over-correct into
+  bright halos.
+
+function: experiments.tomography.beam_hardening.pipeline.correct_beam_hardening
+
+samples:
+  - manifest_path: datasets/tomography/beam_hardening/sinogram_hardened.npy
+    label: "Hardened sinogram (cupping-simulated)"
+    role: noisy_input
+    description: "Sarepy clean crop with cubic-polynomial hardening applied"
+  - manifest_path: datasets/tomography/beam_hardening/sinogram_clean.npy
+    label: "Clean reference (false-positive trap)"
+    role: false_positive_trap
+    description: "Apply correction to clean data — should NOT introduce a cup"
+
+clean_reference:
+  manifest_path: datasets/tomography/beam_hardening/sinogram_clean.npy
+  label: "sinogram_clean.npy"
+
+parameters:
+  - name: quad_coef
+    type: float
+    label: "Quadratic coefficient (a)"
+    default: -0.30
+    min: -1.0
+    max: 1.0
+    step: 0.01
+    help: |
+      Coefficient of the squared term. The bundled hardening uses
+      forward `+0.35`; the inverse is near `-0.30`.
+  - name: cubic_coef
+    type: float
+    label: "Cubic coefficient (b)"
+    default: 0.20
+    min: -1.0
+    max: 1.0
+    step: 0.01
+    help: |
+      Coefficient of the cubed term. The bundled hardening uses
+      forward `-0.25`; the inverse is near `+0.20`.
+
+metrics:
+  - psnr
+  - ssim
+
+references:
+  - title: "Reducing non-linear artifacts of multi-material objects in industrial 3D computed tomography"
+    authors: "Krumm, M., Kasperl, S., Franz, M."
+    year: 2008
+    venue: "NDT & E International, 41(4), 242-251"
+    doi: "10.1016/j.ndteint.2007.12.001"
+  - title: "Iterative Reconstruction Methods for Beam-Hardening Correction"
+    authors: "Joseph, P. M., Spital, R. D."
+    year: 1978
+    venue: "J. Comput. Assist. Tomogr., 2(1), 100-108"
+    doi: "10.1097/00004728-197801000-00017"
