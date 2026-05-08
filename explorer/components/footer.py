@@ -14,8 +14,13 @@ from datetime import datetime
 import streamlit as st
 
 
-def _get_last_updated() -> str:
-    """Get the last commit date from git, falling back to today's date.
+def _resolve_last_updated() -> str:
+    """Resolve last-updated date once at module import.
+
+    R13 Rec #2 — was previously called from ``render_footer`` on every
+    page render, which forks a ``git log`` process per Streamlit
+    re-run. Slider drags on the Lab triggered 30+ git forks per second.
+    Now computed once and cached as a module-level constant.
 
     Returns:
         ISO date string (YYYY-MM-DD).
@@ -34,6 +39,9 @@ def _get_last_updated() -> str:
     return datetime.now().strftime("%Y-%m-%d")
 
 
+_LAST_UPDATED = _resolve_last_updated()
+
+
 def render_footer() -> None:
     """Render the DOE acknowledgment footer.
 
@@ -43,7 +51,7 @@ def render_footer() -> None:
     - Links to APS, eBERlight, and the source repository
     - Last-updated timestamp from git
     """
-    last_updated = _get_last_updated()
+    last_updated = _LAST_UPDATED
 
     footer_html = f"""
     <div class="eberlight-footer">

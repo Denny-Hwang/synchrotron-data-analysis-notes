@@ -275,12 +275,18 @@ def load_sample(repo_root: Path, manifest_path: str) -> np.ndarray:
 # ---------------------------------------------------------------------------
 
 
+_RECIPE_FUNCTION_PREFIX = "experiments."
+
+
 def resolve_function(dotted_path: str) -> PipelineFn:
     """Import and return the function declared by a recipe.
 
     Args:
-        dotted_path: ``module.submodule.function`` string. Must have at
-            least one dot (i.e. include a module).
+        dotted_path: ``module.submodule.function`` string. Must start
+            with ``experiments.`` (R13 Rec #3 — security allow-list).
+            Without this restriction a contributor could ship a
+            ``recipe.yaml`` whose ``function: os.system`` would execute
+            on every Lab run; PR review is the only safety net otherwise.
 
     Returns:
         The resolved callable. Caller is responsible for ensuring it
@@ -288,13 +294,23 @@ def resolve_function(dotted_path: str) -> PipelineFn:
         here — duck-typed at run time).
 
     Raises:
-        ValueError: If ``dotted_path`` has no module component.
+        ValueError: If ``dotted_path`` has no module component or does
+            not target the ``experiments.`` namespace.
         ModuleNotFoundError: If the module cannot be imported.
         AttributeError: If the function does not exist in the module.
     """
     module_name, _, func_name = dotted_path.rpartition(".")
     if not module_name or not func_name:
         raise ValueError(f"Invalid function path: {dotted_path!r}")
+    if not (
+        module_name == _RECIPE_FUNCTION_PREFIX.rstrip(".")
+        or module_name.startswith(_RECIPE_FUNCTION_PREFIX)
+    ):
+        raise ValueError(
+            f"Recipe function {dotted_path!r} must live under the "
+            f"{_RECIPE_FUNCTION_PREFIX!r} namespace; arbitrary modules "
+            "are not allowed (R13 security allow-list)."
+        )
     module = importlib.import_module(module_name)
     return getattr(module, func_name)
 

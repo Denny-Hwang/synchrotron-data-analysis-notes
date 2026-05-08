@@ -15,7 +15,8 @@ astroscrappy>=1.1,<2.0
 pooch>=1.7,<2.0
 PyWavelets>=1.5,<2.0
 
-# --- Knowledge Graph (Phase R2): typed graph visualisation + matrices ---
-plotly>=5.18,<7.0
-networkx>=3.1,<4.0
+# --- Knowledge Graph + cluster compare-table ---
+# vis-network (R11 — replaces plotly+networkx from R2/R8) ships from a
+# CDN inside an iframe; no Python dependency. pandas is still needed
+# for the cluster compare-table dataframe and the KG matrices.
 pandas>=2.1,<3.0

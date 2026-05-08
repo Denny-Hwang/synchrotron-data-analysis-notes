@@ -85,6 +85,14 @@ def _query_param(name: str) -> str | None:
     return unquote(str(raw))
 
 
+# R13 Rec #2 — load_notes() walks 188 markdown files + parses YAML
+# every call. Without caching, every cluster-page nav re-pays 150-300ms.
+# ADR-002:36 mandated this; it just hadn't been wired up.
+@st.cache_resource(show_spinner=False)
+def _cached_notes(repo_root: Path) -> list[Note]:
+    return load_notes(repo_root)
+
+
 _RECENT_KEY = "_eberlight_recently_viewed"
 _RECENT_LIMIT = 8
 
@@ -515,7 +523,10 @@ def render_cluster_page(
 
     meta = CLUSTER_META[cluster_id]
 
-    all_notes = load_notes(repo_root)
+    # R13 Rec #2 — cache load_notes() so cluster navigation doesn't
+    # re-walk the full 188-file corpus + re-parse YAML on every nav.
+    # Repo-root path is hashable so Streamlit's cache key works.
+    all_notes = _cached_notes(repo_root)
     cluster_folders = set(get_folders_for_cluster(cluster_id))
     cluster_notes = [n for n in all_notes if n.folder in cluster_folders]
 

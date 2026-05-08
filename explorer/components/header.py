@@ -6,10 +6,16 @@ auto-discovered Streamlit multi-page entries under
 ``explorer/pages/``; the search box submits to ``/Search?q=…`` so
 users can drop into search from any page (FR-009).
 
+R13 Rec #4 — also emits the skip-to-main-content link as the first
+focusable element and the corresponding ``#main-content`` anchor
+right after the header, so every page that calls ``render_header()``
+gets WCAG 2.4.1 (Bypass Blocks) for free.
+
 Ref: DS-001 (design_system.md) — Header component spec.
 Ref: FR-001 — Landing page hero + search bar + cluster cards.
 Ref: FR-009 — Global search bar on every page.
 Ref: FR-011 — Header with site title and top navigation.
+Ref: FR-015 — Keyboard navigation; WCAG 2.4.1.
 """
 
 from __future__ import annotations
@@ -18,6 +24,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 import streamlit as st
+from lib.a11y import main_anchor_html, skip_link_html
 
 # Streamlit's auto-discovered page slug is derived from the filename
 # minus the leading "<digit>_". e.g. ``pages/1_Discover.py`` →
@@ -102,7 +109,11 @@ def render_header(
 
     search_html = _search_form_html(initial_query) if show_search else ""
 
+    # R13 Rec #4 — emit the WCAG-mandated skip link as the very first
+    # focusable element on the page, then the header, then the
+    # ``#main-content`` anchor that the skip link jumps to.
     header_html = f"""
+    {skip_link_html()}
     <div class="eberlight-header">
         <div class="eberlight-header-brand">
             {home_link_open}
@@ -115,6 +126,7 @@ def render_header(
         </nav>
         {search_html}
     </div>
+    {main_anchor_html()}
     """
     st.markdown(header_html, unsafe_allow_html=True)
 

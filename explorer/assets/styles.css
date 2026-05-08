@@ -11,6 +11,35 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
     scroll-margin-top: 72px;
 }
 
+/* WCAG 2.4.1 — Skip-to-main-content link (R13 Rec #4). Visually
+   hidden until the user tabs into it; first focusable element on
+   every page. */
+.eberlight-skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 8px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    background: #0033A0;
+    color: #FFFFFF;
+    padding: 10px 18px;
+    border-radius: 6px;
+    z-index: 9999;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.eberlight-skip-link:focus,
+.eberlight-skip-link:focus-visible {
+    left: 12px;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    outline: 3px solid #FFFFFF;
+    outline-offset: 2px;
+}
+
 /* === Header === */
 .eberlight-header {
     display: flex;

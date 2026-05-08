@@ -111,13 +111,47 @@ def test_load_recipes_skips_invalid(tmp_path: Path, caplog: pytest.LogCaptureFix
 
 
 def test_resolve_function_dotted_path() -> None:
-    func = resolve_function("numpy.zeros")
+    """A function inside the ``experiments.`` namespace resolves cleanly."""
+    func = resolve_function(
+        "experiments.tomography.ring_artifact.pipeline.remove_stripe_based_sorting"
+    )
     assert callable(func)
 
 
 def test_resolve_function_invalid_path() -> None:
     with pytest.raises(ValueError, match="Invalid function path"):
         resolve_function("not_a_dotted_path")
+
+
+def test_resolve_function_rejects_non_experiments_namespace() -> None:
+    """R13 Rec #3 — security allow-list rejects anything outside experiments.*
+
+    Without this, a malicious or sloppy ``recipe.yaml`` could declare
+    ``function: os.system`` and execute arbitrary commands on Lab run.
+    """
+    forbidden = [
+        "os.system",
+        "subprocess.run",
+        "shutil.rmtree",
+        "numpy.zeros",  # legitimate library, but not an experiment pipeline
+        "builtins.eval",
+    ]
+    for path in forbidden:
+        with pytest.raises(ValueError, match="must live under"):
+            resolve_function(path)
+
+
+def test_resolve_function_accepts_experiments_subpackages() -> None:
+    """All bundled recipes must continue to resolve."""
+    valid = [
+        "experiments.tomography.ring_artifact.pipeline.remove_stripe_based_sorting",
+        ("experiments.cross_cutting.cosmic_ray_lacosmic.pipeline.detect_cosmics_lacosmic"),
+        "experiments.tomography.flatfield_correction.pipeline.correct_flatfield",
+        "experiments.cross_cutting.gaussian_denoise.pipeline.denoise_classical",
+    ]
+    for path in valid:
+        func = resolve_function(path)
+        assert callable(func), f"{path} must remain callable"
 
 
 def test_run_pipeline_invokes_function(tmp_path: Path) -> None:
@@ -130,7 +164,7 @@ def test_run_pipeline_invokes_function(tmp_path: Path) -> None:
             recipe_id: r
             title: T
             modality: tomography
-            function: tests.test_experiments._add_scalar
+            function: experiments._test_helpers._add_scalar
             samples:
               - {manifest_path: a.npy, label: A}
             parameters:
@@ -222,7 +256,7 @@ def _write_recipe_with_params(path: Path, params_yaml: str) -> None:
             recipe_id: r
             title: T
             modality: tomography
-            function: tests.test_experiments._add_scalar
+            function: experiments._test_helpers._add_scalar
             samples:
               - {{manifest_path: a.npy, label: A}}
             parameters:
