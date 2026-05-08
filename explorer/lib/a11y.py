@@ -106,12 +106,19 @@ def skip_link_html(target_id: str = "main-content") -> str:
     """Skip-to-main-content link rendered as the very first focusable element.
 
     Hidden until the user tabs into it; this is the WCAG 2.4.1
-    "Bypass Blocks" requirement.
+    "Bypass Blocks" requirement. The reveal-on-focus styling is in
+    ``explorer/assets/styles.css`` (``.eberlight-skip-link``) so an
+    inline ``style=`` attribute doesn't have to fake a ``:focus``
+    pseudo-class.
     """
-    return (
-        f'<a href="#{target_id}" class="eberlight-skip-link" '
-        'style="position:absolute;left:-9999px;top:auto;width:1px;'
-        "height:1px;overflow:hidden;background:#0033A0;color:#FFFFFF;"
-        'padding:8px 16px;border-radius:4px;z-index:1000;">'
-        "Skip to main content</a>"
-    )
+    return f'<a href="#{target_id}" class="eberlight-skip-link">Skip to main content</a>'
+
+
+def main_anchor_html(target_id: str = "main-content") -> str:
+    """The invisible target the skip-link jumps to.
+
+    Streamlit doesn't easily let us wrap the entire page body in a
+    single ``<main>`` tag, so we drop a focusable anchor right after
+    the header. Pairs with :func:`skip_link_html`.
+    """
+    return f'<a id="{target_id}" tabindex="-1" aria-hidden="true"></a>'

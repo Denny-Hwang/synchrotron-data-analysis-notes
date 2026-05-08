@@ -196,6 +196,46 @@ def test_skip_link_target_is_overridable() -> None:
     assert 'href="#custom-target"' in out
 
 
+def test_skip_link_uses_class_not_inline_position() -> None:
+    """R13 Rec #4 — reveal-on-focus styling lives in styles.css now,
+    so the inline ``style=`` attribute can't fake a ``:focus``
+    pseudo-class. The skip link must carry the class hook."""
+    out = skip_link_html()
+    assert "eberlight-skip-link" in out
+
+
+def test_main_anchor_exists() -> None:
+    """R13 Rec #4 — the anchor the skip-link jumps to."""
+    from lib.a11y import main_anchor_html
+
+    out = main_anchor_html()
+    assert 'id="main-content"' in out
+    # Off-screen tabindex so it accepts focus but no visual ring.
+    assert 'tabindex="-1"' in out
+
+
+def test_render_header_emits_skip_link_and_main_anchor(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """R13 Rec #4 — every page that calls ``render_header()`` must
+    inherit the skip-to-main-content link + the ``#main-content``
+    anchor without any per-page wiring."""
+    captured: list[str] = []
+
+    def _fake_markdown(html: str, *, unsafe_allow_html: bool = False) -> None:
+        captured.append(html)
+
+    import streamlit as st
+
+    monkeypatch.setattr(st, "markdown", _fake_markdown)
+    from components.header import render_header
+
+    render_header()
+    blob = "\n".join(captured)
+    assert "eberlight-skip-link" in blob
+    assert 'id="main-content"' in blob
+
+
 # ---------------------------------------------------------------------------
 # Token consistency — the values declared in this test file must agree
 # with the design-system tokens shipped in lib/ia.py and

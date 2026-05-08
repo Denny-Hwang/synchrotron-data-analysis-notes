@@ -6,6 +6,47 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [explorer-0.7.2] - 2026-05-08
+
+**Phase R13 — senior-engineer review acted on (perf + a11y + security).**
+Patch release; no user-facing surface changes. Release notes:
+[REL-E072](docs/05_release/release_notes/explorer-v0.7.2.md).
+
+### Fixed / Added (top 4 of the 12-item review)
+- **Rec #1** Dropped dead deps `plotly` + `networkx` from
+  `explorer/requirements.txt`. R11 swapped them for vis.js but the
+  packages stayed for two more releases (~30 MB cold-start tax).
+  New `tests/test_dead_deps.py` is the drift catcher.
+- **Rec #2** Performance: `lib/cluster_page.py` now wraps
+  `load_notes()` in `@st.cache_resource` (was uncached — 188-file
+  walk on every cluster nav, 150–300 ms each). `components/footer.py`
+  resolves the git-log date once at module import (was forking
+  `git log` on every render — 30+ forks/sec during slider drags).
+- **Rec #3** Security: `lib/experiments.py::resolve_function` now
+  rejects any `function:` path that doesn't start with
+  `experiments.`. Without this, a recipe could declare
+  `function: os.system` and execute arbitrary commands. Added
+  `experiments/_test_helpers.py` so test fixtures stay legitimate.
+- **Rec #4** Accessibility (WCAG 2.4.1): the existing-but-unused
+  `lib/a11y.py::skip_link_html` is now emitted by
+  `components/header.py::render_header` as the very first focusable
+  element on every page, with a paired `<a id="main-content"
+  tabindex="-1">` anchor right after the header. Reveal-on-focus
+  styling moved out of inline `style=` (which can't fake `:focus`)
+  into a proper `.eberlight-skip-link` CSS class.
+
+### Tests
+- 271 passed (was 264 in R12).
+- 7 new tests across the 4 fixes; 2 existing tests updated to use
+  bundled recipe functions instead of `numpy.zeros` (now blocked
+  by the security allow-list).
+
+### Roadmap
+8 remaining review items (SRI, hero copy, compare-table pagination,
+shared markdown_render lib, IA decision on header nav, e2e
+`streamlit.testing.AppTest`, friendly Lab error UX) tracked in
+[REL-E072](docs/05_release/release_notes/explorer-v0.7.2.md#roadmap--remaining-recommendations-from-the-review).
+
 ## [explorer-0.7.1] - 2026-05-08
 
 **Phase R12 — four-bug bugfix release** based on a real-user review

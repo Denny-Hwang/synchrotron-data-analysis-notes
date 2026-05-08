@@ -6,7 +6,7 @@ Photon Source (APS). Written so a beamline scientist, a new BER user, or a
 computational researcher can each find what they need from the same corpus.
 
 ![notes-v0.10.0](https://img.shields.io/badge/notes-v0.10.0-blue)
-![explorer-v0.7.1](https://img.shields.io/badge/explorer-v0.7.1-green)
+![explorer-v0.7.2](https://img.shields.io/badge/explorer-v0.7.2-green)
 [![tests](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml)
 [![pages](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml)
 ![license: MIT](https://img.shields.io/badge/license-MIT-lightgrey)
