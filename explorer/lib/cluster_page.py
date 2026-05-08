@@ -345,7 +345,21 @@ def _render_note_detail(
     from lib import detail_level as _dl
 
     cluster_meta = CLUSTER_META[cluster_id]
-    body_for_level = _dl.render(level, note.body)
+    # R14 — L3 (Source) renders the raw markdown directly via
+    # ``st.code(language="markdown")`` instead of round-tripping through
+    # ``_md_to_html``. The previous path wrapped the body in a
+    # ```markdown fence and then asked Streamlit to render the wrapped
+    # markdown as HTML; the resulting ``<pre><code>`` tree triggered
+    # the same React code-block stringification bug that produced
+    # ``[object Object]`` rows on every page that contained a code
+    # block. We now pass the raw body through ``raw_source`` for L3
+    # and let ``_md_to_html`` handle L0/L1/L2 normally.
+    if level == "L3":
+        body_for_level = ""  # not used; raw_source=note.body drives the view
+        raw_source = note.body
+    else:
+        body_for_level = _dl.render(level, note.body)
+        raw_source = None
 
     publication_links: list[tuple[str, str | None]] | None = None
     tool_links: list[tuple[str, str | None]] | None = None
@@ -435,6 +449,7 @@ def _render_note_detail(
         metrics=metrics,
         section_tabs=section_tabs,
         last_reviewed=note.last_reviewed,
+        raw_source=raw_source,
     )
 
 

@@ -8,7 +8,7 @@ This project uses two independent SemVer streams per ADR-006:
 
 ## [explorer-0.7.3] - 2026-05-08
 
-**Phase R14 — header HTML-leak hotfix + Interactive Lab content expansion.**
+**Phase R14 — three rendering hotfixes + Interactive Lab content expansion.**
 Patch release. Release notes:
 [REL-E073](docs/05_release/release_notes/explorer-v0.7.3.md).
 
@@ -23,6 +23,41 @@ Patch release. Release notes:
   `</div>` and `<a id="main-content">` as inline HTML inside markdown
   context and rendered them as text. Fixed by collapsing the header
   markup into a single logical line.
+- **`[object Object]` in every code block.** Streamlit's React
+  frontend routes any `<pre><code>` HTML inside
+  `st.markdown(unsafe_allow_html=True)` to its native `stCode`
+  component, which expects a *string* child. The legacy
+  `note_view._md_to_html` ran `codehilite`, which produced a tree of
+  `<span class="kn">…</span>` Pygments tokens for every Python /
+  shell / YAML block; React stringified those non-text DOM children
+  as the literal text `[object Object]`. **Every code block in every
+  note** showed this corruption, plus the entire L3 (Source) detail
+  level was 100% `[object Object]` rows. Fixed by dropping
+  `codehilite` from the Streamlit-side `_md_to_html` (the static-site
+  mirror keeps it; no React in the middle there) and routing L3
+  straight to `st.code(body, language="markdown")` instead of
+  round-tripping through markdown rendering. Streamlit's native code
+  component handles syntax highlighting via Prism.js. Verified
+  end-to-end with playwright.
+- **vis.js Knowledge-Graph tooltips showed literal `<b>…</b>` text.**
+  vis-network 9.x renders `node.title` strings via
+  `document.createTextNode`, which escapes HTML markup. Fixed by
+  converting each title HTML string to a real `HTMLElement`
+  client-side in the iframe JS (via `innerHTML` on a styled wrapper
+  div) before vis.js sees it. A `titleHtml` indirection survives the
+  `JSON.parse(JSON.stringify(...))` deep-clone the layout-mode
+  switcher uses.
+
+### Added — regression tests
+- `test_md_to_html_does_not_emit_pygments_class_spans`,
+  `test_md_to_html_emits_language_class_for_prism`,
+  `test_render_body_with_mermaid_signature_no_highlight_css` guard
+  against re-introducing codehilite on the Streamlit side.
+- `test_visjs_graph_converts_title_to_html_element`,
+  `test_visjs_graph_no_title_means_no_tooltip_object` guard against
+  the vis.js `htmlToElement` shim being removed.
+
+Test-suite total: 279 → **284** passing (+5 regression tests).
 
 ### Added — three user-requested case studies
 - **Ring artifact on neutron CT** (`ring_artifact_neutron_ct`) — Vo

@@ -10,27 +10,55 @@ related: [REL-E072, REL-N100]
 
 # Release Notes — explorer-v0.7.3
 
-**Phase R14 — header HTML-leak hotfix + Interactive Lab content expansion.**
+**Phase R14 — three rendering hotfixes + Interactive Lab content expansion.**
 
 ## Summary
 
-Two-part release:
+Four-part release:
 
-1. **Hotfix**: a CommonMark whitespace-only-line bug in
-   `components/header.py` was leaking the closing `</div>` and the
-   `#main-content` skip-link anchor into the header bar as visible
-   raw HTML text on every page. Fixed by collapsing the header
-   markup into a single logical line so Streamlit's mistune renderer
-   no longer terminates the HTML block early.
+1. **Hotfix #1 — header HTML leak.** A CommonMark whitespace-only-line
+   bug in `components/header.py` was leaking the closing `</div>` and
+   the `#main-content` skip-link anchor into the header bar as visible
+   raw HTML text on every page. Fixed by collapsing the header markup
+   into a single logical line so Streamlit's mistune renderer no
+   longer terminates the HTML block early.
 
-2. **Lab content expansion**: nine new recipes + four new bundled
+2. **Hotfix #2 — `[object Object]` leak in every code block.**
+   Streamlit's React frontend detects `<pre><code>` HTML inside
+   `st.markdown(unsafe_allow_html=True)` and routes it to its native
+   `stCode` component, which expects a *string* child. The legacy
+   `_md_to_html` ran `codehilite` on every fenced code block,
+   producing a tree of `<span class="kn">…</span>` Pygments tokens;
+   React stringified those non-text children as the literal text
+   `[object Object]`. **Every Python / shell / YAML code block in
+   every note** showed this corruption, plus the entire L3 (Source)
+   detail level. Dropping `codehilite` from the Streamlit-side
+   `_md_to_html` (the static-site mirror keeps it; no React in the
+   middle there) reverted code blocks to plain `<pre><code
+   class="language-X">…</code></pre>`, which Streamlit's native
+   component highlights via Prism.js and renders correctly. L3 now
+   bypasses `_md_to_html` entirely and goes straight to
+   `st.code(body, language="markdown")` — the natural fit for a
+   "show me the raw source" view.
+
+3. **Hotfix #3 — vis.js tooltips rendered HTML as text.**
+   vis-network 9.x renders `node.title` strings via
+   `document.createTextNode`, which escapes `<b>…</b>` / `<br>`
+   markup so users see the raw tags as text in the Knowledge Graph
+   tooltip. The component now converts each title HTML string to an
+   actual `HTMLElement` client-side (via `innerHTML` on a wrapper
+   div); a `titleHtml` indirection survives the
+   `JSON.parse(JSON.stringify(...))` deep-clone the
+   layout-mode-switcher uses to reset positions.
+
+4. **Lab content expansion**: nine new recipes + four new bundled
    datasets (~9 MB total). The Lab now ships **14 recipes** (up
    from 5) covering the three case studies the user-feedback round
    asked for — neutron-CT ring artifacts, low-dose / photon-counting
    denoising, and 2-D phase unwrapping — plus six additional
    workhorse denoisers and a beam-hardening correction.
 
-## Hotfix — header HTML leak
+## Hotfix #1 — header HTML leak
 
 ### Symptom
 
@@ -59,6 +87,112 @@ Experiment, Troubleshooter, Search, Knowledge Graph, landing).
 
 Static-site mirror (`scripts/build_static_site.py`) was unaffected
 because it writes literal HTML, not markdown — no fix needed there.
+
+## Hotfix #2 — `[object Object]` in every code block
+
+### Symptom
+
+`[object Object],[object Object],[object Object],…` appeared in
+**every** Python / shell / YAML / mermaid code block on **every
+note**, plus the entire L3 (Source) detail level showed nothing but
+this text. Reproducible on Streamlit 1.57 (and likely back to 1.32
+when the React markdown rewrite landed).
+
+### Root cause
+
+Streamlit's React frontend looks for `<pre><code>` HTML inside
+`st.markdown(unsafe_allow_html=True)` and routes that subtree to its
+native `stCode` component (visible in the DOM as
+`data-testid="stCode"`). `stCode` expects a **string** child — that's
+what its Prism.js highlighter operates on.
+
+The legacy `note_view._md_to_html` ran the markdown library with
+`codehilite` enabled, which delegates to Pygments. Pygments turns a
+Python code block into a tree of `<span class="kn">import</span>
+<span class="nn">numpy</span>…` tokens. When React received that
+non-string child tree, it did the only fallback it knows: it called
+`String(child)` on each node, producing `[object Object]` — the
+default string form of a JS object.
+
+The L3 path was even worse: `render_l3` wraps the body in
+`` ```markdown ``` `` and routed *that* through `_md_to_html`, which
+then ran codehilite on the markdown-as-source. The L3 view of a
+typical note was 100% Pygments span tree → 100% `[object Object]`.
+
+### Verified with playwright
+
+```text
+<div class="stCode" data-testid="stCode">
+  <pre><div ...><code>
+    <span>[object Object],</span>,[object Object],
+    ,[object Object],[object Object],…
+  </code></div></pre>
+</div>
+```
+
+### Fix
+
+**Streamlit-side `_md_to_html` no longer enables `codehilite`.** The
+fenced-code extension now emits plain
+`<pre><code class="language-python">raw source as text</code></pre>`,
+which Streamlit's `stCode` correctly highlights via Prism.js
+on its own.
+
+**L3 (Source) bypasses `_md_to_html` entirely.** A new `raw_source`
+parameter on `render_note_view` routes the raw markdown body straight
+to `st.code(body, language="markdown")` — Streamlit's natural fit
+for "show the raw source as a code block".
+
+**The static-site mirror keeps `codehilite`.** No React in the
+middle there; the Pygments span tree renders normally in any
+browser, and the static site has Pygments-based syntax highlighting
+the user explicitly asked for.
+
+### Regression tests
+
+- `test_md_to_html_does_not_emit_pygments_class_spans` — fires if a
+  future change re-introduces codehilite.
+- `test_md_to_html_emits_language_class_for_prism` — ensures
+  `class="language-X"` survives so Prism.js still has a highlight key.
+- `test_render_body_with_mermaid_signature_no_highlight_css` —
+  guards against re-introducing the `highlight_css` pipeline that
+  only existed to style codehilite output.
+
+## Hotfix #3 — vis.js Knowledge-Graph tooltips showed raw `<b>…</b>` text
+
+### Symptom
+
+Hovering a node in the Knowledge Graph displayed
+`<b>Electron Microscopy</b><br><i>modality</i>` as **literal text**
+in the tooltip popup, including the angle brackets, instead of the
+intended bold-and-italic two-line layout.
+
+### Root cause
+
+vis-network 9.x renders the `title` field with
+`document.createTextNode(title)`, which intentionally escapes HTML.
+The library only renders HTML when the caller passes an actual
+`HTMLElement` instance, not a string.
+
+### Fix
+
+`components/visjs_graph.py` now ships an `htmlToElement(html)` helper
+in the iframe JS that wraps each title's HTML string into a styled
+`<div>` (via `innerHTML`, safe because the supply chain is
+Python → JSON → this iframe). The HTMLElement is built per-network
+inside `createNetwork(...)` so each layout-mode switch (force /
+hierarchy / freeze) gets a fresh DOM node owned by that vis instance
+— `JSON.parse(JSON.stringify(nodeList))` would otherwise replace any
+`HTMLElement` with `{}` and lose the tooltip. The original HTML
+string is stashed on a `titleHtml` property that survives the JSON
+round-trip.
+
+### Regression tests
+
+- `test_visjs_graph_converts_title_to_html_element` — fires if the
+  iframe JS no longer contains `htmlToElement` + `titleHtml`.
+- `test_visjs_graph_no_title_means_no_tooltip_object` — ensures the
+  conversion guards against undefined `titleHtml`.
 
 ## Lab content — three user-requested case studies
 

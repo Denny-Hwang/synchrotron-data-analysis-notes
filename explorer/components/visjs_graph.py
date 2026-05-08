@@ -184,8 +184,37 @@ def render_visjs_graph(
     var nodeList = {nodes_json};
     var edgeList = {edges_json};
     var originalColors = {{}};
+
+    // R14 — vis-network 9.x renders ``node.title`` strings via
+    // ``document.createTextNode``, which escapes ``<b>…</b>`` /
+    // ``<br>`` markup so users see the raw tags as text. To get
+    // formatted tooltips we must hand vis.js an actual
+    // ``HTMLElement``. The ``title`` strings come from our own
+    // Python code (Knowledge Graph entity metadata), not from user
+    // input, so ``innerHTML`` is safe here — the supply chain is
+    // Python → JSON → this iframe.
+    //
+    // We keep the raw HTML on a separate ``titleHtml`` property so
+    // ``JSON.parse(JSON.stringify(nodeList))`` (used by
+    // ``createNetwork`` to deep-clone fresh DataSet rows) doesn't
+    // drop the tooltip — ``JSON.stringify`` on an ``HTMLElement``
+    // returns ``{{}}``. The actual ``title`` HTMLElement is built per
+    // dataset row inside ``createNetwork`` so each rebuild gets a
+    // fresh DOM node owned by that vis instance.
+    function htmlToElement(html) {{
+        var wrap = document.createElement('div');
+        wrap.style.fontFamily = "'Source Sans 3', system-ui, sans-serif";
+        wrap.style.fontSize = "12px";
+        wrap.style.lineHeight = "1.45";
+        wrap.style.maxWidth = "320px";
+        wrap.innerHTML = html;
+        return wrap;
+    }}
     nodeList.forEach(function(n) {{
         originalColors[n.id] = JSON.parse(JSON.stringify(n.color));
+        if (typeof n.title === 'string' && n.title.length) {{
+            n.titleHtml = n.title;
+        }}
     }});
 
     var container = document.getElementById('graph');
@@ -238,7 +267,17 @@ def render_visjs_graph(
     function createNetwork(mode) {{
         if (network) {{ network.destroy(); network = null; }}
         var fresh = JSON.parse(JSON.stringify(nodeList));
-        fresh.forEach(function(n) {{ delete n.x; delete n.y; }});
+        fresh.forEach(function(n) {{
+            delete n.x;
+            delete n.y;
+            // Build a fresh HTMLElement tooltip per network rebuild;
+            // a previous instance may have detached / consumed it.
+            if (n.titleHtml) {{
+                n.title = htmlToElement(n.titleHtml);
+            }} else {{
+                delete n.title;
+            }}
+        }});
         var nodesDS = new vis.DataSet(fresh);
         var edgesDS = new vis.DataSet(JSON.parse(JSON.stringify(edgeList)));
         network = new vis.Network(

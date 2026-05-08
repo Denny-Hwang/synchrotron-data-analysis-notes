@@ -23,7 +23,6 @@ import re
 import markdown
 import streamlit as st
 import streamlit.components.v1 as components
-from pygments.formatters import HtmlFormatter
 
 from .breadcrumb import render_breadcrumb
 
@@ -37,26 +36,29 @@ _MERMAID_BLOCK = re.compile(
 
 
 def _md_to_html(body: str) -> str:
-    """Render markdown to HTML using the same extensions as the static site.
+    """Render markdown to HTML for the Streamlit note view.
 
-    ``codehilite`` is configured with ``guess_lang=False`` so an
-    unlabeled fenced code block renders as plain ``<pre><code>`` rather
-    than getting routed through Pygments' lexer guesser. The guesser
-    likes to call boxed ASCII tree diagrams (``├──`` / ``│``) and
-    HDF5 schema listings JavaScript, then emits a dense
-    ``<span class="nx">`` soup that Streamlit's React layer collapses
-    to ``[object Object]`` rows. R11 I1.
+    **Why no ``codehilite`` extension here.** Streamlit's React frontend
+    detects ``<pre><code>`` HTML inside ``st.markdown(unsafe_allow_html=
+    True)`` and routes it to its native ``stCode`` component, which
+    expects a *string* child. With ``codehilite`` enabled the code block
+    becomes a tree of ``<span class="kn">…</span>`` Pygments tokens;
+    those non-text DOM children end up stringified by React as the
+    literal text ``[object Object]``, which is what users were seeing
+    inside every Python / shell / YAML code block (R14 hotfix).
+
+    The static-site mirror in ``scripts/build_static_site.py`` keeps
+    ``codehilite`` because it writes raw HTML files (no React in the
+    middle), so the Pygments span tree renders normally there.
+
+    Streamlit's built-in code block component already does syntax
+    highlighting via Prism.js, keyed on the ``class="language-XYZ"``
+    attribute that ``fenced_code`` emits — so dropping ``codehilite``
+    here costs nothing visually and fixes the rendering bug.
     """
     return markdown.markdown(
         body,
-        extensions=["fenced_code", "tables", "toc", "codehilite"],
-        extension_configs={
-            "codehilite": {
-                "css_class": "highlight",
-                "linenums": False,
-                "guess_lang": False,
-            }
-        },
+        extensions=["fenced_code", "tables", "toc"],
     )
 
 
@@ -94,33 +96,35 @@ def _render_mermaid_iframe(code: str, height: int = 480) -> None:
     components.html(html, height=height, scrolling=True)
 
 
-def _render_body_with_mermaid(body: str, highlight_css: str) -> None:
+def _render_body_with_mermaid(body: str) -> None:
     """Render markdown, splitting out ``‌```mermaid`` blocks into iframes.
 
     Walks through the body emitting alternating segments: a normal
     markdown segment via ``st.markdown(...)``, then a Mermaid
     component, then the next markdown segment, etc. The fast path
     (no Mermaid blocks) is a single ``st.markdown`` call.
+
+    R14 — no longer takes a ``highlight_css`` argument because
+    ``_md_to_html`` no longer emits Pygments class spans (see its
+    docstring for why). Streamlit's native code-block component
+    handles syntax highlighting on its own.
     """
     matches = list(_MERMAID_BLOCK.finditer(body))
     if not matches:
-        html = _md_to_html(body)
-        st.markdown(f"<style>{highlight_css}</style>{html}", unsafe_allow_html=True)
+        st.markdown(_md_to_html(body), unsafe_allow_html=True)
         return
 
     last_end = 0
     for match in matches:
         if match.start() > last_end:
             seg = body[last_end : match.start()]
-            html = _md_to_html(seg)
-            st.markdown(f"<style>{highlight_css}</style>{html}", unsafe_allow_html=True)
+            st.markdown(_md_to_html(seg), unsafe_allow_html=True)
         _render_mermaid_iframe(match.group("code").strip())
         last_end = match.end()
 
     if last_end < len(body):
         seg = body[last_end:]
-        html = _md_to_html(seg)
-        st.markdown(f"<style>{highlight_css}</style>{html}", unsafe_allow_html=True)
+        st.markdown(_md_to_html(seg), unsafe_allow_html=True)
 
 
 def render_note_view(
@@ -144,6 +148,7 @@ def render_note_view(
     metrics: list[tuple[str, str]] | None = None,
     section_tabs: list[tuple[str, str]] | None = None,
     last_reviewed: str | None = None,
+    raw_source: str | None = None,
 ) -> None:
     """Render a full note detail view with metadata panel.
 
@@ -193,13 +198,18 @@ def render_note_view(
         if metrics:
             _render_metric_row(metrics)
 
-        # Render markdown with code highlighting + inline Mermaid blocks.
-        formatter = HtmlFormatter(style="monokai", noclasses=True)
-        highlight_css = formatter.get_style_defs(".highlight")
-        if section_tabs:
-            _render_section_tabs(section_tabs, highlight_css)
+        # R14 — L3 (Source) renders the raw markdown as a single
+        # ``st.code`` block. Going through ``_md_to_html`` for L3
+        # forces the wrapped ```markdown ... ``` fence through
+        # Streamlit's React code-block, which collapses the Pygments
+        # span tree to ``[object Object]`` rows. The dedicated
+        # ``raw_source`` argument lets the caller bypass that path.
+        if raw_source is not None:
+            st.code(raw_source, language="markdown")
+        elif section_tabs:
+            _render_section_tabs(section_tabs)
         else:
-            _render_body_with_mermaid(body, highlight_css)
+            _render_body_with_mermaid(body)
 
         if notebooks:
             _render_notebooks_section(notebooks)
@@ -238,7 +248,7 @@ def _render_metric_row(metrics: list[tuple[str, str]]) -> None:
         col.metric(label=label, value=value)
 
 
-def _render_section_tabs(sections: list[tuple[str, str]], highlight_css: str) -> None:
+def _render_section_tabs(sections: list[tuple[str, str]]) -> None:
     """Render an H2-section-per-tab view of the body.
 
     Reproduces the legacy Publications page L2 UX where Background,
@@ -248,8 +258,9 @@ def _render_section_tabs(sections: list[tuple[str, str]], highlight_css: str) ->
 
     R10 P1-4: each tab routes through ``_render_body_with_mermaid`` so
     Mermaid blocks inside a section render as live diagrams instead of
-    plain code listings (the previous direct ``_md_to_html`` path lost
-    the diagrams).
+    plain code listings.
+
+    R14 — no longer takes ``highlight_css`` (see ``_md_to_html``).
     """
     if not sections:
         return
@@ -261,7 +272,7 @@ def _render_section_tabs(sections: list[tuple[str, str]], highlight_css: str) ->
             if not text:
                 st.caption("(empty section)")
                 continue
-            _render_body_with_mermaid(text, highlight_css)
+            _render_body_with_mermaid(text)
 
 
 def _render_permalink_button(url: str) -> None:
