@@ -1,0 +1,96 @@
+# Recipe — Total Variation Denoising (Chambolle 2004)
+
+schema_version: 1
+
+recipe_id: tv_chambolle_denoise
+title: "Total Variation Denoising — Chambolle (2004)"
+modality: cross_cutting
+noise_catalog_ref: 09_noise_catalog/cross_cutting/noise_estimation_methods.md
+
+problem: |
+  Photon-counting noise smears every projection. The two classical
+  baselines — Gaussian blur, median filter — both **soften edges**.
+  When the sample boundary or grain structure is the feature you
+  care about, you can't afford that.
+fix: |
+  Total-Variation minimisation (Chambolle 2004) penalises the L1 of
+  the gradient: smooth regions stay smooth, but **sharp edges are
+  preserved** because the L1 norm doesn't grow when an edge is
+  already steep. The weight slider controls the smoothness/contrast
+  trade-off.
+observe: |
+  Compared to Gaussian blur, TV-denoised output keeps sharp edges
+  but flattens nearby small-amplitude texture (the so-called
+  "staircasing" effect — the algorithm prefers piecewise-constant
+  regions). PSNR/SSIM should improve over Gaussian on the low-dose
+  samples; stair-steps may show up if the weight is too high.
+
+description: |
+  The standard edge-preserving denoiser. TV minimisation finds the
+  image that minimises ``|y − x|² + weight · |∇x|₁`` — the L1
+  gradient term forces flat regions while leaving sharp edges
+  untouched. In synchrotron pipelines TV is the workhorse when a
+  learned model is unavailable.
+
+  Compare against `gaussian_denoise_baseline` on the same samples
+  to see why TV exists: Gaussian blurs every edge equally, TV keeps
+  the sample/air boundary intact while still suppressing background
+  speckle.
+
+function: experiments.cross_cutting.tv_denoise.pipeline.denoise_tv
+
+samples:
+  - manifest_path: datasets/tomography/low_dose/sinogram_lowdose_severe.npy
+    label: "Low-dose sinogram (severe, 12 ph/pix)"
+    role: noisy_input
+    description: "TomoGAN-regime severe low-dose"
+  - manifest_path: datasets/tomography/low_dose/sinogram_lowdose_medium.npy
+    label: "Low-dose sinogram (medium, 50 ph/pix)"
+    role: noisy_input
+  - manifest_path: datasets/tomography/ring_artifact/all_stripe_types_sample1.tif
+    label: "Sarepy ring sinogram (all stripes)"
+    role: noisy_input
+  - manifest_path: datasets/cross_cutting/cosmic_rays/gmos.fits
+    label: "GMOS CCD frame (cosmic rays)"
+    role: noisy_input
+    description: "TV vs L.A.Cosmic — TV smears cosmics, doesn't catch them"
+
+clean_reference:
+  manifest_path: datasets/tomography/low_dose/sinogram_clean.npy
+  label: "sinogram_clean.npy (low-dose reference)"
+
+parameters:
+  - name: weight
+    type: float
+    label: "TV weight"
+    default: 0.1
+    min: 0.005
+    max: 1.0
+    step: 0.005
+    help: |
+      Larger = smoother / more edges preserved at the cost of contrast
+      loss; smaller = closer to the original. Useful range 0.05-0.5.
+  - name: max_iter
+    type: int
+    label: "Max iterations"
+    default: 200
+    min: 50
+    max: 1000
+    step: 50
+    help: "Optimisation iteration cap. 200 is plenty for typical sinograms."
+
+metrics:
+  - psnr
+  - ssim
+
+references:
+  - title: "An algorithm for total variation minimization and applications"
+    authors: "Chambolle, A."
+    year: 2004
+    venue: "J. Math. Imaging Vis., 20(1-2), 89-97"
+    doi: "10.1023/B:JMIV.0000011321.19549.88"
+  - title: "Nonlinear total variation based noise removal algorithms"
+    authors: "Rudin, L. I., Osher, S., Fatemi, E."
+    year: 1992
+    venue: "Physica D, 60(1-4), 259-268"
+    doi: "10.1016/0167-2789(92)90242-F"

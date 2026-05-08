@@ -39,7 +39,10 @@ This is **section 10** of the eBERlight Explorer notes. While `09_noise_catalog/
 │   ├── tomography/
 │   │   ├── ring_artifact/                     ← 7 sinograms (~133 MB) [Sarepy]
 │   │   ├── neutron_tomography/                ← 1 sino + 3 recons (~540 KB) [Sarepy]
-│   │   └── flatfield_correction/              ← 9 NumPy fixtures (~80 KB) [TomoPy]
+│   │   ├── flatfield_correction/              ← 9 NumPy fixtures (~80 KB) [TomoPy]
+│   │   ├── low_dose/                          ← 4 sinograms, ~4 MB (Sarepy crop + simulated Poisson) [TomoGAN regime]
+│   │   ├── beam_hardening/                    ← 2 sinograms, ~2 MB (Sarepy crop + simulated cupping)
+│   │   └── dead_pixel/                        ← 3 arrays, ~2.3 MB (Sarepy crop + simulated faults)
 │   ├── xrf/
 │   │   ├── xrf_spectra/                       ← 2 real spectra (~84 KB) [PyMca]
 │   │   └── pyxrf_configs/                     ← 6 fitting JSONs (~370 KB) [NSLS-II]
@@ -49,7 +52,8 @@ This is **section 10** of the eBERlight Explorer notes. While `09_noise_catalog/
 │   │   ├── athena_projects/                   ← 2 Athena projects (~9 KB) [xraylarch]
 │   │   └── feff_calculations/                 ← 27 FEFF paths (~150 KB) [xraylarch]
 │   ├── scattering_diffraction/
-│   │   └── pyFAI_calibrants/                  ← 10 calibrant d-spacing files (~75 KB) [pyFAI]
+│   │   ├── pyFAI_calibrants/                  ← 10 calibrant d-spacing files (~75 KB) [pyFAI]
+│   │   └── phase_wrapping/                    ← 8 phase fields, ~2 MB (synthetic, CC0) [Itoh / Herraez test patterns]
 │   ├── cross_cutting/
 │   │   └── cosmic_rays/                       ← 1 GMOS FITS (~389 KB) [astroscrappy]
 │   ├── ptychography/                          ← README only — see external_data_sources.md
@@ -59,7 +63,7 @@ This is **section 10** of the eBERlight Explorer notes. While `09_noise_catalog/
     └── lazy_download_recipes.yaml             ← HF + GitHub model registry
 ```
 
-**Total bundled size:** approximately **135 MB** (dominated by Sarepy ring-artifact sinograms).
+**Total bundled size:** approximately **145 MB** (dominated by Sarepy ring-artifact sinograms).
 
 ## Coverage by noise category
 
@@ -68,7 +72,9 @@ This is **section 10** of the eBERlight Explorer notes. While `09_noise_catalog/
 | Tomography | Ring / stripe artifact | ✅ 7 sinograms | TomoBank ring-rich entries |
 | Tomography | Flat/dark correction | ✅ 9 fixtures | TomoBank dynamic flats |
 | Tomography | Neutron CT before/after | ✅ 4 files | NIST neutron CT |
-| Tomography | Low-dose CT denoising | – | TomoGAN demo (CC BY-NC) |
+| Tomography | Low-dose CT denoising | ✅ 4 sinograms (Sarepy + simulated Poisson) | TomoGAN demo (CC BY-NC) |
+| Tomography | Beam hardening (cupping) | ✅ 2 sinograms (Sarepy + simulated polynomial) | Krumm 2008 phantoms |
+| Tomography | Dead / hot pixel inpainting | ✅ 2 sinograms + mask | TomoBank bad-pixel sets |
 | Tomography | Sparse-angle, motion | – | TomoBank, AFFIRM data |
 | XRF | Real reference spectra | ✅ 2 spectra | NSLS-II XFM tutorial |
 | XRF | PyXRF fitting configs | ✅ 6 JSONs | NSLS-II PyXRF tutorial |
@@ -77,6 +83,7 @@ This is **section 10** of the eBERlight Explorer notes. While `09_noise_catalog/
 | Spectroscopy | FEFF theoretical paths | ✅ 27 path files | Demeter examples |
 | Spectroscopy | Athena projects | ✅ 2 projects | xraylarch full examples |
 | Scattering | Calibrants | ✅ 10 d-spacing files | NIST SRM database |
+| Scattering | Phase wrapping (CDI / phase-contrast) | ✅ 8 phase fields (synthetic test) | CXIDB exit-wave reconstructions |
 | Scattering | SAXS / WAXS images | – | SASBDB, ESRF tutorials |
 | Crystallography | Ice rings, MX | – | DIALS regression data |
 | Ptychography | All cases | – | CXIDB, PtychoShelves cSAXS |

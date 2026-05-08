@@ -1,0 +1,93 @@
+# Recipe — Dead / Hot Pixel Inpainting (Biharmonic, Bertalmio 2000)
+
+schema_version: 1
+
+recipe_id: inpaint_dead_pixel
+title: "Dead / Hot Pixel Inpainting — Biharmonic (Bertalmio 2000)"
+modality: cross_cutting
+noise_catalog_ref: 09_noise_catalog/cross_cutting/detector_common_issues.md
+
+problem: |
+  Dead pixels (always zero) and hot pixels (saturated) leave **holes
+  in every projection**, which back-project into clean line artefacts
+  in the reconstruction. Whole dead **columns** (failed scintillator
+  stripes) project into especially nasty rings — comparable to the
+  Sarepy ring-artifact case, but with a different physical origin.
+fix: |
+  Build a fault mask from the data — pixels at zero are dead, pixels
+  several σ above the mean are hot — and solve the biharmonic
+  equation under that mask. Skimage's `inpaint_biharmonic` does the
+  PDE solve for us.
+observe: |
+  The two simulated dead columns and the scattered hot/dead pixels
+  in `sinogram_with_dead_pixels.npy` should disappear in the
+  processed output. PSNR/SSIM against the clean reference should
+  improve substantially. Tune `hot_factor` to widen / narrow the
+  outlier definition: too small flags real bright features, too
+  large leaves visible hot spots.
+
+description: |
+  Biharmonic inpainting (Bertalmio 2000) fills the masked region
+  with the smoothest possible interpolation that matches the
+  surrounding values. It's the standard fallback when a
+  beamline-specific bad-pixel mask isn't available — dust, scratched
+  scintillators, and sensor manufacturing defects all produce the
+  fault patterns this recipe targets.
+
+  The bundled `sinogram_with_dead_pixels.npy` simulates two failed
+  columns at x=113 and x=287 plus 200 randomly-placed hot/dead
+  pixels. The matching `sinogram_clean.npy` provides the ground
+  truth for PSNR/SSIM.
+
+function: experiments.cross_cutting.inpaint_dead_pixel.pipeline.inpaint_dead_pixels
+
+samples:
+  - manifest_path: datasets/tomography/dead_pixel/sinogram_with_dead_pixels.npy
+    label: "Sinogram with dead columns + hot pixels"
+    role: noisy_input
+    description: "Sarepy clean crop + 2 dead columns + 200 random faults"
+
+clean_reference:
+  manifest_path: datasets/tomography/dead_pixel/sinogram_clean.npy
+  label: "sinogram_clean.npy"
+
+parameters:
+  - name: hot_factor
+    type: float
+    label: "Hot-pixel σ threshold"
+    default: 6.0
+    min: 1.0
+    max: 15.0
+    step: 0.5
+    help: |
+      A pixel is flagged hot if its value exceeds
+      ``mean + hot_factor * sigma``. 6.0 catches obvious outliers
+      without flagging real bright structure; lower values are more
+      aggressive.
+  - name: dead_threshold
+    type: float
+    label: "Dead-pixel threshold"
+    default: 0.0
+    min: -1.0
+    max: 1.0
+    step: 0.05
+    help: |
+      A pixel is flagged dead if its value is at or below this
+      threshold. Default 0.0 catches all-zero failures; raise above
+      0 to catch attenuated pixels too.
+
+metrics:
+  - psnr
+  - ssim
+
+references:
+  - title: "Image inpainting"
+    authors: "Bertalmio, M., Sapiro, G., Caselles, V., Ballester, C."
+    year: 2000
+    venue: "SIGGRAPH 2000, 417-424"
+    doi: "10.1145/344779.344972"
+  - title: "Inpainting via Curvature-Driven Diffusions"
+    authors: "Chan, T. F., Shen, J."
+    year: 2001
+    venue: "Math. Models in Imaging, 17, 36"
+    doi: ""

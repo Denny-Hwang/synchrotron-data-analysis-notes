@@ -56,17 +56,25 @@ def _search_form_html(initial_query: str = "") -> str:
     on every page without any Streamlit session-state wiring; whatever
     the user types lands in ``?q=…`` on the Search page where
     `_query_param("q")` already drives the results.
+
+    Returned as a single line with no leading / trailing newline. The
+    CommonMark renderer Streamlit uses treats any whitespace-only line
+    inside an HTML block as a *blank line*, which closes the block
+    early and lets the trailing ``</div>`` and ``#main-content`` anchor
+    leak into the page as raw text. Keeping the form on one logical
+    line means the entire ``render_header`` HTML stays a single,
+    unambiguous block.
     """
     safe = quote(initial_query, safe="")
-    return f"""
-<form class="eberlight-header-search" action="/Search" method="get"
-      role="search" aria-label="Site search">
-    <input type="search" name="q" placeholder="Search notes…"
-           value="{safe}" aria-label="Search query"
-           autocomplete="off" spellcheck="false">
-    <button type="submit" aria-label="Search">🔎</button>
-</form>
-"""
+    return (
+        '<form class="eberlight-header-search" action="/Search" method="get"'
+        ' role="search" aria-label="Site search">'
+        '<input type="search" name="q" placeholder="Search notes…"'
+        f' value="{safe}" aria-label="Search query"'
+        ' autocomplete="off" spellcheck="false">'
+        '<button type="submit" aria-label="Search">🔎</button>'
+        "</form>"
+    )
 
 
 def render_header(
@@ -112,22 +120,28 @@ def render_header(
     # R13 Rec #4 — emit the WCAG-mandated skip link as the very first
     # focusable element on the page, then the header, then the
     # ``#main-content`` anchor that the skip link jumps to.
-    header_html = f"""
-    {skip_link_html()}
-    <div class="eberlight-header">
-        <div class="eberlight-header-brand">
-            {home_link_open}
-                <div class="eberlight-header-logo">eB</div>
-                <span class="eberlight-header-title">eBERlight Explorer</span>
-            </a>
-        </div>
-        <nav class="eberlight-header-nav" aria-label="Main navigation">
-            {nav_html}
-        </nav>
-        {search_html}
-    </div>
-    {main_anchor_html()}
-    """
+    #
+    # Concatenated as one logical line (no embedded newlines). Streamlit's
+    # CommonMark renderer interprets whitespace-only lines as blank lines
+    # that close an HTML block, so a previous "pretty-printed" version of
+    # this string leaked ``</div>`` and the ``#main-content`` anchor as
+    # visible text in the header.
+    header_html = (
+        f"{skip_link_html()}"
+        '<div class="eberlight-header">'
+        '<div class="eberlight-header-brand">'
+        f"{home_link_open}"
+        '<div class="eberlight-header-logo">eB</div>'
+        '<span class="eberlight-header-title">eBERlight Explorer</span>'
+        "</a>"
+        "</div>"
+        '<nav class="eberlight-header-nav" aria-label="Main navigation">'
+        f"{nav_html}"
+        "</nav>"
+        f"{search_html}"
+        "</div>"
+        f"{main_anchor_html()}"
+    )
     st.markdown(header_html, unsafe_allow_html=True)
 
 

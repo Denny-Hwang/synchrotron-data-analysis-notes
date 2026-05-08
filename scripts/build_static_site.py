@@ -103,9 +103,14 @@ INTERACTIVE_PAGES: tuple[dict[str, str], ...] = (
             "data — tune parameters, compare before/after, see PSNR/SSIM against a "
             "clean reference."
         ),
-        "stat_line": ("3 recipes · 71 real samples · Vo 2018 / Munch 2009 / van Dokkum 2001."),
+        "stat_line": (
+            "14 recipes · 90+ real samples · Vo 2018 / Munch 2009 / Liu 2020 (TomoGAN) / "
+            "Herraez 2002 / Donoho 1994 / Chambolle 2004 / Buades 2005 / van Dokkum 2001."
+        ),
         "what_static_shows": (
             "The recipe pipelines (Sarepy stripe removal, wavelet-Fourier filter, "
+            "TomoGAN-baseline wavelet shrinkage, 2-D phase unwrapping, TV / NLM / "
+            "bilateral denoising, biharmonic inpainting, beam-hardening polynomial, "
             "L.A.Cosmic) execute server-side on user-tuned parameters; the recipe "
             "gallery on the Build cluster page is the static-site read-only summary."
         ),

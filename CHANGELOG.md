@@ -6,6 +6,73 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [explorer-0.7.3] - 2026-05-08
+
+**Phase R14 — header HTML-leak hotfix + Interactive Lab content expansion.**
+Patch release. Release notes:
+[REL-E073](docs/05_release/release_notes/explorer-v0.7.3.md).
+
+### Fixed
+- **Header HTML leak.** `components/header.py` was leaking the closing
+  `</div>` and the `#main-content` skip-link anchor as visible raw text
+  in the right-hand third of the header bar on every page. Root cause:
+  a multi-line f-string with 4-space indentation + `_search_form_html()`
+  starting with `\n` produced an 8-space-only line between `</nav>` and
+  `<form …>`. Per CommonMark, that whitespace-only line ends the HTML
+  block, so mistune (Streamlit's renderer) treated the trailing
+  `</div>` and `<a id="main-content">` as inline HTML inside markdown
+  context and rendered them as text. Fixed by collapsing the header
+  markup into a single logical line.
+
+### Added — three user-requested case studies
+- **Ring artifact on neutron CT** (`ring_artifact_neutron_ct`) — Vo
+  2018 sorting filter applied to the bundled real Sarepy neutron
+  sinogram. Smaller default window (15 vs 21) calibrated for the lower
+  angle count.
+- **Low-dose / photon-counting denoising** (`low_dose_wavelet_denoise`)
+  — wavelet-shrinkage baseline targeting the noise regime in Liu et al.
+  2020 *TomoGAN*. New `datasets/tomography/low_dose/` ships clean +
+  three Poisson-noised sinograms at 200 / 50 / 12 photons/pixel.
+- **Phase wrapping → unwrapping** (`phase_unwrap_2d`) — wraps
+  `skimage.restoration.unwrap_phase` (Herraez 2002). New
+  `datasets/scattering_diffraction/phase_wrapping/` ships 8 paired
+  `.npy` arrays: Gaussian bump, two-bump CDI exit-wave proxy, noisy
+  Gaussian, vortex / branch-cut (false-positive trap).
+
+### Added — six additional workhorse recipes
+- `tv_chambolle_denoise` — Total Variation (Chambolle 2004).
+- `nlm_denoise` — Non-Local Means (Buades 2005).
+- `bilateral_denoise` — Bilateral filter (Tomasi 1998).
+- `wavelet_shrinkage_denoise` — BayesShrink (Donoho 1994).
+- `inpaint_dead_pixel` — Biharmonic inpainting (Bertalmio 2000).
+  Achieves PSNR 14 → 50 dB on the bundled `dead_pixel/` dataset
+  (Sarepy crop + 2 dead columns + 200 random faults).
+- `beam_hardening_polynomial` — Polynomial linearisation
+  (Krumm 2008). New `datasets/tomography/beam_hardening/` ships
+  clean + cupped sinograms.
+
+### Recipe count summary
+
+| | Before R14 | After R14 |
+|---|---|---|
+| Total recipes | 5 | **14** |
+| Tomography | 3 | 6 |
+| Cross-cutting | 2 | 7 |
+| Scattering / Diffraction | 0 | 1 |
+
+### Updated
+- `explorer/app.py` and `scripts/build_static_site.py` Lab CTA stat line
+  bumped from `3 recipes · 71 real samples` to
+  `14 recipes · 90+ real samples`.
+- `10_interactive_lab/README.md` coverage table now lists the four new
+  bundled datasets.
+- `10_interactive_lab/CITATIONS.bib` gained 13 new BibTeX entries
+  (Herraez, Itoh, Ghiglia–Pritt, scikit-image, Donoho, Chang, Chambolle,
+  Rudin, Buades, Tomasi, Bertalmio, Krumm).
+- `10_interactive_lab/manifest.yaml` gained four new dataset entries
+  (`low_dose`, `beam_hardening`, `dead_pixel`, `phase_wrapping`) with
+  full source / license / attribution metadata.
+
 ## [explorer-0.7.2] - 2026-05-08
 
 **Phase R13 — senior-engineer review acted on (perf + a11y + security).**

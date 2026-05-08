@@ -145,7 +145,8 @@ _FEATURE_CARDS = [
         "Replay noise mitigation techniques from prior research on real bundled "
         "data — tune parameters, compare before/after, see PSNR/SSIM against a "
         "clean reference.",
-        "3 recipes · 71 real samples · Vo 2018 / Munch 2009 / van Dokkum 2001.",
+        "14 recipes · 90+ real samples · TomoGAN / Vo / Munch / Herraez phase-unwrap / "
+        "TV / NLM / bilateral / wavelet / inpaint / beam-hardening / cosmic-ray.",
     ),
     _cta_card(
         _EXPLORE_COLOR,

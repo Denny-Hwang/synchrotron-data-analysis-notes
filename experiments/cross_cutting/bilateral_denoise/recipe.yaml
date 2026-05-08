@@ -1,0 +1,94 @@
+# Recipe — Bilateral Filter (Tomasi & Manduchi 1998)
+
+schema_version: 1
+
+recipe_id: bilateral_denoise
+title: "Bilateral Filter — Edge-preserving (Tomasi 1998)"
+modality: cross_cutting
+noise_catalog_ref: 09_noise_catalog/cross_cutting/noise_estimation_methods.md
+
+problem: |
+  Background speckle on every projection / spectrum. Gaussian smooths
+  it but smears edges; median catches outliers but blurs texture; TV
+  preserves edges but staircases. Bilateral fills a middle slot: fast
+  edge-preserving smoothing for cases where TV/NLM are overkill.
+fix: |
+  Each pixel is replaced by a Gaussian-weighted average of neighbours
+  where the weight depends on **both** spatial distance and
+  intensity similarity. A pixel on a sharp edge sees only neighbours
+  with similar intensity; a pixel in a flat region averages
+  everything nearby.
+observe: |
+  Edges stay crisp at moderate ``sigma_spatial``; raising
+  ``sigma_color_factor`` blurs across edges (defeating the purpose).
+  Compared to Gaussian: PSNR/SSIM should improve on the low-dose
+  samples while keeping the sample/air boundary sharp.
+
+description: |
+  Bilateral filtering combines a spatial Gaussian (like a normal
+  blur) with an intensity Gaussian. The result: pixels in flat
+  regions are smoothed, pixels near edges are not averaged with the
+  other side of the edge. Faster than Non-Local Means at the cost
+  of less effective denoising on textured regions.
+
+  Compare against `gaussian_denoise_baseline` (which blurs every
+  edge) and against `nlm_denoise` (which is slower but stronger on
+  textured data).
+
+function: experiments.cross_cutting.bilateral_denoise.pipeline.denoise_bilateral
+
+samples:
+  - manifest_path: datasets/tomography/low_dose/sinogram_lowdose_medium.npy
+    label: "Low-dose sinogram (medium, 50 ph/pix)"
+    role: noisy_input
+  - manifest_path: datasets/tomography/low_dose/sinogram_lowdose_severe.npy
+    label: "Low-dose sinogram (severe, 12 ph/pix)"
+    role: noisy_input
+  - manifest_path: datasets/tomography/ring_artifact/all_stripe_types_sample1.tif
+    label: "Sarepy ring sinogram (all stripes)"
+    role: noisy_input
+
+clean_reference:
+  manifest_path: datasets/tomography/low_dose/sinogram_clean.npy
+  label: "sinogram_clean.npy"
+
+parameters:
+  - name: sigma_spatial
+    type: float
+    label: "Spatial σ (pixels)"
+    default: 1.5
+    min: 0.5
+    max: 5.0
+    step: 0.1
+    help: |
+      Gaussian width for the spatial weighting. Larger averages
+      farther neighbours.
+  - name: sigma_color_factor
+    type: float
+    label: "Intensity σ multiplier"
+    default: 1.0
+    min: 0.1
+    max: 5.0
+    step: 0.1
+    help: |
+      Multiplier on the auto-estimated noise σ. <1 = sharper edges
+      (less smoothing across them); >1 = blurs across more edges.
+  - name: win_size
+    type: int
+    label: "Kernel window (px, odd)"
+    default: 7
+    min: 3
+    max: 15
+    step: 2
+    help: "Side length of the kernel window."
+
+metrics:
+  - psnr
+  - ssim
+
+references:
+  - title: "Bilateral filtering for gray and color images"
+    authors: "Tomasi, C., Manduchi, R."
+    year: 1998
+    venue: "ICCV 1998, 839-846"
+    doi: "10.1109/ICCV.1998.710815"

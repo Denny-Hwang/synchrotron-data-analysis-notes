@@ -1,0 +1,89 @@
+# Recipe — Ring Artifact Removal on Neutron CT (Sarepy real data)
+#
+# Companion to `ring_artifact_sorting_filter` and `ring_artifact_wavelet_fft`,
+# but operating on the bundled real neutron tomography sinogram instead of
+# X-ray data. Same algorithm family as Vo 2018 — different physics, smaller
+# detector, fewer angles, and a striking before/after demo.
+
+schema_version: 1
+
+recipe_id: ring_artifact_neutron_ct
+title: "Ring Artifact — Neutron CT (Vo 2018, real Sarepy data)"
+modality: tomography
+noise_catalog_ref: 09_noise_catalog/tomography/ring_artifact.md
+
+problem: |
+  Same physical mechanism as X-ray ring artifacts — fixed detector
+  column offsets — but neutron tomography detectors typically have
+  far fewer angles (here 459 instead of 1800+) and lower SNR. The
+  stripes are visible directly in the sinogram and become **dark
+  concentric rings** after gridrec / FBP reconstruction.
+fix: |
+  The Vo 2018 sorting filter applied with a shorter window (15 rows
+  vs 21 for the X-ray case) — fewer angles means a longer median
+  blurs the actual angular variation. The bundled `rec_after_*.jpg`
+  reconstruction shows the target output the algorithm is reaching for.
+observe: |
+  Compare the Lab's processed sinogram against the bundled
+  `rec_fbp_before_*.jpg` and `rec_after_*.jpg` reconstructions.
+  Stripes should fade as you raise filter size; PSNR/SSIM are
+  skipped because no clean reference sinogram is published —
+  trust the visual side-by-side and the bundled reconstruction
+  comparisons (the recipe shows the *sinogram-domain* fix, the
+  bundled JPEGs show the *reconstruction-domain* effect).
+
+description: |
+  Real neutron computed-tomography sinogram from Sarepy
+  (`/data/sinogram_360_neutron_image.tif` mirrored from the upstream
+  repository, 459 × 503 uint16). Applies the same sorting-based stripe
+  filter as Vo 2018 with a tighter default window calibrated for the
+  neutron-data angle count.
+
+  > **Note on the reference reconstructions.** The dataset bundles
+  > three JPEG reconstruction images: `rec_fbp_before_*.jpg`,
+  > `rec_gridrec_before_*.jpg` (uncorrected), and
+  > `rec_after_*.jpg` (corrected). They illustrate what the
+  > sinogram-domain fix achieves once the data is back-projected.
+  > The Lab cannot run a back-projection in-browser, so the comparison
+  > you see in the |Δ| panel is *sinogram-domain*; for the
+  > reconstruction-domain comparison, see the
+  > [neutron-tomography ATTRIBUTION.md](../../10_interactive_lab/datasets/tomography/neutron_tomography/ATTRIBUTION.md).
+
+function: experiments.tomography.ring_artifact_neutron.pipeline.remove_stripe_neutron
+
+samples:
+  - manifest_path: datasets/tomography/neutron_tomography/sinogram_360_neutron_image.tif
+    label: "360° neutron CT sinogram (real Sarepy data)"
+    role: noisy_input
+    description: "Real measured neutron tomography sinogram, 459 × 503 uint16"
+
+# No paired clean reference for this sample — the bundled reconstructions
+# are reference *output*, not a clean sinogram. Metrics intentionally empty.
+metrics: []
+
+parameters:
+  - name: size
+    type: int
+    label: "Median filter size (rows)"
+    default: 15
+    min: 3
+    max: 51
+    step: 2
+    help: |
+      Length of the 1-D median filter applied along the sorted axis.
+      Must be odd. Neutron CT has fewer angles than X-ray (459 vs
+      1800+), so smaller windows are appropriate; 15 is the
+      Sarepy-recommended starting point. Try 5-7 for delicate
+      cases, 25-35 for very strong stripes.
+
+references:
+  - title: "Superior techniques for eliminating ring artifacts in X-ray micro-tomography"
+    authors: "Vo, N. T., Atwood, R. C., Drakopoulos, M."
+    year: 2018
+    venue: "Optics Express, 26(22), 28396-28412"
+    doi: "10.1364/OE.26.028396"
+  - title: "Sarepy — stripe artifacts removal in Python"
+    authors: "Vo, N. T."
+    year: 2018
+    venue: "GitHub: nghia-vo/sarepy"
+    doi: ""

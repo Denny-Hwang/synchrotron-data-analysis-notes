@@ -1,0 +1,151 @@
+# Recipe — Low-Dose / Photon-Counting Denoising (TomoGAN-comparable baseline)
+#
+# Targets the same noise regime as Liu et al. (2020) TomoGAN. The pipeline
+# uses classical wavelet shrinkage (Donoho & Johnstone 1994), which is the
+# baseline TomoGAN reports beating. Pedagogically: the user sees how far
+# classical denoising goes before paying for a learned model.
+
+schema_version: 1
+
+recipe_id: low_dose_wavelet_denoise
+title: "Low-Dose / Photon-Counting — Wavelet Shrinkage (TomoGAN baseline)"
+modality: tomography
+noise_catalog_ref: 09_noise_catalog/tomography/low_dose_noise.md
+
+problem: |
+  Photon-counting noise dominates when the per-pixel exposure drops
+  below ~50 photons. The signature is **multiplicative speckle on top
+  of every projection** — the classical Poisson regime. Naïvely
+  back-projecting a 12-photon-per-pixel sinogram produces a useless
+  reconstruction; the noise overwhelms real features.
+fix: |
+  Wavelet shrinkage decomposes the sinogram with a Daubechies wavelet
+  (``db5`` by default), thresholds the high-frequency coefficients
+  with **BayesShrink** (level-adaptive, Chang et al. 2000), and
+  reconstructs. This is the classical baseline that TomoGAN reports
+  beating — pedagogically, the user sees how much classical
+  denoising achieves before paying for a learned model.
+observe: |
+  PSNR / SSIM should jump 5-10 dB on the *medium* and *severe*
+  low-dose samples. The |Δ| panel shows where the denoiser acted —
+  flat regions get most of the smoothing; high-contrast edges should
+  pass through cleanly. If PSNR drops on the *high-SNR* sample,
+  ``sigma_factor`` is too aggressive (you're blurring real detail).
+
+description: |
+  Targets the noise regime in **Liu et al. (2020) TomoGAN** — sub-50
+  photon per pixel synchrotron tomography sinograms. The bundled
+  samples (`sinogram_lowdose_*.npy`) are produced by applying a
+  Poisson-plus-readout noise model to a centre crop of Sarepy's clean
+  reference sinogram, with three exposure levels (200 / 50 / 12
+  photons-per-pixel) bracketing the regime where classical methods
+  start losing to learned ones.
+
+  This recipe ships the **classical baseline** TomoGAN beats:
+  level-adaptive wavelet soft-thresholding (BayesShrink). Compare
+  PSNR/SSIM against the matching `sinogram_clean.npy` reference at
+  each dose level to see how the algorithm performs.
+
+  > **Why classical, not GAN?** TomoGAN's trained weights are
+  > CC BY-NC and cannot be redistributed in this Apache-2.0 repo. The
+  > classical baseline gives users the **lower bound** TomoGAN
+  > reports beating — useful for understanding whether the
+  > learned-model investment is worth it on your data.
+
+function: experiments.tomography.low_dose_denoise.pipeline.denoise_wavelet_shrinkage
+
+samples:
+  - manifest_path: datasets/tomography/low_dose/sinogram_lowdose_severe.npy
+    label: "Severe low-dose (~12 ph/pix) — TomoGAN regime"
+    role: noisy_input
+    description: "12 photons/pixel — the regime TomoGAN targets"
+  - manifest_path: datasets/tomography/low_dose/sinogram_lowdose_medium.npy
+    label: "Typical low-dose (~50 ph/pix)"
+    role: noisy_input
+    description: "50 photons/pixel — classical methods still competitive"
+  - manifest_path: datasets/tomography/low_dose/sinogram_lowdose_high_snr.npy
+    label: "Mild low-dose (~200 ph/pix)"
+    role: noisy_input
+    description: "200 photons/pixel — denoising marginal benefit"
+  - manifest_path: datasets/tomography/low_dose/sinogram_clean.npy
+    label: "Clean reference (false-positive trap)"
+    role: false_positive_trap
+    description: "Apply denoiser to clean data — should *not* over-smooth"
+
+clean_reference:
+  manifest_path: datasets/tomography/low_dose/sinogram_clean.npy
+  label: "sinogram_clean.npy"
+
+parameters:
+  - name: method
+    type: select
+    label: "Shrinkage method"
+    default: BayesShrink
+    options: [BayesShrink, VisuShrink]
+    help: |
+      ``BayesShrink`` is level-adaptive (Chang et al. 2000) and the
+      recommended default. ``VisuShrink`` (Donoho & Johnstone 1994)
+      uses the universal threshold √(2 log N) σ — stronger
+      smoothing, more aggressive on edges.
+  - name: mode
+    type: select
+    label: "Threshold mode"
+    default: soft
+    options: [soft, hard]
+    help: |
+      ``soft`` (recommended) shrinks coefficients toward zero;
+      ``hard`` zeros them out — preserves edges but is unstable
+      under small input perturbations.
+  - name: wavelet
+    type: select
+    label: "Wavelet family"
+    default: db5
+    options: [haar, db2, db5, db10, sym8, coif5]
+    help: |
+      ``db5`` matches the ring-artifact wavelet-FFT recipe and is the
+      smoothest standard choice. ``haar`` is fastest but blockier;
+      ``coif5`` smoothest at higher cost.
+  - name: levels
+    type: int
+    label: "Decomposition levels"
+    default: 4
+    min: 1
+    max: 6
+    step: 1
+    help: |
+      Higher = noise on wider spatial scales is targeted, but real
+      low-frequency structure can be smoothed. 3-5 is typical.
+  - name: sigma_factor
+    type: float
+    label: "Sigma multiplier"
+    default: 1.5
+    min: 0.1
+    max: 5.0
+    step: 0.1
+    help: |
+      Multiplier on the auto-estimated noise σ. <1 preserves more
+      texture; >1 smooths more aggressively. Default 1.5 reliably
+      lifts PSNR + SSIM on every bundled low-dose sample. Try 0.7
+      to preserve more texture on the high-SNR sample, 2.0+ for
+      maximum smoothing on the severe low-dose sample.
+
+metrics:
+  - psnr
+  - ssim
+
+references:
+  - title: "TomoGAN: low-dose synchrotron x-ray tomography with generative adversarial networks"
+    authors: "Liu, Z., Bicer, T., Kettimuthu, R., Gursoy, D., De Carlo, F., Foster, I."
+    year: 2020
+    venue: "JOSA A, 37(3), 422-434"
+    doi: "10.1364/JOSAA.375595"
+  - title: "Ideal spatial adaptation by wavelet shrinkage"
+    authors: "Donoho, D. L., Johnstone, J. M."
+    year: 1994
+    venue: "Biometrika, 81(3), 425-455"
+    doi: "10.1093/biomet/81.3.425"
+  - title: "Adaptive wavelet thresholding for image denoising and compression"
+    authors: "Chang, S. G., Yu, B., Vetterli, M."
+    year: 2000
+    venue: "IEEE Trans. Image Proc., 9(9), 1532-1546"
+    doi: "10.1109/83.862633"
