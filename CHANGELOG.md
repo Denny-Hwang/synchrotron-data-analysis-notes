@@ -23,22 +23,28 @@ Patch release. Release notes:
   `</div>` and `<a id="main-content">` as inline HTML inside markdown
   context and rendered them as text. Fixed by collapsing the header
   markup into a single logical line.
-- **`[object Object]` in every code block.** Streamlit's React
-  frontend routes any `<pre><code>` HTML inside
-  `st.markdown(unsafe_allow_html=True)` to its native `stCode`
-  component, which expects a *string* child. The legacy
-  `note_view._md_to_html` ran `codehilite`, which produced a tree of
-  `<span class="kn">…</span>` Pygments tokens for every Python /
-  shell / YAML block; React stringified those non-text DOM children
-  as the literal text `[object Object]`. **Every code block in every
-  note** showed this corruption, plus the entire L3 (Source) detail
-  level was 100% `[object Object]` rows. Fixed by dropping
-  `codehilite` from the Streamlit-side `_md_to_html` (the static-site
-  mirror keeps it; no React in the middle there) and routing L3
-  straight to `st.code(body, language="markdown")` instead of
-  round-tripping through markdown rendering. Streamlit's native code
-  component handles syntax highlighting via Prism.js. Verified
-  end-to-end with playwright.
+- **`[object Object]` in every code block** — two-layer bug fixed
+  across two iterations. Layer 1 (codehilite, R14): dropping
+  `codehilite` from the Streamlit-side `_md_to_html` removed the
+  Pygments span tree React was choking on. Layer 2 (R14.1, this
+  release): even with clean text inside `<pre><code>`, Streamlit's
+  React markdown renderer **re-parses the inner code content as
+  markdown** when it sees `unsafe_allow_html=True`. A `\n\n# comment`
+  line inside a Python code block becomes a markdown `<h1>` element;
+  React's stringify-children fallback prints those elements as
+  `[object Object]`. **Every code block that contained a `#`-comment
+  on a paragraph break** showed this — half the noise-catalog
+  Quick-Diagnosis blocks, every shell config in `09_noise_catalog/`,
+  most snippets in `03_ai_ml_methods/`. Fixed properly by adding a
+  generic fenced-code splitter to `_render_body_segmented` (renamed
+  from `_render_body_with_mermaid`): mermaid blocks → iframe, code
+  blocks → `st.code(text, language=lang)`, prose → `st.markdown`.
+  Code never round-trips through `st.markdown(unsafe_allow_html=
+  True)` again. The L3 (Source) view is unchanged — still uses
+  `st.code(body, language="markdown")` directly. Verified end-to-end
+  with playwright on 29 sampled notes + 25 notes specifically
+  containing code+`#`-comment blocks (the bug pattern); zero
+  occurrences of `[object Object]` after the fix.
 - **vis.js Knowledge-Graph tooltips showed literal `<b>…</b>` text.**
   vis-network 9.x renders `node.title` strings via
   `document.createTextNode`, which escapes HTML markup. Fixed by
@@ -56,8 +62,15 @@ Patch release. Release notes:
 - `test_visjs_graph_converts_title_to_html_element`,
   `test_visjs_graph_no_title_means_no_tooltip_object` guard against
   the vis.js `htmlToElement` shim being removed.
+- `test_render_body_segmented_routes_code_through_st_code`,
+  `test_render_body_segmented_handles_mermaid_plus_code`,
+  `test_render_body_segmented_unknown_language_falls_back_to_plain`,
+  `test_render_body_segmented_no_code_falls_back_to_markdown`,
+  `test_md_to_html_no_longer_emits_pre_code_for_streamlit_path`
+  guard the segmenting renderer that bypasses the React markdown
+  re-parse bug.
 
-Test-suite total: 279 → **284** passing (+5 regression tests).
+Test-suite total: 279 → **289** passing (+10 regression tests).
 
 ### Added — three user-requested case studies
 - **Ring artifact on neutron CT** (`ring_artifact_neutron_ct`) — Vo

@@ -236,3 +236,130 @@ def test_visjs_graph_no_title_means_no_tooltip_object() -> None:
     # The titleHtml branch must guard against missing titles.
     assert "if (n.titleHtml)" in iframe_src
     assert "delete n.title" in iframe_src
+
+
+# ---------------------------------------------------------------------------
+# R14.1 regression: code blocks with markdown-heading-looking comments
+# ---------------------------------------------------------------------------
+
+
+def test_render_body_segmented_routes_code_through_st_code() -> None:
+    """A fenced ``\\`\\`\\`python`` block must reach Streamlit via
+    ``st.code(...)``, never via ``st.markdown(unsafe_allow_html=True)``.
+
+    Why: when code goes through st.markdown's HTML path, Streamlit's
+    React markdown layer re-parses the inner ``<code>`` content and
+    treats ``\\n\\n# comment`` lines as markdown headings, which then
+    render as ``[object Object]``. The R14.1 fix routes code blocks to
+    ``st.code()`` directly, where Prism.js highlights raw text without
+    re-parsing.
+    """
+    from unittest.mock import patch
+
+    from components.note_view import _render_body_segmented
+
+    body = (
+        "## Quick Diagnosis\n\n"
+        "```python\n"
+        "import numpy as np\n"
+        "\n"
+        "# Load sinogram (this comment used to break the renderer)\n"
+        "col_std = np.std(sinogram, axis=0)\n"
+        "# Anomalous columns\n"
+        "outlier_cols = np.where(col_std > 3)[0]\n"
+        "```\n\n"
+        "More prose after the code block.\n"
+    )
+
+    with (
+        patch("streamlit.code") as mock_code,
+        patch("streamlit.markdown") as mock_markdown,
+    ):
+        _render_body_segmented(body)
+
+    # The Python block must have been routed to st.code with the raw text.
+    assert mock_code.call_count == 1, (
+        f"expected exactly one st.code() call for the python block, got "
+        f"{mock_code.call_count}"
+    )
+    code_arg, code_kwargs = mock_code.call_args[0], mock_code.call_args[1]
+    assert "import numpy as np" in code_arg[0]
+    assert "# Load sinogram" in code_arg[0]
+    assert "outlier_cols" in code_arg[0]
+    assert code_kwargs.get("language") == "python"
+    # The prose halves must have gone through st.markdown.
+    assert mock_markdown.call_count == 2
+
+
+def test_render_body_segmented_handles_mermaid_plus_code() -> None:
+    """A body with both mermaid and code blocks routes each correctly."""
+    from unittest.mock import patch
+
+    from components.note_view import _render_body_segmented
+
+    body = (
+        "Intro prose.\n\n"
+        "```mermaid\nflowchart LR\n  A --> B\n```\n\n"
+        "Middle prose.\n\n"
+        "```python\nimport os\n# A comment\nx = 1\n```\n\n"
+        "Trailing prose.\n"
+    )
+
+    with (
+        patch("streamlit.code") as mock_code,
+        patch("streamlit.markdown") as mock_markdown,
+        patch("streamlit.components.v1.html") as mock_html,
+    ):
+        _render_body_segmented(body)
+
+    assert mock_code.call_count == 1, "python block must route to st.code"
+    assert mock_html.call_count == 1, "mermaid block must route to components.html"
+    assert mock_markdown.call_count == 3, (
+        "three prose segments (intro, middle, trailing) must route to st.markdown"
+    )
+
+
+def test_render_body_segmented_unknown_language_falls_back_to_plain() -> None:
+    """An unknown language tag must not crash Streamlit's Prism highlighter."""
+    from unittest.mock import patch
+
+    from components.note_view import _render_body_segmented
+
+    body = "```pseudo-code\nx <- 1\n```\n"
+    with patch("streamlit.code") as mock_code:
+        _render_body_segmented(body)
+    assert mock_code.call_count == 1
+    # ``language=None`` is Streamlit's "plain monospaced text" sentinel.
+    assert mock_code.call_args[1].get("language") is None
+
+
+def test_render_body_segmented_no_code_falls_back_to_markdown() -> None:
+    """A pure-prose body still goes through st.markdown in one call."""
+    from unittest.mock import patch
+
+    from components.note_view import _render_body_segmented
+
+    body = "## Intro\n\nJust prose, no code blocks here.\n"
+    with (
+        patch("streamlit.code") as mock_code,
+        patch("streamlit.markdown") as mock_markdown,
+    ):
+        _render_body_segmented(body)
+    assert mock_code.call_count == 0
+    assert mock_markdown.call_count == 1
+
+
+def test_md_to_html_no_longer_emits_pre_code_for_streamlit_path() -> None:
+    """After R14.1, ``_md_to_html`` should never see fenced code blocks
+    in production — they're extracted upstream. But if a developer
+    accidentally feeds a body through ``_md_to_html`` directly, the
+    output still must not contain Pygments class spans (R14 guard).
+    """
+    from components.note_view import _md_to_html
+
+    html = _md_to_html("```python\nimport os\n```\n")
+    # fenced_code still emits <pre><code>; that's fine for the
+    # render-segmented path because code blocks never reach
+    # _md_to_html in production. We just guarantee no Pygments tree.
+    assert '<div class="highlight">' not in html
+    assert '<span class="kn"' not in html

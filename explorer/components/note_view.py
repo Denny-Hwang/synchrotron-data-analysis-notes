@@ -34,6 +34,27 @@ _MERMAID_BLOCK = re.compile(
     re.DOTALL,
 )
 
+# A generic fenced code block with an *optional* language tag. Captures
+# any non-mermaid fenced block — Python, YAML, shell, etc. — so the
+# segmenting renderer can route each one to ``st.code(...)`` instead of
+# ``st.markdown(unsafe_allow_html=True)``. The latter path runs the
+# inner code through Streamlit's React markdown layer, which re-parses
+# the body and turns ``\n\n# comment`` into a markdown heading element
+# (rendered as ``[object Object]`` by React's stringify-children
+# fallback). Routing code through ``st.code(...)`` avoids that entire
+# class of bug.
+#
+# Pattern notes:
+# - ``[^\n`]*`` captures the language tag without swallowing the
+#   newline or another backtick.
+# - We use ``(?m:^[ \t]*```)`` for the closing fence so a backtick that
+#   appears inline in the body of the code (e.g. ``foo `bar` baz``)
+#   doesn't terminate the block early.
+_FENCED_CODE_BLOCK = re.compile(
+    r"```(?P<lang>[^\n`]*)\n(?P<code>.*?)(?m:^[ \t]*```)",
+    re.DOTALL,
+)
+
 
 def _md_to_html(body: str) -> str:
     """Render markdown to HTML for the Streamlit note view.
@@ -44,17 +65,20 @@ def _md_to_html(body: str) -> str:
     expects a *string* child. With ``codehilite`` enabled the code block
     becomes a tree of ``<span class="kn">…</span>`` Pygments tokens;
     those non-text DOM children end up stringified by React as the
-    literal text ``[object Object]``, which is what users were seeing
-    inside every Python / shell / YAML code block (R14 hotfix).
+    literal text ``[object Object]`` (R14 hotfix #2).
 
     The static-site mirror in ``scripts/build_static_site.py`` keeps
     ``codehilite`` because it writes raw HTML files (no React in the
     middle), so the Pygments span tree renders normally there.
 
-    Streamlit's built-in code block component already does syntax
-    highlighting via Prism.js, keyed on the ``class="language-XYZ"``
-    attribute that ``fenced_code`` emits — so dropping ``codehilite``
-    here costs nothing visually and fixes the rendering bug.
+    **Note**: even with codehilite gone, fenced code blocks are now
+    extracted *before* this function sees them (see
+    :func:`_render_body_segmented`) and rendered via ``st.code(...)``.
+    The reason: Streamlit's React markdown renderer also re-parses the
+    *content* of ``<pre><code>`` for markdown features, so a code block
+    containing ``\\n\\n# comment`` ends up with a markdown ``<h1>`` child
+    that React stringifies the same way (R14.1 hotfix). Letting
+    ``st.code(...)`` handle code blocks directly bypasses both bugs.
     """
     return markdown.markdown(
         body,
@@ -96,35 +120,111 @@ def _render_mermaid_iframe(code: str, height: int = 480) -> None:
     components.html(html, height=height, scrolling=True)
 
 
-def _render_body_with_mermaid(body: str) -> None:
-    """Render markdown, splitting out ``‌```mermaid`` blocks into iframes.
+# Languages we know Streamlit's Prism.js highlighter handles. Anything
+# else is rendered with ``language=None`` so st.code falls back to
+# plain monospaced text instead of producing a noisy "unknown language"
+# warning client-side.
+_KNOWN_PRISM_LANGUAGES = frozenset(
+    {
+        "python", "py", "javascript", "js", "typescript", "ts",
+        "bash", "sh", "shell", "zsh", "console",
+        "yaml", "yml", "json", "toml", "ini", "xml", "html",
+        "css", "scss", "less",
+        "c", "cpp", "c++", "java", "go", "rust", "ruby", "php",
+        "sql", "r", "matlab", "julia",
+        "markdown", "md", "tex", "latex", "diff",
+        "dockerfile", "makefile", "cmake",
+        "plaintext", "text",
+    }
+)
 
-    Walks through the body emitting alternating segments: a normal
-    markdown segment via ``st.markdown(...)``, then a Mermaid
-    component, then the next markdown segment, etc. The fast path
-    (no Mermaid blocks) is a single ``st.markdown`` call.
 
-    R14 — no longer takes a ``highlight_css`` argument because
-    ``_md_to_html`` no longer emits Pygments class spans (see its
-    docstring for why). Streamlit's native code-block component
-    handles syntax highlighting on its own.
+def _normalise_language(lang: str | None) -> str | None:
+    """Return a Streamlit-friendly language id, or ``None`` for plain text.
+
+    Streamlit accepts any string but Prism.js only highlights known
+    languages; passing an unrecognised tag prints a console warning per
+    code block. We lower-case + trim and drop anything we don't
+    recognise, falling back to plain monospaced text.
     """
-    matches = list(_MERMAID_BLOCK.finditer(body))
-    if not matches:
+    if not lang:
+        return None
+    norm = lang.strip().lower()
+    if not norm:
+        return None
+    return norm if norm in _KNOWN_PRISM_LANGUAGES else None
+
+
+def _render_body_segmented(body: str) -> None:
+    """Render a markdown body, extracting code + mermaid blocks for safe rendering.
+
+    The renderer walks the body in order and emits one Streamlit element
+    per logical chunk:
+
+    * ``‌```mermaid`` fences → :func:`_render_mermaid_iframe` (iframe with
+      live Mermaid runtime).
+    * Other fenced code blocks → ``st.code(code, language=lang)`` so the
+      raw text never round-trips through ``st.markdown(unsafe_allow_html
+      =True)``. That round-trip is what historically produced
+      ``[object Object]`` rows when the code contained ``\\n\\n# …``
+      markdown-heading-looking lines (R14.1).
+    * Everything else → ``st.markdown(_md_to_html(prose),
+      unsafe_allow_html=True)``.
+
+    The fast path (no fences at all) is a single ``st.markdown`` call.
+    """
+    # Build a list of (start, end, kind, payload) chunks from the two
+    # regex passes, then sort by start position so we can stream them
+    # in source order without intermediate string copies.
+    chunks: list[tuple[int, int, str, str]] = []
+    for m in _MERMAID_BLOCK.finditer(body):
+        chunks.append((m.start(), m.end(), "mermaid", m.group("code").strip()))
+    for m in _FENCED_CODE_BLOCK.finditer(body):
+        # Skip mermaid blocks — they're handled above.
+        if m.group("lang").strip().lower() == "mermaid":
+            continue
+        chunks.append(
+            (
+                m.start(),
+                m.end(),
+                "code",
+                f"{m.group('lang')}\x00{m.group('code').rstrip(chr(10))}",
+            )
+        )
+    chunks.sort()
+
+    if not chunks:
         st.markdown(_md_to_html(body), unsafe_allow_html=True)
         return
 
     last_end = 0
-    for match in matches:
-        if match.start() > last_end:
-            seg = body[last_end : match.start()]
-            st.markdown(_md_to_html(seg), unsafe_allow_html=True)
-        _render_mermaid_iframe(match.group("code").strip())
-        last_end = match.end()
+    for start, end, kind, payload in chunks:
+        # A later mermaid match can be enclosed by an earlier code-block
+        # match (or vice versa) when fences nest weirdly. Skip anything
+        # that starts before we've consumed past it.
+        if start < last_end:
+            continue
+        if start > last_end:
+            seg = body[last_end:start]
+            if seg.strip():
+                st.markdown(_md_to_html(seg), unsafe_allow_html=True)
+        if kind == "mermaid":
+            _render_mermaid_iframe(payload)
+        else:  # code
+            lang_raw, _, code = payload.partition("\x00")
+            st.code(code, language=_normalise_language(lang_raw))
+        last_end = end
 
     if last_end < len(body):
         seg = body[last_end:]
-        st.markdown(_md_to_html(seg), unsafe_allow_html=True)
+        if seg.strip():
+            st.markdown(_md_to_html(seg), unsafe_allow_html=True)
+
+
+# Backwards-compatibility alias — the previous public name. Anything in
+# the codebase still importing ``_render_body_with_mermaid`` keeps
+# working.
+_render_body_with_mermaid = _render_body_segmented
 
 
 def render_note_view(
@@ -209,7 +309,7 @@ def render_note_view(
         elif section_tabs:
             _render_section_tabs(section_tabs)
         else:
-            _render_body_with_mermaid(body)
+            _render_body_segmented(body)
 
         if notebooks:
             _render_notebooks_section(notebooks)
@@ -256,9 +356,9 @@ def _render_section_tabs(sections: list[tuple[str, str]]) -> None:
     on the markdown body at runtime; sections without a body fall back
     to a brief "(empty section)" hint to avoid a silent gap.
 
-    R10 P1-4: each tab routes through ``_render_body_with_mermaid`` so
-    Mermaid blocks inside a section render as live diagrams instead of
-    plain code listings.
+    R10 P1-4: each tab routes through ``_render_body_segmented`` so
+    Mermaid blocks inside a section render as live diagrams and code
+    blocks render via ``st.code(...)`` (no React markdown round-trip).
 
     R14 — no longer takes ``highlight_css`` (see ``_md_to_html``).
     """
@@ -272,7 +372,7 @@ def _render_section_tabs(sections: list[tuple[str, str]]) -> None:
             if not text:
                 st.caption("(empty section)")
                 continue
-            _render_body_with_mermaid(text)
+            _render_body_segmented(text)
 
 
 def _render_permalink_button(url: str) -> None:

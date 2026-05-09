@@ -88,17 +88,17 @@ Experiment, Troubleshooter, Search, Knowledge Graph, landing).
 Static-site mirror (`scripts/build_static_site.py`) was unaffected
 because it writes literal HTML, not markdown — no fix needed there.
 
-## Hotfix #2 — `[object Object]` in every code block
+## Hotfix #2 — `[object Object]` in every code block (two layers)
 
 ### Symptom
 
 `[object Object],[object Object],[object Object],…` appeared in
-**every** Python / shell / YAML / mermaid code block on **every
-note**, plus the entire L3 (Source) detail level showed nothing but
-this text. Reproducible on Streamlit 1.57 (and likely back to 1.32
-when the React markdown rewrite landed).
+**every** Python / shell / YAML code block that contained `#`
+comments on a paragraph break, plus the entire L3 (Source) detail
+level showed nothing but this text. Reproducible on Streamlit 1.57
+(and likely back to 1.32 when the React markdown rewrite landed).
 
-### Root cause
+### Root cause — layer 1: codehilite spans
 
 Streamlit's React frontend looks for `<pre><code>` HTML inside
 `st.markdown(unsafe_allow_html=True)` and routes that subtree to its
@@ -114,49 +114,96 @@ non-string child tree, it did the only fallback it knows: it called
 `String(child)` on each node, producing `[object Object]` — the
 default string form of a JS object.
 
-The L3 path was even worse: `render_l3` wraps the body in
-`` ```markdown ``` `` and routed *that* through `_md_to_html`, which
-then ran codehilite on the markdown-as-source. The L3 view of a
-typical note was 100% Pygments span tree → 100% `[object Object]`.
+### Root cause — layer 2 (R14.1): React re-parses code-block content
 
-### Verified with playwright
+After the layer-1 fix dropped codehilite, the rendered HTML for the
+Quick Diagnosis block on `09_noise_catalog/tomography/ring_artifact.md`
+was clean text:
 
-```text
-<div class="stCode" data-testid="stCode">
-  <pre><div ...><code>
-    <span>[object Object],</span>,[object Object],
-    ,[object Object],[object Object],…
-  </code></div></pre>
-</div>
+```html
+<pre><code class="language-python">import numpy as np
+
+# Load sinogram (2D: angles x detector_columns)
+# Check for vertical stripes by computing column-wise standard deviation
+col_std = np.std(sinogram, axis=0)
+# Anomalous columns
+outlier_cols = np.where(col_std > 3)[0]
+</code></pre>
 ```
+
+Yet playwright showed the rendered DOM *still* contained
+`[object Object]`:
+
+```html
+<code class="language-python">
+  <span class="token keyword">import</span> numpy
+  ,[object Object],
+  ,[object Object],
+  ,[object Object],
+  ,[object Object],
+  <span>outlier_cols = ...</span>
+</code>
+```
+
+Streamlit's React markdown renderer (with `unsafe_allow_html=True`)
+**re-parses the inner content of `<code>` as markdown**. Lines
+starting with `#` after a `\n\n` paragraph break get interpreted as
+markdown headings → become `<h1>` React elements → React stringifies
+them as `[object Object]` when handing the children to its code
+component.
+
+This is fundamental to how rehype-raw + react-markdown work; we cannot
+fix it from the Python side except by **never letting code blocks go
+through the markdown HTML round-trip**.
 
 ### Fix
 
-**Streamlit-side `_md_to_html` no longer enables `codehilite`.** The
-fenced-code extension now emits plain
-`<pre><code class="language-python">raw source as text</code></pre>`,
-which Streamlit's `stCode` correctly highlights via Prism.js
-on its own.
+The R14.1 fix replaces `_render_body_with_mermaid` with a generic
+`_render_body_segmented` that walks the raw markdown body and routes
+each chunk to the right Streamlit primitive:
 
-**L3 (Source) bypasses `_md_to_html` entirely.** A new `raw_source`
-parameter on `render_note_view` routes the raw markdown body straight
-to `st.code(body, language="markdown")` — Streamlit's natural fit
-for "show the raw source as a code block".
+| Chunk | Renderer | Why |
+|---|---|---|
+| ```` ```mermaid ```` block | `components.html(iframe)` | Live diagram via mermaid CDN |
+| ```` ```X ```` block (any other lang) | `st.code(text, language=X)` | Bypasses React markdown re-parse entirely; Prism.js highlights raw text |
+| Prose between blocks | `st.markdown(_md_to_html(prose), unsafe_allow_html=True)` | Standard rich rendering for tables, links, headings, etc. |
 
-**The static-site mirror keeps `codehilite`.** No React in the
-middle there; the Pygments span tree renders normally in any
-browser, and the static site has Pygments-based syntax highlighting
-the user explicitly asked for.
+**Other fixes that flowed from this:**
+
+* The L3 (Source) view, added in the layer-1 fix, was already routing
+  through `st.code(body, language="markdown")` — same approach scaled
+  to the whole body. Unchanged.
+* `_normalise_language()` maps unknown language tags to `None` so
+  Streamlit doesn't print a console warning per code block.
+* The static-site mirror in `scripts/build_static_site.py` keeps
+  `codehilite` (no React in the middle there; the Pygments span tree
+  renders normally in any browser).
+
+### Verified end-to-end
+
+playwright + headless chromium against a fresh `streamlit run`:
+
+* All 18 routes in the smoke-test sweep render without
+  `[object Object]` (was 1 broken, now 0).
+* 25 of 95 noise-catalog notes that contain ```` ```python ```` blocks
+  with `#` comments — the exact bug pattern — render cleanly.
+* Ring Artifact L2 page: was `text=6948 chars + [object Object] x15`,
+  now `text=9504 chars` (the missing chars were the comment lines
+  that used to render as `[object Object]`).
+* Sample of 29 random notes across all 10 folders: all clean.
 
 ### Regression tests
 
-- `test_md_to_html_does_not_emit_pygments_class_spans` — fires if a
-  future change re-introduces codehilite.
-- `test_md_to_html_emits_language_class_for_prism` — ensures
-  `class="language-X"` survives so Prism.js still has a highlight key.
-- `test_render_body_with_mermaid_signature_no_highlight_css` —
-  guards against re-introducing the `highlight_css` pipeline that
-  only existed to style codehilite output.
+| Test | Guards against |
+|---|---|
+| `test_md_to_html_does_not_emit_pygments_class_spans` | re-introducing codehilite |
+| `test_md_to_html_emits_language_class_for_prism` | losing the `language-X` class Prism keys on |
+| `test_render_body_with_mermaid_signature_no_highlight_css` | re-introducing the `highlight_css` pipeline |
+| `test_render_body_segmented_routes_code_through_st_code` | code blocks ever going through `st.markdown(unsafe_allow_html)` again |
+| `test_render_body_segmented_handles_mermaid_plus_code` | the mermaid+code mixed path regressing |
+| `test_render_body_segmented_unknown_language_falls_back_to_plain` | unknown language tags spamming the console |
+| `test_render_body_segmented_no_code_falls_back_to_markdown` | the fast prose-only path regressing |
+| `test_md_to_html_no_longer_emits_pre_code_for_streamlit_path` | a developer accidentally feeding a code block back through `_md_to_html` |
 
 ## Hotfix #3 — vis.js Knowledge-Graph tooltips showed raw `<b>…</b>` text
 
