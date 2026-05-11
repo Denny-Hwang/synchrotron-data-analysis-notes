@@ -2,7 +2,9 @@
 
 ## Project Identity
 
-eBERlight Explorer — an interactive portal over synchrotron-data-analysis-notes, aligned with ANL/APS design standards.
+eBERlight Explorer — a **personal research / learning project**: an interactive portal over the author's own synchrotron-data-analysis study notes. The visual style is **ANL/APS-inspired for personal familiarity**, not an official ANL or APS property; this repository is **unaffiliated with and unendorsed by** ANL, APS, or DOE.
+
+**Do not deploy publicly.** Original data owners (Sarepy, TomoBank, GMOS, etc.) have *not* been consulted regarding any public hosting of this app. Bundled samples are redistributed under their upstream permissive licenses for **local / private use only**. Any commit, design, or feature work assistant performs must respect this scope — never frame the project as an official portal, never wire up production deploy/marketing surfaces, never add language suggesting institutional endorsement.
 
 This repository contains two versioned artifacts:
 
@@ -93,7 +95,7 @@ See `docs/03_implementation/coding_standards.md` for full Python style guide, li
 
 ## Design Tokens
 
-See `docs/02_design/design_system.md` for color tokens, typography, spacing, and component specifications aligned with ANL/APS visual standards.
+See `docs/02_design/design_system.md` for color tokens, typography, spacing, and component specifications. The visual style is **ANL/APS-inspired**, not officially ANL-branded — see ADR-005 + ADR-010 for the personal-research framing and the WCAG-driven secondary-color darkening.
 
 ## How to Run the Explorer Locally
 

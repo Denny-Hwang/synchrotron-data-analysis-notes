@@ -39,8 +39,6 @@ _EXPLORER_DIR = Path(__file__).resolve().parent.parent
 if str(_EXPLORER_DIR) not in sys.path:
     sys.path.insert(0, str(_EXPLORER_DIR))
 
-from urllib.parse import unquote
-
 from components.footer import render_footer
 from components.header import render_header
 from components.visjs_graph import render_visjs_graph
@@ -54,6 +52,7 @@ from lib.cross_refs import (
     kind_size,
 )
 from lib.detail_level import LEVEL_LABELS, LEVELS, normalise_level
+from lib.routing import query_param
 
 st.set_page_config(page_title="Knowledge Graph — eBERlight", page_icon="🧠", layout="wide")
 
@@ -85,20 +84,11 @@ st.markdown(
 )
 
 
-def _query_param(name: str) -> str | None:
-    raw = st.query_params.get(name)
-    if raw is None:
-        return None
-    if isinstance(raw, list):
-        return unquote(raw[0]) if raw else None
-    return unquote(str(raw))
-
-
 # ---------------------------------------------------------------------------
 # Detail level (L0 stats · L1 stats+matrices · L2 full · L3 raw entities)
 # ---------------------------------------------------------------------------
 
-_KG_LEVEL = normalise_level(_query_param("level"), default="L2")
+_KG_LEVEL = normalise_level(query_param("level"), default="L2")
 
 
 def _render_kg_level_pills(current: str) -> None:

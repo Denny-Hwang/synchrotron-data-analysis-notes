@@ -24,7 +24,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from pathlib import Path
-from urllib.parse import quote, unquote
+from urllib.parse import quote
 
 import streamlit as st
 from components.breadcrumb import render_breadcrumb
@@ -43,6 +43,7 @@ from lib.notes import (
     resolve_publication_ref,
     resolve_tool_ref,
 )
+from lib.routing import query_param
 
 # Folders the legacy ``?doc=`` parameter targeted; we use them as the
 # folder-hint for basename resolution when the cluster matches.
@@ -75,16 +76,6 @@ def _folder_label(folder: str) -> str:
     )
 
 
-def _query_param(name: str) -> str | None:
-    """Read a single query-param value, robust to Streamlit's API shape."""
-    raw = st.query_params.get(name)
-    if raw is None:
-        return None
-    if isinstance(raw, list):
-        return unquote(raw[0]) if raw else None
-    return unquote(str(raw))
-
-
 # R13 Rec #2 — load_notes() walks 188 markdown files + parses YAML
 # every call. Without caching, every cluster-page nav re-pays 150-300ms.
 # ADR-002:36 mandated this; it just hadn't been wired up.
@@ -95,6 +86,107 @@ def _cached_notes(repo_root: Path) -> list[Note]:
 
 _RECENT_KEY = "_eberlight_recently_viewed"
 _RECENT_LIMIT = 8
+
+
+# REL-E080 — per-cluster orientation copy. The CLUSTER_META.description
+# is a comma-separated content list; ``_CLUSTER_TAGLINE`` adds the
+# "why am I here / what should I do" framing that the senior review
+# flagged as missing.
+_CLUSTER_TAGLINE: dict[str, dict[str, str]] = {
+    "discover": {
+        "tagline": (
+            "Start here when you want context on the program, its facilities and partners, "
+            "or you're hunting for a glossary term or a paper reference."
+        ),
+        "good_first_steps": (
+            "Try the **Program Overview** folder for the BER mission and APS facility, "
+            "or **References** for the glossary + bibliography."
+        ),
+    },
+    "explore": {
+        "tagline": (
+            "Start here when you have a sample and need to choose a modality, "
+            "compare AI/ML methods, or diagnose a weird-looking image."
+        ),
+        "good_first_steps": (
+            "Try **X-Ray Modalities** to map sample → technique, **AI/ML Methods** for "
+            "method-by-method tradeoffs, or **Noise Catalog** when the artefact is "
+            "already visible in your data."
+        ),
+    },
+    "build": {
+        "tagline": (
+            "Start here when you have data in hand and need a tool, a schema, "
+            "or a recipe to apply to it."
+        ),
+        "good_first_steps": (
+            "Try **Tools and Code** for reverse-engineered tool internals, "
+            "**Data Structures** for HDF5 schemas, or jump straight to the "
+            "**Interactive Lab** to replay a noise-mitigation recipe."
+        ),
+    },
+}
+
+
+def _render_cluster_orientation(
+    meta: dict[str, str],
+    cluster_id: str,
+    cluster_notes: list[Note],
+) -> None:
+    """Render the cluster-page header: h1 + description + stats + tagline.
+
+    Replaces the previous bare ``<h1>{name}</h1><p>{description}</p>``
+    so a visitor lands on the page with three orientation cues instead
+    of one: (1) what's the cluster called, (2) when should I use it,
+    and (3) "X notes across Y folders" so they know whether this is a
+    deep section or a thin one. REL-E080 — senior-review action item.
+    """
+    extra = _CLUSTER_TAGLINE.get(cluster_id, {})
+    folders = {n.folder for n in cluster_notes}
+    folder_count = len(folders)
+    note_count = len(cluster_notes)
+    last_updated = max(
+        (n.last_reviewed for n in cluster_notes if getattr(n, "last_reviewed", None)),
+        default=None,
+    )
+    stats_bits = [
+        f"<b>{note_count}</b> note{'s' if note_count != 1 else ''}",
+        f"<b>{folder_count}</b> folder{'s' if folder_count != 1 else ''}",
+    ]
+    if last_updated:
+        stats_bits.append(f"last reviewed <b>{last_updated}</b>")
+    stats_html = " · ".join(stats_bits)
+
+    tagline_html = (
+        f'<p style="color:var(--color-text-secondary);font-size:16px;'
+        f'margin:0 0 8px 0;">{meta["description"]}</p>'
+    )
+    if extra.get("tagline"):
+        tagline_html += (
+            f'<p style="color:var(--color-text-secondary);font-size:14px;'
+            f'margin:0 0 8px 0;">{extra["tagline"]}</p>'
+        )
+    if extra.get("good_first_steps"):
+        import re as _re
+
+        first_steps_html = _re.sub(
+            r"\*\*(.*?)\*\*",
+            r"<b>\1</b>",
+            extra["good_first_steps"],
+        )
+        tagline_html += (
+            f'<p style="color:var(--color-text-muted);font-size:13px;'
+            f'margin:0 0 16px 0;">💡 {first_steps_html}</p>'
+        )
+
+    st.markdown(
+        f'<h1 style="color:{meta["color"]};margin-bottom:4px;">{meta["name"]}</h1>'
+        f'<p style="color:var(--color-text-muted);font-size:12px;'
+        f'text-transform:uppercase;letter-spacing:0.5px;margin:0 0 12px 0;">'
+        f"{stats_html}</p>"
+        f"{tagline_html}",
+        unsafe_allow_html=True,
+    )
 
 
 def _track_recently_viewed(note: Note, repo_root: Path) -> None:
@@ -151,13 +243,10 @@ def _render_filter_banner(tag: str, cluster_id: str) -> None:
     """Banner shown above the card grid when a ``?tag=`` filter is active."""
     st.markdown(
         f"""
-        <div style="background:#E8EEF6;border-left:4px solid #0033A0;
-                    padding:12px 16px;border-radius:4px;margin-bottom:16px;">
-            <span style="font-size:14px;color:#333;">
-                Filtering by tag: <b><code>{tag}</code></b>
-            </span>
+        <div class="eberlight-banner eberlight-banner--info">
+            <span>Filtering by tag: <b><code>{tag}</code></b></span>
             <a href="/{cluster_id.title()}" target="_self"
-               style="margin-left:12px;color:#0033A0;font-size:13px;">
+               style="margin-left:12px;color:var(--color-primary);font-size:13px;">
                ✕ clear filter
             </a>
         </div>
@@ -530,14 +619,14 @@ def render_cluster_page(
     cluster_folders = set(get_folders_for_cluster(cluster_id))
     cluster_notes = [n for n in all_notes if n.folder in cluster_folders]
 
-    note_url_id = _query_param("note")
-    doc_param = _query_param("doc")
-    tag_filter = _query_param("tag")
-    folder_filter = _query_param("folder")
-    level = _dl.normalise_level(_query_param("level"))
+    note_url_id = query_param("note")
+    doc_param = query_param("doc")
+    tag_filter = query_param("tag")
+    folder_filter = query_param("folder")
+    level = _dl.normalise_level(query_param("level"))
     # R11 I3 — `?view=cards|table` toggle is gone; only `?view=tabs`
     # (the note-detail section-tabs mode) is honoured.
-    raw_view = (_query_param("view") or "").lower()
+    raw_view = (query_param("view") or "").lower()
     detail_view_mode = "tabs" if raw_view == "tabs" else "default"
 
     # ``?doc=<basename>`` is the legacy URL shape. Resolve it to a real
@@ -576,11 +665,7 @@ def render_cluster_page(
     # Mode 2 / 3 — cluster grid (with optional tag filter).
     render_header(active_cluster=cluster_id)
     render_breadcrumb([("Home", "/"), (meta["name"], None)])
-    st.markdown(
-        f'<h1 style="color:{meta["color"]};">{meta["name"]}</h1>'
-        f'<p style="color:#555;font-size:16px;margin-bottom:24px;">{meta["description"]}</p>',
-        unsafe_allow_html=True,
-    )
+    _render_cluster_orientation(meta, cluster_id, cluster_notes)
 
     visible_notes = cluster_notes
     if tag_filter:

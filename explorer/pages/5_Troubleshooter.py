@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from urllib.parse import quote, unquote
+from urllib.parse import quote
 
 import streamlit as st
 
@@ -33,6 +33,7 @@ if str(_EXPLORER_DIR) not in sys.path:
 
 from components.footer import render_footer
 from components.header import render_header
+from lib.routing import query_param
 from lib.troubleshooter import (
     Diagnosis,
     Symptom,
@@ -70,8 +71,8 @@ image_index = _cached_image_index()
 
 render_header(active_cluster=None)
 st.markdown(
-    '<h1 style="color:#C0392B;">🩺 Symptom-Based Troubleshooter</h1>'
-    '<p style="color:#555;font-size:16px;margin-bottom:24px;">'
+    '<h1 style="color:var(--color-error);">🩺 Symptom-Based Troubleshooter</h1>'
+    '<p style="color:var(--color-text-secondary);font-size:16px;margin-bottom:24px;">'
     "Start from what you <b>see</b> in your data, walk through the differential "
     "conditions, and land on the most likely diagnosis. Each diagnosis links "
     "to the full noise-catalog guide and — when a bundled mitigation recipe "
@@ -93,17 +94,8 @@ if not troubleshooter.symptoms:
 # ---------------------------------------------------------------------------
 
 
-def _query_param(name: str) -> str | None:
-    raw = st.query_params.get(name)
-    if raw is None:
-        return None
-    if isinstance(raw, list):
-        return unquote(raw[0]) if raw else None
-    return unquote(str(raw))
-
-
 symptom_ids = [s.id for s in troubleshooter.symptoms]
-deep_link_id = _query_param("symptom")
+deep_link_id = query_param("symptom")
 default_idx = symptom_ids.index(deep_link_id) if deep_link_id in symptom_ids else 0
 
 # R10 P0-4: pickers were in the sidebar (collapsed by default + invisible

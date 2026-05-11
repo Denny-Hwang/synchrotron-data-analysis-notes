@@ -38,6 +38,7 @@ from lib.experiments import (
     run_pipeline,
 )
 from lib.ia import CLUSTER_META
+from lib.routing import query_param
 
 st.set_page_config(page_title="Experiment — eBERlight", page_icon="🧪", layout="wide")
 
@@ -52,10 +53,10 @@ _BUILD_COLOR = CLUSTER_META["build"]["color"]
 
 st.markdown(
     f'<h1 style="color:{_BUILD_COLOR};">Interactive Lab</h1>'
-    '<p style="color:#555;font-size:16px;margin-bottom:8px;">'
+    '<p style="color:var(--color-text-secondary);font-size:16px;margin-bottom:8px;">'
     "Replay noise mitigation techniques from prior research on real bundled data. "
     "Tune parameters, compare before/after, and see PSNR/SSIM against a clean reference.</p>"
-    '<p style="color:#888;font-size:13px;margin-bottom:24px;">'
+    '<p style="color:var(--color-text-muted);font-size:13px;margin-bottom:24px;">'
     "See <code>10_interactive_lab/README.md</code> for the full dataset inventory "
     "and <code>experiments/README.md</code> for the recipe schema.</p>",
     unsafe_allow_html=True,
@@ -133,16 +134,11 @@ if not recipes:
 # the Troubleshooter "▶ Run experiment" affordance. Without this, the
 # Run-experiment link landed on the page with the first recipe still
 # selected and the user had to find the right one manually.
-def _query_param(name: str) -> str | None:
-    raw = st.query_params.get(name)
-    if raw is None:
-        return None
-    if isinstance(raw, list):
-        return raw[0] if raw else None
-    return str(raw)
-
-
-_recipe_param = _query_param("recipe")
+#
+# REL-E080: the local copy-paste helper was migrated to ``lib.routing``.
+# The legacy Experiment behaviour skipped URL decoding (decode=False)
+# because recipe ids are slug-safe by construction; we preserve that.
+_recipe_param = query_param("recipe", decode=False)
 _default_idx = 0
 if _recipe_param:
     for i, r in enumerate(recipes):
@@ -162,7 +158,7 @@ recipe_idx = st.selectbox(
 recipe = recipes[recipe_idx]
 
 st.markdown(
-    f'<p style="color:#666;font-size:13px;margin-top:-8px;">'
+    f'<p style="color:var(--color-text-secondary);font-size:13px;margin-top:-8px;">'
     f"Modality: <b>{recipe.modality}</b> &nbsp;·&nbsp; "
     f"Function: <code>{recipe.function}</code> &nbsp;·&nbsp; "
     f'Catalog: <a href="../{recipe.noise_catalog_ref}">{recipe.noise_catalog_ref}</a>'
@@ -187,18 +183,18 @@ _narrative = _problem or _fix or _observe
 if _narrative:
     n_cols = st.columns(3)
     cards = [
-        ("⚠️", "What was wrong", _problem or "—", "#C8550E"),
-        ("🛠️", "How we fix it", _fix or "—", "#0033A0"),
-        ("👀", "What you should observe", _observe or "—", "#2E7D32"),
+        ("⚠️", "What was wrong", _problem or "—", "eberlight-card--accent-warning"),
+        ("🛠️", "How we fix it", _fix or "—", "eberlight-card--accent-primary"),
+        ("👀", "What you should observe", _observe or "—", "eberlight-card--accent-success"),
     ]
-    for col, (icon, title, body, color) in zip(n_cols, cards, strict=True):
+    for col, (icon, title, body, variant) in zip(n_cols, cards, strict=True):
         col.markdown(
-            f'<div class="eberlight-card" style="border-left:4px solid {color};'
-            f'min-height:140px;">'
-            f'<div style="font-size:11px;color:#888;text-transform:uppercase;'
-            f'letter-spacing:0.5px;font-weight:700;margin-bottom:6px;">'
-            f"{icon} {title}</div>"
-            f'<div style="font-size:14px;color:#1A1A1A;line-height:1.45;">{body}</div>'
+            f'<div class="eberlight-card {variant}" style="min-height:140px;">'
+            f'<div style="font-size:11px;color:var(--color-text-muted);'
+            f"text-transform:uppercase;letter-spacing:0.5px;font-weight:700;"
+            f'margin-bottom:6px;">{icon} {title}</div>'
+            f'<div style="font-size:14px;color:var(--color-text);'
+            f'line-height:1.45;">{body}</div>'
             "</div>",
             unsafe_allow_html=True,
         )
@@ -462,30 +458,20 @@ if recipe.clean_reference and recipe.metrics:
                     )
                 if wins or losses:
                     if losses == 0:
-                        banner_bg, banner_fg, banner_msg = (
-                            "#E6F4EA",
-                            "#1E6B33",
-                            f"✅ All {wins} metric{'s' if wins != 1 else ''} improved.",
-                        )
+                        banner_variant = "eberlight-banner--success"
+                        banner_msg = f"✅ All {wins} metric{'s' if wins != 1 else ''} improved."
                     elif wins == 0:
-                        banner_bg, banner_fg, banner_msg = (
-                            "#FDECEA",
-                            "#A82618",
-                            (
-                                f"⚠️ All {losses} metric{'s' if losses != 1 else ''} "
-                                "regressed — try different parameters."
-                            ),
+                        banner_variant = "eberlight-banner--error"
+                        banner_msg = (
+                            f"⚠️ All {losses} metric{'s' if losses != 1 else ''} "
+                            "regressed — try different parameters."
                         )
                     else:
-                        banner_bg, banner_fg, banner_msg = (
-                            "#FFF7DB",
-                            "#7A5A00",
-                            f"➡️ {wins} improved, {losses} regressed — partial win.",
-                        )
+                        banner_variant = "eberlight-banner--warning"
+                        banner_msg = f"➡️ {wins} improved, {losses} regressed — partial win."
                     st.markdown(
-                        f'<div style="background:{banner_bg};color:{banner_fg};'
-                        f"padding:10px 14px;border-radius:8px;margin-top:8px;"
-                        f'font-size:14px;font-weight:600;">{banner_msg}</div>',
+                        f'<div class="eberlight-banner {banner_variant}" '
+                        f'style="margin-top:8px;">{banner_msg}</div>',
                         unsafe_allow_html=True,
                     )
         except FileNotFoundError as e:
