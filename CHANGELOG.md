@@ -6,6 +6,59 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [explorer-0.8.0] - 2026-05-11
+
+**Phase R15 — senior-review polish: tone reframing + UX/code-quality lift.**
+Minor release. Release notes:
+[REL-E080](docs/05_release/release_notes/explorer-v0.8.0.md).
+
+### Changed — tone
+
+- **Personal-research disclaimer** added to README.md, CLAUDE.md
+  "Project Identity", the Streamlit landing hero, and the static-site
+  hero + footer. Project is **not** affiliated with ANL, APS, or DOE;
+  original data owners have not been consulted regarding any public
+  deployment; intended for local / private use only.
+- **ADR-005 bumped to v0.2.0** — "Argonne-aligned" reframed as
+  "Argonne-inspired (personal research)". DOE-stakeholder-demo
+  framing removed.
+
+### Added
+
+- **ADR-010** formalises the R7 darkening (`#00A3E0` → `#0085C0`,
+  `#F47B20` → `#D86510`) and the tone reframing. `design_system.md`
+  bumped to v0.1.1 with a token change-history table.
+- **`lib/routing.py::query_param`** — single source of truth that
+  replaces 5 copy-paste `_query_param` helpers across the pages.
+- **`lib/glossary.py`** — parses `08_references/glossary.md` and
+  wraps the first occurrence of each known term in `<abbr>` tags
+  inside rendered note bodies (skips `<code>`, `<a>`, headings).
+  Shared between Streamlit and the static-site builder.
+- **Onboarding scenario picker** on the landing — 3 task-oriented
+  cards (sample → analyse, weird image, hands-on method) above the
+  cluster grid. Static-site mirror included.
+- **Cluster-page orientation** — every cluster lands with a stats
+  line (note count, folder count, last reviewed), a tagline
+  describing when to use the cluster, and a "💡 first steps" hint.
+- **CSS custom-property palette** (`:root { --color-* }`) in
+  `explorer/assets/styles.css` and the static-site CSS. Inline
+  Python `style="color:#0033A0"` strings rewritten to `var(...)`.
+- **Reusable card + banner classes**:
+  `.eberlight-card--accent-{primary,secondary,build,success,warning,error}`,
+  `.eberlight-banner` + variants. Lab impact banner + narrative
+  cards now use them.
+- **`prefers-reduced-motion`** media query — animations and
+  transitions collapse for users who request it.
+- **AppTest smoke tests** for the 8 page entries
+  (`tests/test_pages_smoke.py`). 7 unit tests for `lib.routing`
+  (`test_routing.py`), 14 for `lib.glossary` (`test_glossary.py`).
+
+### Refactored
+
+- **`render_note_view()`** split into a thin orchestrator and two
+  helpers (`_render_note_main_column`, `_render_note_meta_column`).
+  Signature unchanged so callers keep working.
+
 ## [explorer-0.7.3] - 2026-05-08
 
 **Phase R14 — header HTML-leak hotfix + Interactive Lab content expansion.**

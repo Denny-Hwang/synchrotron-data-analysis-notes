@@ -1,6 +1,66 @@
 /* eBERlight Explorer — Component Styles
-   Design tokens from docs/02_design/design_system.md (DS-001)
-   Ref: ADR-005 */
+   Design tokens from docs/02_design/design_system.md (DS-001 v0.1.1)
+   Ref: ADR-005, ADR-010 (R7 darkening + personal-research framing).
+
+   REL-E080 — design tokens are now CSS custom properties on :root so
+   Python pages can use ``style="color:var(--color-primary)"`` in
+   inline HTML without re-typing the hex. Browsers resolve the
+   variable at paint time; Streamlit ships the variables once via
+   this stylesheet and every ``st.markdown(unsafe_allow_html=True)``
+   block inherits them. */
+:root {
+    /* Brand */
+    --color-primary: #0033A0;          /* ANL navy — primary CTA, links, "Discover" cluster */
+    --color-primary-hover: #002270;    /* darker variant for hover/active states */
+    --color-secondary: #0085C0;        /* APS teal R7-darkened — "Explore" cluster */
+    --color-accent: #D86510;           /* BER orange R7-darkened — "Build" cluster */
+
+    /* Surfaces */
+    --color-surface: #F5F5F5;
+    --color-surface-alt: #FFFFFF;
+    --color-surface-banner: #E8EEF6;   /* primary-tinted info banner */
+    --color-surface-hover: #F0F4FB;    /* hover tint on nav / chips */
+
+    /* Text */
+    --color-text: #1A1A1A;
+    --color-text-secondary: #555555;
+    --color-text-muted: #888888;
+    --color-text-inverse: #FFFFFF;
+
+    /* Borders */
+    --color-border: #E0E0E0;
+    --color-border-soft: #E0E5EE;
+    --color-border-strong: #C8D2E2;
+
+    /* Status */
+    --color-success: #2E7D32;
+    --color-success-bg: #E6F4EA;
+    --color-warning: #F57F17;
+    --color-warning-bg: #FFF7DB;
+    --color-error: #C62828;
+    --color-error-bg: #FDECEA;
+
+    /* Surface tints (mostly for diff banners on the Lab page) */
+    --color-success-fg: #1E6B33;
+    --color-warning-fg: #7A5A00;
+    --color-error-fg: #A82618;
+
+    /* Radii + spacing */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 16px;
+    --radius-pill: 24px;
+}
+
+/* Honour user's motion preferences (REL-E080 — was missing before). */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
 
 /* In-page anchor scroll polish (R10 P1-3). Streamlit's main column
    has a sticky header that overlaps with anchor jump positions; a
@@ -21,8 +81,8 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
     width: 1px;
     height: 1px;
     overflow: hidden;
-    background: #0033A0;
-    color: #FFFFFF;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
     padding: 10px 18px;
     border-radius: 6px;
     z-index: 9999;
@@ -36,7 +96,7 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
     width: auto;
     height: auto;
     overflow: visible;
-    outline: 3px solid #FFFFFF;
+    outline: 3px solid var(--color-text-inverse);
     outline-offset: 2px;
 }
 
@@ -46,7 +106,7 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
     align-items: center;
     justify-content: space-between;
     padding: 16px 0;
-    border-bottom: 1px solid #E0E0E0;
+    border-bottom: 1px solid var(--color-border);
     margin-bottom: 24px;
 }
 .eberlight-header-brand {
@@ -57,19 +117,19 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
 .eberlight-header-logo {
     width: 40px;
     height: 40px;
-    background: #0033A0;
-    border-radius: 8px;
+    background: var(--color-primary);
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: var(--color-text-inverse);
     font-weight: 700;
     font-size: 18px;
 }
 .eberlight-header-title {
     font-size: 22px;
     font-weight: 700;
-    color: #0033A0;
+    color: var(--color-primary);
 }
 .eberlight-header-nav {
     display: flex;
@@ -83,28 +143,28 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
    disabled rule. R10 P0-1: enable on both surfaces. */
 .eberlight-header-nav a {
     text-decoration: none;
-    color: #1A1A1A;
+    color: var(--color-text);
     font-weight: 600;
     font-size: 15px;
     padding: 8px 14px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     border: 1px solid transparent;
     transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 .eberlight-header-nav a:hover {
-    background: #F0F4FB;
-    color: #0033A0;
+    background: var(--color-surface-hover);
+    color: var(--color-primary);
     border-color: rgba(0, 51, 160, 0.12);
 }
 .eberlight-header-nav a.active {
-    background: #0033A0;
-    color: #FFFFFF;
-    border-color: #0033A0;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border-color: var(--color-primary);
 }
 .eberlight-header-nav a.active:hover {
-    background: #002270;
-    color: #FFFFFF;
-    border-color: #002270;
+    background: var(--color-primary-hover);
+    color: var(--color-text-inverse);
+    border-color: var(--color-primary-hover);
 }
 
 /* Header search form (FR-001 + FR-009) — submits to /Search?q=… */
@@ -120,26 +180,26 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
     border-radius: 16px 0 0 16px;
     border-right: 0;
     font-size: 14px;
-    background: #FFFFFF;
-    color: #1A1A1A;
+    background: var(--color-surface-alt);
+    color: var(--color-text);
     outline-offset: 2px;
 }
 .eberlight-header-search input[type="search"]:focus {
-    border-color: #0033A0;
+    border-color: var(--color-primary);
     box-shadow: 0 0 0 2px rgba(0, 51, 160, 0.15);
 }
 .eberlight-header-search button {
     padding: 6px 12px;
-    border: 1px solid #0033A0;
+    border: 1px solid var(--color-primary);
     border-radius: 0 16px 16px 0;
-    background: #0033A0;
-    color: #FFFFFF;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
     cursor: pointer;
     font-size: 14px;
     line-height: 1;
 }
 .eberlight-header-search button:hover {
-    background: #002270;
+    background: var(--color-primary-hover);
 }
 @media (max-width: 720px) {
     .eberlight-header-search input[type="search"] { width: 140px; }
@@ -148,15 +208,15 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
 /* === Breadcrumb === */
 .eberlight-breadcrumb {
     font-size: 14px;
-    color: #1A1A1A;
+    color: var(--color-text);
     padding: 10px 14px;
     margin-bottom: 16px;
     background: #F5F7FB;
-    border-radius: 8px;
-    border: 1px solid #E0E5EE;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-soft);
 }
 .eberlight-breadcrumb a {
-    color: #0033A0;
+    color: var(--color-primary);
     text-decoration: none;
     font-weight: 500;
 }
@@ -164,7 +224,7 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
     text-decoration: underline;
 }
 .eberlight-breadcrumb .current {
-    color: #1A1A1A;
+    color: var(--color-text);
     font-weight: 700;
 }
 .eberlight-breadcrumb .separator {
@@ -174,11 +234,11 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
 
 /* === Footer === */
 .eberlight-footer {
-    background: #0033A0;
-    color: white;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
     padding: 32px 24px;
     margin-top: 48px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     text-align: center;
 }
 .eberlight-footer p {
@@ -211,9 +271,9 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
 
 /* === Card === */
 .eberlight-card {
-    background: #FFFFFF;
-    border: 1px solid #E0E0E0;
-    border-radius: 8px;
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     padding: 24px;
     transition: box-shadow 0.2s, transform 0.2s;
 }
@@ -224,11 +284,11 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 8px;
-    color: #1A1A1A;
+    color: var(--color-text);
 }
 .eberlight-card p {
     font-size: 14px;
-    color: #555555;
+    color: var(--color-text-secondary);
     line-height: 1.5;
 }
 /* Cluster cards on the landing page lift slightly on hover so the
@@ -239,9 +299,9 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
 }
 .eberlight-cluster-card-link:focus-visible {
-    outline: 2px solid #0033A0;
+    outline: 2px solid var(--color-primary);
     outline-offset: 4px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
 }
 
 /* === Filter chips (R11 I3 — folder + view filters on cluster pages) === */
@@ -260,24 +320,24 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
     font-size: 13px;
     font-weight: 600;
     text-decoration: none;
-    color: #1A1A1A;
-    background: #FFFFFF;
-    border: 1px solid #C8D2E2;
+    color: var(--color-text);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border-strong);
     transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 .eberlight-chip:hover {
-    background: #F0F4FB;
-    border-color: #0033A0;
-    color: #0033A0;
+    background: var(--color-surface-hover);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
 }
 .eberlight-chip.active {
-    background: #0033A0;
-    color: #FFFFFF;
-    border-color: #0033A0;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border-color: var(--color-primary);
 }
 .eberlight-chip-count {
     font-size: 11px;
-    color: #888;
+    color: var(--color-text-muted);
     font-weight: 500;
 }
 .eberlight-chip.active .eberlight-chip-count {
@@ -292,7 +352,7 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
     border-radius: 16px;
     padding: 3px 12px;
     font-size: 12px;
-    color: #1A1A1A;
+    color: var(--color-text);
     margin-right: 4px;
     margin-bottom: 4px;
     text-decoration: none;
@@ -300,8 +360,50 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
 }
 a.eberlight-tag:hover {
     background: #DDE6F2;
-    color: #0033A0;
-    border-color: #0033A0;
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+/* === Reusable card variants (REL-E080 — extracted from inline styles).
+       Previously every page hand-rolled
+       ``style="border-left:4px solid <hex>;..."`` for narrative cards
+       (Lab "what was wrong / how / observe"), severity cards
+       (Troubleshooter diagnosis), and search-result cards. The variants
+       below centralise the spacing + accent stripe so a future palette
+       change touches one file, not five. === */
+.eberlight-card--accent-primary { border-left: 4px solid var(--color-primary); }
+.eberlight-card--accent-secondary { border-left: 4px solid var(--color-secondary); }
+.eberlight-card--accent-build { border-left: 4px solid var(--color-accent); }
+.eberlight-card--accent-success { border-left: 4px solid var(--color-success); }
+.eberlight-card--accent-warning { border-left: 4px solid var(--color-warning); }
+.eberlight-card--accent-error { border-left: 4px solid var(--color-error); }
+
+/* === Banners — used by cluster filter + Lab impact rows === */
+.eberlight-banner {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+.eberlight-banner--info {
+    background: var(--color-surface-banner);
+    border-left: 4px solid var(--color-primary);
+    color: var(--color-text);
+}
+.eberlight-banner--success {
+    background: var(--color-success-bg);
+    color: var(--color-success-fg);
+    font-weight: 600;
+}
+.eberlight-banner--warning {
+    background: var(--color-warning-bg);
+    color: var(--color-warning-fg);
+    font-weight: 600;
+}
+.eberlight-banner--error {
+    background: var(--color-error-bg);
+    color: var(--color-error-fg);
+    font-weight: 600;
 }
 
 /* Better contrast on Streamlit's native buttons + selectboxes when
@@ -309,8 +411,81 @@ a.eberlight-tag:hover {
    so all clickable surfaces feel similar. */
 .stButton > button:focus-visible,
 .stDownloadButton > button:focus-visible {
-    outline: 2px solid #0033A0 !important;
+    outline: 2px solid var(--color-primary) !important;
     outline-offset: 2px !important;
+}
+
+/* === Onboarding scenario picker (REL-E080) — surfaced on the landing
+       page above the cluster cards so a brand-new visitor can pick a
+       starting path instead of guessing which cluster they want. === */
+.eberlight-onboarding {
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    padding: 20px 24px;
+    margin: 24px 0;
+}
+.eberlight-onboarding h3 {
+    font-size: 16px;
+    margin: 0 0 4px 0;
+    color: var(--color-primary);
+}
+.eberlight-onboarding p.sub {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    margin: 0 0 12px 0;
+}
+.eberlight-onboarding .scenarios {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+.eberlight-onboarding .scenario-card {
+    display: block;
+    text-decoration: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    color: var(--color-text);
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.eberlight-onboarding .scenario-card:hover,
+.eberlight-onboarding .scenario-card:focus-visible {
+    border-color: var(--color-primary);
+    background: var(--color-surface-banner);
+    transform: translateY(-1px);
+    outline: none;
+}
+.eberlight-onboarding .scenario-card .icon {
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+.eberlight-onboarding .scenario-card .title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 4px;
+}
+.eberlight-onboarding .scenario-card .body {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    line-height: 1.4;
+}
+@media (max-width: 720px) {
+    .eberlight-onboarding .scenarios { grid-template-columns: 1fr; }
+}
+
+/* === Glossary auto-link tooltip (REL-E080) — `<abbr class="glossary">`
+       is injected into note bodies for known terms; a soft dotted
+       underline signals "hover me for a definition" without competing
+       with real links. === */
+abbr.eberlight-glossary {
+    text-decoration: underline dotted var(--color-text-muted);
+    text-underline-offset: 3px;
+    cursor: help;
+    border: 0;
 }
 
 /* === Responsive (R10 P1-1 — only one media query existed before for the

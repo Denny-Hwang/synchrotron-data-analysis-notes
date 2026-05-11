@@ -52,6 +52,8 @@ if str(_EXPLORER_DIR) not in sys.path:
     sys.path.insert(0, str(_EXPLORER_DIR))
 
 from lib.experiments import Recipe, load_recipes
+from lib.glossary import annotate_html as _glossary_annotate
+from lib.glossary import load_glossary
 from lib.ia import CLUSTER_META, FOLDER_TO_CLUSTER, get_folders_for_cluster
 from lib.notes import Note, load_notes
 
@@ -152,15 +154,55 @@ INTERACTIVE_PAGES: tuple[dict[str, str], ...] = (
 )
 
 SITE_LAYOUT_CSS = """
-/* === Static site layout (GitHub Pages mirror) === */
-html, body { margin: 0; padding: 0; background: #F5F5F5; }
+/* === Static site layout (GitHub Pages mirror) ===
+   REL-E080: design tokens are now CSS custom properties so this file
+   and explorer/assets/styles.css speak the same vocabulary. A single
+   palette change ripples to both surfaces. */
+:root {
+    --color-primary: #0033A0;
+    --color-primary-hover: #002270;
+    --color-secondary: #0085C0;
+    --color-accent: #D86510;
+    --color-surface: #F5F5F5;
+    --color-surface-alt: #FFFFFF;
+    --color-surface-banner: #E8EEF6;
+    --color-surface-hover: #F0F4FB;
+    --color-text: #1A1A1A;
+    --color-text-secondary: #555555;
+    --color-text-muted: #888888;
+    --color-text-inverse: #FFFFFF;
+    --color-border: #E0E0E0;
+    --color-border-soft: #E0E5EE;
+    --color-border-strong: #C8D2E2;
+    --color-success: #2E7D32;
+    --color-success-bg: #E6F4EA;
+    --color-success-fg: #1E6B33;
+    --color-warning: #F57F17;
+    --color-warning-bg: #FFF7DB;
+    --color-warning-fg: #7A5A00;
+    --color-error: #C62828;
+    --color-error-bg: #FDECEA;
+    --color-error-fg: #A82618;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 16px;
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+html, body { margin: 0; padding: 0; background: var(--color-surface); }
 body {
     font-family: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI',
                  Roboto, 'Helvetica Neue', Arial, sans-serif;
-    color: #1A1A1A;
+    color: var(--color-text);
     line-height: 1.6;
 }
-a { color: #0033A0; }
+a { color: var(--color-primary); }
 .site-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -340,12 +382,103 @@ a { color: #0033A0; }
 
 /* Empty state banner (like Streamlit st.info) */
 .info-box {
-    background: #E6F3FB;
-    border-left: 4px solid #00A3E0;
+    background: var(--color-surface-banner);
+    border-left: 4px solid var(--color-primary);
     padding: 12px 16px;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     margin: 16px 0;
-    color: #1A1A1A;
+    color: var(--color-text);
+}
+
+/* REL-E080 — disclaimer banner under the landing hero. */
+.disclaimer-banner {
+    max-width: 760px;
+    margin: 8px auto 24px auto;
+    padding: 10px 16px;
+    background: var(--color-surface-banner);
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: left;
+}
+.disclaimer-banner b { color: var(--color-primary); }
+
+/* REL-E080 — onboarding scenario picker on the landing. */
+.eberlight-onboarding {
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    padding: 20px 24px;
+    margin: 24px 0;
+}
+.eberlight-onboarding h3 { font-size: 16px; margin: 0 0 4px 0; color: var(--color-primary); }
+.eberlight-onboarding p.sub {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    margin: 0 0 12px 0;
+}
+.eberlight-onboarding .scenarios {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+.eberlight-onboarding .scenario-card {
+    display: block;
+    text-decoration: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    color: var(--color-text);
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.eberlight-onboarding .scenario-card:hover,
+.eberlight-onboarding .scenario-card:focus-visible {
+    border-color: var(--color-primary);
+    background: var(--color-surface-banner);
+    transform: translateY(-1px);
+    outline: none;
+}
+.eberlight-onboarding .scenario-card .icon { font-size: 18px; margin-bottom: 6px; }
+.eberlight-onboarding .scenario-card .title {
+    font-size: 14px; font-weight: 700;
+    color: var(--color-primary); margin-bottom: 4px;
+}
+.eberlight-onboarding .scenario-card .body {
+    font-size: 12px; color: var(--color-text-secondary); line-height: 1.4;
+}
+@media (max-width: 720px) {
+    .eberlight-onboarding .scenarios { grid-template-columns: 1fr; }
+}
+
+/* REL-E080 — cluster orientation stats line + tagline + first steps. */
+.cluster-heading .stats-line {
+    color: var(--color-text-muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 12px 0;
+}
+.cluster-heading .tagline {
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    margin: 0 0 8px 0;
+}
+.cluster-heading .first-steps {
+    color: var(--color-text-muted);
+    font-size: 13px;
+    margin: 0 0 16px 0;
+}
+
+/* REL-E080 — glossary auto-link (mirrors explorer/assets/styles.css). */
+abbr.eberlight-glossary {
+    text-decoration: underline dotted var(--color-text-muted);
+    text-underline-offset: 3px;
+    cursor: help;
+    border: 0;
 }
 """.strip()
 
@@ -456,23 +589,32 @@ def _breadcrumb_html(page_path: str, items: list[tuple[str, str | None]]) -> str
 
 
 def _footer_html(last_updated: str) -> str:
-    """Mirrors explorer/components/footer.py."""
+    """Mirrors explorer/components/footer.py.
+
+    REL-E080: footer copy reframed for the personal-research project.
+    The static mirror previously implied institutional affiliation
+    ("This research used resources…"); the corrected text acknowledges
+    the upstream data sources without claiming sponsorship.
+    """
     return f"""
 <div class="eberlight-footer">
     <p>
-        This research used resources of the Advanced Photon Source,
-        a U.S. Department of Energy (DOE) Office of Science user facility
-        operated for the DOE Office of Science by Argonne National
-        Laboratory under Contract No. DE-AC02-06CH11357.
+        <b>Personal research / learning project — not affiliated with
+        ANL, APS, or DOE.</b> The bundled sample data is redistributed
+        under the upstream permissive licenses preserved verbatim in
+        <code>10_interactive_lab/LICENSES/</code>; please do not
+        deploy this app publicly without first contacting the original
+        data sources.
     </p>
     <p>
-        eBERlight is the integrated BER (Biological and Environmental Research)
-        program at the Advanced Photon Source, combining multiple X-ray
-        techniques for biological and environmental science.
+        The notes describe synchrotron X-ray data analysis as a learning
+        topic, centred on the eBERlight program at the Advanced Photon
+        Source. The visual style is ANL/APS-inspired but no official
+        branding is claimed.
     </p>
     <div class="eberlight-footer-links">
-        <a href="https://www.aps.anl.gov/" target="_blank" rel="noopener">APS</a>
-        <a href="https://eberlight.aps.anl.gov/" target="_blank" rel="noopener">eBERlight</a>
+        <a href="https://www.aps.anl.gov/" target="_blank" rel="noopener">APS (reference)</a>
+        <a href="https://eberlight.aps.anl.gov/" target="_blank" rel="noopener">eBERlight (reference)</a>
         <a href="https://github.com/Denny-Hwang/synchrotron-data-analysis-notes" target="_blank" rel="noopener">Repository</a>
     </div>
     <div class="eberlight-footer-updated">Last updated: {last_updated}</div>
@@ -688,6 +830,52 @@ streamlit run explorer/app.py
     target.write_text(html, encoding="utf-8")
 
 
+_LANDING_SCENARIOS = (
+    {
+        "icon": "🔬",
+        "title": "I have a sample to analyse",
+        "body": (
+            "Map sample → modality → method → tool. Best starting point when you "
+            "know what you're imaging but not how."
+        ),
+        "target_cluster": "explore",
+    },
+    {
+        "icon": "🩺",
+        "title": "I see something weird in my data",
+        "body": (
+            "Symptom-driven troubleshooter walks the differential diagnoses for "
+            "ring patterns, streaks, noise, blur, dead pixels, and more."
+        ),
+        "target_slug": "troubleshooter",
+    },
+    {
+        "icon": "🧪",
+        "title": "I want to try a noise-mitigation method hands-on",
+        "body": (
+            "Replay 14 bundled recipes on real samples — slide parameters, watch "
+            "PSNR/SSIM move, see the |Δ| diff panel."
+        ),
+        "target_slug": "experiment",
+    },
+)
+
+
+def _scenario_card_html(page_path: str, scenario: dict[str, str]) -> str:
+    """One onboarding scenario card on the landing (REL-E080)."""
+    if "target_cluster" in scenario:
+        href = _rel(page_path, CLUSTER_PAGE[scenario["target_cluster"]])
+    else:
+        href = _rel(page_path, _interactive_stub_page_path(scenario["target_slug"]))
+    return (
+        f'<a class="scenario-card" href="{href}">'
+        f'<div class="icon" aria-hidden="true">{scenario["icon"]}</div>'
+        f'<div class="title">{html_escape_mod.escape(scenario["title"])}</div>'
+        f'<div class="body">{html_escape_mod.escape(scenario["body"])}</div>'
+        f"</a>"
+    )
+
+
 def _render_landing(out_dir: Path) -> None:
     page_path = "index.html"
     cards: list[str] = []
@@ -705,11 +893,24 @@ def _render_landing(out_dir: Path) -> None:
     feature_cards = "\n".join(
         _interactive_cta_card_html(page_path, entry) for entry in INTERACTIVE_PAGES
     )
+    scenario_cards = "\n".join(_scenario_card_html(page_path, s) for s in _LANDING_SCENARIOS)
     body = f"""
     {_breadcrumb_html(page_path, [("Home", None)])}
     <section class="hero">
         <h1>eBERlight Research Explorer</h1>
-        <p>Navigate synchrotron data analysis knowledge at Argonne's Advanced Photon Source</p>
+        <p>Personal study notes on synchrotron data analysis</p>
+    </section>
+    <div class="disclaimer-banner">
+        <b>Personal research / learning workspace</b> — ANL/APS-inspired but
+        <b>not affiliated with</b> ANL, APS, or DOE. The bundled sample data is
+        redistributed under upstream permissive licenses; please do not host
+        this app publicly without contacting the original data sources first.
+    </div>
+    <section class="eberlight-onboarding" aria-label="Choose your scenario">
+        <h3>New here? Pick your scenario</h3>
+        <p class="sub">Three high-leverage entry points — or browse the three
+        clusters below if you already know where you're heading.</p>
+        <div class="scenarios">{scenario_cards}</div>
     </section>
     <section class="cluster-grid">
         {"".join(cards)}
@@ -797,6 +998,81 @@ def _recipe_gallery_html() -> str:
     )
 
 
+# REL-E080 — per-cluster orientation copy. Mirrors
+# explorer/lib/cluster_page.py::_CLUSTER_TAGLINE so a static-site
+# visitor lands on the same "what's here / when to use it / where to
+# start" framing as the Streamlit visitor.
+_CLUSTER_TAGLINE: dict[str, dict[str, str]] = {
+    "discover": {
+        "tagline": (
+            "Start here when you want context on the program, its facilities and partners, "
+            "or you're hunting for a glossary term or a paper reference."
+        ),
+        "good_first_steps": (
+            "Try the <b>Program Overview</b> folder for the BER mission and APS facility, "
+            "or <b>References</b> for the glossary + bibliography."
+        ),
+    },
+    "explore": {
+        "tagline": (
+            "Start here when you have a sample and need to choose a modality, "
+            "compare AI/ML methods, or diagnose a weird-looking image."
+        ),
+        "good_first_steps": (
+            "Try <b>X-Ray Modalities</b> to map sample → technique, "
+            "<b>AI/ML Methods</b> for method-by-method tradeoffs, or "
+            "<b>Noise Catalog</b> when the artefact is already visible in your data."
+        ),
+    },
+    "build": {
+        "tagline": (
+            "Start here when you have data in hand and need a tool, a schema, "
+            "or a recipe to apply to it."
+        ),
+        "good_first_steps": (
+            "Try <b>Tools and Code</b> for reverse-engineered tool internals, "
+            "<b>Data Structures</b> for HDF5 schemas, or jump straight to the "
+            "<b>Interactive Lab</b> to replay a noise-mitigation recipe."
+        ),
+    },
+}
+
+
+def _cluster_orientation_html(cluster_id: str, cluster_notes: list[Note]) -> str:
+    """Render the static-site cluster header: h1 + stats + tagline + first-steps.
+
+    Mirrors explorer/lib/cluster_page.py::_render_cluster_orientation so
+    the static and Streamlit views feel identical.
+    """
+    meta = CLUSTER_META[cluster_id]
+    extra = _CLUSTER_TAGLINE.get(cluster_id, {})
+    folders = {n.folder for n in cluster_notes}
+    note_count = len(cluster_notes)
+    folder_count = len(folders)
+    last_updated = max(
+        (n.last_reviewed for n in cluster_notes if getattr(n, "last_reviewed", None)),
+        default=None,
+    )
+    stats_bits = [
+        f"<b>{note_count}</b> note{'s' if note_count != 1 else ''}",
+        f"<b>{folder_count}</b> folder{'s' if folder_count != 1 else ''}",
+    ]
+    if last_updated:
+        stats_bits.append(f"last reviewed <b>{html_escape_mod.escape(last_updated)}</b>")
+    stats_html = " · ".join(stats_bits)
+
+    parts: list[str] = [
+        f'<h1 style="color: {meta["color"]};">{html_escape_mod.escape(meta["name"])}</h1>',
+        f'<p class="stats-line">{stats_html}</p>',
+        f"<p>{html_escape_mod.escape(meta['description'])}</p>",
+    ]
+    if extra.get("tagline"):
+        parts.append(f'<p class="tagline">{extra["tagline"]}</p>')
+    if extra.get("good_first_steps"):
+        parts.append(f'<p class="first-steps">💡 {extra["good_first_steps"]}</p>')
+    return '<section class="cluster-heading">' + "".join(parts) + "</section>"
+
+
 def _render_cluster(
     out_dir: Path,
     cluster_id: str,
@@ -839,10 +1115,7 @@ def _render_cluster(
 
     body = f"""
     {_breadcrumb_html(page_path, [("Home", "index.html"), (meta["name"], None)])}
-    <section class="cluster-heading">
-        <h1 style="color: {meta["color"]};">{html_escape_mod.escape(meta["name"])}</h1>
-        <p>{html_escape_mod.escape(meta["description"])}</p>
-    </section>
+    {_cluster_orientation_html(cluster_id, cluster_notes)}
     {content}
 """
     html = _page_shell(
@@ -961,6 +1234,13 @@ def _render_note(out_dir: Path, note: Note, highlight_css: str) -> None:
     body_html = _md_link_rewrite(body_html)
     # Step 2 — swap each placeholder for a real ``<div class="mermaid">``.
     body_html, has_mermaid = _replace_mermaid_blocks(body_html)
+    # Step 3 — glossary auto-link (REL-E080). Wraps the first occurrence of
+    # each known glossary term in an <abbr> so static-site readers get the
+    # same tooltips Streamlit shows. ``load_glossary`` is lru_cached so the
+    # ~60-entry file is parsed exactly once per build.
+    _glossary = load_glossary(_REPO_ROOT)
+    if _glossary:
+        body_html = _glossary_annotate(body_html, _glossary)
 
     breadcrumb = _breadcrumb_html(
         page_path,

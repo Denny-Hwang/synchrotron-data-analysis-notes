@@ -55,7 +55,7 @@ def _search_form_html(initial_query: str = "") -> str:
     The form uses a plain HTML ``<form action="/Search">`` so it works
     on every page without any Streamlit session-state wiring; whatever
     the user types lands in ``?q=…`` on the Search page where
-    `_query_param("q")` already drives the results.
+    ``query_param("q")`` (from ``lib.routing``) already drives the results.
 
     Returned as a single line with no leading / trailing newline. The
     CommonMark renderer Streamlit uses treats any whitespace-only line

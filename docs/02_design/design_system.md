@@ -2,13 +2,17 @@
 doc_id: DS-001
 title: "Design System — eBERlight Explorer"
 status: draft
-version: 0.1.0
-last_updated: 2026-04-08
+version: 0.1.1
+last_updated: 2026-05-11
 supersedes: null
-related: [PRD-001, IA-001, ADR-005, NFR-001]
+related: [PRD-001, IA-001, ADR-005, ADR-010, NFR-001]
 ---
 
 # Design System — eBERlight Explorer
+
+> **Personal research workspace, not an official ANL/APS property.** The
+> palette is ANL-inspired for the author's familiarity only. See
+> ADR-005 (token choice) + ADR-010 (R7 darkening + tone reframing).
 
 ## Color Tokens
 
@@ -16,25 +20,35 @@ related: [PRD-001, IA-001, ADR-005, NFR-001]
 
 | Token | Hex | Usage | WCAG Notes |
 |-------|-----|-------|------------|
-| `--color-primary` | `#0033A0` | Headers, primary buttons, links | 8.6:1 on white — passes AA & AAA |
-| `--color-secondary` | `#00A3E0` | Accents, secondary buttons, cluster "Explore" | 3.1:1 on white — passes AA for large text only; use on dark bg for body text |
-| `--color-accent` | `#F47B20` | Highlights, badges, cluster "Build" | 3.0:1 on white — large text only; pair with dark text |
-| `--color-surface` | `#F5F5F5` | Page background, card backgrounds | N/A (background) |
+| `--color-primary` | `#0033A0` | Headers, primary buttons, links, "Discover" cluster | 8.6:1 on white — passes AA & AAA |
+| `--color-secondary` | `#0085C0` | Accents, secondary buttons, cluster "Explore" | 3.5:1 on white — passes AA-large; pair with dark text for body |
+| `--color-accent` | `#D86510` | Highlights, badges, cluster "Build" | 3.1:1 on white — passes AA-large; pair with white-on-accent for chips |
+| `--color-surface` | `#F5F5F5` | Page background, banner backgrounds | N/A (background) |
 | `--color-surface-alt` | `#FFFFFF` | Card surfaces, panels | N/A (background) |
+| `--color-surface-banner` | `#E8EEF6` | Filter / info banners (primary-tinted) | N/A (background) |
 | `--color-text` | `#1A1A1A` | Body text | 16.6:1 on white, 14.8:1 on #F5F5F5 — passes AA & AAA |
 | `--color-text-secondary` | `#555555` | Captions, metadata | 7.5:1 on white — passes AA & AAA |
+| `--color-text-muted` | `#888888` | Hints, tertiary captions | 3.5:1 on white — large text / decorative |
 | `--color-border` | `#E0E0E0` | Card borders, dividers | Decorative only |
-| `--color-success` | `#2E7D32` | Status badges (accepted) | 5.9:1 on white — passes AA |
+| `--color-border-strong` | `#C8D2E2` | Filter chip borders | Decorative only |
+| `--color-success` | `#2E7D32` | Status badges (accepted), wins banner | 5.9:1 on white — passes AA |
 | `--color-warning` | `#F57F17` | Status badges (proposed) | 3.0:1 on white — use with dark text |
-| `--color-error` | `#C62828` | Validation errors | 7.1:1 on white — passes AA |
+| `--color-error` | `#C62828` | Validation errors, regressions banner | 7.1:1 on white — passes AA |
 
-### Cluster Colors
+### Cluster Colors (R7-darkened — see ADR-010)
 
 | Cluster | Color | Token |
 |---------|-------|-------|
 | Discover the Program | `#0033A0` (primary) | `--color-cluster-discover` |
-| Explore the Science | `#00A3E0` (secondary) | `--color-cluster-explore` |
-| Build and Compute | `#F47B20` (accent) | `--color-cluster-build` |
+| Explore the Science | `#0085C0` (R7-darkened from `#00A3E0`) | `--color-cluster-explore` |
+| Build and Compute | `#D86510` (R7-darkened from `#F47B20`) | `--color-cluster-build` |
+
+### Change History
+
+| Version | Date | Change |
+|---|---|---|
+| 0.1.0 | 2026-04-08 | Initial palette: `#00A3E0` secondary, `#F47B20` accent. |
+| 0.1.1 | 2026-05-11 | R7 darkening formalised (ADR-010): secondary `#00A3E0` → `#0085C0`, accent `#F47B20` → `#D86510`. New tokens for `--color-text-muted`, `--color-surface-banner`, `--color-border-strong`. CSS custom properties now ship in `explorer/assets/styles.css` `:root` block. |
 
 ## Typography
 

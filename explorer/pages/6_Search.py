@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from urllib.parse import quote, unquote
+from urllib.parse import quote
 
 import streamlit as st
 
@@ -30,6 +30,7 @@ if str(_EXPLORER_DIR) not in sys.path:
 from components.footer import render_footer
 from components.header import render_header
 from lib.bibliography import BibEntry, collect_bibliography
+from lib.routing import query_param
 from lib.search import Index, SearchHit, index_from_repo, search
 
 st.set_page_config(page_title="Search — eBERlight", page_icon="🔍", layout="wide")
@@ -50,22 +51,13 @@ def _cached_bibliography() -> list[BibEntry]:
     return collect_bibliography(_REPO_ROOT)
 
 
-def _query_param(name: str) -> str | None:
-    raw = st.query_params.get(name)
-    if raw is None:
-        return None
-    if isinstance(raw, list):
-        return unquote(raw[0]) if raw else None
-    return unquote(str(raw))
-
-
 idx = _cached_index()
 bibliography = _cached_bibliography()
 
 render_header(active_cluster=None, show_search=False)
 st.markdown(
-    '<h1 style="color:#0033A0;">🔍 Search</h1>'
-    '<p style="color:#555;font-size:16px;margin-bottom:16px;">'
+    '<h1 style="color:var(--color-primary);">🔍 Search</h1>'
+    '<p style="color:var(--color-text-secondary);font-size:16px;margin-bottom:16px;">'
     f"Full-text search over <b>{len(idx)}</b> notes plus a unified "
     f"bibliography of <b>{len(bibliography)}</b> BibTeX entries.</p>",
     unsafe_allow_html=True,
@@ -77,7 +69,7 @@ st.markdown(
 # ---------------------------------------------------------------------------
 
 
-initial_q = _query_param("q") or ""
+initial_q = query_param("q") or ""
 query = st.text_input(
     "Type a query — terms are AND-ed implicitly; titles are boosted ×2",
     value=initial_q,
@@ -123,16 +115,17 @@ if query:
         )
         folder_label = hit.note.folder.split("_", 1)[1].replace("_", " ").title()
         st.markdown(
-            f'<div class="eberlight-card" style="margin-bottom:12px;">'
+            f'<div class="eberlight-card eberlight-card--accent-primary" '
+            f'style="margin-bottom:12px;">'
             f'<h4 style="margin:0 0 6px 0;">'
             f'<a href="{href}" target="_self" '
-            f'style="color:#0033A0;text-decoration:none;">{hit.note.title}</a>'
+            f'style="color:var(--color-primary);text-decoration:none;">{hit.note.title}</a>'
             f"</h4>"
-            f'<p style="font-size:12px;color:#888;margin:0 0 6px 0;">'
+            f'<p style="font-size:12px;color:var(--color-text-muted);margin:0 0 6px 0;">'
             f"{folder_label} · score {hit.score:.2f}</p>"
-            f'<p style="font-size:14px;color:#333;margin:0 0 8px 0;'
+            f'<p style="font-size:14px;color:var(--color-text);margin:0 0 8px 0;'
             f'line-height:1.5;">{hit.snippet}</p>'
-            f'<p style="font-size:12px;color:#666;margin:0;">'
+            f'<p style="font-size:12px;color:var(--color-text-secondary);margin:0;">'
             f"Matched: {terms_html}</p>"
             "</div>",
             unsafe_allow_html=True,

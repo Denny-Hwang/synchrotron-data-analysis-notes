@@ -1,12 +1,25 @@
 # Synchrotron Data Analysis Notes & eBERlight Explorer
 
-Research notes plus an interactive learning portal over synchrotron X-ray
-data analysis and AI/ML methods at Argonne National Laboratory's Advanced
-Photon Source (APS). Written so a beamline scientist, a new BER user, or a
-computational researcher can each find what they need from the same corpus.
+> **Personal research project — not an official APS / ANL property.**
+> This repository is a self-directed learning and study workspace for one
+> researcher. It is **not** affiliated with, endorsed by, or operated on
+> behalf of Argonne National Laboratory, the Advanced Photon Source, or
+> the DOE. The visual style is inspired by APS materials for personal
+> familiarity only; no official branding is claimed. The bundled sample
+> data is redistributed under its original permissive licenses (see
+> `10_interactive_lab/LICENSES/`), but **the original data owners have
+> not been consulted regarding any public deployment of this app**, so
+> the project is intended for local / private use only — please do not
+> host it publicly without first contacting the upstream data sources.
+
+Personal study notes plus a local interactive portal over synchrotron
+X-ray data analysis and AI/ML methods, organised around the eBERlight
+program at the APS as a learning topic. Written so the same notes can
+serve later review as a beamline scientist, a new BER user, or a
+computational researcher might each need from one corpus.
 
 ![notes-v0.10.0](https://img.shields.io/badge/notes-v0.10.0-blue)
-![explorer-v0.7.2](https://img.shields.io/badge/explorer-v0.7.2-green)
+![explorer-v0.8.0](https://img.shields.io/badge/explorer-v0.8.0-green)
 [![tests](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml)
 [![pages](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml)
 ![license: MIT](https://img.shields.io/badge/license-MIT-lightgrey)
@@ -49,7 +62,7 @@ Two independent versioned artifacts (per [ADR-006](docs/02_design/decisions/ADR-
 The notes ship as `notes-vX.Y.Z` and the app ships as `explorer-vX.Y.Z` —
 content velocity differs from app velocity. See
 [CHANGELOG.md](CHANGELOG.md) for the full release history (currently at
-notes-v0.10.0 / explorer-v0.7.1).
+notes-v0.10.0 / explorer-v0.8.0).
 
 ## At a glance
 
@@ -123,7 +136,7 @@ streamlit run explorer/app.py    # ← THIS one. NOT eberlight-explorer/app.py.
 
 The app opens at `http://localhost:8501`. The seven pages mirror the
 information architecture (ADR-004) and have been refined across phases
-R1 → R12 (currently `explorer-v0.7.1`):
+R1 → R15 (currently `explorer-v0.8.0`):
 
 | Page | What it does |
 |---|---|
@@ -220,6 +233,9 @@ Full project documentation lives in [`docs/`](docs/) — see
   - `explorer-v0.6.1` (REL-E061) — first-impression UX polish (R10)
   - `explorer-v0.7.0` (REL-E070) — vis.js KG + Lab impact + 5 recipes (R11)
   - `explorer-v0.7.1` (REL-E071) — bug fixes from user review (R12)
+  - `explorer-v0.8.0` (REL-E080) — senior-review polish: tone reframing,
+    routing/CSS-token unification, onboarding + cluster orientation,
+    glossary auto-link, smoke tests (R15)
 - **Glossary & contributing**: [`docs/06_meta/`](docs/06_meta/)
 
 ## Engineering principles

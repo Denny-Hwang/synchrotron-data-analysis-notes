@@ -19,10 +19,12 @@ Ref: ADR-002 — Notes are the single source of truth (Mermaid blocks
 from __future__ import annotations
 
 import re
+from pathlib import Path
 
 import markdown
 import streamlit as st
 import streamlit.components.v1 as components
+from lib.glossary import annotate_html, load_glossary
 from pygments.formatters import HtmlFormatter
 
 from .breadcrumb import render_breadcrumb
@@ -36,6 +38,15 @@ _MERMAID_BLOCK = re.compile(
 )
 
 
+def _repo_root_from_explorer() -> Path:
+    """Locate the repo root from this file's path.
+
+    ``components/`` is a sibling of ``lib/`` under ``explorer/``; the
+    repo root is two parents up.
+    """
+    return Path(__file__).resolve().parent.parent.parent
+
+
 def _md_to_html(body: str) -> str:
     """Render markdown to HTML using the same extensions as the static site.
 
@@ -46,8 +57,14 @@ def _md_to_html(body: str) -> str:
     HDF5 schema listings JavaScript, then emits a dense
     ``<span class="nx">`` soup that Streamlit's React layer collapses
     to ``[object Object]`` rows. R11 I1.
+
+    REL-E080: after the markdown pass we run ``annotate_html`` so the
+    first occurrence of each known glossary term is wrapped in an
+    ``<abbr class="eberlight-glossary" title="…">`` tag. The annotator
+    skips text inside code blocks, links, headings, and existing abbrs,
+    so this is safe to bolt on at the bottom of the pipeline.
     """
-    return markdown.markdown(
+    html = markdown.markdown(
         body,
         extensions=["fenced_code", "tables", "toc", "codehilite"],
         extension_configs={
@@ -58,6 +75,8 @@ def _md_to_html(body: str) -> str:
             }
         },
     )
+    glossary = load_glossary(_repo_root_from_explorer())
+    return annotate_html(html, glossary)
 
 
 def _render_mermaid_iframe(code: str, height: int = 480) -> None:
@@ -123,6 +142,70 @@ def _render_body_with_mermaid(body: str, highlight_css: str) -> None:
         st.markdown(f"<style>{highlight_css}</style>{html}", unsafe_allow_html=True)
 
 
+def _render_note_main_column(
+    *,
+    title: str,
+    body: str,
+    permalink: str | None,
+    metrics: list[tuple[str, str]] | None,
+    section_tabs: list[tuple[str, str]] | None,
+    notebooks: list[tuple[str, str]] | None,
+    prev_note: tuple[str, str] | None,
+    next_note: tuple[str, str] | None,
+) -> None:
+    """Render the main (left) column of the note detail view.
+
+    Split out of ``render_note_view`` in REL-E080 so the orchestrator
+    is short enough to read in one glance and the three independent
+    rendering stages (header chrome, body, footer chrome) can be
+    tested separately.
+    """
+    st.markdown(f"# {title}")
+    if permalink:
+        _render_permalink_button(permalink)
+    if metrics:
+        _render_metric_row(metrics)
+
+    formatter = HtmlFormatter(style="monokai", noclasses=True)
+    highlight_css = formatter.get_style_defs(".highlight")
+    if section_tabs:
+        _render_section_tabs(section_tabs, highlight_css)
+    else:
+        _render_body_with_mermaid(body, highlight_css)
+
+    if notebooks:
+        _render_notebooks_section(notebooks)
+    if prev_note or next_note:
+        _render_prev_next_nav(prev_note, next_note)
+
+
+def _render_note_meta_column(
+    *,
+    tags: list[str],
+    modality: str | None,
+    beamline: list[str],
+    related_publications: list[str],
+    related_tools: list[str],
+    publication_links: list[tuple[str, str | None]] | None,
+    tool_links: list[tuple[str, str | None]] | None,
+    last_reviewed: str | None,
+    toc_items: list[tuple[int, str, str]] | None,
+) -> None:
+    """Render the right metadata column (TOC + sidebar) of the note view."""
+    if toc_items:
+        _render_toc(toc_items)
+    _render_metadata_panel(
+        tags,
+        modality,
+        beamline,
+        related_publications,
+        related_tools,
+        publication_links=publication_links,
+        tool_links=tool_links,
+        last_reviewed=last_reviewed,
+    )
+
+
 def render_note_view(
     title: str,
     body: str,
@@ -146,6 +229,11 @@ def render_note_view(
     last_reviewed: str | None = None,
 ) -> None:
     """Render a full note detail view with metadata panel.
+
+    Thin orchestrator (REL-E080): emits the breadcrumb, opens the
+    two-column layout, then delegates each column to a focused
+    helper (``_render_note_main_column`` / ``_render_note_meta_column``).
+    The helpers carry the actual logic.
 
     Args:
         title: Note title.
@@ -173,7 +261,6 @@ def render_note_view(
             when present, renders an in-page table of contents
             sidebar above the metadata panel.
     """
-    # Breadcrumb
     render_breadcrumb(
         [
             ("Home", "/"),
@@ -182,43 +269,29 @@ def render_note_view(
         ]
     )
 
-    # Two-column layout: main content + metadata panel
     col_main, col_meta = st.columns([3, 1])
-
     with col_main:
-        st.markdown(f"# {title}")
-        if permalink:
-            _render_permalink_button(permalink)
-
-        if metrics:
-            _render_metric_row(metrics)
-
-        # Render markdown with code highlighting + inline Mermaid blocks.
-        formatter = HtmlFormatter(style="monokai", noclasses=True)
-        highlight_css = formatter.get_style_defs(".highlight")
-        if section_tabs:
-            _render_section_tabs(section_tabs, highlight_css)
-        else:
-            _render_body_with_mermaid(body, highlight_css)
-
-        if notebooks:
-            _render_notebooks_section(notebooks)
-
-        if prev_note or next_note:
-            _render_prev_next_nav(prev_note, next_note)
-
+        _render_note_main_column(
+            title=title,
+            body=body,
+            permalink=permalink,
+            metrics=metrics,
+            section_tabs=section_tabs,
+            notebooks=notebooks,
+            prev_note=prev_note,
+            next_note=next_note,
+        )
     with col_meta:
-        if toc_items:
-            _render_toc(toc_items)
-        _render_metadata_panel(
-            tags,
-            modality,
-            beamline,
-            related_publications,
-            related_tools,
+        _render_note_meta_column(
+            tags=tags,
+            modality=modality,
+            beamline=beamline,
+            related_publications=related_publications,
+            related_tools=related_tools,
             publication_links=publication_links,
             tool_links=tool_links,
             last_reviewed=last_reviewed,
+            toc_items=toc_items,
         )
 
 
@@ -281,13 +354,14 @@ def _render_permalink_button(url: str) -> None:
 <div style="display:flex;align-items:center;gap:8px;margin:0 0 4px 0;
             font-family:'Source Sans 3', system-ui, -apple-system, sans-serif;">
   <button id="copy-permalink-btn" type="button"
-          style="background:#E8EEF6;border:1px solid #0033A0;
-                 color:#0033A0;border-radius:14px;
+          style="background:var(--color-surface-banner, #E8EEF6);
+                 border:1px solid var(--color-primary, #0033A0);
+                 color:var(--color-primary, #0033A0);border-radius:14px;
                  padding:6px 14px;font-size:13px;cursor:pointer;
                  font-weight:600;line-height:1;">
     🔗 Copy permalink
   </button>
-  <span style="font-size:12px;color:#888;">Share this exact view</span>
+  <span style="font-size:12px;color:var(--color-text-muted, #888);">Share this exact view</span>
 </div>
 <script>
 (function() {{
@@ -344,18 +418,19 @@ def _render_toc(items: list[tuple[int, str, str]]) -> None:
         safe_h = heading.replace("<", "&lt;").replace(">", "&gt;")
         rows.append(
             f'<div style="font-size:13px;margin:2px 0;padding-left:{len(indent) * 8}px;">'
-            f'<a href="#{anchor}" style="color:#0033A0;text-decoration:none;">'
-            f"{safe_h}</a></div>"
+            f'<a href="#{anchor}" style="color:var(--color-primary);'
+            f'text-decoration:none;">{safe_h}</a></div>'
         )
     if not rows:
         return
     st.markdown(
         f"""
-        <aside aria-label="On this page" style="background:#FFFFFF;
-               border:1px solid #E0E0E0;border-radius:8px;
+        <aside aria-label="On this page" style="background:var(--color-surface-alt);
+               border:1px solid var(--color-border);border-radius:var(--radius-md);
                padding:16px;margin-bottom:16px;">
             <div style="font-size:11px;font-weight:700;text-transform:uppercase;
-                        letter-spacing:0.5px;color:#555;margin-bottom:8px;">
+                        letter-spacing:0.5px;color:var(--color-text-secondary);
+                        margin-bottom:8px;">
                 On this page
             </div>
             {"".join(rows)}
@@ -384,18 +459,19 @@ def _render_notebooks_section(notebooks: list[tuple[str, str]]) -> None:
             f'<li style="margin-bottom:6px;">'
             f"<code>{filename}</code> &nbsp;·&nbsp; "
             f'<a href="{github_url}" target="_blank" rel="noopener" '
-            f'style="color:#0033A0;">GitHub ↗</a> &nbsp;·&nbsp; '
+            f'style="color:var(--color-primary);">GitHub ↗</a> &nbsp;·&nbsp; '
             f'<a href="{nbviewer}" target="_blank" rel="noopener" '
-            f'style="color:#0033A0;">nbviewer ↗</a></li>'
+            f'style="color:var(--color-primary);">nbviewer ↗</a></li>'
         )
     st.markdown(
         f"""
         <section style="margin-top:32px;padding:20px;background:#FAFBFC;
-                        border-left:4px solid #D86510;border-radius:8px;">
-            <h3 style="margin:0 0 8px 0;font-size:18px;color:#D86510;">
+                        border-left:4px solid var(--color-accent);
+                        border-radius:var(--radius-md);">
+            <h3 style="margin:0 0 8px 0;font-size:18px;color:var(--color-accent);">
                 📓 Notebooks
             </h3>
-            <p style="font-size:13px;color:#555;margin:0 0 12px 0;">
+            <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 12px 0;">
                 Sibling Jupyter notebooks in this note's folder.
                 Open in your browser via nbviewer (read-only) or fork via GitHub.
             </p>
@@ -413,14 +489,14 @@ def _render_prev_next_nav(
     """Render bottom-of-page prev/next-in-folder navigation."""
     prev_html = (
         f'<a href="{prev_note[1]}" target="_self" '
-        f'style="color:#0033A0;text-decoration:none;font-size:14px;">'
+        f'style="color:var(--color-primary);text-decoration:none;font-size:14px;">'
         f"← {prev_note[0]}</a>"
         if prev_note
         else "<span></span>"
     )
     next_html = (
         f'<a href="{next_note[1]}" target="_self" '
-        f'style="color:#0033A0;text-decoration:none;font-size:14px;">'
+        f'style="color:var(--color-primary);text-decoration:none;font-size:14px;">'
         f"{next_note[0]} →</a>"
         if next_note
         else "<span></span>"
@@ -429,15 +505,15 @@ def _render_prev_next_nav(
         f"""
         <nav aria-label="Folder navigation" style="display:flex;
              justify-content:space-between;margin-top:32px;padding:16px 0;
-             border-top:1px solid #E0E0E0;">
+             border-top:1px solid var(--color-border);">
             <div style="text-align:left;max-width:45%;">
-                <div style="font-size:11px;color:#888;text-transform:uppercase;
-                            letter-spacing:0.5px;">Previous</div>
+                <div style="font-size:11px;color:var(--color-text-muted);
+                            text-transform:uppercase;letter-spacing:0.5px;">Previous</div>
                 {prev_html}
             </div>
             <div style="text-align:right;max-width:45%;">
-                <div style="font-size:11px;color:#888;text-transform:uppercase;
-                            letter-spacing:0.5px;">Next</div>
+                <div style="font-size:11px;color:var(--color-text-muted);
+                            text-transform:uppercase;letter-spacing:0.5px;">Next</div>
                 {next_html}
             </div>
         </nav>
@@ -465,12 +541,12 @@ def _format_link_list(
             pieces.append(
                 f'<div style="font-size:14px;margin-bottom:4px;">'
                 f'<a href="{href}" target="_self" '
-                f'style="color:#0033A0;text-decoration:none;">{label}</a></div>'
+                f'style="color:var(--color-primary);text-decoration:none;">{label}</a></div>'
             )
         else:
             pieces.append(
-                f'<div style="font-size:14px;color:#555;margin-bottom:4px;" '
-                f'title="No matching note found">{label}</div>'
+                f'<div style="font-size:14px;color:var(--color-text-secondary);'
+                f'margin-bottom:4px;" title="No matching note found">{label}</div>'
             )
     return "".join(pieces)
 
@@ -489,69 +565,65 @@ def _render_metadata_panel(
     """Render the right-side metadata panel."""
     sections: list[str] = []
 
+    # Shared section-label markup — REL-E080 lifted the repeated inline
+    # style chunk into a single f-string template so a label-style change
+    # only needs editing once.
+    label = (
+        '<div style="font-size:12px;font-weight:600;text-transform:uppercase;'
+        "letter-spacing:0.5px;color:var(--color-text-secondary);"
+        'margin-bottom:8px;">{}</div>'
+    )
+
     if beamline:
         badges = " ".join(
-            f'<span style="background:#0033A0;color:white;padding:4px 12px;'
+            f'<span style="background:var(--color-primary);'
+            f"color:var(--color-text-inverse);padding:4px 12px;"
             f'border-radius:12px;font-size:12px;font-weight:600;">{bl}</span>'
             for bl in beamline
         )
         sections.append(
-            f'<div style="margin-bottom:20px;">'
-            f'<div style="font-size:12px;font-weight:600;text-transform:uppercase;'
-            f'letter-spacing:0.5px;color:#555;margin-bottom:8px;">Beamlines</div>'
+            f'<div style="margin-bottom:20px;">{label.format("Beamlines")}'
             f'<div style="display:flex;gap:6px;flex-wrap:wrap;">{badges}</div></div>'
         )
 
     if modality:
         sections.append(
-            f'<div style="margin-bottom:20px;">'
-            f'<div style="font-size:12px;font-weight:600;text-transform:uppercase;'
-            f'letter-spacing:0.5px;color:#555;margin-bottom:8px;">Modality</div>'
+            f'<div style="margin-bottom:20px;">{label.format("Modality")}'
             f'<span class="eberlight-tag">{modality}</span></div>'
         )
 
     if tags:
         tags_html = " ".join(f'<span class="eberlight-tag">{t}</span>' for t in tags)
         sections.append(
-            f'<div style="margin-bottom:20px;">'
-            f'<div style="font-size:12px;font-weight:600;text-transform:uppercase;'
-            f'letter-spacing:0.5px;color:#555;margin-bottom:8px;">Tags</div>'
-            f"<div>{tags_html}</div></div>"
+            f'<div style="margin-bottom:20px;">{label.format("Tags")}<div>{tags_html}</div></div>'
         )
 
     if related_publications or publication_links:
         links_html = _format_link_list(related_publications, publication_links)
         sections.append(
-            f'<div style="margin-bottom:20px;">'
-            f'<div style="font-size:12px;font-weight:600;text-transform:uppercase;'
-            f'letter-spacing:0.5px;color:#555;margin-bottom:8px;">Publications</div>'
-            f"{links_html}</div>"
+            f'<div style="margin-bottom:20px;">{label.format("Publications")}{links_html}</div>'
         )
 
     if related_tools or tool_links:
         links_html = _format_link_list(related_tools, tool_links)
         sections.append(
-            f'<div style="margin-bottom:20px;">'
-            f'<div style="font-size:12px;font-weight:600;text-transform:uppercase;'
-            f'letter-spacing:0.5px;color:#555;margin-bottom:8px;">Related Tools</div>'
-            f"{links_html}</div>"
+            f'<div style="margin-bottom:20px;">{label.format("Related Tools")}{links_html}</div>'
         )
 
     if last_reviewed:
         # R10 P1-8: surface DC-001's optional last_reviewed date so the
         # reader knows when an author last vouched for the note's content.
         sections.append(
-            f'<div style="margin-bottom:20px;">'
-            f'<div style="font-size:12px;font-weight:600;text-transform:uppercase;'
-            f'letter-spacing:0.5px;color:#555;margin-bottom:8px;">Last reviewed</div>'
-            f'<div style="font-size:14px;color:#333;">{last_reviewed}</div></div>'
+            f'<div style="margin-bottom:20px;">{label.format("Last reviewed")}'
+            f'<div style="font-size:14px;color:var(--color-text);">{last_reviewed}</div>'
+            "</div>"
         )
 
     if sections:
         panel_html = (
-            '<aside aria-label="Note metadata" style="background:#FFFFFF;'
-            'border:1px solid #E0E0E0;border-radius:8px;padding:24px;">'
-            + "".join(sections)
-            + "</aside>"
+            '<aside aria-label="Note metadata" '
+            'style="background:var(--color-surface-alt);'
+            "border:1px solid var(--color-border);"
+            'border-radius:var(--radius-md);padding:24px;">' + "".join(sections) + "</aside>"
         )
         st.markdown(panel_html, unsafe_allow_html=True)
