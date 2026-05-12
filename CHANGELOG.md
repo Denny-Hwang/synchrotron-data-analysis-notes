@@ -6,6 +6,63 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [explorer-0.8.1] - 2026-05-11
+
+**Phase R15.1 — re-review follow-ups (bugs + medium issues).**
+Patch release. Release notes:
+[REL-E081](docs/05_release/release_notes/explorer-v0.8.1.md).
+
+### Fixed
+- **B1**: glossary auto-link `<abbr>` was wrapping the same term
+  multiple times in notes that contained Mermaid diagrams (one wrap
+  per text segment between diagrams). `annotate_html` now accepts a
+  shared `used` set; the body renderer threads one through every
+  segment so the "first occurrence per note" promise holds.
+- **B2**: `_build_match_regex` was recompiled per note in the static-
+  site build (188 calls). New `_cached_match_regex` wrapper with
+  `lru_cache` keyed on the term tuple drops it to one compile per
+  build.
+- **B3**: `<abbr>` glossary tooltips were unreachable from the
+  keyboard. Added `tabindex="0"` and a `:focus-visible` outline.
+- **B4**: static-site landing scenario cards that route to
+  interactive stubs now carry a small "(needs local Streamlit)"
+  suffix so the click doesn't surprise the reader.
+
+### Added
+- **S1**: "Related views" aside below the metadata panel on every
+  note detail — 1-click jumps to Knowledge Graph, Troubleshooter,
+  same-modality notes filter, and Search.
+- **S2**: `📋 Table` / `🃏 Cards` layout toggle on Discover /
+  Explore / Build cluster pages. Folder + tag filters carry through.
+  Mirrored on the static site via sibling output files.
+- **S4**: "Replay-only Lab" banner immediately under the Lab h1 with
+  pointers to `experiments/<recipe>/pipeline.py` for applying recipes
+  to user-supplied data outside the app.
+- **S5**: tablet breakpoint (max-width 1024px) that collapses the
+  onboarding 3-col grid to 2, and full
+  `@media (prefers-color-scheme: dark)` token re-binding for both the
+  Streamlit CSS and the static-site CSS.
+
+### Changed
+- **S3**: `ZoomIndicator` component flagged **deferred** in DS-001
+  v0.1.2 — superseded by the Detail Level pills and the cluster
+  orientation header.
+- **M1**: Recipe cache key now auto-derived from
+  `dataclasses.fields(Recipe)`; magic `_CACHE_VERSION = "v3-r12"`
+  string removed.
+- **M2**: GitHub repo URL overridable via
+  `EBERLIGHT_GITHUB_BLOB_PREFIX` / `EBERLIGHT_GITHUB_REPO_URL` env
+  vars on Streamlit and the static site respectively.
+- **M3**: DS-001 status `draft → accepted` at v0.1.2.
+- **M4**: `_repo_root_from_explorer` falls back to walking ancestors
+  for the `10_interactive_lab` marker dir.
+- **M5**: TOC sidebar now surfaces at L1 as well as L2.
+- **M6**: Cluster first-steps copy pre-bolded with `<b>` HTML;
+  inline regex markdown-to-HTML pass removed.
+- **M7**: Static-site footer softened ("centred on the eBERlight
+  program" → "uses … as a representative case study").
+- **M8**: `load_glossary` `lru_cache(maxsize=4)` → `maxsize=1`.
+
 ## [explorer-0.8.0] - 2026-05-11
 
 **Phase R15 — senior-review polish: tone reframing + UX/code-quality lift.**

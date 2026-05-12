@@ -62,6 +62,41 @@
     }
 }
 
+/* Dark-mode tokens (REL-E081 S5) — re-bind the custom-property palette
+   when the OS signals ``prefers-color-scheme: dark``. Only the .eberlight-*
+   components and inline ``style="color:var(--color-...)"`` strings will
+   pick this up; Streamlit's native widgets stay on their config.toml
+   theme. The brand hues lift to higher luminance so primary/secondary
+   keep WCAG AA contrast against the dark surface. */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-surface: #121821;
+        --color-surface-alt: #1A2230;
+        --color-surface-banner: #1B2A44;
+        --color-surface-hover: #243047;
+        --color-text: #E8ECF1;
+        --color-text-secondary: #9DA8B8;
+        --color-text-muted: #6F7B8A;
+        --color-text-inverse: #FFFFFF;
+        --color-border: #2A3447;
+        --color-border-soft: #2A3447;
+        --color-border-strong: #3A4860;
+        --color-primary: #6FA0FF;
+        --color-primary-hover: #8FB8FF;
+        --color-secondary: #5DC4FF;
+        --color-accent: #FF8A4C;
+        --color-success: #6CC07A;
+        --color-success-bg: #1F3A28;
+        --color-success-fg: #B5E8BE;
+        --color-warning: #F2B450;
+        --color-warning-bg: #3A2E18;
+        --color-warning-fg: #F8DCA0;
+        --color-error: #FF6B65;
+        --color-error-bg: #3A1B19;
+        --color-error-fg: #FFC0BC;
+    }
+}
+
 /* In-page anchor scroll polish (R10 P1-3). Streamlit's main column
    has a sticky header that overlaps with anchor jump positions; a
    72px scroll-margin offsets that. ``scroll-behavior: smooth`` makes
@@ -480,12 +515,21 @@ a.eberlight-tag:hover {
 /* === Glossary auto-link tooltip (REL-E080) — `<abbr class="glossary">`
        is injected into note bodies for known terms; a soft dotted
        underline signals "hover me for a definition" without competing
-       with real links. === */
+       with real links. REL-E081 B3 — abbr now ships with
+       ``tabindex="0"`` so keyboard users can land on it; the focus
+       outline below makes the focus state visible. === */
 abbr.eberlight-glossary {
     text-decoration: underline dotted var(--color-text-muted);
     text-underline-offset: 3px;
     cursor: help;
     border: 0;
+}
+abbr.eberlight-glossary:focus,
+abbr.eberlight-glossary:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    background: var(--color-surface-banner);
+    border-radius: 2px;
 }
 
 /* === Responsive (R10 P1-1 — only one media query existed before for the
@@ -523,5 +567,14 @@ abbr.eberlight-glossary {
     }
     div[style*="grid-template-columns: 1fr 1fr"] {
         grid-template-columns: 1fr !important;
+    }
+}
+
+/* REL-E081 S5 — tablet breakpoint. Between 721px and 1024px iPad-class
+   devices were getting the desktop layout, which crammed the 3-column
+   onboarding + cluster grids. Halve them to 2 cols. */
+@media (max-width: 1024px) and (min-width: 721px) {
+    .eberlight-onboarding .scenarios {
+        grid-template-columns: 1fr 1fr;
     }
 }
