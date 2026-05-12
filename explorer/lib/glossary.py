@@ -66,18 +66,32 @@ def _parse_glossary_text(text: str) -> dict[str, str]:
     return glossary
 
 
-@lru_cache(maxsize=4)
+@lru_cache(maxsize=1)
 def load_glossary(repo_root: Path) -> dict[str, str]:
     """Return ``{term: definition}`` parsed from ``08_references/glossary.md``.
 
     Cached on the absolute path so repeated calls across a Streamlit
-    session pay the file IO + regex pass exactly once.
+    session pay the file IO + regex pass exactly once. ``maxsize=1`` —
+    we only ever use a single repo root (REL-E081 M8).
     """
     path = Path(repo_root) / "08_references" / "glossary.md"
     if not path.exists():
         return {}
     text = path.read_text(encoding="utf-8")
     return _parse_glossary_text(text)
+
+
+@lru_cache(maxsize=4)
+def _cached_match_regex(terms: tuple[str, ...]) -> re.Pattern[str]:
+    """Cached version of :func:`_build_match_regex` keyed on the term tuple.
+
+    REL-E081 B2 — the static-site builder calls ``annotate_html`` once per
+    note (188 notes per build) and the Streamlit body renderer calls it
+    once per markdown segment. Without caching the ~60-term alternation
+    regex was recompiled each time; this brings it down to one compile
+    per build (or per glossary edit during dev).
+    """
+    return _build_match_regex(list(terms))
 
 
 def _build_match_regex(terms: list[str]) -> re.Pattern[str]:
@@ -98,7 +112,12 @@ def _build_match_regex(terms: list[str]) -> re.Pattern[str]:
     return re.compile(r"\b(" + "|".join(escaped) + r")\b", re.IGNORECASE)
 
 
-def annotate_html(html: str, glossary: dict[str, str]) -> str:
+def annotate_html(
+    html: str,
+    glossary: dict[str, str],
+    *,
+    used: set[str] | None = None,
+) -> str:
     """Wrap the first occurrence of each glossary term in an ``<abbr>``.
 
     Walks the input HTML token-by-token using a regex split, tracks
@@ -109,25 +128,35 @@ def annotate_html(html: str, glossary: dict[str, str]) -> str:
     Args:
         html: Rendered HTML body (post-markdown).
         glossary: ``{term: definition}`` mapping from :func:`load_glossary`.
+        used: Optional **shared** "already-wrapped" set. When provided,
+            the annotator will both read it (to skip terms already
+            wrapped by a previous call) **and** mutate it (so later
+            calls see the additions). Callers that render a single
+            note body in multiple HTML segments (the Streamlit
+            Mermaid-aware renderer splits at each ``‌```mermaid``
+            block) should allocate one set and pass it through, so
+            the "first occurrence **per document**" promise holds
+            across the segment boundary. REL-E081 B1.
 
     Returns:
         HTML with the first occurrence of each glossary term wrapped in
-        ``<abbr class="eberlight-glossary" title="...">term</abbr>``.
+        ``<abbr class="eberlight-glossary" tabindex="0" title="...">term</abbr>``.
         If ``glossary`` is empty or no matches occur the input is
         returned unchanged.
     """
     if not html or not glossary:
         return html
 
-    regex = _build_match_regex(list(glossary.keys()))
+    regex = _cached_match_regex(tuple(glossary.keys()))
     glossary_lc = {k.lower(): v for k, v in glossary.items()}
+    if used is None:
+        used = set()
 
     # Token-by-token walk. Tags get appended verbatim and their
     # open/close kind toggles the skip-stack. Text segments outside
     # the skip-stack get glossary substitution.
     out: list[str] = []
     stack: list[str] = []
-    used: set[str] = set()
     tokens = _HTML_TOKEN.split(html)
 
     def _substitute(text: str) -> str:
@@ -141,7 +170,12 @@ def annotate_html(html: str, glossary: dict[str, str]) -> str:
                 return term
             used.add(lc)
             safe_defn = escape(defn, quote=True)
-            return f'<abbr class="eberlight-glossary" title="{safe_defn}">{term}</abbr>'
+            # ``tabindex="0"`` makes the term keyboard-focusable so screen-
+            # reader / keyboard users can land on it; pair with the CSS
+            # ``:focus`` outline rule in styles.css for visual feedback.
+            return (
+                f'<abbr class="eberlight-glossary" tabindex="0" title="{safe_defn}">{term}</abbr>'
+            )
 
         return regex.sub(_repl, text)
 

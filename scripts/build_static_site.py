@@ -35,6 +35,7 @@ from __future__ import annotations
 import argparse
 import html as html_escape_mod
 import logging
+import os
 import re
 import shutil
 import subprocess
@@ -42,6 +43,7 @@ import sys
 from datetime import datetime
 from itertools import groupby
 from pathlib import Path
+from urllib.parse import quote
 
 import markdown
 from pygments.formatters import HtmlFormatter
@@ -58,6 +60,14 @@ from lib.ia import CLUSTER_META, FOLDER_TO_CLUSTER, get_folders_for_cluster
 from lib.notes import Note, load_notes
 
 logger = logging.getLogger("build_static_site")
+
+# REL-E081 M2 — mirror of explorer/lib/cluster_page._GITHUB_BLOB_PREFIX so
+# the static site's "see this note on GitHub" links honour the same
+# ``EBERLIGHT_GITHUB_BLOB_PREFIX`` override.
+_GITHUB_REPO_URL = os.environ.get(
+    "EBERLIGHT_GITHUB_REPO_URL",
+    "https://github.com/Denny-Hwang/synchrotron-data-analysis-notes",
+)
 
 # Cluster → file slug used in URLs.
 CLUSTER_SLUG = {"discover": "discover", "explore": "explore", "build": "build"}
@@ -157,7 +167,11 @@ SITE_LAYOUT_CSS = """
 /* === Static site layout (GitHub Pages mirror) ===
    REL-E080: design tokens are now CSS custom properties so this file
    and explorer/assets/styles.css speak the same vocabulary. A single
-   palette change ripples to both surfaces. */
+   palette change ripples to both surfaces.
+   REL-E081 S5: ``prefers-color-scheme: dark`` re-binds the palette
+   for OS-level dark mode; ``max-width: 1024px`` adds a tablet
+   breakpoint between the existing 720px mobile and the desktop
+   layout. */
 :root {
     --color-primary: #0033A0;
     --color-primary-hover: #002270;
@@ -193,6 +207,34 @@ SITE_LAYOUT_CSS = """
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
+    }
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-surface: #121821;
+        --color-surface-alt: #1A2230;
+        --color-surface-banner: #1B2A44;
+        --color-surface-hover: #243047;
+        --color-text: #E8ECF1;
+        --color-text-secondary: #9DA8B8;
+        --color-text-muted: #6F7B8A;
+        --color-text-inverse: #FFFFFF;
+        --color-border: #2A3447;
+        --color-border-soft: #2A3447;
+        --color-border-strong: #3A4860;
+        --color-primary: #6FA0FF;
+        --color-primary-hover: #8FB8FF;
+        --color-secondary: #5DC4FF;
+        --color-accent: #FF8A4C;
+        --color-success: #6CC07A;
+        --color-success-bg: #1F3A28;
+        --color-success-fg: #B5E8BE;
+        --color-warning: #F2B450;
+        --color-warning-bg: #3A2E18;
+        --color-warning-fg: #F8DCA0;
+        --color-error: #FF6B65;
+        --color-error-bg: #3A1B19;
+        --color-error-fg: #FFC0BC;
     }
 }
 html, body { margin: 0; padding: 0; background: var(--color-surface); }
@@ -473,12 +515,44 @@ a { color: var(--color-primary); }
     margin: 0 0 16px 0;
 }
 
-/* REL-E080 — glossary auto-link (mirrors explorer/assets/styles.css). */
+/* REL-E080 — glossary auto-link (mirrors explorer/assets/styles.css).
+   REL-E081 B3 — focus styles match the Streamlit side. */
 abbr.eberlight-glossary {
     text-decoration: underline dotted var(--color-text-muted);
     text-underline-offset: 3px;
     cursor: help;
     border: 0;
+}
+abbr.eberlight-glossary:focus,
+abbr.eberlight-glossary:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    background: var(--color-surface-banner);
+    border-radius: 2px;
+}
+
+/* REL-E081 B4 — small "(needs local Streamlit)" suffix on landing
+   scenario cards that link to interactive stubs. */
+.scenario-card .needs-streamlit {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* REL-E081 S2 — table/cards layout toggle on cluster pages. */
+.eberlight-layout-toggle {
+    display: flex;
+    gap: 8px;
+    margin: 0 0 16px 0;
+}
+
+/* REL-E081 S5 — tablet breakpoint. Halve the 3-col onboarding grid. */
+@media (max-width: 1024px) and (min-width: 901px) {
+    .eberlight-onboarding .scenarios { grid-template-columns: 1fr 1fr; }
 }
 """.strip()
 
@@ -607,15 +681,15 @@ def _footer_html(last_updated: str) -> str:
         data sources.
     </p>
     <p>
-        The notes describe synchrotron X-ray data analysis as a learning
-        topic, centred on the eBERlight program at the Advanced Photon
-        Source. The visual style is ANL/APS-inspired but no official
-        branding is claimed.
+        The notes use synchrotron X-ray data analysis as a representative
+        case study, with the eBERlight program at the Advanced Photon
+        Source as one source-material reference. The visual style is
+        ANL/APS-inspired but no official branding is claimed.
     </p>
     <div class="eberlight-footer-links">
         <a href="https://www.aps.anl.gov/" target="_blank" rel="noopener">APS (reference)</a>
         <a href="https://eberlight.aps.anl.gov/" target="_blank" rel="noopener">eBERlight (reference)</a>
-        <a href="https://github.com/Denny-Hwang/synchrotron-data-analysis-notes" target="_blank" rel="noopener">Repository</a>
+        <a href="{_GITHUB_REPO_URL}" target="_blank" rel="noopener">Repository</a>
     </div>
     <div class="eberlight-footer-updated">Last updated: {last_updated}</div>
 </div>
@@ -634,6 +708,51 @@ def _card_html(title: str, summary: str, tags: list[str], href: str) -> str:
     <div>{tags_html}</div>
 </div>
 """.strip()
+
+
+def _related_views_html(page_path: str, note: Note) -> str:
+    """Render the "Related views" aside on a note page (REL-E081 S1).
+
+    Mirrors :func:`explorer.lib.cluster_page._build_related_views`:
+    every note links to KG + Troubleshooter stubs and to a modality-
+    filtered cluster view, so a reader doesn't have to bounce home
+    to reach the power surfaces.
+    """
+    items: list[tuple[str, str]] = [
+        ("🧠 Knowledge Graph", _rel(page_path, _interactive_stub_page_path("knowledge-graph"))),
+        ("🩺 Troubleshooter", _rel(page_path, _interactive_stub_page_path("troubleshooter"))),
+    ]
+    if note.modality:
+        cluster_href = (
+            _rel(page_path, CLUSTER_PAGE[note.cluster]) + f"?tag={quote(note.modality, safe='')}"
+        )
+        items.append(
+            (
+                f"📚 Other {html_escape_mod.escape(note.modality.replace('_', ' '))} notes",
+                cluster_href,
+            )
+        )
+    items.append(
+        ("🔎 Search across all notes", _rel(page_path, _interactive_stub_page_path("search")))
+    )
+
+    rows = "".join(
+        f'<div style="font-size:13px;margin:4px 0;">'
+        f'<a href="{href}" style="color:var(--color-primary);text-decoration:none;">'
+        f"{label}</a></div>"
+        for label, href in items
+    )
+    return (
+        '<aside aria-label="Related views" '
+        'style="background:var(--color-surface-alt);'
+        "border:1px solid var(--color-border);"
+        'border-radius:var(--radius-md);padding:16px;margin-top:16px;">'
+        '<div style="font-size:11px;font-weight:700;text-transform:uppercase;'
+        'letter-spacing:0.5px;color:var(--color-text-secondary);margin-bottom:8px;">'
+        "Related views</div>"
+        f"{rows}"
+        "</aside>"
+    )
 
 
 def _metadata_panel_html(note: Note) -> str:
@@ -862,15 +981,23 @@ _LANDING_SCENARIOS = (
 
 
 def _scenario_card_html(page_path: str, scenario: dict[str, str]) -> str:
-    """One onboarding scenario card on the landing (REL-E080)."""
+    """One onboarding scenario card on the landing (REL-E080).
+
+    REL-E081 B4: scenarios that route to an interactive-only stub
+    (Troubleshooter, Lab) carry a "(needs local Streamlit)" suffix so
+    the static-site reader isn't surprised when they click and get the
+    "run Streamlit locally" page.
+    """
     if "target_cluster" in scenario:
         href = _rel(page_path, CLUSTER_PAGE[scenario["target_cluster"]])
+        suffix = ""
     else:
         href = _rel(page_path, _interactive_stub_page_path(scenario["target_slug"]))
+        suffix = '<span class="needs-streamlit">(needs local Streamlit)</span>'
     return (
         f'<a class="scenario-card" href="{href}">'
         f'<div class="icon" aria-hidden="true">{scenario["icon"]}</div>'
-        f'<div class="title">{html_escape_mod.escape(scenario["title"])}</div>'
+        f'<div class="title">{html_escape_mod.escape(scenario["title"])} {suffix}</div>'
         f'<div class="body">{html_escape_mod.escape(scenario["body"])}</div>'
         f"</a>"
     )
@@ -1073,6 +1200,35 @@ def _cluster_orientation_html(cluster_id: str, cluster_notes: list[Note]) -> str
     return '<section class="cluster-heading">' + "".join(parts) + "</section>"
 
 
+def _cluster_layout_toggle_html(page_path: str, active: str) -> str:
+    """Render the cluster-page 📋 Table / 🃏 Cards pill row (REL-E081 S2).
+
+    On the static site we generate **two output files** per cluster
+    (``discover.html`` + ``discover-cards.html``) so the toggle is a
+    plain link — no JS required. The active pill is solid, the other
+    outlined; both use the existing ``.eberlight-chip`` styles.
+    """
+    base_name = page_path.rsplit("/", 1)[-1]
+    if base_name.endswith("-cards.html"):
+        table_filename = base_name.replace("-cards.html", ".html")
+        cards_filename = base_name
+    else:
+        table_filename = base_name
+        cards_filename = base_name.replace(".html", "-cards.html")
+
+    def _pill(label: str, href: str, is_active: bool) -> str:
+        cls = "eberlight-chip active" if is_active else "eberlight-chip"
+        aria = "true" if is_active else "false"
+        return f'<a href="{href}" class="{cls}" aria-pressed="{aria}">{label}</a>'
+
+    return (
+        '<div class="eberlight-layout-toggle" role="tablist" aria-label="View layout">'
+        + _pill("📋 Table", table_filename, active == "table")
+        + _pill("🃏 Cards", cards_filename, active == "cards")
+        + "</div>"
+    )
+
+
 def _render_cluster(
     out_dir: Path,
     cluster_id: str,
@@ -1113,14 +1269,64 @@ def _render_cluster(
         if gallery:
             content = gallery + "\n" + content
 
+    toggle = _cluster_layout_toggle_html(page_path, active="table")
     body = f"""
     {_breadcrumb_html(page_path, [("Home", "index.html"), (meta["name"], None)])}
     {_cluster_orientation_html(cluster_id, cluster_notes)}
+    {toggle}
     {content}
 """
     html = _page_shell(
         page_path,
         f"{meta['name']} — eBERlight Explorer",
+        body,
+        active_cluster=cluster_id,
+    )
+    target = out_dir / page_path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(html, encoding="utf-8")
+
+    # REL-E081 S2 — also emit a sibling cards layout. Reuses the cluster
+    # orientation header + recipe gallery (Build only) and renders notes
+    # as a card grid instead of the dataframe-style compare table.
+    _render_cluster_cards(out_dir, cluster_id, cluster_notes, meta)
+
+
+def _render_cluster_cards(
+    out_dir: Path,
+    cluster_id: str,
+    cluster_notes: list[Note],
+    meta: dict[str, str],
+) -> None:
+    """Emit the cards-layout sibling page (e.g. ``clusters/discover-cards.html``)."""
+    page_path = CLUSTER_PAGE[cluster_id].replace(".html", "-cards.html")
+
+    def card_for(note: Note) -> str:
+        summary = note.description or note.body[:200].strip().replace("\n", " ")
+        href = _rel(page_path, _note_output_path(note))
+        return _card_html(note.title, summary, note.tags, href)
+
+    if not cluster_notes:
+        content = '<div class="info-box">No notes found in this cluster.</div>'
+    else:
+        cards = "\n".join(card_for(n) for n in cluster_notes)
+        content = f'<div class="card-grid">{cards}</div>'
+
+    if cluster_id == "build":
+        gallery = _recipe_gallery_html()
+        if gallery:
+            content = gallery + "\n" + content
+
+    toggle = _cluster_layout_toggle_html(page_path, active="cards")
+    body = f"""
+    {_breadcrumb_html(page_path, [("Home", "index.html"), (meta["name"], None)])}
+    {_cluster_orientation_html(cluster_id, cluster_notes)}
+    {toggle}
+    {content}
+"""
+    html = _page_shell(
+        page_path,
+        f"{meta['name']} (cards) — eBERlight Explorer",
         body,
         active_cluster=cluster_id,
     )
@@ -1252,6 +1458,7 @@ def _render_note(out_dir: Path, note: Note, highlight_css: str) -> None:
     )
 
     aside = _metadata_panel_html(note)
+    related = _related_views_html(page_path, note)
 
     body = f"""
     {breadcrumb}
@@ -1260,7 +1467,7 @@ def _render_note(out_dir: Path, note: Note, highlight_css: str) -> None:
             <h1>{html_escape_mod.escape(note.title)}</h1>
             {body_html}
         </article>
-        {aside}
+        <div>{aside}{related}</div>
     </div>
 """
     extra_head = f"<style>{highlight_css}</style>"

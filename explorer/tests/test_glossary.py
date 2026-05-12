@@ -143,6 +143,39 @@ def test_annotate_skips_inside_existing_abbr() -> None:
     assert out.count("<abbr") == 2
 
 
+def test_annotate_emits_tabindex_for_keyboard_focus() -> None:
+    """REL-E081 B3 — abbr must ship with tabindex=0 so keyboard users
+    can land on it (browser title tooltips otherwise unreachable)."""
+    glossary = {"APS": "Advanced Photon Source."}
+    out = annotate_html("<p>APS body.</p>", glossary)
+    assert 'tabindex="0"' in out
+
+
+def test_annotate_shared_used_set_dedups_across_calls() -> None:
+    """REL-E081 B1 — when the caller passes a shared ``used`` set, a
+    term wrapped in one ``annotate_html`` call is **not** re-wrapped
+    in a subsequent call. This is what the Streamlit Mermaid-aware
+    body renderer needs so a term doesn't get wrapped once per
+    diagram-separated segment.
+    """
+    glossary = {"APS": "Advanced Photon Source."}
+    used: set[str] = set()
+    first = annotate_html("<p>APS segment one.</p>", glossary, used=used)
+    second = annotate_html("<p>APS segment two.</p>", glossary, used=used)
+    assert first.count("<abbr") == 1
+    assert second.count("<abbr") == 0
+
+
+def test_annotate_independent_used_sets_each_wrap() -> None:
+    """Sanity test for the legacy (no-arg) call path — without a
+    shared set, each call wraps the first occurrence on its own."""
+    glossary = {"APS": "Advanced Photon Source."}
+    first = annotate_html("<p>APS segment one.</p>", glossary)
+    second = annotate_html("<p>APS segment two.</p>", glossary)
+    assert first.count("<abbr") == 1
+    assert second.count("<abbr") == 1
+
+
 def test_annotate_handles_self_closing_void_elements() -> None:
     glossary = {"APS": "Advanced Photon Source."}
     html = "<p>APS<br/>line two</p>"

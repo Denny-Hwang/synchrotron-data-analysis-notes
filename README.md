@@ -19,7 +19,7 @@ serve later review as a beamline scientist, a new BER user, or a
 computational researcher might each need from one corpus.
 
 ![notes-v0.10.0](https://img.shields.io/badge/notes-v0.10.0-blue)
-![explorer-v0.8.0](https://img.shields.io/badge/explorer-v0.8.0-green)
+![explorer-v0.8.1](https://img.shields.io/badge/explorer-v0.8.1-green)
 [![tests](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml)
 [![pages](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml)
 ![license: MIT](https://img.shields.io/badge/license-MIT-lightgrey)
@@ -62,7 +62,7 @@ Two independent versioned artifacts (per [ADR-006](docs/02_design/decisions/ADR-
 The notes ship as `notes-vX.Y.Z` and the app ships as `explorer-vX.Y.Z` —
 content velocity differs from app velocity. See
 [CHANGELOG.md](CHANGELOG.md) for the full release history (currently at
-notes-v0.10.0 / explorer-v0.8.0).
+notes-v0.10.0 / explorer-v0.8.1).
 
 ## At a glance
 
@@ -236,6 +236,9 @@ Full project documentation lives in [`docs/`](docs/) — see
   - `explorer-v0.8.0` (REL-E080) — senior-review polish: tone reframing,
     routing/CSS-token unification, onboarding + cluster orientation,
     glossary auto-link, smoke tests (R15)
+  - `explorer-v0.8.1` (REL-E081) — re-review follow-ups: glossary
+    cross-segment fix, regex caching, keyboard focus, layout-toggle,
+    related-views, Lab replay-only banner, tablet + dark-mode tokens (R15.1)
 - **Glossary & contributing**: [`docs/06_meta/`](docs/06_meta/)
 
 ## Engineering principles

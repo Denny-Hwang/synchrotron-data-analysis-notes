@@ -41,13 +41,25 @@ _MERMAID_BLOCK = re.compile(
 def _repo_root_from_explorer() -> Path:
     """Locate the repo root from this file's path.
 
-    ``components/`` is a sibling of ``lib/`` under ``explorer/``; the
-    repo root is two parents up.
+    Default layout is ``<repo>/explorer/components/note_view.py``, so
+    the repo root is two parents up. REL-E081 M4: if someone moves
+    this file, fall back to walking ancestors until we find the
+    ``10_interactive_lab`` marker directory instead of silently
+    returning a wrong path that breaks every glossary load.
     """
-    return Path(__file__).resolve().parent.parent.parent
+    expected = Path(__file__).resolve().parents[2]
+    if (expected / "10_interactive_lab").is_dir():
+        return expected
+    for candidate in Path(__file__).resolve().parents:
+        if (candidate / "10_interactive_lab").is_dir():
+            return candidate
+    # Last resort — return the original best guess so callers don't crash;
+    # ``load_glossary`` will then return an empty dict and annotations
+    # become a no-op rather than a hard failure.
+    return expected
 
 
-def _md_to_html(body: str) -> str:
+def _md_to_html(body: str, *, glossary_used: set[str] | None = None) -> str:
     """Render markdown to HTML using the same extensions as the static site.
 
     ``codehilite`` is configured with ``guess_lang=False`` so an
@@ -63,6 +75,14 @@ def _md_to_html(body: str) -> str:
     ``<abbr class="eberlight-glossary" title="…">`` tag. The annotator
     skips text inside code blocks, links, headings, and existing abbrs,
     so this is safe to bolt on at the bottom of the pipeline.
+
+    REL-E081 B1: ``glossary_used`` is a **shared** "already-wrapped"
+    set. The Mermaid-aware body renderer
+    (:func:`_render_body_with_mermaid`) calls us once per text
+    segment between diagrams; without sharing the set, each segment
+    would wrap its own first occurrence and the same term could end
+    up annotated 2+ times in a single note. Passing the set keeps the
+    "first occurrence per document" promise honoured across segments.
     """
     html = markdown.markdown(
         body,
@@ -76,7 +96,7 @@ def _md_to_html(body: str) -> str:
         },
     )
     glossary = load_glossary(_repo_root_from_explorer())
-    return annotate_html(html, glossary)
+    return annotate_html(html, glossary, used=glossary_used)
 
 
 def _render_mermaid_iframe(code: str, height: int = 480) -> None:
@@ -120,10 +140,17 @@ def _render_body_with_mermaid(body: str, highlight_css: str) -> None:
     markdown segment via ``st.markdown(...)``, then a Mermaid
     component, then the next markdown segment, etc. The fast path
     (no Mermaid blocks) is a single ``st.markdown`` call.
+
+    REL-E081 B1: a single ``glossary_used`` set is shared across the
+    per-segment ``_md_to_html`` calls so each glossary term gets
+    wrapped at most once per note, even when Mermaid diagrams split
+    the body into 2+ segments.
     """
+    glossary_used: set[str] = set()
+
     matches = list(_MERMAID_BLOCK.finditer(body))
     if not matches:
-        html = _md_to_html(body)
+        html = _md_to_html(body, glossary_used=glossary_used)
         st.markdown(f"<style>{highlight_css}</style>{html}", unsafe_allow_html=True)
         return
 
@@ -131,14 +158,14 @@ def _render_body_with_mermaid(body: str, highlight_css: str) -> None:
     for match in matches:
         if match.start() > last_end:
             seg = body[last_end : match.start()]
-            html = _md_to_html(seg)
+            html = _md_to_html(seg, glossary_used=glossary_used)
             st.markdown(f"<style>{highlight_css}</style>{html}", unsafe_allow_html=True)
         _render_mermaid_iframe(match.group("code").strip())
         last_end = match.end()
 
     if last_end < len(body):
         seg = body[last_end:]
-        html = _md_to_html(seg)
+        html = _md_to_html(seg, glossary_used=glossary_used)
         st.markdown(f"<style>{highlight_css}</style>{html}", unsafe_allow_html=True)
 
 
@@ -190,6 +217,7 @@ def _render_note_meta_column(
     tool_links: list[tuple[str, str | None]] | None,
     last_reviewed: str | None,
     toc_items: list[tuple[int, str, str]] | None,
+    related_views: list[tuple[str, str]] | None = None,
 ) -> None:
     """Render the right metadata column (TOC + sidebar) of the note view."""
     if toc_items:
@@ -203,6 +231,43 @@ def _render_note_meta_column(
         publication_links=publication_links,
         tool_links=tool_links,
         last_reviewed=last_reviewed,
+    )
+    if related_views:
+        _render_related_views(related_views)
+
+
+def _render_related_views(items: list[tuple[str, str]]) -> None:
+    """Render a "Related views" link block below the metadata panel.
+
+    REL-E081 S1 — gives a deep-page reader 1-click jumps to the power
+    pages (Knowledge Graph, Troubleshooter, Search) without having to
+    bounce back to the landing page first. ``items`` is a list of
+    ``(label, href)`` tuples; we render them as a vertical link list
+    inside an ``<aside>`` so the metadata-panel visual rhythm carries.
+    """
+    if not items:
+        return
+    rows = "".join(
+        f'<div style="font-size:13px;margin:4px 0;">'
+        f'<a href="{href}" target="_self" '
+        f'style="color:var(--color-primary);text-decoration:none;">{label}</a>'
+        f"</div>"
+        for label, href in items
+    )
+    st.markdown(
+        f"""
+        <aside aria-label="Related views" style="background:var(--color-surface-alt);
+               border:1px solid var(--color-border);border-radius:var(--radius-md);
+               padding:16px;margin-top:16px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;
+                        letter-spacing:0.5px;color:var(--color-text-secondary);
+                        margin-bottom:8px;">
+                Related views
+            </div>
+            {rows}
+        </aside>
+        """,
+        unsafe_allow_html=True,
     )
 
 
@@ -227,6 +292,7 @@ def render_note_view(
     metrics: list[tuple[str, str]] | None = None,
     section_tabs: list[tuple[str, str]] | None = None,
     last_reviewed: str | None = None,
+    related_views: list[tuple[str, str]] | None = None,
 ) -> None:
     """Render a full note detail view with metadata panel.
 
@@ -292,6 +358,7 @@ def render_note_view(
             tool_links=tool_links,
             last_reviewed=last_reviewed,
             toc_items=toc_items,
+            related_views=related_views,
         )
 
 

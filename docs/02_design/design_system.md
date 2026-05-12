@@ -1,8 +1,8 @@
 ---
 doc_id: DS-001
 title: "Design System — eBERlight Explorer"
-status: draft
-version: 0.1.1
+status: accepted
+version: 0.1.2
 last_updated: 2026-05-11
 supersedes: null
 related: [PRD-001, IA-001, ADR-005, ADR-010, NFR-001]
@@ -49,6 +49,7 @@ related: [PRD-001, IA-001, ADR-005, ADR-010, NFR-001]
 |---|---|---|
 | 0.1.0 | 2026-04-08 | Initial palette: `#00A3E0` secondary, `#F47B20` accent. |
 | 0.1.1 | 2026-05-11 | R7 darkening formalised (ADR-010): secondary `#00A3E0` → `#0085C0`, accent `#F47B20` → `#D86510`. New tokens for `--color-text-muted`, `--color-surface-banner`, `--color-border-strong`. CSS custom properties now ship in `explorer/assets/styles.css` `:root` block. |
+| 0.1.2 | 2026-05-11 | Status promoted **draft → accepted** (REL-E081 M3). `@media (prefers-color-scheme: dark)` token re-binding added (REL-E081 S5) so `.eberlight-*` components follow the OS dark-mode preference; Streamlit's native widgets keep their `config.toml` theme. **ZoomIndicator (below) marked deferred** — superseded by the Detail Level pill row on note detail and the REL-E080 cluster orientation header. |
 
 ## Typography
 
@@ -145,7 +146,24 @@ related: [PRD-001, IA-001, ADR-005, ADR-010, NFR-001]
 **Do:** Always show Home as the first breadcrumb segment. Limit to 4 levels.
 **Don't:** Truncate breadcrumb segments. Use breadcrumb as the only navigation.
 
-### ZoomIndicator
+### ZoomIndicator — Deferred (REL-E081 S3)
+
+> **Status:** Deferred — not implemented and not on the roadmap. The
+> goals this component was designed to serve are now covered by two
+> shipped surfaces:
+>
+> - The **Detail Level pill row** (L0 Overview · L1 Sections · L2
+>   Details · L3 Source) on note detail (`lib/detail_level.py`) gives
+>   the reader an explicit zoom mode at exactly the moment they need
+>   it.
+> - The **cluster orientation header** added in REL-E080
+>   (`lib/cluster_page.py::_render_cluster_orientation`) provides the
+>   "you are in cluster X, here's what's inside and where to start"
+>   context the ZoomIndicator was meant to deliver at the cluster
+>   level.
+>
+> The spec below is preserved as a design reference. If a future
+> revision implements it, drop the "Deferred" status and bump DS-001.
 
 **Purpose:** Visual stepper showing the user's current level in the 4-zoom model.
 

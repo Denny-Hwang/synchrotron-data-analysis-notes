@@ -22,6 +22,7 @@ Ref: FR-007 — Clickable tag filtering.
 
 from __future__ import annotations
 
+import os
 from collections import defaultdict
 from pathlib import Path
 from urllib.parse import quote
@@ -64,7 +65,13 @@ _CLUSTER_DOC_FOLDER_HINTS: dict[str, list[str]] = {
 }
 
 # GitHub blob URL prefix for sibling-notebook links rendered on note-detail.
-_GITHUB_BLOB_PREFIX = "https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/blob/main/"
+# REL-E081 M2 — overridable via ``EBERLIGHT_GITHUB_BLOB_PREFIX`` env var so a
+# fork or rename doesn't dead-end every notebook link. The trailing slash
+# matters: the rendered URL is built by concatenation with a relative path.
+_GITHUB_BLOB_PREFIX = os.environ.get(
+    "EBERLIGHT_GITHUB_BLOB_PREFIX",
+    "https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/blob/main/",
+)
 
 
 def _folder_label(folder: str) -> str:
@@ -92,6 +99,9 @@ _RECENT_LIMIT = 8
 # is a comma-separated content list; ``_CLUSTER_TAGLINE`` adds the
 # "why am I here / what should I do" framing that the senior review
 # flagged as missing.
+# REL-E081 M6 — moved away from the inline ``**bold**`` markdown syntax
+# (which we then ran a regex over) to direct ``<b>`` HTML. Cleaner; one
+# fewer regex pass per cluster header render.
 _CLUSTER_TAGLINE: dict[str, dict[str, str]] = {
     "discover": {
         "tagline": (
@@ -99,8 +109,8 @@ _CLUSTER_TAGLINE: dict[str, dict[str, str]] = {
             "or you're hunting for a glossary term or a paper reference."
         ),
         "good_first_steps": (
-            "Try the **Program Overview** folder for the BER mission and APS facility, "
-            "or **References** for the glossary + bibliography."
+            "Try the <b>Program Overview</b> folder for the BER mission and APS facility, "
+            "or <b>References</b> for the glossary + bibliography."
         ),
     },
     "explore": {
@@ -109,9 +119,9 @@ _CLUSTER_TAGLINE: dict[str, dict[str, str]] = {
             "compare AI/ML methods, or diagnose a weird-looking image."
         ),
         "good_first_steps": (
-            "Try **X-Ray Modalities** to map sample → technique, **AI/ML Methods** for "
-            "method-by-method tradeoffs, or **Noise Catalog** when the artefact is "
-            "already visible in your data."
+            "Try <b>X-Ray Modalities</b> to map sample → technique, "
+            "<b>AI/ML Methods</b> for method-by-method tradeoffs, or "
+            "<b>Noise Catalog</b> when the artefact is already visible in your data."
         ),
     },
     "build": {
@@ -120,9 +130,9 @@ _CLUSTER_TAGLINE: dict[str, dict[str, str]] = {
             "or a recipe to apply to it."
         ),
         "good_first_steps": (
-            "Try **Tools and Code** for reverse-engineered tool internals, "
-            "**Data Structures** for HDF5 schemas, or jump straight to the "
-            "**Interactive Lab** to replay a noise-mitigation recipe."
+            "Try <b>Tools and Code</b> for reverse-engineered tool internals, "
+            "<b>Data Structures</b> for HDF5 schemas, or jump straight to the "
+            "<b>Interactive Lab</b> to replay a noise-mitigation recipe."
         ),
     },
 }
@@ -167,16 +177,11 @@ def _render_cluster_orientation(
             f'margin:0 0 8px 0;">{extra["tagline"]}</p>'
         )
     if extra.get("good_first_steps"):
-        import re as _re
-
-        first_steps_html = _re.sub(
-            r"\*\*(.*?)\*\*",
-            r"<b>\1</b>",
-            extra["good_first_steps"],
-        )
+        # REL-E081 M6 — copy is now pre-bolded with ``<b>`` so we render
+        # verbatim instead of doing an inline markdown -> HTML regex pass.
         tagline_html += (
             f'<p style="color:var(--color-text-muted);font-size:13px;'
-            f'margin:0 0 16px 0;">💡 {first_steps_html}</p>'
+            f'margin:0 0 16px 0;">💡 {extra["good_first_steps"]}</p>'
         )
 
     st.markdown(
@@ -303,6 +308,103 @@ def _render_folder_filter_chips(
     )
 
 
+def _render_layout_toggle(
+    cluster_id: str,
+    *,
+    active_layout: str,
+    active_folder: str | None,
+    tag: str | None,
+) -> None:
+    """Render a 📋 Table / 🃏 Cards toggle above the cluster body.
+
+    REL-E081 S2 — the dense compare-table is a power-user surface; new
+    visitors land on the cluster and miss the "browse mode" the older
+    card grid provided. The toggle is two pill links; the active one
+    is solid, the other is outlined. Folder + tag filters propagate
+    via query params so flipping the layout doesn't lose context.
+    """
+    base = f"/{cluster_id.title()}"
+    qs: list[str] = []
+    if active_folder:
+        qs.append(f"folder={quote(active_folder, safe='')}")
+    if tag:
+        qs.append(f"tag={quote(tag, safe='')}")
+
+    def _href(layout: str) -> str:
+        params = [*qs, f"layout={layout}"]
+        return f"{base}?{'&'.join(params)}"
+
+    def _pill(layout: str, label: str) -> str:
+        is_active = layout == active_layout
+        cls = "active" if is_active else ""
+        return (
+            f'<a href="{_href(layout)}" target="_self" '
+            f'class="eberlight-chip {cls}" '
+            f'aria-pressed="{"true" if is_active else "false"}">{label}</a>'
+        )
+
+    st.markdown(
+        '<div class="eberlight-chip-row" role="tablist" aria-label="View layout" '
+        'style="margin-bottom:8px;">'
+        + _pill("table", "📋 Table")
+        + _pill("cards", "🃏 Cards")
+        + "</div>",
+        unsafe_allow_html=True,
+    )
+
+
+def _render_card_grid(notes: list[Note], repo_root: Path, cluster_id: str) -> None:
+    """Render notes as a responsive grid of clickable cards.
+
+    REL-E081 S2 — replaces the legacy ``view=cards`` mode that was
+    removed in R11. The cards are pure HTML so the entire tile is
+    clickable; tags inside the card are NOT links (clicking a tag
+    pill inside a clickable tile is an a11y minefield).
+    """
+    if not notes:
+        st.info("No notes match this view.")
+        return
+
+    from html import escape as _esc
+
+    cards_html: list[str] = []
+    for n in notes:
+        href = f"/{cluster_id.title()}?note={quote(n.url_id(repo_root), safe='/')}"
+        summary = n.description or n.body[:160].strip().replace("\n", " ")
+        tags_html = "".join(f'<span class="eberlight-tag">{_esc(t)}</span>' for t in n.tags[:5])
+        meta_bits: list[str] = []
+        if n.modality:
+            meta_bits.append(_esc(n.modality))
+        if n.beamline:
+            meta_bits.append(", ".join(_esc(b) for b in n.beamline[:2]))
+        meta_line = (
+            f'<p style="font-size:12px;color:var(--color-text-muted);'
+            f'margin:0 0 8px 0;">{" · ".join(meta_bits)}</p>'
+            if meta_bits
+            else ""
+        )
+        cards_html.append(
+            f'<a class="eberlight-card eberlight-card--accent-primary" '
+            f'href="{href}" target="_self" '
+            f'style="text-decoration:none;color:inherit;display:flex;'
+            f'flex-direction:column;margin-bottom:0;">'
+            f'<h4 style="margin:0 0 4px 0;color:var(--color-text);">{_esc(n.title)}</h4>'
+            f"{meta_line}"
+            f'<p style="flex:1;display:-webkit-box;-webkit-line-clamp:3;'
+            f"-webkit-box-orient:vertical;overflow:hidden;"
+            f'color:var(--color-text-secondary);">{_esc(summary)}</p>'
+            f'<div style="margin-top:8px;">{tags_html}</div>'
+            "</a>"
+        )
+    st.markdown(
+        '<div style="display:grid;'
+        "grid-template-columns:repeat(auto-fill,minmax(280px,1fr));"
+        'gap:16px;margin-bottom:16px;">' + "".join(cards_html) + "</div>",
+        unsafe_allow_html=True,
+    )
+    st.caption(f"Card grid — {len(notes)} note{'s' if len(notes) != 1 else ''}.")
+
+
 def _render_compare_table(notes: list[Note], repo_root: Path, cluster_id: str) -> None:
     """Render the cluster's notes as a sortable dataframe.
 
@@ -414,6 +516,32 @@ def _build_metric_pairs(note: Note) -> list[tuple[str, str]]:
     return pairs[:6]  # Cap at 6 — beyond that the row wraps awkwardly.
 
 
+def _build_related_views(note: Note) -> list[tuple[str, str]]:
+    """Build the "Related views" 1-click link list for a note's metadata aside.
+
+    REL-E081 S1 — closes the IA gap where a reader deep in a note
+    needed to bounce back to the landing page to reach the Knowledge
+    Graph, Troubleshooter, or a modality-filtered cluster view.
+
+    Returns a list of ``(label, href)`` tuples ordered most-useful
+    first. The exact composition depends on the note's metadata:
+    every note gets KG + Troubleshooter; notes with a ``modality``
+    also get an "Other {modality} notes" filter link into their
+    cluster.
+    """
+    items: list[tuple[str, str]] = [
+        ("🧠 Knowledge Graph", "/Knowledge_Graph"),
+        ("🩺 Troubleshooter", "/Troubleshooter"),
+    ]
+    if note.modality:
+        # ?tag=<modality> filters the cluster grid to just notes that
+        # carry the modality as a tag (cluster_page's existing filter).
+        href = f"/{note.cluster.title()}?tag={quote(note.modality, safe='')}"
+        items.append((f"📚 Other {note.modality.replace('_', ' ')} notes", href))
+    items.append(("🔎 Search across all notes", "/Search"))
+    return items
+
+
 def _render_note_detail(
     note: Note,
     cluster_id: str,
@@ -491,7 +619,10 @@ def _render_note_detail(
         url_id = note.url_id(repo_root)
         permalink = f"/{cluster_id.title()}?note={quote(url_id, safe='/')}&level={level}"
 
-    toc = _dl.extract_toc(note.body) if level == "L2" else None
+    # REL-E081 M5 — TOC now also surfaces at L1 (Sections). The L1 view
+    # still trims the body to section openers, but the table of contents
+    # helps the reader see what's coming without bouncing to L2 first.
+    toc = _dl.extract_toc(note.body) if level in ("L1", "L2") else None
     metrics = _build_metric_pairs(note) if level == "L2" else None
 
     section_tabs: list[tuple[str, str]] | None = None
@@ -524,6 +655,7 @@ def _render_note_detail(
         metrics=metrics,
         section_tabs=section_tabs,
         last_reviewed=note.last_reviewed,
+        related_views=_build_related_views(note),
     )
 
 
@@ -686,5 +818,20 @@ def render_cluster_page(
     if active_folder:
         visible_notes = [n for n in visible_notes if n.folder == active_folder]
 
-    _render_compare_table(visible_notes, repo_root, cluster_id)
+    # REL-E081 S2 — Table vs Cards layout toggle. Default stays Table
+    # (the legacy compare-table is the power-user surface) but new
+    # visitors who want to browse get a one-click switch to cards.
+    layout = (query_param("layout") or "table").lower()
+    if layout not in ("table", "cards"):
+        layout = "table"
+    _render_layout_toggle(
+        cluster_id,
+        active_layout=layout,
+        active_folder=active_folder,
+        tag=tag_filter,
+    )
+    if layout == "cards":
+        _render_card_grid(visible_notes, repo_root, cluster_id)
+    else:
+        _render_compare_table(visible_notes, repo_root, cluster_id)
     render_footer()

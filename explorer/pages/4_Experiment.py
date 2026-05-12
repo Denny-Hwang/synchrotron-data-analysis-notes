@@ -11,6 +11,7 @@ Ref: 10_interactive_lab/README.md — bundled samples.
 
 from __future__ import annotations
 
+import dataclasses
 import sys
 from pathlib import Path
 from typing import Any
@@ -56,9 +57,29 @@ st.markdown(
     '<p style="color:var(--color-text-secondary);font-size:16px;margin-bottom:8px;">'
     "Replay noise mitigation techniques from prior research on real bundled data. "
     "Tune parameters, compare before/after, and see PSNR/SSIM against a clean reference.</p>"
-    '<p style="color:var(--color-text-muted);font-size:13px;margin-bottom:24px;">'
+    '<p style="color:var(--color-text-muted);font-size:13px;margin-bottom:16px;">'
     "See <code>10_interactive_lab/README.md</code> for the full dataset inventory "
     "and <code>experiments/README.md</code> for the recipe schema.</p>",
+    unsafe_allow_html=True,
+)
+
+# REL-E081 S4 — make the "replay-only" scope explicit. The Lab cannot
+# ingest user-supplied data; that's a planned but unfinished feature
+# (senior-review action #10). The honest banner here saves a confused
+# user from looking for an upload button that doesn't exist, and points
+# them at the recipe schema so they can apply a recipe to their own
+# data outside the app.
+st.markdown(
+    '<div class="eberlight-banner eberlight-banner--info" '
+    'style="margin-bottom:24px;">'
+    "💡 <b>Replay-only Lab</b> — recipes run on the bundled sample data shipped "
+    "in this repo. To apply a recipe to <i>your own</i> data, copy "
+    "<code>experiments/&lt;recipe&gt;/pipeline.py</code> and call its "
+    "function from your own script. See "
+    '<a href="https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/blob/main/experiments/README.md" '
+    'target="_blank" rel="noopener">experiments/README.md</a> '
+    "for the schema and a worked example."
+    "</div>",
     unsafe_allow_html=True,
 )
 
@@ -68,36 +89,37 @@ st.markdown(
 # ---------------------------------------------------------------------------
 
 
-# R12 B1 — bumping the cache version forces ``@st.cache_resource`` /
-# ``@st.cache_data`` on Streamlit Cloud to re-fetch fresh Recipe
-# instances. Without this, deploys that add new dataclass fields hand
-# back stale objects that AttributeError on the new attribute access.
-_CACHE_VERSION = "v3-r12"
+# REL-E081 M1 — auto-derive the cache schema key from ``Recipe``'s
+# dataclass field set. Adding a new field now invalidates the cache
+# automatically; we no longer have to remember to bump a magic
+# ``_v3-r12`` string in lockstep with the schema. The leading
+# digest is added to the cache key by passing it as a default arg
+# to the cached functions — Streamlit hashes the default and treats
+# any change as a cache-invalidating signature change.
+_RECIPE_SCHEMA_KEY = ",".join(sorted(f.name for f in dataclasses.fields(Recipe)))
 
 
-@st.cache_resource
-def _cached_recipes_v3() -> list[Recipe]:
+@st.cache_resource(show_spinner=False)
+def _cached_recipes(_schema: str = _RECIPE_SCHEMA_KEY) -> list[Recipe]:
     return load_recipes(_REPO_ROOT / "experiments")
 
 
 @st.cache_data(show_spinner="Loading sample…")
-def _cached_sample_v3(manifest_path: str) -> np.ndarray:
+def _cached_sample(manifest_path: str, _schema: str = _RECIPE_SCHEMA_KEY) -> np.ndarray:
     return load_sample(_REPO_ROOT, manifest_path)
 
 
 @st.cache_data(show_spinner="Running pipeline…")
-def _cached_run_v3(recipe_id: str, manifest_path: str, params_items: tuple) -> np.ndarray:
-    recipes = _cached_recipes_v3()
+def _cached_run(
+    recipe_id: str,
+    manifest_path: str,
+    params_items: tuple,
+    _schema: str = _RECIPE_SCHEMA_KEY,
+) -> np.ndarray:
+    recipes = _cached_recipes()
     recipe = next(r for r in recipes if r.recipe_id == recipe_id)
     arr = load_sample(_REPO_ROOT, manifest_path)
     return run_pipeline(recipe, arr, dict(params_items))
-
-
-# Public aliases so the rest of the page (and any old call site that
-# survived) still finds the helpers under their original names.
-_cached_recipes = _cached_recipes_v3
-_cached_sample = _cached_sample_v3
-_cached_run = _cached_run_v3
 
 
 def _to_display(arr: np.ndarray) -> np.ndarray:
