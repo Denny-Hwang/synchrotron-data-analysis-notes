@@ -56,7 +56,7 @@ eBERlight Explorer covers:
 | FR-007 | Tags SHALL be clickable, filtering the cluster page to matching notes. | A, C | C |
 | FR-008 | A zoom indicator SHALL show the user's current position in the 4-level IA hierarchy (Map → Section → Topic → Source). | All | C |
 | FR-009 | A search bar SHALL be available on every page, returning results ranked by relevance with title and snippet. | All | D |
-| FR-010 | The DOE acknowledgment footer (Contract No. DE-AC02-06CH11357) SHALL appear on every page. | All | A |
+| FR-010 | A personal-archive disclaimer footer (clearly stating the project is unaffiliated with ANL/APS/DOE and pointing readers to the official APS / eBERlight sites for the actual research) SHALL appear on every page. | All | A |
 | FR-011 | The header SHALL display a site title and top navigation with links to the 3 clusters. | All | A |
 | FR-012 | Notes without YAML frontmatter SHALL still load, using the filename as the title and empty tags. | All | B |
 | FR-013 | Code blocks in notes SHALL be rendered with syntax highlighting using a theme consistent with the design system. | C | B |
