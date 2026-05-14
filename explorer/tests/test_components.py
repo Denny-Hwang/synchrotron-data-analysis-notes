@@ -85,7 +85,7 @@ def test_render_breadcrumb_empty(mock_markdown: MagicMock) -> None:
 
 @patch("streamlit.markdown")
 def test_render_footer(mock_markdown: MagicMock) -> None:
-    """render_footer() includes DOE acknowledgment and contract number."""
+    """render_footer() includes the personal-archive disclaimer and ref links."""
     from components.footer import render_footer
 
     render_footer()
@@ -93,7 +93,10 @@ def test_render_footer(mock_markdown: MagicMock) -> None:
     mock_markdown.assert_called_once()
     html_output = mock_markdown.call_args[0][0]
     assert len(html_output.strip()) > 0
-    assert "DE-AC02-06CH11357" in html_output
+    assert "DE-AC02-06CH11357" not in html_output
     assert "eberlight-footer" in html_output
-    assert "Advanced Photon Source" in html_output
+    assert "Personal eBERlight archive" in html_output
+    assert "not affiliated" in html_output.lower()
     assert "eBERlight" in html_output
+    assert "https://www.aps.anl.gov/" in html_output
+    assert "https://eberlight.aps.anl.gov/" in html_output

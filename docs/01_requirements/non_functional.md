@@ -80,10 +80,8 @@ All layouts use the 8px spacing grid defined in `docs/02_design/design_system.md
 
 ## Compliance
 
-- **DOE Acknowledgment.** The following text MUST appear in the footer on every page:
+- **Personal-archive disclaimer.** The footer on every page MUST make clear that this is a personal study / learning project — a personal eBERlight archive — that is **not an official site** and **not affiliated with or endorsed by** ANL, APS, DOE, or the eBERlight program. The footer MUST NOT include the APS DOE contract number or any other language that could suggest institutional sponsorship.
 
-  > This research used resources of the Advanced Photon Source, a U.S. Department of Energy (DOE) Office of Science user facility operated for the DOE Office of Science by Argonne National Laboratory under Contract No. DE-AC02-06CH11357.
-
-- **eBERlight Program Acknowledgment.** The footer must also reference the eBERlight BER program at APS.
+- **Reference pointers to the official sources.** The footer MUST direct readers to the official APS (`https://www.aps.anl.gov/`) and eBERlight (`https://eberlight.aps.anl.gov/`) sites for the actual research, programs, and authoritative documentation.
 
 - **Open Source License.** The repository is licensed under MIT. All third-party dependencies must have compatible licenses (MIT, BSD, Apache 2.0).

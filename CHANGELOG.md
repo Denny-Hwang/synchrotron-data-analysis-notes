@@ -6,6 +6,39 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [explorer-0.8.2] - 2026-05-14
+
+**Patch — finish the personal-research footer reframing.**
+Release notes:
+[REL-E082](docs/05_release/release_notes/explorer-v0.8.2.md).
+
+### Changed
+- **`explorer/components/footer.py`**: Streamlit footer copy
+  rewritten. The old DOE funding statement with Contract No.
+  DE-AC02-06CH11357 and the definitional "eBERlight is the
+  integrated BER program at APS…" paragraph (both of which read
+  like an official portal) are replaced with a bold
+  "Personal eBERlight archive — not an official site." disclaimer
+  and a paragraph pointing readers to the official APS /
+  eBERlight sites for the actual research. Link labels reframed
+  as `APS (official — actual research here)` and
+  `eBERlight (official — actual research here)`. Brings the
+  Streamlit footer in sync with the static-site mirror, which
+  was already reframed in REL-E080 (invariant #9).
+- **`docs/01_requirements/PRD.md`**: FR-010 rewritten —
+  mandates a personal-archive disclaimer footer instead of the
+  DOE-contract acknowledgment.
+- **`docs/01_requirements/non_functional.md`**: Compliance
+  section rewritten — "Personal-archive disclaimer" and
+  "Reference pointers to the official sources" bullets replace
+  the old "DOE Acknowledgment" and "eBERlight Program
+  Acknowledgment" bullets. MIT licensing bullet unchanged.
+
+### Fixed
+- **`explorer/tests/test_components.py`**: `test_render_footer`
+  now asserts the contract number is absent and that the
+  personal-archive disclaimer + both reference URLs are present.
+
 ## [explorer-0.8.1] - 2026-05-11
 
 **Phase R15.1 — re-review follow-ups (bugs + medium issues).**
