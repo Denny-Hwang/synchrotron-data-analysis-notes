@@ -224,6 +224,13 @@ for case in visible_cases:
     diag = case.diagnosis
     cols = st.columns([3, 1])
     with cols[0]:
+        recipe_link = (
+            f'<a href="/Experiment?recipe={quote(diag.recipe)}" target="_self" '
+            f'style="color:#E8515D;font-weight:600;text-decoration:none;'
+            f'margin-left:16px;">▶ Run experiment ({diag.recipe})</a>'
+            if diag.recipe
+            else ""
+        )
         st.markdown(
             f'<div class="eberlight-card" '
             f'style="border-left:4px solid {severity_color(diag.severity)};">'
@@ -240,17 +247,11 @@ for case in visible_cases:
             f'<p style="margin:0;font-size:14px;">'
             f'<a href="{_guide_url(diag.guide)}" target="_self" '
             f'style="color:#0033A0;font-weight:600;text-decoration:none;">'
-            f"📖 Full guide → {diag.guide}</a>",
+            f"📖 Full guide → {diag.guide}</a>"
+            f"{recipe_link}"
+            "</p></div>",
             unsafe_allow_html=True,
         )
-        if diag.recipe:
-            st.markdown(
-                f'<a href="/Experiment?recipe={quote(diag.recipe)}" target="_self" '
-                f'style="color:#E8515D;font-weight:600;text-decoration:none;'
-                f'margin-left:16px;">▶ Run experiment ({diag.recipe})</a>',
-                unsafe_allow_html=True,
-            )
-        st.markdown("</p></div>", unsafe_allow_html=True)
 
     with cols[1]:
         if diag.image:

@@ -349,10 +349,7 @@ with _compare_cols[1]:
     st.caption(f"shape={sino_output.shape}, dtype={sino_output.dtype}")
 with _compare_cols[2]:
     st.markdown("**|Δ| — what changed**")
-    if sino_input.shape == sino_output.shape:
-        delta_img = _difference_map(sino_input, sino_output)
-    else:
-        delta_img = _difference_map(sino_input, sino_output)
+    delta_img = _difference_map(sino_input, sino_output)
     st.image(delta_img, clamp=True, width="stretch")
     nonzero = float((delta_img > 0.05).mean())
     st.caption(f"Bright pixels = where the algorithm acted (~{nonzero * 100:.1f}% of the area).")

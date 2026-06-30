@@ -6,6 +6,75 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [explorer-0.8.3] - 2026-05-14
+
+**Comprehensive review + framing-leftover cleanup. Patch release.**
+Release notes:
+[REL-E083](docs/05_release/release_notes/explorer-v0.8.3.md).
+
+### Changed
+- **Footer parity restored verbatim** between Streamlit
+  (`explorer/components/footer.py`) and static site
+  (`scripts/build_static_site.py::_footer_html`). REL-E080 and
+  REL-E082 each reframed one side but the two ended up with
+  independently-drafted variants. New pinning tests in
+  `test_build_static_site.py`.
+- **`README.md`** — DOE Contract No. acknowledgment paragraph
+  replaced with the personal-archive disclaimer; version badge +
+  body text bumped to `explorer-v0.8.3`; recipe count `5 → 14`,
+  test count `264 → 300+`, ADR count `9 → 10` (adds ADR-010);
+  recipe gallery tree + Lab table extended with the 9 R14
+  recipes; release-note bullet list extended through REL-E083.
+- **`docs/02_design/design_system.md`** — Footer component
+  Purpose / Anatomy / Do-Don't rewritten to match the
+  personal-archive spec; added a change-history block; bumped
+  DS-001 to `v0.1.3`.
+- **`docs/01_requirements/PRD.md`** — bumped to `v0.3.0`
+  (`last_updated: 2026-05-14`); scope bullet "ANL/APS-aligned" →
+  "ANL/APS-inspired (unaffiliated)"; FR-008 annotated as
+  deferred per DS-001 v0.1.2 / REL-E081 S3.
+- **`docs/01_requirements/non_functional.md`** — bumped to
+  `v0.2.0` to reflect REL-E082's Compliance rewrite.
+- **`docs/00_product/vision.md`** — bumped to `v0.2.0`; struck
+  "public-facing or interview contexts", "DOE users", "ANL-
+  branded experience", and "complements the official BER program
+  website"; added "We are NOT publishing this app" non-goal.
+- **`docs/00_product/roadmap.md`** — Phase A goals + exit
+  criteria updated to reference the personal-archive disclaimer
+  footer instead of the DOE-contract acknowledgment.
+- **`docs/02_design/decisions/ADR-001.md`, `ADR-005.md`,
+  `ADR-007.md`** — soften "ANL/APS-aligned" → "ANL/APS-inspired";
+  removed "must convey institutional credibility" rejection
+  rationale from ADR-005.
+- **`docs/README.md`** — bumped to `v0.2.0`; added missing
+  ADR-010 row; ADR-005 label "Argonne-aligned" → "Argonne-
+  inspired"; Release section now lists REL-E082 + REL-E083
+  explicitly.
+
+### Fixed
+- **B1**: `scripts/build_static_site.py::_git_iso_date` forked
+  `git log` once per emitted page (~200 forks per build).
+  Mirrors REL-E080's Streamlit-side fix. Cached as module-level
+  `_GIT_ISO_DATE`.
+- **B2**: `explorer/pages/4_Experiment.py` had a dead if/else
+  with identical branches for `_difference_map(...)`. Collapsed
+  to one call.
+- **B3**: `explorer/components/note_view.py` nbviewer URL
+  builder ended with a no-op `.replace("/blob/", "/blob/", 1)`.
+  Removed.
+- **B4**: `explorer/pages/5_Troubleshooter.py` built each card
+  across three `st.markdown` calls — the third call closed tags
+  opened in the first, producing malformed DOM. Refactored to a
+  single balanced `st.markdown`.
+- **B5**: `scripts/build_static_site.py` top-level
+  `from lib.experiments import ...` pulled in numpy
+  transitively, so `python scripts/build_static_site.py --help`
+  crashed without the scientific stack. Lazy-imported inside
+  `_recipe_gallery_html`; `Recipe` kept under `if TYPE_CHECKING`.
+- **Cross-reference**: `docs/05_release/release_notes/explorer-v0.8.2.md`
+  `related:` field listed `FR-010` (not a standalone doc_id) —
+  corrected to `PRD-001`.
+
 ## [explorer-0.8.2] - 2026-05-14
 
 **Patch — finish the personal-research footer reframing.**

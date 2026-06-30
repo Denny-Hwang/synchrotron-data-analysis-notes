@@ -307,3 +307,36 @@ def test_interactive_stub_uses_cluster_color(tmp_path, bss) -> None:
             f"Stub for {entry['title']} should use {entry['color_cluster']} "
             f"color {color} but did not."
         )
+
+
+# ---------------------------------------------------------------------------
+# Footer parity (REL-E083) — pin the static-site footer to the same
+# personal-archive disclaimer rendered by explorer/components/footer.py.
+# Without this test, REL-E080's institutional-tone fix could silently
+# regress on the static side while the Streamlit footer stays clean.
+# ---------------------------------------------------------------------------
+
+
+def test_footer_html_drops_contract_number(bss) -> None:
+    """The static-site footer must not carry the DOE contract acknowledgment."""
+    html = bss._footer_html("2026-05-14")
+    assert "DE-AC02-06CH11357" not in html
+
+
+def test_footer_html_carries_personal_archive_disclaimer(bss) -> None:
+    """The static-site footer must lead with the personal-archive framing
+    and explicitly disclaim affiliation with ANL/APS/DOE/eBERlight."""
+    html = bss._footer_html("2026-05-14")
+    assert "Personal eBERlight archive" in html
+    assert "not affiliated" in html.lower()
+    assert "eBERlight program" in html
+
+
+def test_footer_html_points_to_official_sites_as_reference(bss) -> None:
+    """The static-site footer must label APS and eBERlight links as
+    reference targets (where the actual research lives), not as
+    primary identity for this app."""
+    html = bss._footer_html("2026-05-14")
+    assert "https://www.aps.anl.gov/" in html
+    assert "https://eberlight.aps.anl.gov/" in html
+    assert "actual research" in html.lower()
