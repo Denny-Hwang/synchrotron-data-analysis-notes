@@ -57,8 +57,8 @@ Five phases (A–E) over 12 weeks. Each phase produces a shippable increment.
 
 ### Goals
 
-- Establish the visual foundation: ANL-aligned color tokens, typography, and spacing.
-- Ship the DOE acknowledgment footer on every page.
+- Establish the visual foundation: ANL/APS-inspired color tokens (unaffiliated personal-research framing — see ADR-005 + ADR-010), typography, and spacing.
+- Ship the personal-archive disclaimer footer on every page.
 - Implement breadcrumb navigation as the primary wayfinding affordance.
 
 ### Deliverables
@@ -71,8 +71,8 @@ Five phases (A–E) over 12 weeks. Each phase produces a shippable increment.
 
 ### Exit Criteria
 
-- App runs locally with correct ANL color palette.
-- DOE Contract No. DE-AC02-06CH11357 visible in footer on every page.
+- App runs locally with the ANL/APS-inspired color palette.
+- Personal-archive disclaimer footer visible on every page (NFR-001 / FR-010 — superseded the original DOE-contract acknowledgment in REL-E082).
 - Breadcrumb renders on every page with correct hierarchy.
 - All smoke tests pass.
 

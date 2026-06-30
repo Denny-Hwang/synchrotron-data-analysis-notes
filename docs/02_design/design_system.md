@@ -2,11 +2,27 @@
 doc_id: DS-001
 title: "Design System — eBERlight Explorer"
 status: accepted
-version: 0.1.2
-last_updated: 2026-05-11
+version: 0.1.3
+last_updated: 2026-05-14
 supersedes: null
 related: [PRD-001, IA-001, ADR-005, ADR-010, NFR-001]
 ---
+
+<!--
+DS-001 change history
+- v0.1.3 (2026-05-14, REL-E083): Footer component anatomy rewritten —
+  the "DOE and eBERlight acknowledgment" purpose + the "DOE
+  acknowledgment text (Contract No. DE-AC02-06CH11357)" anatomy line
+  are replaced with the personal-archive disclaimer mandated by
+  NFR-001 / FR-010 as rewritten in REL-E082. The Streamlit and
+  static-site implementations of the footer were also brought into
+  verbatim parity (invariant #9).
+- v0.1.2 (2026-05-11, REL-E081 S3): ZoomIndicator marked deferred.
+- v0.1.1 (REL-E080): R7 darkening of `--color-secondary` and
+  `--color-accent` formalised; ADR-010 captures rationale.
+- v0.1.0: Initial token set.
+-->
+
 
 # Design System — eBERlight Explorer
 
@@ -244,18 +260,35 @@ related: [PRD-001, IA-001, ADR-005, ADR-010, NFR-001]
 
 ### Footer
 
-**Purpose:** DOE and eBERlight acknowledgment on every page.
+**Purpose:** Personal-archive disclaimer + reference pointers to the
+upstream APS / eBERlight sites on every page. Mirrors NFR-001
+("Personal-archive disclaimer" + "Reference pointers to the official
+sources") and FR-010.
 
 **Anatomy:**
 - Full-width container, `--color-primary` bg, white text
-- DOE acknowledgment text (Contract No. DE-AC02-06CH11357)
-- Links: APS, eBERlight, repository
-- Last-updated timestamp
+- Disclaimer paragraph leading with a bold
+  **"Personal eBERlight archive — not an official site."** —
+  explicitly states the project is not affiliated with or endorsed
+  by ANL, APS, DOE, or the eBERlight program
+- Reference paragraph pointing readers to the official APS /
+  eBERlight sites for the actual research, programs, and
+  authoritative documentation
+- Links: `APS (official — actual research here)`,
+  `eBERlight (official — actual research here)`, `Repository`
+- Last-updated timestamp (HEAD commit date, cached at module
+  import — see `_LAST_UPDATED` / `_GIT_ISO_DATE`)
 
 **States:**
 - Single state (always visible)
 
 **Accessibility:** Footer in a `<footer>` element. Links have sufficient contrast (white on `--color-primary` = 8.6:1).
 
-**Do:** Display on every page. Keep acknowledgment text verbatim.
-**Don't:** Add interactive elements beyond links. Override footer styling per page.
+**Do:** Display on every page. Keep the personal-archive disclaimer
+and the "actual research here" link labels verbatim. The Streamlit
+implementation (`explorer/components/footer.py::render_footer`) and
+the static-site mirror (`scripts/build_static_site.py::_footer_html`)
+MUST render the same disclaimer text — invariant #9. The footer
+MUST NOT carry the APS DOE contract number or any other phrasing
+that suggests institutional sponsorship.
+**Don't:** Add interactive elements beyond links. Override footer styling per page. Re-introduce the DOE Contract No. acknowledgment.

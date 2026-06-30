@@ -2,8 +2,8 @@
 doc_id: NFR-001
 title: "Non-Functional Requirements"
 status: draft
-version: 0.1.0
-last_updated: 2026-04-08
+version: 0.2.0
+last_updated: 2026-05-14
 supersedes: null
 related: [PRD-001, VIS-001, DS-001]
 ---

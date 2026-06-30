@@ -521,7 +521,7 @@ def _render_notebooks_section(notebooks: list[tuple[str, str]]) -> None:
             "https://github.com/",
             "https://nbviewer.org/github/",
             1,
-        ).replace("/blob/", "/blob/", 1)
+        )
         items.append(
             f'<li style="margin-bottom:6px;">'
             f"<code>{filename}</code> &nbsp;·&nbsp; "

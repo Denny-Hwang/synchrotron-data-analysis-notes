@@ -5,7 +5,7 @@ status: draft
 version: 0.8.2
 last_updated: 2026-05-14
 supersedes: null
-related: [REL-E080, REL-E081, FR-010, NFR-001]
+related: [REL-E080, REL-E081, PRD-001, NFR-001]
 ---
 
 # Release Notes — explorer-v0.8.2

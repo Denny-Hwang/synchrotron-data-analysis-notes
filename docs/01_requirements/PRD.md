@@ -2,8 +2,8 @@
 doc_id: PRD-001
 title: "Product Requirements Document — eBERlight Explorer"
 status: draft
-version: 0.2.0
-last_updated: 2026-05-05
+version: 0.3.0
+last_updated: 2026-05-14
 supersedes: null
 related: [VIS-001, PER-001, RMP-001, UST-001, NFR-001, ADR-008]
 ---
@@ -32,7 +32,7 @@ eBERlight Explorer covers:
 - 4-zoom navigation model with breadcrumb and zoom indicator.
 - Tag-based filtering by modality, beamline, and method category.
 - Full-text search across all notes.
-- ANL/APS-aligned visual design with WCAG 2.1 AA compliance.
+- ANL/APS-inspired visual design (unaffiliated personal-research framing — see ADR-005 + ADR-010) with WCAG 2.1 AA compliance.
 - **Interactive Lab** (added in v0.2 of this PRD per ADR-008) — replays prior-research noise mitigation techniques on real bundled data with parameter tuning.
 
 ## Out of Scope
@@ -54,7 +54,7 @@ eBERlight Explorer covers:
 | FR-005 | The detail view SHALL display a breadcrumb reflecting the full navigation path. | All | A |
 | FR-006 | The detail view SHALL show a metadata panel with beamline, modality, and related-publication tags when available. | A, C | C |
 | FR-007 | Tags SHALL be clickable, filtering the cluster page to matching notes. | A, C | C |
-| FR-008 | A zoom indicator SHALL show the user's current position in the 4-level IA hierarchy (Map → Section → Topic → Source). | All | C |
+| FR-008 | A zoom indicator SHALL show the user's current position in the 4-level IA hierarchy (Map → Section → Topic → Source). _(Deferred per DS-001 v0.1.2 / REL-E081 S3 — superseded by the Detail Level pills + cluster orientation header.)_ | All | C |
 | FR-009 | A search bar SHALL be available on every page, returning results ranked by relevance with title and snippet. | All | D |
 | FR-010 | A personal-archive disclaimer footer (clearly stating the project is unaffiliated with ANL/APS/DOE and pointing readers to the official APS / eBERlight sites for the actual research) SHALL appear on every page. | All | A |
 | FR-011 | The header SHALL display a site title and top navigation with links to the 3 clusters. | All | A |

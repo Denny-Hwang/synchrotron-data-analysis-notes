@@ -43,6 +43,7 @@ import sys
 from datetime import datetime
 from itertools import groupby
 from pathlib import Path
+from typing import TYPE_CHECKING
 from urllib.parse import quote
 
 import markdown
@@ -53,11 +54,13 @@ _EXPLORER_DIR = _REPO_ROOT / "explorer"
 if str(_EXPLORER_DIR) not in sys.path:
     sys.path.insert(0, str(_EXPLORER_DIR))
 
-from lib.experiments import Recipe, load_recipes
 from lib.glossary import annotate_html as _glossary_annotate
 from lib.glossary import load_glossary
 from lib.ia import CLUSTER_META, FOLDER_TO_CLUSTER, get_folders_for_cluster
 from lib.notes import Note, load_notes
+
+if TYPE_CHECKING:
+    from lib.experiments import Recipe
 
 logger = logging.getLogger("build_static_site")
 
@@ -596,7 +599,13 @@ def _md_link_rewrite(body_html: str) -> str:
 
 
 def _git_iso_date() -> str:
-    """Best-effort HEAD commit date (YYYY-MM-DD)."""
+    """Best-effort HEAD commit date (YYYY-MM-DD).
+
+    Computed once at module import and cached as `_GIT_ISO_DATE` —
+    the static-site build calls `_footer_html(...)` ~200 times per
+    run (one per emitted page) and the previous per-call git fork
+    showed up under profile.
+    """
     try:
         result = subprocess.run(
             ["git", "log", "-1", "--format=%ci"],
@@ -610,6 +619,9 @@ def _git_iso_date() -> str:
     except (subprocess.TimeoutExpired, FileNotFoundError):
         pass
     return datetime.now().strftime("%Y-%m-%d")
+
+
+_GIT_ISO_DATE = _git_iso_date()
 
 
 def _folder_label(folder: str) -> str:
@@ -663,32 +675,34 @@ def _breadcrumb_html(page_path: str, items: list[tuple[str, str | None]]) -> str
 
 
 def _footer_html(last_updated: str) -> str:
-    """Mirrors explorer/components/footer.py.
+    """Mirrors explorer/components/footer.py (per invariant #9).
 
-    REL-E080: footer copy reframed for the personal-research project.
-    The static mirror previously implied institutional affiliation
-    ("This research used resources…"); the corrected text acknowledges
-    the upstream data sources without claiming sponsorship.
+    REL-E083: copy aligned verbatim with the Streamlit footer reframed
+    in REL-E082. The static mirror previously carried an independently-
+    drafted personal-research disclaimer (REL-E080) that overlapped
+    with but did not match the Streamlit text; REL-E082's commit
+    message claimed parity had been restored but the strings diverged.
+    Both presentations now render the same disclaimer.
     """
     return f"""
 <div class="eberlight-footer">
     <p>
-        <b>Personal research / learning project — not affiliated with
-        ANL, APS, or DOE.</b> The bundled sample data is redistributed
-        under the upstream permissive licenses preserved verbatim in
-        <code>10_interactive_lab/LICENSES/</code>; please do not
-        deploy this app publicly without first contacting the original
-        data sources.
+        <b>Personal eBERlight archive — not an official site.</b>
+        This portal is a personal study / learning project that
+        collects the author's own notes on synchrotron data
+        analysis around the eBERlight program as a reference
+        topic. It is <b>not affiliated with or endorsed by</b>
+        ANL, APS, DOE, or the eBERlight program.
     </p>
     <p>
-        The notes use synchrotron X-ray data analysis as a representative
-        case study, with the eBERlight program at the Advanced Photon
-        Source as one source-material reference. The visual style is
-        ANL/APS-inspired but no official branding is claimed.
+        For the actual research, programs, beamtime calls, and
+        authoritative documentation, please refer to the official
+        sites linked below. Any opinions, summaries, or mistakes
+        in these notes are the author's own.
     </p>
     <div class="eberlight-footer-links">
-        <a href="https://www.aps.anl.gov/" target="_blank" rel="noopener">APS (reference)</a>
-        <a href="https://eberlight.aps.anl.gov/" target="_blank" rel="noopener">eBERlight (reference)</a>
+        <a href="https://www.aps.anl.gov/" target="_blank" rel="noopener">APS (official — actual research here)</a>
+        <a href="https://eberlight.aps.anl.gov/" target="_blank" rel="noopener">eBERlight (official — actual research here)</a>
         <a href="{_GITHUB_REPO_URL}" target="_blank" rel="noopener">Repository</a>
     </div>
     <div class="eberlight-footer-updated">Last updated: {last_updated}</div>
@@ -877,7 +891,7 @@ def _page_shell(
     <main>
 {body}
     </main>
-    {_footer_html(_git_iso_date())}
+    {_footer_html(_GIT_ISO_DATE)}
 </div>
 </body>
 </html>
@@ -1103,6 +1117,11 @@ def _recipe_card_html(recipe: Recipe) -> str:
 
 def _recipe_gallery_html() -> str:
     """Render the full recipe gallery shown on the Build cluster page."""
+    # Lazy-imported so `python scripts/build_static_site.py --help` works
+    # in environments without the scientific stack (lib.experiments
+    # transitively imports numpy).
+    from lib.experiments import load_recipes
+
     experiments_root = _REPO_ROOT / "experiments"
     if not experiments_root.exists():
         return ""

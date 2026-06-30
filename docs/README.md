@@ -2,8 +2,8 @@
 doc_id: META-001
 title: Documentation Map
 status: draft
-version: 0.1.0
-last_updated: 2026-04-08
+version: 0.2.0
+last_updated: 2026-05-14
 supersedes: null
 related: []
 ---
@@ -56,11 +56,12 @@ This file is the central index of all project documentation for eBERlight Explor
 | [`ADR-002.md`](02_design/decisions/ADR-002.md) | ADR-002 | accepted | Notes remain single source of truth |
 | [`ADR-003.md`](02_design/decisions/ADR-003.md) | ADR-003 | accepted | YAML frontmatter schema for notes |
 | [`ADR-004.md`](02_design/decisions/ADR-004.md) | ADR-004 | accepted | 10 folders → 3 task clusters IA mapping |
-| [`ADR-005.md`](02_design/decisions/ADR-005.md) | ADR-005 | accepted | Adopt Argonne-aligned design tokens |
+| [`ADR-005.md`](02_design/decisions/ADR-005.md) | ADR-005 | accepted | Adopt Argonne-inspired design tokens (personal research) |
 | [`ADR-006.md`](02_design/decisions/ADR-006.md) | ADR-006 | accepted | Dual SemVer streams (notes vs explorer) |
 | [`ADR-007.md`](02_design/decisions/ADR-007.md) | ADR-007 | accepted | Static site mirror of Streamlit explorer for GitHub Pages |
 | [`ADR-008.md`](02_design/decisions/ADR-008.md) | ADR-008 | accepted | Section 10 — Interactive Lab as a tenth note folder |
 | [`ADR-009.md`](02_design/decisions/ADR-009.md) | ADR-009 | accepted | Deprecate the legacy `eberlight-explorer/` directory |
+| [`ADR-010.md`](02_design/decisions/ADR-010.md) | ADR-010 | accepted | R7 secondary-color darkening + design-system tone reframing |
 
 ## Implementation (`docs/03_implementation/`)
 
@@ -80,9 +81,19 @@ This file is the central index of all project documentation for eBERlight Explor
 
 ## Release (`docs/05_release/`)
 
+Per-version release notes live in
+[`release_notes/`](05_release/release_notes/). The latest released
+versions are **notes-v0.10.0** and **explorer-v0.8.3**; see
+[`../CHANGELOG.md`](../CHANGELOG.md) for the full history.
+
 | Document | Doc ID | Status | Description |
 |----------|--------|--------|-------------|
-| `release_notes/` | — | planned | Per-version release notes directory |
+| [`release_notes/explorer-v0.8.3.md`](05_release/release_notes/explorer-v0.8.3.md) | REL-E083 | draft | Comprehensive review + framing cleanup |
+| [`release_notes/explorer-v0.8.2.md`](05_release/release_notes/explorer-v0.8.2.md) | REL-E082 | draft | Streamlit footer reframed as personal eBERlight archive |
+| [`release_notes/explorer-v0.8.1.md`](05_release/release_notes/explorer-v0.8.1.md) | REL-E081 | draft | R15.1 re-review follow-ups |
+| [`release_notes/explorer-v0.8.0.md`](05_release/release_notes/explorer-v0.8.0.md) | REL-E080 | draft | Senior-review polish: tone + UX + code quality |
+| [`release_notes/explorer-v0.7.x.md`](05_release/release_notes/) | REL-E07x | draft | R11 → R14 phases (see CHANGELOG) |
+| [`release_notes/notes-v0.10.0.md`](05_release/release_notes/notes-v0.10.0.md) | REL-N100 | draft | Section 10 Interactive Lab |
 
 ## Meta (`docs/06_meta/`)
 

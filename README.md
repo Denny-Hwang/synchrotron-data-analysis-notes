@@ -19,7 +19,7 @@ serve later review as a beamline scientist, a new BER user, or a
 computational researcher might each need from one corpus.
 
 ![notes-v0.10.0](https://img.shields.io/badge/notes-v0.10.0-blue)
-![explorer-v0.8.1](https://img.shields.io/badge/explorer-v0.8.1-green)
+![explorer-v0.8.3](https://img.shields.io/badge/explorer-v0.8.3-green)
 [![tests](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml)
 [![pages](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml)
 ![license: MIT](https://img.shields.io/badge/license-MIT-lightgrey)
@@ -62,15 +62,15 @@ Two independent versioned artifacts (per [ADR-006](docs/02_design/decisions/ADR-
 The notes ship as `notes-vX.Y.Z` and the app ships as `explorer-vX.Y.Z` —
 content velocity differs from app velocity. See
 [CHANGELOG.md](CHANGELOG.md) for the full release history (currently at
-notes-v0.10.0 / explorer-v0.8.1).
+notes-v0.10.0 / explorer-v0.8.3).
 
 ## At a glance
 
 | Artifact | Coverage |
 |---|---|
 | **Notes** | 6 X-ray modalities · 14 AI/ML methods · 14 paper reviews · 7 reverse-engineered tools · HDF5 schemas + EDA · end-to-end data pipeline · **47 noise/artifact types** with symptom-based troubleshooter · 71 real sample files (~135 MB) · 35 inline Mermaid architecture diagrams |
-| **Explorer** | 7 Streamlit pages · 3-cluster IA · GitHub Pages static mirror · **draggable vis.js Knowledge Graph** (100+ entities, 120+ edges, 3 layout modes) · **Interactive Lab** with **5 noise-mitigation recipes** + 3-panel before/after/Δ + 🎯 impact card · **Troubleshooter** (11 symptoms × 35 cases) · **Search** + bibliography (LaTeX accents decoded) · L0/L1/L2/L3 progressive disclosure · WCAG 2.1 AA palette |
-| **CI** | pytest on Python 3.11 + 3.12 (264 tests) · ruff lint + format · recipe-contract drift protection · static-site rebuild on every push · Mermaid-migration drift catcher |
+| **Explorer** | 7 Streamlit pages · 3-cluster IA · GitHub Pages static mirror · **draggable vis.js Knowledge Graph** (100+ entities, 120+ edges, 3 layout modes) · **Interactive Lab** with **14 noise-mitigation recipes** + 3-panel before/after/Δ + 🎯 impact card · **Troubleshooter** (11 symptoms × 35 cases) · **Search** + bibliography (LaTeX accents decoded) · L0/L1/L2/L3 progressive disclosure · WCAG 2.1 AA palette |
+| **CI** | pytest on Python 3.11 + 3.12 (300+ tests) · ruff lint + format · recipe-contract drift protection · static-site rebuild on every push · Mermaid-migration drift catcher |
 
 ## Repository layout
 
@@ -97,16 +97,26 @@ synchrotron-data-analysis-notes/
 │   │                           # a11y, cluster_page
 │   ├── components/             # header, footer, breadcrumb, card, note_view,
 │   │                           # visjs_graph (R11 — replaces Plotly+NetworkX)
-│   └── tests/                  # pytest suite (264 tests, runs on 3.11 + 3.12)
+│   └── tests/                  # pytest suite (300+ tests, runs on 3.11 + 3.12)
 │
-├── experiments/                # Pure-function noise-mitigation recipes (5 bundled)
+├── experiments/                # Pure-function noise-mitigation recipes (14 bundled)
 │   ├── tomography/
 │   │   ├── ring_artifact/                # Vo et al. 2018 — sorting filter
 │   │   ├── ring_artifact_wavelet/        # Munch et al. 2009 — wavelet-FFT
-│   │   └── flatfield_correction/         # I0 normalisation (R11 — most dramatic)
+│   │   ├── ring_artifact_neutron/        # neutron-CT ring artifact (R14)
+│   │   ├── flatfield_correction/         # I0 normalisation (R11 — most dramatic)
+│   │   ├── low_dose_denoise/             # low-dose wavelet denoise (R14)
+│   │   └── beam_hardening/               # polynomial correction (R14)
+│   ├── scattering_diffraction/
+│   │   └── phase_unwrap/                 # 2-D Goldstein phase unwrap (R14)
 │   └── cross_cutting/
 │       ├── cosmic_ray_lacosmic/          # van Dokkum 2001 — L.A.Cosmic
-│       └── gaussian_denoise/             # Gaussian / median baseline (R11)
+│       ├── gaussian_denoise/             # Gaussian / median baseline (R11)
+│       ├── tv_denoise/                   # Chambolle total-variation (R14)
+│       ├── nlm_denoise/                  # non-local means (R14)
+│       ├── bilateral_denoise/            # bilateral edge-preserving (R14)
+│       ├── wavelet_denoise/              # wavelet shrinkage (R14)
+│       └── inpaint_dead_pixel/           # dead-pixel inpaint (R14)
 │
 ├── scripts/
 │   ├── build_static_site.py    # GitHub Pages mirror generator (ADR-007)
@@ -136,7 +146,7 @@ streamlit run explorer/app.py    # ← THIS one. NOT eberlight-explorer/app.py.
 
 The app opens at `http://localhost:8501`. The seven pages mirror the
 information architecture (ADR-004) and have been refined across phases
-R1 → R15 (currently `explorer-v0.8.0`):
+R1 → R15.2 (currently `explorer-v0.8.3`):
 
 | Page | What it does |
 |---|---|
@@ -158,7 +168,7 @@ markdown render live as **Mermaid** flowcharts.
 
 ### Try the Interactive Lab
 
-The Experiment page exposes 5 noise-mitigation recipes from prior
+The Experiment page exposes 14 noise-mitigation recipes from prior
 research. Each recipe ships with a **3-card narrative** above the
 parameter sliders (⚠️ what was wrong · 🛠️ how we fix it · 👀 what to
 observe) and a **3-panel before/after/Δ** below them, so the impact
@@ -168,9 +178,18 @@ story is visible without flicking your eyes back and forth:
 |---|---|---|
 | **Ring artifact — sorting filter** | Vo et al. 2018, *Optics Express* | Sarepy sinograms (real µCT, multiple stripe types) |
 | **Ring artifact — wavelet-FFT** | Munch et al. 2009, *Optics Express* | Same Sarepy sinograms — pedagogical "two algorithms, one input" |
-| **Flat-field correction** | The textbook I0 normalisation step | `flatfield_correction` dataset — most dramatic |Δ\| panel |
+| **Ring artifact (neutron CT)** | Anders et al. 2019 adaptation | Neutron-CT sinograms |
+| **Flat-field correction** | The textbook I0 normalisation step | `flatfield_correction` dataset — most dramatic \|Δ\| panel |
+| **Low-dose wavelet denoise** | Wavelet shrinkage on low-dose tomo | µCT low-dose sample |
+| **Beam-hardening correction** | Polynomial correction | Polychromatic-source µCT |
+| **Phase unwrap (2-D)** | Goldstein branch-cut | Scattering / interferometry pattern |
 | **Cosmic ray / zinger — L.A.Cosmic** | van Dokkum 2001, *PASP* | Real Gemini Multi-Object Spectrograph CCD frame |
 | **Classical denoise (Gaussian / median)** | Baseline every paper compares to | Sarepy sinograms + GMOS frame — same UI shows both |
+| **Total-variation (Chambolle)** | Chambolle 2004 — edge-preserving | Generic 2-D sample |
+| **Non-local means** | Buades et al. 2005 | Generic 2-D sample |
+| **Bilateral denoise** | Tomasi & Manduchi 1998 | Generic 2-D sample |
+| **Wavelet shrinkage** | Donoho-Johnstone soft thresholding | Generic 2-D sample |
+| **Dead-pixel inpaint** | Local-neighborhood fill | Detector-defect sample |
 
 All inputs are **real published research data** bundled under
 permissive licenses (Apache-2.0, BSD-3, MIT, LGPL). See
@@ -216,12 +235,12 @@ Full project documentation lives in [`docs/`](docs/) — see
 - **Requirements**: [PRD](docs/01_requirements/PRD.md) (FR-001 … FR-022) ·
   [user stories](docs/01_requirements/user_stories.md)
   (US-001 … US-016) · [NFRs](docs/01_requirements/non_functional.md)
-- **Architecture decisions**: 9 ADRs at
+- **Architecture decisions**: 10 ADRs at
   [`docs/02_design/decisions/`](docs/02_design/decisions/) — Streamlit
   choice (ADR-001), notes-as-SoT (ADR-002), frontmatter (ADR-003),
   3-cluster IA (ADR-004), design tokens (ADR-005), dual SemVer (ADR-006),
   Pages mirror (ADR-007), Interactive Lab (ADR-008), legacy
-  deprecation (ADR-009)
+  deprecation (ADR-009), R7 darkening + tone reframing (ADR-010)
 - **Implementation**: [coding standards](docs/03_implementation/coding_standards.md) ·
   [data contracts](docs/03_implementation/data_contracts.md) ·
   [Pages sync contract](docs/03_implementation/github_pages_sync.md)
@@ -233,12 +252,22 @@ Full project documentation lives in [`docs/`](docs/) — see
   - `explorer-v0.6.1` (REL-E061) — first-impression UX polish (R10)
   - `explorer-v0.7.0` (REL-E070) — vis.js KG + Lab impact + 5 recipes (R11)
   - `explorer-v0.7.1` (REL-E071) — bug fixes from user review (R12)
+  - `explorer-v0.7.2` (REL-E072) — top 4 of senior-engineer review (R13)
+  - `explorer-v0.7.3` (REL-E073) — header HTML-leak hotfix + 9 new Lab recipes (R14)
   - `explorer-v0.8.0` (REL-E080) — senior-review polish: tone reframing,
     routing/CSS-token unification, onboarding + cluster orientation,
     glossary auto-link, smoke tests (R15)
   - `explorer-v0.8.1` (REL-E081) — re-review follow-ups: glossary
     cross-segment fix, regex caching, keyboard focus, layout-toggle,
     related-views, Lab replay-only banner, tablet + dark-mode tokens (R15.1)
+  - `explorer-v0.8.2` (REL-E082) — Streamlit footer reframed as personal
+    eBERlight archive (matches REL-E080 static-site reframing)
+  - `explorer-v0.8.3` (REL-E083) — comprehensive review + framing
+    cleanup: footer parity restored verbatim across Streamlit ⇄
+    static site, DOE-contract acknowledgment removed from README,
+    DS-001 / VIS-001 / roadmap / ADRs aligned with personal-archive
+    framing, 4 small code bugs fixed, static-site `--help` works
+    without numpy
 - **Glossary & contributing**: [`docs/06_meta/`](docs/06_meta/)
 
 ## Engineering principles
@@ -299,8 +328,14 @@ redistributed under the upstream licenses preserved verbatim in
 [`10_interactive_lab/LICENSES/`](10_interactive_lab/LICENSES/)
 (Apache-2.0, BSD-3, MIT, LGPL-2.1+). Each dataset folder ships an
 `ATTRIBUTION.md` with the original author, citation, and the exact
-upstream commit we mirrored.
+upstream commit mirrored.
 
-This work acknowledges support from the U.S. Department of Energy,
-Office of Science, Office of Biological and Environmental Research
-under Contract No. DE-AC02-06CH11357.
+> **Disclaimer.** This is a personal eBERlight archive — a personal
+> research / learning project, not an official ANL / APS / DOE
+> property. It is not affiliated with or endorsed by Argonne
+> National Laboratory, the Advanced Photon Source, the U.S.
+> Department of Energy, or the eBERlight program. For the actual
+> research, programs, beamtime calls, and authoritative
+> documentation, please refer to the official APS
+> ([aps.anl.gov](https://www.aps.anl.gov)) and eBERlight
+> ([eberlight.aps.anl.gov](https://eberlight.aps.anl.gov)) sites.
