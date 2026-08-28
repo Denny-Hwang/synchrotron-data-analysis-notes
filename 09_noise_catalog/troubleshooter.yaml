@@ -69,6 +69,7 @@ symptoms:
           name: "Flat-Field Contamination"
           severity: major
           guide: tomography/flatfield_issues.md
+          recipe: flatfield_correction
           image: flatfield_before_after.png
       - conditions:
           - "Rings NOT centered on the rotation axis"
@@ -85,6 +86,7 @@ symptoms:
           name: "Streak / Beam-Hardening Artifact"
           severity: critical
           guide: tomography/streak_artifact.md
+          recipe: beam_hardening_polynomial
           image: beam_hardening_before_after.png
       - conditions:
           - "Vertical stripes visible in the sinogram domain"
@@ -134,6 +136,7 @@ symptoms:
           name: "Detector Dead / Hot Pixel"
           severity: major
           guide: cross_cutting/detector_common_issues.md
+          recipe: inpaint_dead_pixel
           image: dead_hot_pixel_before_after.png
       - conditions:
           - "Bright spots in XRF elemental map (10× neighbours)"
@@ -232,6 +235,7 @@ symptoms:
           name: "Photon-Counting Noise / Low-Dose"
           severity: major
           guide: tomography/low_dose_noise.md
+          recipe: low_dose_wavelet_denoise
           image: low_dose_noise_before_after.png
       - conditions:
           - "Grain dominant in dark / low-signal regions, intensity-independent"
@@ -419,6 +423,7 @@ symptoms:
           name: "Phase Wrapping"
           severity: critical
           guide: scattering_diffraction/phase_wrapping.md
+          recipe: phase_unwrap_2d
           image: phase_wrapping_before_after.png
 
   - id: ghost

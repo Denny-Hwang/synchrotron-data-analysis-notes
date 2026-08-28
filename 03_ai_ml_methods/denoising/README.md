@@ -30,6 +30,7 @@ Denoising is critical in synchrotron science because:
 | **Noise2Void** | No | No | ★★★ | Medium | Lower quality |
 | **Noise2Self** | No | No | ★★★ | Medium | Lower quality |
 | **Neighbor2Neighbor** | No | No | ★★★½ | Medium | Subsampling artifacts |
+| **Noise2Inverse** | No | No (splits one CT scan) | ★★★★ | Medium | Structured noise survives |
 
 ## Directory Contents
 
@@ -39,6 +40,7 @@ Denoising is critical in synchrotron science because:
 | [noise2noise.md](noise2noise.md) | Self-supervised denoising without clean targets |
 | [deep_residual_xrf.md](deep_residual_xrf.md) | Resolution enhancement via probe deconvolution |
 | [noise2void.md](noise2void.md) | Self-supervised denoising from single noisy images (N2V, N2S, Neighbor2Neighbor) |
+| [noise2inverse.md](noise2inverse.md) | Physics-aware self-supervised denoising for tomography (projection-split Noise2Noise) |
 
 ## Architecture diagram
 

@@ -1,4 +1,4 @@
-# BER Program-Attributed Publications (2023-2025)
+# BER Program-Attributed Publications (2023-2026)
 
 ## Overview
 
@@ -57,56 +57,76 @@ results from its AI/ML integration efforts:
 
 ### 2025 -- Maturing Pipeline & User Science
 
-With beamlines fully operational and the AI/ML pipeline stabilized, the BER program's
-publications in 2025 are expected to span:
+With beamlines fully operational and the AI/ML pipeline stabilized, 2025
+delivered facility-defining results and user-facing program activity:
 
-- **User science papers** where the BER program's AI/ML tools enabled new measurements
-  or accelerated data analysis for general user experiments
-- **Methods papers** describing novel algorithms developed within the program
-  (e.g., self-supervised denoising for low-dose XRF, real-time segmentation for
-  tomography)
-- **Infrastructure papers** detailing the full-stack data pipeline from detector
-  to analysis, including edge computing and HPC integration
-- **Review articles** synthesizing lessons learned from the first two years of
-  AI/ML integration at a fourth-generation synchrotron
+- **World-record source performance confirmed**: measured 33 pm·rad
+  horizontal emittance (announced May 2025); source emittance and coherence
+  measurements published in Shi et al., *J. Synchrotron Rad.* 32(5) (2025)
+- **Program calls**: FICUS FY2026 proposal call for biological and
+  environmental research announced January 2025
+- **User science ramp-up**: eBERlight environment and plant research at
+  GSECARS 13-BM-D (April 2025)
+- **Methods papers** in the wider APS orbit: self-supervised denoising for
+  low-dose CT and XRF, diffusion-model ptychography reconstruction (see
+  Category 4 below)
+
+### 2026 -- APS-U Completion & Agentic AI
+
+- **January 2026**: DOE grants final approval of the $815M APS Upgrade —
+  on budget, ahead of schedule; completion celebrated February 5, 2026
+- **Beamline capacity**: 72 beamlines at completion of the beamline
+  upgrade program; the PtychoProbe (33-ID) is the final APS-U feature
+  beamline, and the In Situ Nanoprobe (sector 19) is producing early
+  results with ~20 nm focus
+- **LLM agents reach real beamlines**: Argonne demonstrations of agentic
+  instrument operation (Vriza et al., *npj Comput. Mater.* 2026); SLAC's
+  agentic X-ray scientist (*Nat. Mach. Intell.* 2026)
 
 ---
 
 ## Publication Categories
 
-### Category 1: Core BER Program Methods
+> **Scope note (2026-08):** the tables below list *verified APS / APS-U-era
+> publications relevant to the program's mission* collected for this personal
+> archive. They are **not** an official BER attribution list — consult the
+> program website for formal attribution.
 
-Papers where BER program team members are primary authors and the work was
-primarily conducted within the program.
+### Category 1: Facility & Beamline Performance (APS-U era)
 
-| # | Title (abbreviated) | Authors | Status | Target Journal |
-|---|---------------------|---------|--------|---------------|
-| _1_ | _To be added as publications are finalized_ | -- | -- | -- |
+| # | Title (abbreviated) | Authors | Venue | Year |
+|---|---------------------|---------|-------|------|
+| 1 | Measurements of source emittance and beam coherence of the upgraded APS | Shi, X. et al. | J. Synchrotron Rad. 32(5), DOI 10.1107/S160057752500579X | 2025 |
+| 2 | Returning to scientific operations at GM/CA@APS after the APS-Upgrade | Kissick, D. J. et al. | Structural Dynamics, DOI 10.1063/4.0001010 | 2025 |
+| 3 | Macromolecular Crystallography at the Upgraded Advanced Photon Source | -- | Synchrotron Radiation News, DOI 10.1080/08940886.2026.2643150 | 2026 |
 
-### Category 2: Collaborative / Multi-Beamline
+### Category 2: AI/ML Methods at APS & Partner Facilities
 
-Papers where the BER program contributed AI/ML analysis, computing infrastructure, or
-algorithmic support to experiments led by other groups.
+| # | Title (abbreviated) | Contribution | Venue | Year |
+|---|---------------------|--------------|-------|------|
+| 1 | Operating advanced scientific instruments with AI agents that learn on the job | LLM agents at an APS nanoprobe beamline | npj Comput. Mater. 12, 160, DOI 10.1038/s41524-026-02005-0 | 2026 |
+| 2 | An agentic artificially intelligent X-ray scientist | LLM agent autonomously aligns crystals (SLAC) | Nat. Mach. Intell. 8, 1075–1086, DOI 10.1038/s42256-026-01261-5 | 2026 |
+| 3 | Self-supervised deep-learning denoising for XRF microscopy with multi-element detectors | First ML denoiser for XRF (ESRF) | Anal. Chem. 98(11), DOI 10.1021/acs.analchem.5c05552 | 2026 |
+| 4 | Noise2Inverse on bone SRμCT | Self-supervised low-dose CT denoising (ALS) | J. Synchrotron Rad. 32, 690–699, DOI 10.1107/S1600577525001833 | 2025 |
+| 5 | Multi-stage DL artifact reduction for parallel-beam CT | Ring/artifact removal at the right pipeline stage | J. Synchrotron Rad. 32(2), 442–456, DOI 10.1107/S1600577525000359 | 2025 |
 
-| # | Title (abbreviated) | BER Program Contribution | Status |
-|---|---------------------|----------------------|--------|
-| _1_ | _To be added_ | -- | -- |
+### Category 3: Program Activity & Calls
 
-### Category 3: Conference Proceedings & Workshop Reports
+| # | Venue | Item | Year |
+|---|-------|------|------|
+| 1 | APS News | FICUS FY2026 proposal call for biological and environmental research (announced 2025-01-27) | 2025 |
+| 2 | GSECARS | eBERlight environment and plant research at 13-BM-D | 2025 |
+| 3 | APS News | DOE final approval + completion celebration of the APS Upgrade | 2026 |
 
-Shorter contributions to conferences, workshops, and user meetings.
+### Category 4: Preprints & Software
 
-| # | Venue | Title (abbreviated) | Year |
-|---|-------|---------------------|------|
-| _1_ | _To be added_ | -- | -- |
-
-### Category 4: Preprints & Technical Reports
-
-Works in progress, arXiv preprints, and internal technical reports.
-
-| # | Title (abbreviated) | Repository | Status |
-|---|---------------------|-----------|--------|
-| _1_ | _To be added_ | -- | -- |
+| # | Title (abbreviated) | Repository | Year |
+|---|---------------------|-----------|------|
+| 1 | Pty-Chi: PyTorch-based modern ptychographic data analysis package (APS) | arXiv:2510.20929; github.com/AdvancedPhotonSource/pty-chi | 2025 |
+| 2 | Ptychographic reconstruction from limited data via physics-guided diffusion models (Argonne) | arXiv:2502.18767 | 2025 |
+| 3 | Fidelity-preserving enhancement of ptychography with foundational text-to-image models (APS) | arXiv:2509.04513 | 2025 |
+| 4 | Modular framework for collaborative human-AI multi-beamline experiments (NSLS-II/NIST, Bluesky) | arXiv:2509.22959 | 2025 |
+| 5 | PEAR: multi-LLM-agent automation for ptychography (Argonne/Rice) | arXiv:2410.09034 | 2024 |
 
 ---
 
@@ -159,4 +179,4 @@ For questions about BER program publications or to report a missing entry:
 
 ---
 
-_Last updated: 2025-Q4_
+_Last updated: 2026-08-28_

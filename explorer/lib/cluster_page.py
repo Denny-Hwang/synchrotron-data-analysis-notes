@@ -266,6 +266,7 @@ def _render_folder_filter_chips(
     *,
     active_folder: str | None,
     tag: str | None,
+    layout: str | None = None,
 ) -> None:
     """Render folder-filter chips above the cluster table (R11 I3).
 
@@ -280,12 +281,23 @@ def _render_folder_filter_chips(
     folders = sorted(folder_counts.keys())
 
     base = f"/{cluster_id.title()}"
-    tag_extra = f"&tag={quote(tag, safe='')}" if tag else ""
+
+    # R16 — chips previously dropped the active ``layout``, so clicking
+    # a folder chip from Cards view silently reset the user to Table.
+    def _chip_href(folder: str | None) -> str:
+        params: list[str] = []
+        if folder:
+            params.append(f"folder={quote(folder, safe='')}")
+        if tag:
+            params.append(f"tag={quote(tag, safe='')}")
+        if layout:
+            params.append(f"layout={layout}")
+        return base + (f"?{'&'.join(params)}" if params else "")
 
     chips: list[str] = []
     is_all_active = active_folder is None
     chips.append(
-        f'<a href="{base}?{("tag=" + quote(tag, safe="")) if tag else ""}" '
+        f'<a href="{_chip_href(None)}" '
         f'target="_self" '
         f'class="eberlight-chip {"active" if is_all_active else ""}">'
         f'All <span class="eberlight-chip-count">({len(notes)})</span></a>'
@@ -293,7 +305,7 @@ def _render_folder_filter_chips(
     for folder in folders:
         count = folder_counts[folder]
         is_active = folder == active_folder
-        href = f"{base}?folder={quote(folder, safe='')}{tag_extra}"
+        href = _chip_href(folder)
         chips.append(
             f'<a href="{href}" target="_self" '
             f'class="eberlight-chip {"active" if is_active else ""}">'
@@ -452,6 +464,22 @@ def _render_compare_table(notes: list[Note], repo_root: Path, cluster_id: str) -
             }
         )
     df = pd.DataFrame(rows)
+    # R16 — the DC-001 metadata columns (Modality / Beamlines / Tags /
+    # Pubs / Tools) are only populated by notes that carry the rich
+    # frontmatter vocabulary; most of the corpus uses the governance
+    # frontmatter instead, leaving those columns constant filler. Drop
+    # any column that carries no data for the current note set.
+    _droppable = {
+        "Modality": "—",
+        "Beamlines": "—",
+        "Tags": "—",
+        "Pubs": None,
+        "Tools": None,
+    }
+    for col, empty in _droppable.items():
+        values = df[col]
+        if (values.isna().all()) if empty is None else (values == empty).all():
+            df = df.drop(columns=[col])
     st.dataframe(
         df,
         width="stretch",
@@ -513,7 +541,9 @@ def _build_metric_pairs(note: Note) -> list[tuple[str, str]]:
         pairs.append(("Priority", note.priority))
     if note.pipeline_stage:
         pairs.append(("Pipeline stage", note.pipeline_stage.title()))
-    return pairs[:6]  # Cap at 6 — beyond that the row wraps awkwardly.
+    # Cap at 4 — note_view renders the metrics in st.columns(min(4, …)),
+    # so anything beyond 4 was silently dropped (R16).
+    return pairs[:4]
 
 
 def _build_related_views(note: Note) -> list[tuple[str, str]]:
@@ -619,10 +649,10 @@ def _render_note_detail(
         url_id = note.url_id(repo_root)
         permalink = f"/{cluster_id.title()}?note={quote(url_id, safe='/')}&level={level}"
 
-    # REL-E081 M5 — TOC now also surfaces at L1 (Sections). The L1 view
-    # still trims the body to section openers, but the table of contents
-    # helps the reader see what's coming without bouncing to L2 first.
-    toc = _dl.extract_toc(note.body) if level in ("L1", "L2") else None
+    # R16 — TOC is restricted to L2 again: the L1 body is a nested
+    # bullet list with no heading anchors, so every REL-E081 M5-era
+    # TOC link at L1 pointed at a non-existent in-page id.
+    toc = _dl.extract_toc(note.body) if level == "L2" else None
     metrics = _build_metric_pairs(note) if level == "L2" else None
 
     section_tabs: list[tuple[str, str]] | None = None
@@ -719,20 +749,15 @@ def _render_level_selector(current: str, note_url_id: str, *, view_mode: str = "
     )
 
 
-def render_cluster_page(
-    cluster_id: str,
-    *,
-    group_by_folder: bool = True,  # deprecated, kept for backward compat
-) -> None:
+def render_cluster_page(cluster_id: str) -> None:
     """Top-level entry called by every cluster page file.
 
     Args:
         cluster_id: One of ``"discover"``, ``"explore"``, ``"build"``.
-        group_by_folder: Deprecated since R11 — the page now uses a
-            single dense compare-table view with folder-filter chips.
-            Argument retained so unmodified callers don't fail.
+
+    (R16 — the deprecated ``group_by_folder`` compat argument is gone;
+    all three callers were updated in the same change.)
     """
-    del group_by_folder  # silence linters; argument retained for compat.
     from lib import detail_level as _dl
 
     explorer_dir = Path(__file__).resolve().parent.parent
@@ -791,18 +816,33 @@ def render_cluster_page(
             _render_recently_viewed_sidebar(all_notes, repo_root, current=target)
             render_footer()
             return
-        # Fall through with a warning — show the cluster grid instead.
-        st.warning(f"Note not found: `{note_url_id}` — showing the cluster overview instead.")
+        # Fall through — show the cluster grid instead. The warning is
+        # rendered after the header (R16: it used to appear above the
+        # site chrome, which read as a broken page).
+        note_not_found = note_url_id
+        note_url_id = None
+    else:
+        note_not_found = None
 
     # Mode 2 / 3 — cluster grid (with optional tag filter).
     render_header(active_cluster=cluster_id)
     render_breadcrumb([("Home", "/"), (meta["name"], None)])
+    if note_not_found:
+        st.warning(f"Note not found: `{note_not_found}` — showing the cluster overview instead.")
     _render_cluster_orientation(meta, cluster_id, cluster_notes)
 
     visible_notes = cluster_notes
     if tag_filter:
         visible_notes = [n for n in cluster_notes if tag_filter in (n.tags or [])]
         _render_filter_banner(tag_filter, cluster_id)
+
+    # REL-E081 S2 — Table vs Cards layout toggle. Default stays Table
+    # (the legacy compare-table is the power-user surface) but new
+    # visitors who want to browse get a one-click switch to cards.
+    # (Resolved before the chips so folder-chip links can carry it.)
+    layout = (query_param("layout") or "table").lower()
+    if layout not in ("table", "cards"):
+        layout = "table"
 
     # R11 I3 — folder-filter chips replace the Cards/Table toggle. The
     # cluster page now has one dense table view; the chip row narrows
@@ -813,17 +853,14 @@ def render_cluster_page(
         else None
     )
     _render_folder_filter_chips(
-        cluster_notes, cluster_id, active_folder=active_folder, tag=tag_filter
+        cluster_notes,
+        cluster_id,
+        active_folder=active_folder,
+        tag=tag_filter,
+        layout=layout if layout != "table" else None,
     )
     if active_folder:
         visible_notes = [n for n in visible_notes if n.folder == active_folder]
-
-    # REL-E081 S2 — Table vs Cards layout toggle. Default stays Table
-    # (the legacy compare-table is the power-user surface) but new
-    # visitors who want to browse get a one-click switch to cards.
-    layout = (query_param("layout") or "table").lower()
-    if layout not in ("table", "cards"):
-        layout = "table"
     _render_layout_toggle(
         cluster_id,
         active_layout=layout,

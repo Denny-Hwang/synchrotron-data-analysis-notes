@@ -77,11 +77,17 @@ def test_every_paper_diagram_landed_in_note() -> None:
         assert _MERMAID_FENCE_RE.search(text), f"No mermaid block in {rel} — migration regressed."
 
 
-def test_migration_total_count_is_thirty_five() -> None:
-    """The migration table itself must keep 35 entries — drift catcher."""
+def test_migration_total_count_is_thirty_three() -> None:
+    """The migration table itself must keep 33 entries — drift catcher.
+
+    Originally 35; two paper entries were retired in 2026-08 together
+    with their reviews (review_fullstack_tomo_2023: fabricated citation;
+    review_aiedge_ptycho_2023: duplicate DOI of
+    review_ai_edge_ptychography_2023).
+    """
     mig = _load_migration_module()
     total = len(mig.CATEGORY_DIAGRAMS) + len(mig.METHOD_DIAGRAMS) + len(mig.PAPER_DIAGRAMS)
-    assert total == 35, f"Migration table size changed to {total}; intended 35."
+    assert total == 33, f"Migration table size changed to {total}; intended 33."
 
 
 def test_migration_idempotent(tmp_path: Path) -> None:

@@ -39,7 +39,7 @@ from lib.experiments import (
     run_pipeline,
 )
 from lib.ia import CLUSTER_META
-from lib.routing import query_param
+from lib.routing import note_url, query_param
 
 st.set_page_config(page_title="Experiment — eBERlight", page_icon="🧪", layout="wide")
 
@@ -92,20 +92,25 @@ st.markdown(
 # REL-E081 M1 — auto-derive the cache schema key from ``Recipe``'s
 # dataclass field set. Adding a new field now invalidates the cache
 # automatically; we no longer have to remember to bump a magic
-# ``_v3-r12`` string in lockstep with the schema. The leading
-# digest is added to the cache key by passing it as a default arg
-# to the cached functions — Streamlit hashes the default and treats
-# any change as a cache-invalidating signature change.
+# ``_v3-r12`` string in lockstep with the schema. The digest is added
+# to the cache key by passing it as a default arg to the cached
+# functions — Streamlit hashes the default and treats any change as a
+# cache-invalidating signature change.
+#
+# R16 — the parameter must NOT start with an underscore: Streamlit
+# explicitly excludes ``_``-prefixed parameters from the cache key
+# (that is the documented escape hatch for unhashable args), so the
+# earlier ``_schema`` spelling made the whole mechanism a no-op.
 _RECIPE_SCHEMA_KEY = ",".join(sorted(f.name for f in dataclasses.fields(Recipe)))
 
 
 @st.cache_resource(show_spinner=False)
-def _cached_recipes(_schema: str = _RECIPE_SCHEMA_KEY) -> list[Recipe]:
+def _cached_recipes(schema: str = _RECIPE_SCHEMA_KEY) -> list[Recipe]:
     return load_recipes(_REPO_ROOT / "experiments")
 
 
 @st.cache_data(show_spinner="Loading sample…")
-def _cached_sample(manifest_path: str, _schema: str = _RECIPE_SCHEMA_KEY) -> np.ndarray:
+def _cached_sample(manifest_path: str, schema: str = _RECIPE_SCHEMA_KEY) -> np.ndarray:
     return load_sample(_REPO_ROOT, manifest_path)
 
 
@@ -114,7 +119,7 @@ def _cached_run(
     recipe_id: str,
     manifest_path: str,
     params_items: tuple,
-    _schema: str = _RECIPE_SCHEMA_KEY,
+    schema: str = _RECIPE_SCHEMA_KEY,
 ) -> np.ndarray:
     recipes = _cached_recipes()
     recipe = next(r for r in recipes if r.recipe_id == recipe_id)
@@ -122,9 +127,25 @@ def _cached_run(
     return run_pipeline(recipe, arr, dict(params_items))
 
 
+def _to_2d(arr: np.ndarray) -> np.ndarray:
+    """Reduce an array to a 2-D view for display.
+
+    ``st.image`` only accepts 2-D (or HxWx1/3/4) arrays. Some bundled
+    samples are 3-D stacks (e.g. a TomoPy-style ``(angles, rows, cols)``
+    sinogram with a singleton row axis) — squeeze singleton axes first,
+    and fall back to the central slice along axis 0 for genuine volumes
+    so the page degrades to "show one slice" instead of raising
+    ``StreamlitAPIException: Channel can only be 1, 3, or 4``.
+    """
+    a = np.squeeze(np.asarray(arr))
+    while a.ndim > 2:
+        a = a[a.shape[0] // 2]
+    return a
+
+
 def _to_display(arr: np.ndarray) -> np.ndarray:
     """Min-max normalise to [0, 1] float32 for ``st.image``."""
-    a = arr.astype(np.float32, copy=False)
+    a = _to_2d(arr).astype(np.float32, copy=False)
     lo, hi = float(a.min()), float(a.max())
     if hi - lo < 1e-12:
         return np.zeros_like(a)
@@ -183,7 +204,8 @@ st.markdown(
     f'<p style="color:var(--color-text-secondary);font-size:13px;margin-top:-8px;">'
     f"Modality: <b>{recipe.modality}</b> &nbsp;·&nbsp; "
     f"Function: <code>{recipe.function}</code> &nbsp;·&nbsp; "
-    f'Catalog: <a href="../{recipe.noise_catalog_ref}">{recipe.noise_catalog_ref}</a>'
+    f'Catalog: <a href="{note_url(recipe.noise_catalog_ref)}" target="_self">'
+    f"{recipe.noise_catalog_ref}</a>"
     "</p>",
     unsafe_allow_html=True,
 )
@@ -321,8 +343,10 @@ def _difference_map(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     where the input passed through unchanged. Centre-crops to the
     common minimum shape if the two arrays differ slightly.
     """
-    a32 = a.astype(np.float32, copy=False)
-    b32 = b.astype(np.float32, copy=False)
+    # Reduce to the same 2-D view _to_display renders (squeeze +
+    # central slice) so the diff panel never hands st.image a volume.
+    a32 = _to_2d(a).astype(np.float32, copy=False)
+    b32 = _to_2d(b).astype(np.float32, copy=False)
     if a32.shape != b32.shape:
         # Centre-crop to the minimum shape on each axis.
         slices = tuple(slice(0, min(a32.shape[i], b32.shape[i])) for i in range(a32.ndim))
@@ -380,33 +404,42 @@ def _serialise_tiff(arr: np.ndarray) -> bytes:
     return buf.getvalue()
 
 
-_dl_col1, _dl_col2 = st.columns(2)
 _safe_id = recipe.recipe_id.replace("/", "_")
 _safe_sample = sample.manifest_path.split("/")[-1].rsplit(".", 1)[0]
 _basename = f"{_safe_id}__{_safe_sample}__processed"
 
-with _dl_col1:
-    st.download_button(
-        label="⬇ Download processed (.npy)",
-        data=_serialise_npy(sino_output),
-        file_name=f"{_basename}.npy",
-        mime="application/octet-stream",
-        help=(
-            "Raw float32 array, loadable with numpy.load. Use this when "
-            "you want to plug the result into your own analysis pipeline."
-        ),
-        key=f"{recipe.recipe_id}_dl_npy",
-    )
-with _dl_col2:
-    if sino_output.ndim == 2:
+# R16 — st.download_button(data=…) serialises eagerly on every rerun,
+# so the two encoders were re-packing up to ~37 MB per slider tick on
+# the large ring-artifact TIFFs. Gate them behind an explicit toggle so
+# parameter exploration stays snappy.
+if st.toggle(
+    "Prepare download files",
+    key=f"{recipe.recipe_id}_dl_toggle",
+    help="Encodes the processed array as .npy (and .tiff for 2-D output) for download.",
+):
+    _dl_col1, _dl_col2 = st.columns(2)
+    with _dl_col1:
         st.download_button(
-            label="⬇ Download processed (.tiff)",
-            data=_serialise_tiff(sino_output),
-            file_name=f"{_basename}.tiff",
-            mime="image/tiff",
-            help="Lossless TIFF — for image viewers (ImageJ, Fiji, Tomviz).",
-            key=f"{recipe.recipe_id}_dl_tiff",
+            label="⬇ Download processed (.npy)",
+            data=_serialise_npy(sino_output),
+            file_name=f"{_basename}.npy",
+            mime="application/octet-stream",
+            help=(
+                "Raw float32 array, loadable with numpy.load. Use this when "
+                "you want to plug the result into your own analysis pipeline."
+            ),
+            key=f"{recipe.recipe_id}_dl_npy",
         )
+    with _dl_col2:
+        if sino_output.ndim == 2:
+            st.download_button(
+                label="⬇ Download processed (.tiff)",
+                data=_serialise_tiff(sino_output),
+                file_name=f"{_basename}.tiff",
+                mime="image/tiff",
+                help="Lossless TIFF — for image viewers (ImageJ, Fiji, Tomviz).",
+                key=f"{recipe.recipe_id}_dl_tiff",
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -414,20 +447,54 @@ with _dl_col2:
 # ---------------------------------------------------------------------------
 
 
-if recipe.clean_reference and recipe.metrics:
+# R16 — per-sample clean_reference override (recipes whose samples come
+# from different synthetic scenes each carry their own ground truth;
+# previously every sample was scored against the recipe-level reference).
+_ref_path = getattr(sample, "clean_reference", "") or (
+    recipe.clean_reference.manifest_path if recipe.clean_reference else ""
+)
+_ref_label = getattr(sample, "clean_reference", "") or (
+    recipe.clean_reference.label if recipe.clean_reference else ""
+)
+
+if _ref_path and recipe.metrics:
     if sample.role == "false_positive_trap":
         st.info(
             f"**False-positive trap sample.** `{sample.label}` is a different "
-            f"scene from the clean reference (`{recipe.clean_reference.label}`) — "
+            f"scene from the clean reference (`{_ref_label}`) — "
             "what looks like stripes here is real sample structure. "
             "PSNR/SSIM against the reference are not meaningful, so they are "
             "skipped. Watch the visual output: a good algorithm should leave "
             "this image largely unchanged; a too-aggressive filter will smear "
             "the real features."
         )
+    elif sample.role == "identity_check":
+        # R16 — the sample IS the clean reference. Input-vs-reference
+        # metrics are degenerate (PSNR = inf), so only score the output:
+        # a good algorithm should keep it near-perfect.
+        try:
+            ref_arr = _cached_sample(_ref_path)
+            out_metrics = compute_metrics(ref_arr, sino_output, list(recipe.metrics))
+        except FileNotFoundError as e:
+            st.warning(f"Clean reference not found: {e}")
+        except ValueError as exc:
+            st.info(f"Metrics skipped (shape mismatch): {exc}")
+        else:
+            st.info(
+                "**Identity check.** This sample *is* the clean reference — "
+                "a well-behaved algorithm should leave it nearly untouched. "
+                "The metrics below score the processed output against the "
+                "original: values near-perfect (high PSNR, SSIM ≈ 1) mean "
+                "the filter does little collateral damage to clean data."
+            )
+            id_cols = st.columns(len(recipe.metrics))
+            for col, name in zip(id_cols, recipe.metrics, strict=True):
+                out_v = out_metrics.get(name.lower())
+                if out_v is not None:
+                    col.metric(label=f"{name.upper()} (output vs original)", value=f"{out_v:.3f}")
     else:
         try:
-            ref_arr = _cached_sample(recipe.clean_reference.manifest_path)
+            ref_arr = _cached_sample(_ref_path)
             try:
                 in_metrics = compute_metrics(ref_arr, sino_input, list(recipe.metrics))
                 out_metrics = compute_metrics(ref_arr, sino_output, list(recipe.metrics))
@@ -445,7 +512,7 @@ if recipe.clean_reference and recipe.metrics:
                 # a single glance.
                 st.markdown(
                     f"#### 🎯 Impact &nbsp;<span style='color:#888;font-size:14px;'>"
-                    f"vs clean reference (<code>{recipe.clean_reference.label}</code>)</span>",
+                    f"vs clean reference (<code>{_ref_label}</code>)</span>",
                     unsafe_allow_html=True,
                 )
                 if ref_arr.shape != sino_input.shape:

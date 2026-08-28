@@ -62,5 +62,7 @@ jobs:
       - name: mypy (best effort, non-blocking)
         # mypy is informational for now; we'll flip to blocking once the
         # codebase is fully typed (ADR follow-up tracked in CHANGELOG).
+        # R16 — dropped the `|| true` so the step can at least annotate
+        # failures; continue-on-error keeps it non-blocking.
         continue-on-error: true
-        run: mypy explorer/lib explorer/components || true
+        run: mypy explorer/lib explorer/components

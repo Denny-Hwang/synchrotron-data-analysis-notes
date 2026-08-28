@@ -38,7 +38,7 @@ CLUSTER_META: Final[dict[str, dict[str, str]]] = {
     "explore": {
         "name": "Explore the Science",
         "description": (
-            "6 X-ray modalities, 14 AI/ML methods, 14 publication reviews, "
+            "6 X-ray modalities, 22 AI/ML method notes, 15 publication reviews, "
             "and 29+ noise/artifact types with troubleshooter."
         ),
         # Darkened from #00A3E0 (contrast 2.87 on white) to hit

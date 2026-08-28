@@ -19,7 +19,9 @@ In scope:
 - The Streamlit application in `explorer/`.
 - The static-site generator in `scripts/build_static_site.py`.
 - Pipeline functions in `experiments/`.
-- The lazy-download infrastructure in `explorer/lib/model_zoo.py`.
+- The lazy-download infrastructure in `explorer/lib/model_zoo.py`
+  (staged — the registry loader is tested but no page triggers
+  downloads yet; see `10_interactive_lab/models/README.md`).
 - CI workflows in `.github/workflows/`.
 
 Out of scope:

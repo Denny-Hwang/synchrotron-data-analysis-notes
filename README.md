@@ -18,8 +18,8 @@ program at the APS as a learning topic. Written so the same notes can
 serve later review as a beamline scientist, a new BER user, or a
 computational researcher might each need from one corpus.
 
-![notes-v0.10.0](https://img.shields.io/badge/notes-v0.10.0-blue)
-![explorer-v0.8.3](https://img.shields.io/badge/explorer-v0.8.3-green)
+![notes-v0.11.0](https://img.shields.io/badge/notes-v0.11.0-blue)
+![explorer-v0.9.0](https://img.shields.io/badge/explorer-v0.9.0-green)
 [![tests](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml)
 [![pages](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml)
 ![license: MIT](https://img.shields.io/badge/license-MIT-lightgrey)
@@ -62,15 +62,15 @@ Two independent versioned artifacts (per [ADR-006](docs/02_design/decisions/ADR-
 The notes ship as `notes-vX.Y.Z` and the app ships as `explorer-vX.Y.Z` —
 content velocity differs from app velocity. See
 [CHANGELOG.md](CHANGELOG.md) for the full release history (currently at
-notes-v0.10.0 / explorer-v0.8.3).
+notes-v0.11.0 / explorer-v0.9.0).
 
 ## At a glance
 
 | Artifact | Coverage |
 |---|---|
-| **Notes** | 6 X-ray modalities · 14 AI/ML methods · 14 paper reviews · 7 reverse-engineered tools · HDF5 schemas + EDA · end-to-end data pipeline · **47 noise/artifact types** with symptom-based troubleshooter · 71 real sample files (~135 MB) · 35 inline Mermaid architecture diagrams |
-| **Explorer** | 7 Streamlit pages · 3-cluster IA · GitHub Pages static mirror · **draggable vis.js Knowledge Graph** (100+ entities, 120+ edges, 3 layout modes) · **Interactive Lab** with **14 noise-mitigation recipes** + 3-panel before/after/Δ + 🎯 impact card · **Troubleshooter** (11 symptoms × 35 cases) · **Search** + bibliography (LaTeX accents decoded) · L0/L1/L2/L3 progressive disclosure · WCAG 2.1 AA palette |
-| **CI** | pytest on Python 3.11 + 3.12 (300+ tests) · ruff lint + format · recipe-contract drift protection · static-site rebuild on every push · Mermaid-migration drift catcher |
+| **Notes** | 6 X-ray modalities · 24 AI/ML method notes · 15 paper reviews · 7 reverse-engineered tools · HDF5 schemas + EDA · end-to-end data pipeline · **47 noise/artifact types** with symptom-based troubleshooter · 71 real sample files (~135 MB) · 35+ inline Mermaid architecture diagrams |
+| **Explorer** | 7 Streamlit pages · 3-cluster IA · GitHub Pages static mirror · **draggable vis.js Knowledge Graph** (100+ entities, 120+ edges, 3 layout modes) · **Interactive Lab** with **14 noise-mitigation recipes** + 3-panel before/after/Δ + 🎯 impact card · **Troubleshooter** (11 symptoms × 42 cases) · **Search** + bibliography (LaTeX accents decoded) · L0/L1/L2/L3 progressive disclosure · WCAG 2.1 AA palette |
+| **CI** | pytest on Python 3.11 + 3.12 (340+ tests) · ruff lint + format · recipe-contract drift protection · static-site rebuild on every push · Mermaid-migration drift catcher |
 
 ## Repository layout
 
@@ -97,7 +97,7 @@ synchrotron-data-analysis-notes/
 │   │                           # a11y, cluster_page
 │   ├── components/             # header, footer, breadcrumb, card, note_view,
 │   │                           # visjs_graph (R11 — replaces Plotly+NetworkX)
-│   └── tests/                  # pytest suite (300+ tests, runs on 3.11 + 3.12)
+│   └── tests/                  # pytest suite (340+ tests, runs on 3.11 + 3.12)
 │
 ├── experiments/                # Pure-function noise-mitigation recipes (14 bundled)
 │   ├── tomography/
@@ -146,7 +146,7 @@ streamlit run explorer/app.py    # ← THIS one. NOT eberlight-explorer/app.py.
 
 The app opens at `http://localhost:8501`. The seven pages mirror the
 information architecture (ADR-004) and have been refined across phases
-R1 → R15.2 (currently `explorer-v0.8.3`):
+R1 → R16 (currently `explorer-v0.9.0`):
 
 | Page | What it does |
 |---|---|
@@ -156,7 +156,7 @@ R1 → R15.2 (currently `explorer-v0.8.3`):
 | **Explore the Science** | Notes from `02_xray_modalities/`, `03_ai_ml_methods/`, `04_publications/`, `09_noise_catalog/` — same compare-table view |
 | **Build and Compute** | Notes from `05_tools_and_code/`, `06_data_structures/`, `07_data_pipeline/`, `10_interactive_lab/` + recipe gallery |
 | **Experiment** | Stepper UI: ① pick recipe → ② pick sample → ③ tune parameters → ④ before / after / **\|Δ\|** + 🎯 Impact card with PSNR/SSIM win-loss banner |
-| **Troubleshooter** | 11 symptom categories × 35 differential cases with severity, conditions, before/after images, ▶ Run-experiment links (one click into the Lab with the matching recipe pre-selected) |
+| **Troubleshooter** | 11 symptom categories × 42 differential cases with severity, conditions, before/after images, ▶ Run-experiment links (one click into the Lab with the matching recipe pre-selected) |
 | **Search** | Global full-text search (TF-IDF, title boost ×2, prefix match, "did you mean" suggestions) + filterable BibTeX bibliography with LaTeX accents decoded to Unicode |
 
 Every note page also exposes a **Detail Level** pill row (L0 Overview · L1
@@ -247,6 +247,7 @@ Full project documentation lives in [`docs/`](docs/) — see
 - **Release notes** (per-version) at
   [`docs/05_release/release_notes/`](docs/05_release/release_notes/):
   - `notes-v0.10.0` — Section 10 Interactive Lab
+  - `notes-v0.11.0` (REL-N110) — 2025–2026 research refresh + citation hygiene (R16)
   - `explorer-v0.5.0` (REL-E050) — parity restoration R1 → R7
   - `explorer-v0.6.0` (REL-E060) — final feature parity (R9)
   - `explorer-v0.6.1` (REL-E061) — first-impression UX polish (R10)
@@ -267,6 +268,12 @@ Full project documentation lives in [`docs/`](docs/) — see
     static site, DOE-contract acknowledgment removed from README,
     DS-001 / VIS-001 / roadmap / ADRs aligned with personal-archive
     framing, 4 small code bugs fixed, static-site `--help` works
+  - `explorer-v0.9.0` (REL-E090) — comprehensive service + experiments
+    review (R16): dead deep-links fixed (Search / Knowledge Graph /
+    Lab catalog), Lab 3-D crash + wrong-ground-truth metrics fixed via
+    per-sample references (ADR-008 v0.2.0), bibliography parser
+    recovered 36 dropped entries, Pages CI unbroken (`numpy`) + PR-time
+    build validation, static-site a11y/nav parity
     without numpy
 - **Glossary & contributing**: [`docs/06_meta/`](docs/06_meta/)
 

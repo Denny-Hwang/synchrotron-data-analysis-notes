@@ -12,7 +12,7 @@ related: [09_noise_catalog/README.md, docs/02_design/decisions/ADR-008-interacti
 
 ## Purpose
 
-This is **section 10** of the eBERlight Explorer notes. While `09_noise_catalog/` documents what each noise/artifact looks like and how prior research has mitigated it, this section provides **real input data** so that users can replay those mitigations interactively (in the planned Streamlit `4_Experiment.py` page) and tune parameters.
+This is **section 10** of the eBERlight Explorer notes. While `09_noise_catalog/` documents what each noise/artifact looks like and how prior research has mitigated it, this section provides **real input data** so that users can replay those mitigations interactively (in the Streamlit Lab page, `explorer/pages/4_Experiment.py`) and tune parameters.
 
 > Companion ADR: [`docs/02_design/decisions/ADR-008-interactive-lab.md`](../docs/02_design/decisions/ADR-008-interactive-lab.md)
 > Companion PRD requirement: FR-XXX (to be added).
@@ -100,16 +100,18 @@ import tifffile
 sino = tifffile.imread(
     "10_interactive_lab/datasets/tomography/ring_artifact/sinogram_dead_stripe.tif"
 )
-print(sino.shape, sino.dtype)   # → e.g. (1024, 2048) uint16
+print(sino.shape, sino.dtype)   # → e.g. (1800, 2560) float32
 ```
 
-### From the Streamlit Explorer (planned `4_Experiment.py`)
+### From the Streamlit Explorer (`explorer/pages/4_Experiment.py`)
 
-Files are auto-discovered from `manifest.yaml`. Each noise category in the catalog maps to one or more bundled samples; the page will let users:
+The Lab page enumerates samples from each experiment's `recipe.yaml`
+under `experiments/`; CI verifies every recipe sample is listed in
+`manifest.yaml`. The page lets users:
 
-1. Pick a sample.
-2. Choose a mitigation method (traditional or DL).
-3. Adjust parameters (slider/select).
+1. Pick a recipe and a sample.
+2. Adjust parameters (slider/select).
+3. Compare before/after with PSNR/SSIM against the clean reference.
 4. Compare before/after side-by-side, with PSNR/SSIM metrics.
 
 See [`docs/03_implementation/`](../docs/03_implementation/) (incoming) for the experiment-recipe schema.
@@ -129,6 +131,7 @@ See `docs/external_data_sources.md` — it lists the bigger and more diverse dat
 | pyFAI | MIT (MIT/X11) | ✅ |
 | PyXRF | BSD-3 | ✅ |
 | astroscrappy | BSD-3 | ✅ |
+| Algotom | Apache-2.0 | ✅ (license retained for provenance of Sarepy-derived methods; no bundled sample currently lists Algotom as its source) |
 
 See `LICENSES/` for full text of each.
 

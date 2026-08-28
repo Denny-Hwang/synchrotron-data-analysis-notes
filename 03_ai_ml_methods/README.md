@@ -78,7 +78,7 @@ AI/ML for Synchrotron Science
 | Subdirectory | Category | Key Methods |
 |-------------|----------|-------------|
 | [image_segmentation/](image_segmentation/) | Segmentation | U-Net variants, cell segmentation, tomographic phase ID |
-| [denoising/](denoising/) | Denoising | TomoGAN, Noise2Noise, deep residual networks |
+| [denoising/](denoising/) | Denoising | TomoGAN, Noise2Noise, Noise2Inverse, deep residual networks |
 | [reconstruction/](reconstruction/) | Reconstruction | TomocuPy, PtychoNet, INR for dynamic imaging |
 | [autonomous_experiment/](autonomous_experiment/) | Autonomous | ROI-Finder, Bayesian optimization, AI-NERD |
 | [multimodal_integration/](multimodal_integration/) | Integration | XRF+ptycho, CT+XAS, optical+X-ray registration |

@@ -25,4 +25,4 @@ from lib.cluster_page import render_cluster_page
 
 st.set_page_config(page_title="Explore the Science — eBERlight", page_icon="🔬", layout="wide")
 
-render_cluster_page("explore", group_by_folder=True)
+render_cluster_page("explore")

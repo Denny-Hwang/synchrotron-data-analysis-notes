@@ -312,14 +312,8 @@ PAPER_DIAGRAMS: dict[str, str] = {
     D --> E["Feedback to Scan"]
     F["Full Recon on HPC"] -.-> D"""
     ),
-    "review_aiedge_ptycho_2023": _decode(
-        """graph LR
-    A["Detector Stream"] --> B["Edge FPGA/GPU"]
-    B --> C["Lightweight CNN"]
-    C --> D["Real-time Phase"]
-    D --> E["Feedback to Scan"]
-    F["Full Recon on HPC"] -.-> D"""
-    ),
+    # "review_aiedge_ptycho_2023" removed 2026-08: the review duplicated
+    # review_ai_edge_ptychography_2023 (same DOI) and was retired.
     "review_realtime_uct_hpc_2020": _decode(
         """graph LR
     A["Detector @ 2-BM"] --> B["Streaming to HPC"]
@@ -345,15 +339,9 @@ PAPER_DIAGRAMS: dict[str, str] = {
     D --> E["3D Coordinates"]
     E --> F["Confidence pLDDT"]"""
     ),
-    "review_fullstack_tomo_2023": _decode(
-        """graph TB
-    A["Raw Projections"] --> B["Preprocessing"]
-    B --> C["Reconstruction"]
-    C --> D["Denoising"]
-    D --> E["Segmentation"]
-    E --> F["Quantification"]
-    F --> G["Visualization"]"""
-    ),
+    # "review_fullstack_tomo_2023" removed 2026-08: the review carried a
+    # fabricated citation (DOI resolves to an unrelated paper) and was
+    # retired in favour of review_fullstack_dl_tomo_2023.
     "review_noise2void_2019": _decode(
         """graph LR
     A["Single Noisy Image"] --> B["Random Blind-Spot Masking"]

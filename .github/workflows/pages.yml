@@ -27,6 +27,17 @@ on:
       - 'scripts/requirements.txt'
       - 'docs/02_design/wireframes/html/**'
       - '.github/workflows/pages.yml'
+  # R16 — PR-time build validation: the static build used to run only
+  # post-merge on main, so invariant-#9 drift (or a broken generator)
+  # was first detected after landing. PRs run the build job only; the
+  # deploy job is gated to pushes on main.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'explorer/**'
+      - 'scripts/build_static_site.py'
+      - 'scripts/requirements.txt'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -61,14 +72,17 @@ jobs:
         run: python scripts/build_static_site.py --out site
 
       - name: Setup Pages
+        if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5.0.0
 
       - name: Upload artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3.0.1
         with:
           path: site
 
   deploy:
+    if: github.event_name != 'pull_request'
     needs: build
     environment:
       name: github-pages

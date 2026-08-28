@@ -9,7 +9,7 @@ Each review follows the standardized template defined in
 to the APS BER program at the Advanced Photon Source (APS).
 
 The collection spans foundational methods (2013-2019), mature techniques
-(2020-2022), and cutting-edge developments (2023-2025), providing a
+(2020-2022), and cutting-edge developments (2023-2026), providing a
 comprehensive landscape of AI/ML capabilities applicable to beamline science.
 
 ---
@@ -25,6 +25,8 @@ or faster acquisitions while preserving image quality.
 |--------|-------|------------------|
 | `review_tomogan_2020.md` | Liu et al., JOSA A (2020) | GAN-based denoising for synchrotron tomography; 4-10x dose reduction |
 | `review_realtime_uct_hpc_2020.md` | McClure et al., SMC (2020) | End-to-end AI+HPC workflow including denoising for micro-CT |
+| `review_noise2inverse_bone_2025.md` | Obata et al., J. Synchrotron Rad. (2025) | Self-supervised Noise2Inverse on real bone micro-CT; 2-3x dose reduction |
+| `review_selfsupervised_xrf_denoise_2026.md` | Shishkov et al., Anal. Chem. (2026) | First ML denoiser for XRF; multi-element detector redundancy as Noise2Noise pairs |
 
 ### Segmentation & Clustering
 
@@ -56,8 +58,8 @@ experimental control during beamtime.
 |--------|-------|------------------|
 | `review_roi_finder_2022.md` | Chowdhury et al., J. Synchrotron Rad. (2022) | Automated ROI recommendation for beam-time-efficient XRF scanning |
 | `review_ai_nerd_2024.md` | Horwath et al., Nature Comm. (2024) | Unsupervised XPCS dynamics fingerprinting via UMAP + HDBSCAN |
-| `review_aiedge_ptycho_2023.md` | Babu et al., Nature Comm. (2023) | Real-time feedback loop for ptychographic imaging |
 | `review_aidriven_xanes_2025.md` | Du et al., npj Comput. Mater. (2025) | AI-driven workflow for dynamic XANES with Bayesian optimization |
+| `review_agentic_xray_scientist_2026.md` | Chen et al., Nat. Mach. Intell. (2026) | LLM agent autonomously aligns single crystals on a real beamline |
 
 ### Resolution Enhancement
 
@@ -99,14 +101,15 @@ across multiple modalities or facility-wide infrastructure.
 | 4 | `review_realtime_uct_hpc_2020.md` | McClure | 2020 | Micro-CT |
 | 5 | `review_alphafold_2021.md` | Jumper | 2021 | Crystallography |
 | 6 | `review_roi_finder_2022.md` | Chowdhury | 2022 | XRF |
-| 7 | `review_aiedge_ptycho_2023.md` | Babu | 2023 | Ptychography |
-| 8 | `review_ai_edge_ptychography_2023.md` | Babu | 2023 | Ptychography |
-| 9 | `review_fullstack_dl_tomo_2023.md` | Zhang | 2023 | Tomography |
-| 10 | `review_fullstack_tomo_2023.md` | Zhang | 2023 | Tomography |
-| 11 | `review_deep_residual_xrf_2023.md` | Wu | 2023 | XRF |
-| 12 | `review_ai_nerd_2024.md` | Horwath | 2024 | XPCS |
-| 13 | `review_ai_als_workshop_2024.md` | Parkinson | 2024 | Multi-modal |
-| 14 | `review_aidriven_xanes_2025.md` | Du | 2025 | Spectroscopy |
+| 7 | `review_ai_edge_ptychography_2023.md` | Babu | 2023 | Ptychography |
+| 8 | `review_fullstack_dl_tomo_2023.md` | Zhang | 2023 | Tomography |
+| 9 | `review_deep_residual_xrf_2023.md` | Wu | 2023 | XRF |
+| 10 | `review_ai_nerd_2024.md` | Horwath | 2024 | XPCS |
+| 11 | `review_ai_als_workshop_2024.md` | Parkinson | 2024 | Multi-modal |
+| 12 | `review_aidriven_xanes_2025.md` | Du | 2025 | Spectroscopy |
+| 13 | `review_noise2inverse_bone_2025.md` | Obata | 2025 | Micro-CT |
+| 14 | `review_selfsupervised_xrf_denoise_2026.md` | Shishkov | 2026 | XRF |
+| 15 | `review_agentic_xray_scientist_2026.md` | Chen | 2026 | Diffraction |
 
 ---
 
@@ -127,15 +130,20 @@ provides a logical progression:
 4. **`review_roi_finder_2022.md`** and **`review_xrf_gmm_2013.md`** -- Explore
    clustering and segmentation methods for XRF, from classical to modern.
 
-5. **`review_aiedge_ptycho_2023.md`** and
+5. **`review_ai_edge_ptychography_2023.md`** and
    **`review_realtime_uct_hpc_2020.md`** -- Examine real-time and edge
    computing approaches.
 
 6. **`review_deep_residual_xrf_2023.md`** -- Resolution enhancement as a
    complementary capability.
 
-7. **`review_ai_nerd_2024.md`** and **`review_aidriven_xanes_2025.md`** --
-   Autonomous and AI-driven experimental methods.
+7. **`review_ai_nerd_2024.md`**, **`review_aidriven_xanes_2025.md`**, and
+   **`review_agentic_xray_scientist_2026.md`** -- Autonomous and AI-driven
+   experimental methods, up to LLM agents on real beamlines.
+
+7b. **`review_noise2inverse_bone_2025.md`** and
+   **`review_selfsupervised_xrf_denoise_2026.md`** -- The current
+   self-supervised denoising frontier for CT and XRF.
 
 8. **`review_alphafold_2021.md`** -- AI for structural biology and protein
    structure prediction.
@@ -151,4 +159,4 @@ provides a logical progression:
 
 ---
 
-_Last updated: 2026-Q1_
+_Last updated: 2026-Q3_

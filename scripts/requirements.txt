@@ -1,7 +1,12 @@
 # Dependencies for scripts/build_static_site.py (GitHub Pages build).
 # Keep in sync with explorer/requirements.txt for the shared libraries
-# (markdown, pygments, pyyaml) so local Streamlit and CI produce the
-# same HTML.
+# (markdown, pygments, pyyaml, numpy) so local Streamlit and CI produce
+# the same HTML. test_requirements_in_sync (test_build_static_site.py)
+# enforces the pins match.
 markdown>=3.5,<4.0
 pygments>=2.17,<3.0
 pyyaml>=6.0,<7.0
+# lib.experiments (imported for the Build cluster's recipe gallery)
+# imports numpy at module level — without it the Pages build crashes
+# with ModuleNotFoundError.
+numpy>=1.24,<3.0

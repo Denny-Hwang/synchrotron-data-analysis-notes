@@ -9,6 +9,7 @@ Ref: ADR-003 — YAML frontmatter schema.
 Ref: DC-001 (data_contracts.md) — Schema and controlled vocabularies.
 """
 
+import datetime
 import logging
 import re
 from dataclasses import dataclass, field
@@ -352,6 +353,16 @@ def _parse_note(path: Path, folder: str) -> Note:
         v = fm.get(key)
         return v.strip() if isinstance(v, str) and v.strip() else None
 
+    def _opt_date(key: str) -> str | None:
+        """Like _opt_str, but also accepts YAML-parsed date objects
+        (unquoted ``2026-05-14`` deserialises to datetime.date)."""
+        v = fm.get(key)
+        if isinstance(v, str) and v.strip():
+            return v.strip()
+        if isinstance(v, datetime.date):
+            return v.isoformat()
+        return None
+
     def _opt_int(key: str) -> int | None:
         v = fm.get(key)
         if isinstance(v, int):
@@ -411,7 +422,13 @@ def _parse_note(path: Path, folder: str) -> Note:
         doi=_opt_str("doi"),
         priority=_opt_str("priority"),
         pipeline_stage=_opt_str("pipeline_stage"),
-        last_reviewed=_opt_str("last_reviewed"),
+        # R16 — the governance frontmatter (CLAUDE.md invariant 7) that
+        # the docs/ and 10_interactive_lab/ notes actually carry uses
+        # ``last_updated``, not the DC-001 ``last_reviewed`` key; accept
+        # it as a fallback so those notes light up the "last reviewed"
+        # stat instead of always rendering empty. YAML parses unquoted
+        # dates to datetime.date, so stringify via _opt_date.
+        last_reviewed=_opt_str("last_reviewed") or _opt_date("last_updated"),
     )
 
 

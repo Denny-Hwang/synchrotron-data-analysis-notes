@@ -49,8 +49,8 @@ samples:
     role: noisy_input
     description: "Sarepy clean crop with cubic-polynomial hardening applied"
   - manifest_path: datasets/tomography/beam_hardening/sinogram_clean.npy
-    label: "Clean reference (false-positive trap)"
-    role: false_positive_trap
+    label: "Clean reference (identity check)"
+    role: identity_check
     description: "Apply correction to clean data — should NOT introduce a cup"
 
 clean_reference:

@@ -164,22 +164,27 @@ if _KG_LEVEL == "L0":
 # the citation-heavy ``paper`` and ``tool`` layers.
 _DEFAULT_VISIBLE_KINDS = {"modality", "method", "recipe", "noise"}
 
-with st.container():
-    st.markdown("#### Layers visible")
-    visible_kinds: set[str] = set()
-    kind_cols = st.columns(len(list(iter_kinds())))
-    for col, kind in zip(kind_cols, iter_kinds(), strict=True):
-        default_on = kind in _DEFAULT_VISIBLE_KINDS
-        if col.checkbox(
-            f"{kind.title()} ({len(graph.by_kind(kind))})",
-            value=default_on,
-            key=f"kg_kind_{kind}",
-        ):
-            visible_kinds.add(kind)
-    st.caption(
-        "Tip: papers + tools are off by default to keep the first view "
-        "uncluttered. Enable them above to widen the lens."
-    )
+# R16 — the layer checkboxes only affect the L2 spatial graph, so they
+# are rendered only there (at L1/L3 they previously appeared but did
+# nothing).
+visible_kinds: set[str] = set(_DEFAULT_VISIBLE_KINDS)
+if _KG_LEVEL == "L2":
+    with st.container():
+        st.markdown("#### Layers visible")
+        visible_kinds = set()
+        kind_cols = st.columns(len(list(iter_kinds())))
+        for col, kind in zip(kind_cols, iter_kinds(), strict=True):
+            default_on = kind in _DEFAULT_VISIBLE_KINDS
+            if col.checkbox(
+                f"{kind.title()} ({len(graph.by_kind(kind))})",
+                value=default_on,
+                key=f"kg_kind_{kind}",
+            ):
+                visible_kinds.add(kind)
+        st.caption(
+            "Tip: papers + tools are off by default to keep the first view "
+            "uncluttered. Enable them above to widen the lens."
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -243,9 +248,14 @@ if _KG_LEVEL == "L2":
                 "drag to rearrange · double-click to open the underlying note."
             ),
         )
-else:
+elif _KG_LEVEL == "L1":
     st.caption(
         f"L1 — showing matrices for {len(graph.entities)} entities and "
+        f"{len(graph.edges)} edges; switch to L2 for the spatial graph."
+    )
+else:
+    st.caption(
+        f"L3 — raw tables for {len(graph.entities)} entities and "
         f"{len(graph.edges)} edges; switch to L2 for the spatial graph."
     )
 

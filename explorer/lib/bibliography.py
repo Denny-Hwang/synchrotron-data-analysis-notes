@@ -232,7 +232,16 @@ def _parse_year(raw: str) -> int | None:
 
 
 def parse_bib_text(text: str) -> list[BibEntry]:
-    """Parse a BibTeX corpus into a list of :class:`BibEntry`."""
+    """Parse a BibTeX corpus into a list of :class:`BibEntry`.
+
+    R16 — ``%``-comment lines are stripped first: ``_ENTRY_RE`` ends an
+    entry only when its closing brace is directly followed by the next
+    ``@`` (or end of input), so every entry that preceded a
+    ``% === section ===`` banner was silently swallowed. Both repo
+    ``.bib`` files use such banners; more than half the corpus was
+    invisible to the Search page's bibliography tab.
+    """
+    text = re.sub(r"(?m)^\s*%.*$", "", text)
     out: list[BibEntry] = []
     for entry in _ENTRY_RE.finditer(text):
         body = entry.group("body")

@@ -18,7 +18,15 @@ Pretrained model checkpoints are **not redistributed** in this repository. Reaso
 2. **License diversity.** Some weights are GPL (Topaz), some CC BY-NC (TomoGAN). Bundling them creates a license-compatibility minefield.
 3. **Versioning.** Model authors update weights without notice; pinning a stale copy here would mislead users.
 
-Instead, we ship **lazy-download recipes** — see `lazy_download_recipes.yaml`. The Streamlit Lab page calls `pooch.retrieve(...)` on first use, verifies the SHA-256 hash, and caches under the user's OS cache directory.
+Instead, we ship **lazy-download recipes** — see `lazy_download_recipes.yaml`.
+
+> **Status: staged, not live.** The registry loader exists
+> (`explorer/lib/model_zoo.py`, unit-tested) but no Explorer page
+> currently triggers a download — the Lab's 14 recipes are all
+> classical pipelines. When a page does wire this up, it must call
+> `pooch.retrieve(...)` with a pinned SHA-256 (`known_hash`) and show
+> the entry's license (and `license_warning`) before fetching; entries
+> still carrying `known_hash: null` must not be auto-downloaded.
 
 ## Two tiers of models
 

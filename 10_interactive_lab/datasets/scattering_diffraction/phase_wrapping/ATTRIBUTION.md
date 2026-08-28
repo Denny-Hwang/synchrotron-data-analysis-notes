@@ -12,7 +12,7 @@ related: [09_noise_catalog/scattering_diffraction/phase_wrapping.md]
 
 ## Source
 
-Synthesised in-tree by `scripts/` from the canonical 2-D phase-unwrapping
+Synthesised in-tree from the canonical 2-D phase-unwrapping
 test patterns described in:
 
 - Itoh, K. (1982). *Analysis of the phase unwrapping algorithm.*
@@ -45,9 +45,10 @@ PSNR/SSIM of the unwrapped output against the ground truth.
 ## License
 
 These arrays are **CC0 / Public Domain** because they are deterministic
-synthesis of well-known mathematical test surfaces. The reproducibility
-script (in `Bash` block of the corresponding release note) seeds NumPy
-with `20260508` so the bytes are stable across rebuilds.
+synthesis of well-known mathematical test surfaces. The synthesis used
+NumPy seeded with `20260508`; the generation script is not bundled in
+this repository — the committed `.npy` files are the canonical copies
+(treat them as data, not build outputs).
 
 ## Required Citation
 

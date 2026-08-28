@@ -444,18 +444,22 @@ def build_graph(repo_root: Path) -> Graph:
     return Graph(entities=entities, edges=deduped)
 
 
-def entity_url(entity: Entity, repo_root: Path | None = None) -> str:
+def entity_url(entity: Entity) -> str:
     """Return the Streamlit deep-link for an entity, or ``"#"`` if no doc.
 
-    Modality / method / paper / tool / noise → ``?note=<doc_path>``.
+    Modality / method / paper / tool / noise →
+    ``/<Cluster>?note=<doc_path>`` — routed through the cluster page
+    that owns the note's folder, because only the cluster pages handle
+    the ``note`` query-param (a bare ``?note=…`` resolved against the
+    Knowledge Graph page and did nothing).
     Recipe → ``/Experiment`` (the lab page; the recipe selector lives there).
     """
     if entity.kind == "recipe":
         return "/Experiment"
     if entity.doc_path:
-        from urllib.parse import quote
+        from lib.routing import note_url
 
-        return f"?note={quote(entity.doc_path, safe='/')}"
+        return note_url(entity.doc_path)
     return "#"
 
 

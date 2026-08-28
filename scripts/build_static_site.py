@@ -14,7 +14,7 @@ HTML site that mirrors the Streamlit app's pages 1:1:
 - Search stub (interactive surface)                  ← explorer/pages/6_Search.py
 - Note detail pages (markdown + aside)               ← explorer/components/note_view.py
 
-Pages whose value is in interactive controls (Plotly graph, parameter
+Pages whose value is in interactive controls (vis-network graph, parameter
 sliders, search box, decision tree) cannot be rendered usefully as
 flat HTML. The generator emits a stub page for each so the static
 site keeps the same URL surface area as Streamlit, with a banner that
@@ -54,10 +54,12 @@ _EXPLORER_DIR = _REPO_ROOT / "explorer"
 if str(_EXPLORER_DIR) not in sys.path:
     sys.path.insert(0, str(_EXPLORER_DIR))
 
+from lib.bibliography import collect_bibliography
 from lib.glossary import annotate_html as _glossary_annotate
 from lib.glossary import load_glossary
 from lib.ia import CLUSTER_META, FOLDER_TO_CLUSTER, get_folders_for_cluster
 from lib.notes import Note, load_notes
+from lib.troubleshooter import load_troubleshooter
 
 if TYPE_CHECKING:
     from lib.experiments import Recipe
@@ -103,8 +105,9 @@ INTERACTIVE_PAGES: tuple[dict[str, str], ...] = (
         ),
         "stat_line": ("100+ entities · 120+ edges · auto-extracted from notes + recipe.yaml."),
         "what_static_shows": (
-            "The graph layout, layer toggles, and hover tooltips are Plotly-driven "
-            "and need a running Python kernel. The static site cannot replay them."
+            "The graph layout, layer toggles, and hover tooltips are rendered by "
+            "vis-network inside the running app and need a live Python kernel "
+            "feeding it. The static site cannot replay them."
         ),
     },
     {
@@ -141,7 +144,10 @@ INTERACTIVE_PAGES: tuple[dict[str, str], ...] = (
             "in the data; get differential diagnoses with severity, conditions, and "
             "a one-click jump to the matching Lab recipe."
         ),
-        "stat_line": ("11 symptom categories · 35 differential cases · before/after comparisons."),
+        "stat_line": (
+            "{n_symptoms} symptom categories · {n_diagnoses} differential cases · "
+            "before/after comparisons."
+        ),
         "what_static_shows": (
             "The decision tree, modality + severity filters, and ``?symptom=`` deep "
             "links rely on Streamlit query-param routing."
@@ -157,7 +163,7 @@ INTERACTIVE_PAGES: tuple[dict[str, str], ...] = (
             "Global full-text search across every note plus a filterable BibTeX "
             "bibliography. Title-boosted relevance, prefix matching, deep links."
         ),
-        "stat_line": ("<10 ms typical query · TF-IDF approx · 19 + 20 BibTeX entries indexed."),
+        "stat_line": ("<10 ms typical query · TF-IDF approx · {n_bib} BibTeX entries indexed."),
         "what_static_shows": (
             "Live search needs a running index; the static mirror cannot host it. "
             "GitHub's repository search is a serviceable fallback while the app is "
@@ -635,7 +641,12 @@ def _folder_label(folder: str) -> str:
 
 
 def _header_html(page_path: str, active_cluster: str | None = None) -> str:
-    """Site header with logo + 3 cluster links. Mirrors explorer/components/header.py."""
+    """Site header with logo + cluster links. Mirrors explorer/components/header.py.
+
+    R16 parity fixes (invariant #9): the Streamlit header also carries a
+    🧪 Experiment nav link and the WCAG 2.4.1 skip link + #main-content
+    anchor (lib/a11y.py); the static mirror now emits all three too.
+    """
 
     def link(cid: str, label: str) -> str:
         href = _rel(page_path, CLUSTER_PAGE[cid])
@@ -643,7 +654,9 @@ def _header_html(page_path: str, active_cluster: str | None = None) -> str:
         return f'<a href="{href}" class="{cls}">{label}</a>'
 
     home_href = _rel(page_path, "index.html")
+    experiment_href = _rel(page_path, "experiment.html")
     return f"""
+<a href="#main-content" class="eberlight-skip-link">Skip to main content</a>
 <div class="eberlight-header">
     <div class="eberlight-header-brand">
         <div class="eberlight-header-logo">eB</div>
@@ -655,8 +668,10 @@ def _header_html(page_path: str, active_cluster: str | None = None) -> str:
         {link("discover", "Discover")}
         {link("explore", "Explore")}
         {link("build", "Build")}
+        <a href="{experiment_href}">🧪 Experiment</a>
     </nav>
 </div>
+<a id="main-content" tabindex="-1" aria-hidden="true"></a>
 """.strip()
 
 
@@ -824,6 +839,16 @@ def _metadata_panel_html(note: Note) -> str:
         )
         sections.append(section("Related Tools", links))
 
+    # R16 parity — the Streamlit aside shows "Last reviewed"; mirror it.
+    if note.last_reviewed:
+        sections.append(
+            section(
+                "Last reviewed",
+                f'<span style="font-size:14px;">'
+                f"{html_escape_mod.escape(note.last_reviewed)}</span>",
+            )
+        )
+
     # Always surface cluster + source path so users can jump back to the repo.
     cluster_meta = CLUSTER_META.get(note.cluster)
     if cluster_meta:
@@ -903,6 +928,29 @@ def _interactive_stub_page_path(slug: str) -> str:
     return f"{slug}.html"
 
 
+_STAT_FILL_CACHE: dict[str, int] | None = None
+
+
+def _fill_stats(text: str) -> str:
+    """Substitute corpus-derived counts into a stat-line template.
+
+    R16 — the stat lines used to hand-maintain counts ("35 differential
+    cases", "19 + 20 BibTeX entries") that had drifted from the corpus.
+    Templates now carry ``{n_symptoms}`` / ``{n_diagnoses}`` / ``{n_bib}``
+    placeholders filled at build time (mirrors ``_corpus_stats`` in
+    ``explorer/app.py``).
+    """
+    global _STAT_FILL_CACHE
+    if _STAT_FILL_CACHE is None:
+        ts = load_troubleshooter(_REPO_ROOT)
+        _STAT_FILL_CACHE = {
+            "n_symptoms": len(ts.symptoms),
+            "n_diagnoses": len(ts.all_diagnoses()),
+            "n_bib": len(collect_bibliography(_REPO_ROOT)),
+        }
+    return text.format(**_STAT_FILL_CACHE)
+
+
 def _interactive_cta_card_html(page_path: str, entry: dict[str, str]) -> str:
     """One CTA card on the landing pointing to an interactive-stub page."""
     color = CLUSTER_META[entry["color_cluster"]]["color"]
@@ -914,7 +962,7 @@ def _interactive_cta_card_html(page_path: str, entry: dict[str, str]) -> str:
         f"{entry['icon']} {html_escape_mod.escape(entry['title'])}"
         f"</h4>"
         f"<p>{html_escape_mod.escape(entry['summary'])}</p>"
-        f'<p class="stat">{html_escape_mod.escape(entry["stat_line"])}</p>'
+        f'<p class="stat">{html_escape_mod.escape(_fill_stats(entry["stat_line"]))}</p>'
         f"</a>"
     )
 
@@ -949,7 +997,7 @@ streamlit run explorer/app.py
     </div>
     <section class="folder-section">
         <h2>What it does</h2>
-        <p>{html_escape_mod.escape(entry["stat_line"])}</p>
+        <p>{html_escape_mod.escape(_fill_stats(entry["stat_line"]))}</p>
     </section>
 """
     html = _page_shell(
@@ -1220,12 +1268,16 @@ def _cluster_orientation_html(cluster_id: str, cluster_notes: list[Note]) -> str
 
 
 def _cluster_layout_toggle_html(page_path: str, active: str) -> str:
-    """Render the cluster-page 📋 Table / 🃏 Cards pill row (REL-E081 S2).
+    """Render the cluster-page 📁 By folder / 🃏 Cards pill row (REL-E081 S2).
 
     On the static site we generate **two output files** per cluster
     (``discover.html`` + ``discover-cards.html``) so the toggle is a
     plain link — no JS required. The active pill is solid, the other
     outlined; both use the existing ``.eberlight-chip`` styles.
+
+    R16 — the first pill used to say "📋 Table" like the Streamlit
+    compare-table view, but the static variant renders folder-grouped
+    cards, not a table; the label now says what the page actually is.
     """
     base_name = page_path.rsplit("/", 1)[-1]
     if base_name.endswith("-cards.html"):
@@ -1242,7 +1294,7 @@ def _cluster_layout_toggle_html(page_path: str, active: str) -> str:
 
     return (
         '<div class="eberlight-layout-toggle" role="tablist" aria-label="View layout">'
-        + _pill("📋 Table", table_filename, active == "table")
+        + _pill("📁 By folder", table_filename, active == "table")
         + _pill("🃏 Cards", cards_filename, active == "cards")
         + "</div>"
     )
