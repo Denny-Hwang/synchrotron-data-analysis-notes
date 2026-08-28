@@ -363,23 +363,39 @@ def run_pipeline(recipe: Recipe, arr: np.ndarray, params: dict[str, Any]) -> np.
 # ---------------------------------------------------------------------------
 
 
-def _normalize(arr: np.ndarray) -> np.ndarray:
-    """Min-max normalise to [0, 1], silently zero-out NaN / inf inputs.
-
-    Returns an all-zero array when the input has zero variance (or no
-    finite values), so that downstream PSNR / SSIM see a well-defined
-    operand instead of NaN. This is a defensive choice tuned for
-    metric computation; it is **not** appropriate for general use as
-    a normaliser.
-    """
+def _clean_finite(arr: np.ndarray) -> np.ndarray:
+    """float32 copy with NaN / inf silently zeroed (defensive for metrics)."""
     a = arr.astype(np.float32, copy=True)
     if not np.all(np.isfinite(a)):
         a = np.nan_to_num(a, nan=0.0, posinf=0.0, neginf=0.0)
-    lo = float(a.min())
-    hi = float(a.max())
+    return a
+
+
+def _normalize_pair(reference: np.ndarray, candidate: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Normalise both arrays to [0, 1] **on the reference's scale**.
+
+    R16.1 — previously each array was min-max normalised independently,
+    which distorted the comparison whenever an algorithm changed the
+    value *distribution*: a strong denoiser that shrinks the range had
+    its residuals re-stretched (spuriously "regressed" PSNR), and a
+    beam-hardening linearisation that fixes the value mapping was
+    scored on a different axis than its reference. Scaling both by the
+    reference's min/max keeps PSNR/SSIM a true same-axis comparison.
+
+    When the reference is constant (zero variance — no meaningful data
+    range), it becomes all-zeros and the candidate keeps its *deviation*
+    from the reference value at unit scale, so a candidate that differs
+    from the constant reference is still penalised instead of being
+    falsely scored as a perfect match (PSNR = inf / SSIM = 1.0).
+    Defensive choice tuned for metric computation only.
+    """
+    ref = _clean_finite(reference)
+    cand = _clean_finite(candidate)
+    lo = float(ref.min())
+    hi = float(ref.max())
     if hi - lo < 1e-12:
-        return np.zeros_like(a)
-    return (a - lo) / (hi - lo)
+        return np.zeros_like(ref), cand - lo
+    return (ref - lo) / (hi - lo), (cand - lo) / (hi - lo)
 
 
 def _align_shapes(
@@ -422,9 +438,13 @@ def compute_metrics(
 ) -> dict[str, float]:
     """Compute the requested metrics against ``reference``.
 
-    Both arrays are min-max normalised to ``[0, 1]`` before metric
-    computation so that comparisons across raw / processed dtypes are
-    meaningful.
+    Both arrays are normalised to ``[0, 1]`` **on the reference's
+    min/max** before metric computation, so comparisons across raw /
+    processed dtypes are meaningful and an algorithm that changes the
+    candidate's value range is still scored on the reference's axis
+    (R16.1 — independent per-array normalisation used to invert the
+    ranking for range-shrinking denoisers and value-remapping
+    corrections).
 
     If ``reference.shape != candidate.shape`` but the difference is at
     most ``align_tolerance`` along each dim, both arrays are
@@ -442,8 +462,7 @@ def compute_metrics(
                 f"reference {reference.shape} vs candidate {candidate.shape}"
             )
         reference, candidate = aligned
-    ref = _normalize(reference)
-    cand = _normalize(candidate)
+    ref, cand = _normalize_pair(reference, candidate)
 
     out: dict[str, float] = {}
     for m in metrics:

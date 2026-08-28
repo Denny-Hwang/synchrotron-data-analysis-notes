@@ -122,8 +122,9 @@ INTERACTIVE_PAGES: tuple[dict[str, str], ...] = (
             "clean reference."
         ),
         "stat_line": (
-            "14 recipes · 90+ real samples · Vo 2018 / Munch 2009 / Liu 2020 (TomoGAN) / "
-            "Herraez 2002 / Donoho 1994 / Chambolle 2004 / Buades 2005 / van Dokkum 2001."
+            "{n_recipes} recipes · 90+ real samples · Noise2Self self-calibration (Batson "
+            "2019) / Vo 2018 / Munch 2009 / Herraez 2002 / Donoho 1994 / Chambolle 2004 / "
+            "Buades 2005 / van Dokkum 2001."
         ),
         "what_static_shows": (
             "The recipe pipelines (Sarepy stripe removal, wavelet-Fourier filter, "
@@ -943,10 +944,13 @@ def _fill_stats(text: str) -> str:
     global _STAT_FILL_CACHE
     if _STAT_FILL_CACHE is None:
         ts = load_troubleshooter(_REPO_ROOT)
+        from lib.experiments import load_recipes as _load_recipes
+
         _STAT_FILL_CACHE = {
             "n_symptoms": len(ts.symptoms),
             "n_diagnoses": len(ts.all_diagnoses()),
             "n_bib": len(collect_bibliography(_REPO_ROOT)),
+            "n_recipes": len(_load_recipes(_REPO_ROOT / "experiments")),
         }
     return text.format(**_STAT_FILL_CACHE)
 

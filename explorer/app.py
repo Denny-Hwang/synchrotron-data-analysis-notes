@@ -18,6 +18,7 @@ from components.breadcrumb import render_breadcrumb
 from components.footer import render_footer
 from components.header import render_header
 from lib.bibliography import collect_bibliography
+from lib.experiments import load_recipes
 from lib.ia import CLUSTER_META
 from lib.notes import load_notes
 from lib.troubleshooter import load_troubleshooter
@@ -33,11 +34,13 @@ def _corpus_stats() -> dict[str, int]:
     notes = load_notes(_REPO_ROOT)
     ts = load_troubleshooter(_REPO_ROOT)
     bib = collect_bibliography(_REPO_ROOT)
+    recipes = load_recipes(_REPO_ROOT / "experiments")
     return {
         "notes": len(notes),
         "symptoms": len(ts.symptoms),
         "diagnoses": len(ts.all_diagnoses()),
         "bib_entries": len(bib),
+        "recipes": len(recipes),
     }
 
 
@@ -135,8 +138,8 @@ _SCENARIOS = [
         "icon": "🧪",
         "title": "I want to try a noise-mitigation method hands-on",
         "body": (
-            "Replay 14 bundled recipes on real samples — slide parameters, watch "
-            "PSNR/SSIM move, see the |Δ| diff panel."
+            f"Replay {_STATS['recipes']} bundled recipes on real samples — slide "
+            "parameters, watch PSNR/SSIM move, see the |Δ| diff panel."
         ),
         "href": "/Experiment",
     },
@@ -237,8 +240,9 @@ _FEATURE_CARDS = [
         "Replay noise mitigation techniques from prior research on real bundled "
         "data — tune parameters, compare before/after, see PSNR/SSIM against a "
         "clean reference.",
-        "14 recipes · 90+ real samples · TomoGAN / Vo / Munch / Herraez phase-unwrap / "
-        "TV / NLM / bilateral / wavelet / inpaint / beam-hardening / cosmic-ray.",
+        f"{_STATS['recipes']} recipes · 90+ real samples · Noise2Self self-calibration / "
+        "Vo 2018 / Munch / Herraez / TV / NLM / bilateral / wavelet / inpaint / "
+        "beam-hardening / cosmic-ray.",
     ),
     _cta_card(
         _EXPLORE_COLOR,

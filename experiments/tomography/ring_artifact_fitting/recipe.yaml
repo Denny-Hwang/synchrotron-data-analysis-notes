@@ -1,0 +1,88 @@
+# Recipe — Ring Artifact, fitting-based removal (Vo 2018).
+#
+# Schema documented in experiments/README.md.
+
+schema_version: 1
+
+recipe_id: ring_artifact_fitting
+title: "Ring Artifact — Fitting-Based Removal (Vo 2018)"
+modality: tomography
+noise_catalog_ref: 09_noise_catalog/tomography/ring_artifact.md
+
+problem: |
+  *Full* stripes — detector columns whose gain is consistently off
+  across every projection angle — ride on top of the sinogram's smooth
+  intensity trend. Sorting-based and wavelet-FFT filters treat them as
+  generic vertical features; when the background itself varies smoothly
+  they can over- or under-correct.
+fix: |
+  Vo 2018's fitting-based method models the *expected* smooth response:
+  fit a low-order polynomial to each detector column along the angle
+  axis, smooth that fitted surface across the detector axis, and
+  rescale the sinogram by the ratio — every column is pulled onto its
+  stripe-free neighbourhood while real angular structure passes through
+  the polynomial untouched.
+observe: |
+  The |Δ| panel should light up as thin vertical lines (the corrected
+  gain errors) with almost no leakage into sample features. Compare
+  with the sorting-based and wavelet-FFT recipes on the same sample:
+  the three Vo/Münch-era methods have complementary strengths —
+  Vo 2018's production advice is to *combine* them per stripe class.
+
+description: |
+  The fitting-based member of Vo, Atwood & Drakopoulos (2018), the
+  paper behind Sarepy/Algotom's stripe removers — the **current
+  production standard** at tomography beamlines (Algotom ships in
+  TomoPy and Savu). This recipe adapts Sarepy's
+  `remove_stripe_based_fitting` (Apache-2.0): polynomial fit per
+  column along angles, Gaussian smoothing of the fitted surface across
+  the detector axis, mean-preserving ratio correction. Tune `order`
+  to control how much angular trend the fit may absorb and `sigma`
+  for the smoothing width.
+
+function: experiments.tomography.ring_artifact_fitting.pipeline.remove_stripe_fitting
+
+samples:
+  - manifest_path: datasets/tomography/ring_artifact/sinogram_large_stripe.tif
+    label: "Large-amplitude full stripe"
+    role: noisy_input
+    description: "The full-stripe class this method targets"
+  - manifest_path: datasets/tomography/ring_artifact/all_stripe_types_sample1.tif
+    label: "All stripe types (challenging)"
+    role: noisy_input
+    description: "Mixed stripe classes — fitting handles the full-stripe share"
+  - manifest_path: datasets/tomography/ring_artifact/valid_stripes.tif
+    label: "Valid stripes (false-positive trap)"
+    role: false_positive_trap
+    description: "Real sample features that merely look like stripes"
+
+clean_reference:
+  manifest_path: datasets/tomography/ring_artifact/sinogram_normal.tif
+  label: "sinogram_normal.tif"
+
+parameters:
+  - name: order
+    type: int
+    label: "Polynomial order"
+    default: 2
+    min: 1
+    max: 5
+    step: 1
+    help: "Order of the per-column fit along angles. 1-2 is safe; higher absorbs real structure."
+  - name: sigma
+    type: float
+    label: "Smoothing sigma (detector px)"
+    default: 5.0
+    min: 1.0
+    max: 20.0
+    step: 0.5
+    help: "Gaussian width smoothing the fitted surface across the detector axis."
+
+metrics: [psnr, ssim]
+
+references:
+  - title: "Superior techniques for eliminating ring artifacts in X-ray micro-tomography"
+    authors: "Vo, Atwood, Drakopoulos"
+    year: 2018
+    venue: "Optics Express 26(22), 28396-28412"
+    doi: "10.1364/OE.26.028396"

@@ -243,6 +243,21 @@ def test_compute_metrics_handles_inf_input() -> None:
     assert not np.isnan(out["ssim"])
 
 
+def test_compute_metrics_constant_reference_not_falsely_perfect() -> None:
+    """R17 (Codex review) — a zero-variance reference must not award any
+    candidate PSNR = inf / SSIM = 1.0; the candidate's deviation from
+    the constant reference is preserved."""
+    ref = np.full((32, 32), 5.0, dtype=np.float32)
+    rng = np.random.default_rng(3)
+    cand = rng.random((32, 32)).astype(np.float32)
+    out = compute_metrics(ref, cand, ["psnr", "ssim"])
+    assert np.isfinite(out["psnr"])
+    assert out["ssim"] < 1.0
+    # A candidate identical to the constant reference is still perfect.
+    perfect = compute_metrics(ref, ref.copy(), ["psnr", "ssim"])
+    assert perfect["psnr"] > 100
+
+
 # ---------------------------------------------------------------------------
 # Parameter parse-time validation (P1-7)
 # ---------------------------------------------------------------------------
