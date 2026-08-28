@@ -19,7 +19,7 @@ serve later review as a beamline scientist, a new BER user, or a
 computational researcher might each need from one corpus.
 
 ![notes-v0.11.0](https://img.shields.io/badge/notes-v0.11.0-blue)
-![explorer-v0.9.0](https://img.shields.io/badge/explorer-v0.9.0-green)
+![explorer-v0.10.0](https://img.shields.io/badge/explorer-v0.10.0-green)
 [![tests](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/test.yml)
 [![pages](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml/badge.svg)](https://github.com/Denny-Hwang/synchrotron-data-analysis-notes/actions/workflows/pages.yml)
 ![license: MIT](https://img.shields.io/badge/license-MIT-lightgrey)
@@ -62,14 +62,14 @@ Two independent versioned artifacts (per [ADR-006](docs/02_design/decisions/ADR-
 The notes ship as `notes-vX.Y.Z` and the app ships as `explorer-vX.Y.Z` —
 content velocity differs from app velocity. See
 [CHANGELOG.md](CHANGELOG.md) for the full release history (currently at
-notes-v0.11.0 / explorer-v0.9.0).
+notes-v0.11.0 / explorer-v0.10.0).
 
 ## At a glance
 
 | Artifact | Coverage |
 |---|---|
 | **Notes** | 6 X-ray modalities · 24 AI/ML method notes · 15 paper reviews · 7 reverse-engineered tools · HDF5 schemas + EDA · end-to-end data pipeline · **47 noise/artifact types** with symptom-based troubleshooter · 71 real sample files (~135 MB) · 35+ inline Mermaid architecture diagrams |
-| **Explorer** | 7 Streamlit pages · 3-cluster IA · GitHub Pages static mirror · **draggable vis.js Knowledge Graph** (100+ entities, 120+ edges, 3 layout modes) · **Interactive Lab** with **14 noise-mitigation recipes** + 3-panel before/after/Δ + 🎯 impact card · **Troubleshooter** (11 symptoms × 42 cases) · **Search** + bibliography (LaTeX accents decoded) · L0/L1/L2/L3 progressive disclosure · WCAG 2.1 AA palette |
+| **Explorer** | 7 Streamlit pages · 3-cluster IA · GitHub Pages static mirror · **draggable vis.js Knowledge Graph** (100+ entities, 120+ edges, 3 layout modes) · **Interactive Lab** with **17 noise-mitigation recipes** (incl. Noise2Self self-supervised calibration) + 3-panel before/after/Δ + 🎯 impact card · **Troubleshooter** (11 symptoms × 42 cases) · **Search** + bibliography (LaTeX accents decoded) · L0/L1/L2/L3 progressive disclosure · WCAG 2.1 AA palette |
 | **CI** | pytest on Python 3.11 + 3.12 (340+ tests) · ruff lint + format · recipe-contract drift protection · static-site rebuild on every push · Mermaid-migration drift catcher |
 
 ## Repository layout
@@ -99,11 +99,13 @@ synchrotron-data-analysis-notes/
 │   │                           # visjs_graph (R11 — replaces Plotly+NetworkX)
 │   └── tests/                  # pytest suite (340+ tests, runs on 3.11 + 3.12)
 │
-├── experiments/                # Pure-function noise-mitigation recipes (14 bundled)
+├── experiments/                # Pure-function noise-mitigation recipes (17 bundled)
 │   ├── tomography/
 │   │   ├── ring_artifact/                # Vo et al. 2018 — sorting filter
 │   │   ├── ring_artifact_wavelet/        # Munch et al. 2009 — wavelet-FFT
 │   │   ├── ring_artifact_neutron/        # neutron-CT ring artifact (R14)
+│   │   ├── ring_artifact_fitting/        # Vo 2018 — fitting-based removal (R17)
+│   │   ├── ring_artifact_interpolation/  # Vo 2018 — dead-stripe interpolation (R17)
 │   │   ├── flatfield_correction/         # I0 normalisation (R11 — most dramatic)
 │   │   ├── low_dose_denoise/             # low-dose wavelet denoise (R14)
 │   │   └── beam_hardening/               # polynomial correction (R14)
@@ -116,7 +118,8 @@ synchrotron-data-analysis-notes/
 │       ├── nlm_denoise/                  # non-local means (R14)
 │       ├── bilateral_denoise/            # bilateral edge-preserving (R14)
 │       ├── wavelet_denoise/              # wavelet shrinkage (R14)
-│       └── inpaint_dead_pixel/           # dead-pixel inpaint (R14)
+│       ├── inpaint_dead_pixel/           # dead-pixel inpaint (R14)
+│       └── self_supervised_tuning/       # Noise2Self J-invariant calibration (R17)
 │
 ├── scripts/
 │   ├── build_static_site.py    # GitHub Pages mirror generator (ADR-007)
@@ -146,7 +149,7 @@ streamlit run explorer/app.py    # ← THIS one. NOT eberlight-explorer/app.py.
 
 The app opens at `http://localhost:8501`. The seven pages mirror the
 information architecture (ADR-004) and have been refined across phases
-R1 → R16 (currently `explorer-v0.9.0`):
+R1 → R17 (currently `explorer-v0.10.0`):
 
 | Page | What it does |
 |---|---|
@@ -168,7 +171,7 @@ markdown render live as **Mermaid** flowcharts.
 
 ### Try the Interactive Lab
 
-The Experiment page exposes 14 noise-mitigation recipes from prior
+The Experiment page exposes 17 noise-mitigation recipes from prior
 research. Each recipe ships with a **3-card narrative** above the
 parameter sliders (⚠️ what was wrong · 🛠️ how we fix it · 👀 what to
 observe) and a **3-panel before/after/Δ** below them, so the impact
@@ -274,6 +277,11 @@ Full project documentation lives in [`docs/`](docs/) — see
     per-sample references (ADR-008 v0.2.0), bibliography parser
     recovered 36 dropped entries, Pages CI unbroken (`numpy`) + PR-time
     build validation, static-site a11y/nav parity
+  - `explorer-v0.10.0` (REL-E0100) — modern-research Lab recipes (R17):
+    Noise2Self J-invariant self-supervised calibration (Batson 2019 /
+    Hendriksen 2020 / Obata 2025), Vo 2018 fitting-based + dead-stripe
+    interpolation ring removal; reference-scale metric normalisation
+    fix; recipe counts computed from the corpus
     without numpy
 - **Glossary & contributing**: [`docs/06_meta/`](docs/06_meta/)
 

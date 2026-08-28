@@ -6,6 +6,36 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [explorer-0.10.0] - 2026-08-28
+
+**Phase R17 — modern-research Lab recipes. Minor release.**
+Release notes: [REL-E0100](docs/05_release/release_notes/explorer-v0.10.0.md).
+
+### Added
+- **3 new Lab recipes (14 → 17)** bringing the modern literature into
+  the pure-CPU Lab: **Self-Supervised Tuning** via Noise2Self
+  J-invariant calibration (Batson 2019 / Hendriksen 2020 / Obata 2025;
+  `skimage.restoration.calibrate_denoiser`) — picks the optimal
+  denoiser strength with no training, weights, or ground truth, and
+  verifiably lands at the oracle optimum on the low-dose samples; plus
+  the two remaining Vo 2018 stripe-class removers (**fitting-based**
+  and **dead-stripe interpolation**), completing the Vo 2018 taxonomy
+  alongside the existing sorting and wavelet-FFT recipes.
+
+### Fixed
+- **Reference-scale metric normalisation** — PSNR/SSIM previously
+  normalised reference and candidate independently, spuriously
+  penalising algorithms that change the value range (the source of
+  false "regressed" banners on beam hardening and strong denoisers).
+  Both are now scaled on the reference's min/max.
+- Recipe counts on the landing page and static site are computed from
+  `experiments/` instead of hand-maintained.
+
+### Changed
+- Lab intro explains why pretrained-DL recipes are absent (pure-CPU
+  contract, ADR-008 no-bundled-weights) and points to the
+  self-supervised recipe + 2025–2026 reviews.
+
 ## [explorer-0.9.0] - 2026-08-28
 
 **Phase R16 — comprehensive service + experiments review. Minor release.**

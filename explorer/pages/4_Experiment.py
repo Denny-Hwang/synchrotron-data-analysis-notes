@@ -59,7 +59,14 @@ st.markdown(
     "Tune parameters, compare before/after, and see PSNR/SSIM against a clean reference.</p>"
     '<p style="color:var(--color-text-muted);font-size:13px;margin-bottom:16px;">'
     "See <code>10_interactive_lab/README.md</code> for the full dataset inventory "
-    "and <code>experiments/README.md</code> for the recipe schema.</p>",
+    "and <code>experiments/README.md</code> for the recipe schema. "
+    "Every recipe here runs as a pure CPU function so parameters respond "
+    "instantly — that rules out pretrained deep-learning models (TomoGAN, "
+    "Noise2Void, …), whose weights this repo deliberately does not bundle "
+    "(license + size, see ADR-008). The modern <i>self-supervised</i> principle "
+    "behind that literature is still runnable: try the <b>Self-Supervised "
+    "Tuning</b> recipe (Noise2Self J-invariance), and read the 2025–2026 "
+    "reviews under <code>04_publications/ai_ml_synchrotron/</code>.</p>",
     unsafe_allow_html=True,
 )
 

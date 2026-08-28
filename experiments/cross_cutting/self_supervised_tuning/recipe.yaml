@@ -1,0 +1,123 @@
+# Recipe — Self-Supervised Denoiser Calibration (Noise2Self J-invariance).
+#
+# Schema documented in experiments/README.md.
+
+schema_version: 1
+
+recipe_id: self_supervised_tuning
+title: "Self-Supervised Tuning — Noise2Self J-invariance (Batson 2019)"
+modality: cross_cutting
+noise_catalog_ref: 09_noise_catalog/tomography/low_dose_noise.md
+
+problem: |
+  Every classical denoiser has a strength knob, and the *right* setting
+  depends on the (unknown) noise level. At a beamline there is usually
+  **no clean reference** to tune against — the reason the modern
+  self-supervised literature (Noise2Noise → Noise2Void →
+  **Noise2Inverse**) exists at all.
+fix: |
+  Score each candidate strength with the **J-invariant self-supervised
+  loss** (Noise2Self, Batson & Royer 2019, via scikit-image's
+  `calibrate_denoiser`): hide pixels from the denoiser and ask it to
+  predict them. The unpredictable noise term is constant, so the
+  self-supervised minimum tracks the (unseen) clean-target loss. The
+  full image is then denoised at the winning strength — no training,
+  no weights, no ground truth.
+observe: |
+  The Impact card scores the result against a held-out clean reference
+  the algorithm never saw. Compare with the fixed-parameter TV /
+  wavelet / Gaussian recipes: the self-calibrated strength should land
+  at or near the oracle best. Switch samples (mild vs severe dose) and
+  watch the chosen strength adapt — that adaptivity is the whole
+  point.
+
+description: |
+  A hands-on demonstration of the **self-supervised principle behind
+  the 2019–2025 denoising literature**, runnable without any training
+  or pretrained weights. Noise2Self's J-invariance (Batson & Royer,
+  ICML 2019) proves that a denoiser can be evaluated on pixels it was
+  not allowed to see; the same masking idea underlies Noise2Void, is
+  extended to tomography by Noise2Inverse (Hendriksen 2020), and was
+  validated on real low-dose bone micro-CT by Obata et al.
+  (J. Synchrotron Rad. 2025) — see the paper reviews in
+  `04_publications/ai_ml_synchrotron/` and
+  `03_ai_ml_methods/denoising/noise2inverse.md`. Here the calibrated
+  object is a classical denoiser's strength knob, which keeps every
+  run CPU-interactive.
+
+function: experiments.cross_cutting.self_supervised_tuning.pipeline.denoise_self_calibrated
+
+samples:
+  - manifest_path: datasets/tomography/low_dose/sinogram_lowdose_severe.npy
+    label: "Severe low-dose (~12 ph/pix)"
+    role: noisy_input
+    description: "12 photons/pixel — strong noise, expect a high chosen strength"
+  - manifest_path: datasets/tomography/low_dose/sinogram_lowdose_medium.npy
+    label: "Typical low-dose (~50 ph/pix)"
+    role: noisy_input
+    description: "50 photons/pixel — moderate noise"
+  - manifest_path: datasets/tomography/low_dose/sinogram_lowdose_high_snr.npy
+    label: "Mild low-dose (~200 ph/pix)"
+    role: noisy_input
+    description: "200 photons/pixel — the tuner should pick a gentle strength"
+  - manifest_path: datasets/tomography/low_dose/sinogram_clean.npy
+    label: "Clean reference (identity check)"
+    role: identity_check
+    description: "On clean data the tuner should pick the weakest strength"
+
+clean_reference:
+  manifest_path: datasets/tomography/low_dose/sinogram_clean.npy
+  label: "sinogram_clean.npy"
+
+parameters:
+  - name: method
+    type: select
+    label: "Denoiser"
+    default: tv
+    options: [tv, wavelet, gaussian]
+    help: |
+      Which classical denoiser to calibrate. strength maps to: TV
+      weight · wavelet shrinkage sigma · Gaussian sigma.
+  - name: n_candidates
+    type: int
+    label: "Candidate strengths"
+    default: 8
+    min: 3
+    max: 16
+    step: 1
+    help: "How many strengths to cross-validate. More = finer optimum, slower."
+  - name: max_strength
+    type: float
+    label: "Max strength"
+    default: 0.4
+    min: 0.05
+    max: 3.0
+    step: 0.05
+    help: |
+      Upper end of the sweep (in normalised [0,1] intensity units).
+      Useful ranges: TV 0.1–1 · wavelet 0.05–0.5 · Gaussian 0.5–3.
+      If the calibration keeps picking the max, raise it.
+
+metrics: [psnr, ssim]
+
+references:
+  - title: "Noise2Self: Blind Denoising by Self-Supervision"
+    authors: "Batson, Royer"
+    year: 2019
+    venue: "ICML (arXiv:1901.11365)"
+    doi: ""
+  - title: "Noise2Inverse: Self-Supervised Deep Convolutional Denoising for Tomography"
+    authors: "Hendriksen, Pelt, Batenburg"
+    year: 2020
+    venue: "IEEE Transactions on Computational Imaging 6, 1320-1335"
+    doi: "10.1109/TCI.2020.3019647"
+  - title: "Enhancing synchrotron radiation micro-CT images using deep learning: an application of Noise2Inverse on bone imaging"
+    authors: "Obata, Parkinson, Pelt, Acevedo"
+    year: 2025
+    venue: "Journal of Synchrotron Radiation 32, 690-699"
+    doi: "10.1107/S1600577525001833"
+  - title: "Noise2Noise: Learning Image Restoration without Clean Data"
+    authors: "Lehtinen, Munkberg, Hasselgren, Laine, Karras, Aittala, Aila"
+    year: 2018
+    venue: "ICML"
+    doi: ""

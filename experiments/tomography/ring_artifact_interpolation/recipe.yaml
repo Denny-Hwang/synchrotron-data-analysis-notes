@@ -1,0 +1,86 @@
+# Recipe — Ring Artifact, dead-stripe detection + interpolation (Vo 2018).
+#
+# Schema documented in experiments/README.md.
+
+schema_version: 1
+
+recipe_id: ring_artifact_interpolation
+title: "Ring Artifact — Dead-Stripe Interpolation (Vo 2018)"
+modality: tomography
+noise_catalog_ref: 09_noise_catalog/tomography/ring_artifact.md
+
+problem: |
+  A dead or saturated detector column measures **nothing** — the stripe
+  it leaves is unrecoverable by filtering, because there is no signal
+  underneath to restore. Filters that try anyway smear the artifact
+  into neighbouring columns and still leave a ring in the
+  reconstruction.
+fix: |
+  Vo 2018's answer for this stripe class: **detect, then replace**.
+  Build each column's response curve, divide out a median-filtered
+  baseline, flag columns deviating by more than `snr` robust standard
+  deviations, and rebuild the flagged columns row-by-row by linear
+  interpolation from their healthy neighbours.
+observe: |
+  On the dead-stripe sample the |Δ| panel should show *only* the dead
+  columns being replaced — everything else passes through bit-exact.
+  Lower `snr` to watch the detector get greedier (eventually eating
+  real features); on the valid-stripes trap a good setting should
+  change almost nothing.
+
+description: |
+  The detection + interpolation member of Vo, Atwood & Drakopoulos
+  (2018) for **unrecoverable** stripes (dead pixels, zingered columns),
+  adapted from Sarepy's `detect_stripe` + interpolation approach with
+  a MAD-based robust threshold. This is the honest complement to the
+  sorting-based and wavelet-FFT recipes: where those *filter*, this
+  one admits the data is gone and interpolates — exactly what
+  production pipelines (Algotom `remove_all_stripe`) do for this
+  stripe class.
+
+function: experiments.tomography.ring_artifact_interpolation.pipeline.remove_stripe_interpolation
+
+samples:
+  - manifest_path: datasets/tomography/ring_artifact/sinogram_dead_stripe.tif
+    label: "Dead stripe (sensor failure)"
+    role: noisy_input
+    description: "The unrecoverable-stripe class this method targets"
+  - manifest_path: datasets/tomography/ring_artifact/large_partial_rings.tif
+    label: "Large partial rings (challenging)"
+    role: noisy_input
+    description: "Partial-column defects — detection is harder here"
+  - manifest_path: datasets/tomography/ring_artifact/valid_stripes.tif
+    label: "Valid stripes (false-positive trap)"
+    role: false_positive_trap
+    description: "Real features that look like stripes — should NOT be replaced"
+
+clean_reference:
+  manifest_path: datasets/tomography/ring_artifact/sinogram_normal.tif
+  label: "sinogram_normal.tif"
+
+parameters:
+  - name: snr
+    type: float
+    label: "Detection SNR threshold"
+    default: 3.0
+    min: 1.0
+    max: 10.0
+    step: 0.5
+    help: "Robust-sigma multiple a column must deviate by to be flagged. Lower = more aggressive."
+  - name: size
+    type: int
+    label: "Baseline median window (px)"
+    default: 31
+    min: 5
+    max: 101
+    step: 2
+    help: "Median-filter window forming the stripe-free baseline; must exceed the widest stripe."
+
+metrics: [psnr, ssim]
+
+references:
+  - title: "Superior techniques for eliminating ring artifacts in X-ray micro-tomography"
+    authors: "Vo, Atwood, Drakopoulos"
+    year: 2018
+    venue: "Optics Express 26(22), 28396-28412"
+    doi: "10.1364/OE.26.028396"
