@@ -382,16 +382,19 @@ def _normalize_pair(reference: np.ndarray, candidate: np.ndarray) -> tuple[np.nd
     scored on a different axis than its reference. Scaling both by the
     reference's min/max keeps PSNR/SSIM a true same-axis comparison.
 
-    Returns all-zero arrays when the reference has zero variance (or no
-    finite values), so downstream PSNR / SSIM see well-defined operands
-    instead of NaN. Defensive choice tuned for metric computation only.
+    When the reference is constant (zero variance — no meaningful data
+    range), it becomes all-zeros and the candidate keeps its *deviation*
+    from the reference value at unit scale, so a candidate that differs
+    from the constant reference is still penalised instead of being
+    falsely scored as a perfect match (PSNR = inf / SSIM = 1.0).
+    Defensive choice tuned for metric computation only.
     """
     ref = _clean_finite(reference)
     cand = _clean_finite(candidate)
     lo = float(ref.min())
     hi = float(ref.max())
     if hi - lo < 1e-12:
-        return np.zeros_like(ref), np.zeros_like(cand)
+        return np.zeros_like(ref), cand - lo
     return (ref - lo) / (hi - lo), (cand - lo) / (hi - lo)
 
 
