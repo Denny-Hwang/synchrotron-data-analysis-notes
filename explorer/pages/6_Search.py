@@ -30,7 +30,7 @@ if str(_EXPLORER_DIR) not in sys.path:
 from components.footer import render_footer
 from components.header import render_header
 from lib.bibliography import BibEntry, collect_bibliography
-from lib.routing import query_param
+from lib.routing import note_url, query_param
 from lib.search import Index, SearchHit, index_from_repo, search
 
 st.set_page_config(page_title="Search — eBERlight", page_icon="🔍", layout="wide")
@@ -83,7 +83,7 @@ if query:
     if not hits:
         # R10 P1-5: empty-result state with concrete next steps so the
         # user isn't stranded.
-        suggestions = idx.suggest(query, limit=6) if hasattr(idx, "suggest") else []
+        suggestions = idx.suggest(query, limit=6)
         st.markdown(
             "**No notes matched that query.**  "
             "Try the suggestions below, broaden the terms, or browse "
@@ -108,7 +108,10 @@ if query:
             unsafe_allow_html=True,
         )
     for hit in hits:
-        href = f"?note={quote(hit.note.url_id(_REPO_ROOT), safe='/')}"
+        # Route through the owning cluster page — a bare "?note=…" href
+        # resolves against /Search, which has no note handler (same class
+        # of bug as R12 B3 on the Troubleshooter).
+        href = note_url(hit.note.url_id(_REPO_ROOT))
         terms_html = " · ".join(
             f'<code style="background:#FFF4E0;padding:1px 6px;border-radius:4px;">{t}</code>'
             for t in hit.matched_terms[:6]

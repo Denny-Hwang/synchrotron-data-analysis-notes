@@ -79,9 +79,13 @@ parameters:
 # No paired clean reference — the demo is qualitative.
 metrics: []
 
+# R16 — repointed from Münch 2009 (a stripe/ring-removal paper that does
+# not cover flat-field correction) to the TomoPy paper, whose pipeline
+# performs the I0 normalisation this recipe demonstrates and whose repo
+# the bundled sample data comes from.
 references:
-  - title: "Stripe and ring artifact removal with combined wavelet-Fourier filtering"
-    authors: "Münch, Trtik, Marone, Stampanoni"
-    year: 2009
-    venue: "Optics Express"
-    doi: "10.1364/OE.17.008567"
+  - title: "TomoPy: a framework for the analysis of synchrotron tomographic data"
+    authors: "Gürsoy, De Carlo, Xiao, Jacobsen"
+    year: 2014
+    venue: "Journal of Synchrotron Radiation"
+    doi: "10.1107/S1600577514013939"

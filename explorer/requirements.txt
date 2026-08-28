@@ -1,4 +1,6 @@
-streamlit>=1.30.0,<2.0
+# Floor 1.50: the app uses width="stretch" on st.image (1.50+) and
+# st.dataframe (1.49+); on 1.30–1.48 those raise at render time.
+streamlit>=1.50,<2.0
 markdown>=3.5,<4.0
 pygments>=2.17,<3.0
 pyyaml>=6.0,<7.0
@@ -8,7 +10,9 @@ pyyaml>=6.0,<7.0
 # helpers; we'll move when transitive ecosystem catches up.
 numpy>=1.24,<3.0
 scipy>=1.11,<2.0
-scikit-image>=0.22,<0.30
+# Floor 0.25: unwrap_phase's keyword was renamed seed→rng in 0.25 and the
+# phase-unwrap recipe passes rng=; 0.22–0.24 would TypeError.
+scikit-image>=0.25,<0.30
 tifffile>=2023.7.10,<2026
 astropy>=5.3,<8.0
 astroscrappy>=1.1,<2.0

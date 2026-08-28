@@ -11,6 +11,7 @@ Ref: NFR-001 — unaffiliated / personal-archive framing.
 
 import subprocess
 from datetime import datetime
+from pathlib import Path
 
 import streamlit as st
 
@@ -32,6 +33,9 @@ def _resolve_last_updated() -> str:
             capture_output=True,
             text=True,
             timeout=5,
+            # R16 — anchor to the repo root; without cwd the date came
+            # from whatever directory Streamlit was launched in.
+            cwd=Path(__file__).resolve().parents[2],
         )
         if result.returncode == 0 and result.stdout.strip():
             return result.stdout.strip()[:10]

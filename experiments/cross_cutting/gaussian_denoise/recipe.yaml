@@ -43,8 +43,8 @@ samples:
     role: noisy_input
     description: "All stripe types — comparable to the Vo / Munch recipes"
   - manifest_path: datasets/tomography/ring_artifact/sinogram_normal.tif
-    label: "Sarepy sinogram — clean reference"
-    role: noisy_input
+    label: "Sarepy sinogram — clean reference (identity check)"
+    role: identity_check
     description: "Effect on the clean reference (a feel for resolution loss)"
   - manifest_path: datasets/cross_cutting/cosmic_rays/gmos.fits
     label: "GMOS CCD frame (cosmic rays)"
@@ -83,7 +83,7 @@ parameters:
 metrics: [psnr, ssim]
 
 references:
-  - title: "Restoration of synchrotron tomography volumes"
+  - title: "Stripe and ring artifact removal with combined wavelet-Fourier filtering"
     authors: "Münch, Trtik, Marone, Stampanoni"
     year: 2009
     venue: "Optics Express"

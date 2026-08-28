@@ -48,10 +48,23 @@ function: experiments.<modality>.<noise_case>.pipeline.<function_name>
 samples:
   - manifest_path: datasets/<modality>/<noise_case>/<file>
     label: "<Short label>"
-    role: noisy_input | clean_reference | false_positive_trap | flat_reference | dark_reference | metadata
+    role: noisy_input | clean_reference | false_positive_trap | identity_check | flat_reference | dark_reference | metadata
     description: "<Optional one-line description>"
+    # Optional per-sample ground truth (R16). Overrides the recipe-level
+    # clean_reference for metric computation — required when a recipe's
+    # samples come from different synthetic scenes, each with its own
+    # paired clean file (see scattering_diffraction/phase_unwrap).
+    clean_reference: datasets/<modality>/<noise_case>/<clean_file>
 
-# Optional: clean reference for PSNR/SSIM. Same schema as a sample.
+# Role semantics consumed by the Lab page (explorer/pages/4_Experiment.py):
+#   noisy_input          — normal degraded sample; scored input+output vs reference
+#   false_positive_trap  — a DIFFERENT scene whose features look like artifacts;
+#                          metrics vs. the reference are meaningless and skipped
+#   identity_check       — the sample IS the clean reference; only output-vs-
+#                          reference is scored (input-vs-reference is inf PSNR)
+
+# Optional: recipe-level clean reference for PSNR/SSIM (fallback when a
+# sample carries no per-sample override). Same schema as a sample.
 clean_reference:
   manifest_path: ...
   label: ...

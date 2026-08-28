@@ -4,9 +4,9 @@
 
 | Field              | Value                                                                                  |
 |--------------------|----------------------------------------------------------------------------------------|
-| **Title**          | Understanding Real-Time Streaming Ptychographic Phase Retrieval on Edge GPU and FPGA   |
+| **Title**          | Deep learning at the edge enables real-time streaming ptychographic imaging            |
 | **Authors**        | Babu, A. V.; Zhou, T.; Kandel, S.; Bicer, T.; Liu, Z.; Judge, W.; Ching, D. J.; Jiang, Y.; Veseli, S.; Hammer, S.; Schwarz, N.; Cherukara, M. J. |
-| **Journal**        | Nature Communications, 14                                                              |
+| **Journal**        | Nature Communications, 14, Article 7059                                                |
 | **Year**           | 2023                                                                                   |
 | **DOI**            | [10.1038/s41467-023-41496-z](https://doi.org/10.1038/s41467-023-41496-z)               |
 | **Beamline**       | APS 26-ID (CNM nanoprobe), APS 2-ID-D                                                 |

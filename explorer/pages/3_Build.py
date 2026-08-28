@@ -26,4 +26,4 @@ from lib.cluster_page import render_cluster_page
 
 st.set_page_config(page_title="Build and Compute — eBERlight", page_icon="⚙️", layout="wide")
 
-render_cluster_page("build", group_by_folder=True)
+render_cluster_page("build")

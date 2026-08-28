@@ -108,7 +108,11 @@ def load_zoo(yaml_path: Path) -> list[ZooEntry]:
                     url=str(url) if url is not None else None,
                     hf_model_id=str(hf_id) if hf_id is not None else None,
                     known_hash=fields.get("known_hash") or None,
-                    size_bytes=fields.get("size_bytes"),
+                    # Approximate sizes in the registry are quoted strings
+                    # (e.g. "~50 MB"); keep the typed field int-or-None.
+                    size_bytes=(
+                        fields["size_bytes"] if isinstance(fields.get("size_bytes"), int) else None
+                    ),
                     license=str(fields.get("license", "unknown")),
                     license_warning=str(fields.get("license_warning", "")),
                     framework=str(fields.get("framework", "")),

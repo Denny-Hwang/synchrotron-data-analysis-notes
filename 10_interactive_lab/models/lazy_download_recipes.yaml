@@ -19,7 +19,7 @@ native_synchrotron_models:
     repo: https://github.com/tomography/TomoGAN
     url: https://github.com/tomography/TomoGAN/releases  # update with concrete asset URL
     known_hash: null
-    size_bytes: ~50_000_000
+    size_bytes: "~50 MB"
     license: CC-BY-NC-4.0
     license_warning: "Non-commercial use only. Show this string to the user before download."
 
@@ -39,7 +39,7 @@ native_synchrotron_models:
     repo: https://github.com/tbepler/topaz
     url: https://github.com/tbepler/topaz/raw/master/topaz/pretrained/denoise/unet_L2_v0.2.2.sav
     known_hash: null
-    size_bytes: ~30_000_000
+    size_bytes: "~30 MB"
     license: GPL-3.0
     license_warning: "Copyleft. Derivative works must remain GPL-3.0."
 
@@ -50,7 +50,7 @@ native_synchrotron_models:
     repo: https://github.com/tbepler/topaz
     url: https://github.com/tbepler/topaz/raw/master/topaz/pretrained/denoise/unet-3d-10a-v0.2.4.sav
     known_hash: null
-    size_bytes: ~100_000_000
+    size_bytes: "~100 MB"
     license: GPL-3.0
     license_warning: "Copyleft. Derivative works must remain GPL-3.0."
 
@@ -71,7 +71,7 @@ native_synchrotron_models:
     repo: https://github.com/AnakhaVB/edgePtychoNN
     url: https://github.com/AnakhaVB/edgePtychoNN/releases  # update with concrete asset URL
     known_hash: null
-    size_bytes: ~50_000_000
+    size_bytes: "~50 MB"
     license: MIT
 
 
@@ -108,7 +108,7 @@ external_datasets:
     archive: EMPIAR
     accession: EMPIAR-10185
     url: https://www.ebi.ac.uk/empiar/EMPIAR-10185
-    size_bytes: ~3_000_000_000
+    size_bytes: "~3 GB"
     license: CC0
     fetch_method: aspera_or_globus
 

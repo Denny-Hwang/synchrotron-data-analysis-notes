@@ -6,6 +6,82 @@ This project uses two independent SemVer streams per ADR-006:
 - `notes-vX.Y.Z` — content in the note folders
 - `explorer-vX.Y.Z` — the explorer application
 
+## [explorer-0.9.0] - 2026-08-28
+
+**Phase R16 — comprehensive service + experiments review. Minor release.**
+Release notes: [REL-E090](docs/05_release/release_notes/explorer-v0.9.0.md).
+
+### Fixed
+- **Dead deep-links repaired** — Search results, Knowledge-Graph
+  double-click / "Open →", and the Experiment page's catalog link all
+  emitted bare `?note=…` hrefs that no receiving page handled; they now
+  route through the owning cluster page via `lib/routing.note_url()`.
+- **Lab crash on 3-D samples** (`flatfield_correction` → `sinogram.npy`,
+  `StreamlitAPIException`) fixed with a squeeze-and-slice display path.
+- **Lab metrics scored against the wrong ground truth** on multi-scene
+  recipes — recipe schema gains per-sample `clean_reference` overrides
+  (ADR-008 v0.2.0); phase-unwrap scenes now score against their own
+  bundled references (two-bump: reported ~10 dB, real ~164 dB).
+- **`identity_check` role** replaces mislabelled "false-positive traps"
+  that were byte-identical to their clean references (killed the
+  `PSNR = inf` divide-by-zero path).
+- **Bibliography parser dropped every entry preceding a `%` comment
+  banner** — 31 of 67 entries parsed; now all 67.
+- Stale hardcoded landing stats (188 notes / 35 cases / 19+20 bib)
+  replaced with corpus-derived counts on both Streamlit and Pages.
+- `_schema` cache-key no-op, eager 37 MB download serialisation, KG L3
+  caption/checkbox bugs, folder chips losing the Cards layout, L1 TOC
+  dead anchors, footer git-date cwd, metric-pair overflow, warning
+  order, `last_updated` frontmatter fallback, empty compare-table
+  columns dropped.
+
+### Static-site parity (invariant #9)
+- Skip link + `#main-content` anchor and the 🧪 Experiment nav link now
+  emitted; note asides show "Last reviewed"; "📋 Table" pill renamed to
+  the honest "📁 By folder"; Plotly references purged.
+
+### CI / infra
+- **Pages build was broken** (`numpy` missing from
+  `scripts/requirements.txt`); fixed and now sync-tested.
+- `pages.yml` builds on PRs (deploy still push-only); `test.yml`
+  triggers on `scripts/**` + `09_noise_catalog/**`; mypy `|| true`
+  dropped; devcontainer launches `explorer/` instead of the deprecated
+  legacy app; floors: `streamlit>=1.50`, `scikit-image>=0.25`.
+
+### Tests
+- New `test_r16_review.py` (routing, tagline parity, requirements sync,
+  recipe↔manifest drift, role semantics). Suite: 331 → 341.
+
+## [notes-0.11.0] - 2026-08-28
+
+**2025–2026 research refresh + citation hygiene. Minor release.**
+Release notes: [REL-N110](docs/05_release/release_notes/notes-v0.11.0.md).
+
+### Added
+- 3 new publication reviews (Noise2Inverse bone μCT 2025; self-supervised
+  XRF denoising 2026; agentic AI X-ray scientist 2026) and 2 new method
+  notes (`noise2inverse.md`, `llm_agents_beamline.md`).
+- APS-U facts brought current: measured 33 pm·rad record, Jan-2026 DOE
+  final approval / Feb-2026 completion, 72-beamline target.
+- `bibliography.bib` 18 → 27 entries; `ber_program_publications.md`
+  placeholder tables populated with verified 2025–2026 items.
+
+### Removed
+- `review_fullstack_tomo_2023.md` (fabricated citation — DOI resolves
+  to an unrelated paper) and `review_aiedge_ptycho_2023.md` (duplicate
+  DOI); the kept ptychography review's metadata corrected to the real
+  Nat. Commun. 14, 7059 citation.
+
+### Fixed
+- Lab data metadata: ring TIFFs are float32 not uint16 (manifest,
+  attribution, README); phase-wrapping attribution no longer claims a
+  bundled synthesis script; beam-hardening polynomial order; Münch 2009
+  / Buades 2010 / Joseph 1978 added to `CITATIONS.bib`; mis-cited
+  gaussian-recipe reference title; flat-field recipe repointed to
+  Gürsoy 2014; Algotom license row documented; model-zoo layer marked
+  staged-not-live; 5 Troubleshooter diagnoses wired to their existing
+  Lab recipes.
+
 ## [explorer-0.8.3] - 2026-05-14
 
 **Comprehensive review + framing-leftover cleanup. Patch release.**

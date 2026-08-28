@@ -57,27 +57,33 @@ description: |
 
 function: experiments.scattering_diffraction.phase_unwrap.pipeline.unwrap_phase_2d
 
+# R16 — each synthetic scene carries its own paired ground truth via the
+# per-sample ``clean_reference`` override; previously all samples were
+# silently scored against the Gaussian scene's reference, so e.g. the
+# near-perfect twobump unwrap reported ~10 dB instead of its true score.
 samples:
   - manifest_path: datasets/scattering_diffraction/phase_wrapping/phase_wrapped_gaussian.npy
     label: "Gaussian bump (canonical Itoh test)"
     role: noisy_input
     description: "Smooth Gaussian + linear ramp, ~5 wrap cycles"
+    clean_reference: datasets/scattering_diffraction/phase_wrapping/phase_clean_gaussian.npy
   - manifest_path: datasets/scattering_diffraction/phase_wrapping/phase_wrapped_twobump.npy
     label: "Two-bump (CDI exit-wave proxy)"
     role: noisy_input
     description: "+5π and −4π Gaussian peaks — typical CDI shape"
+    clean_reference: datasets/scattering_diffraction/phase_wrapping/phase_clean_twobump.npy
   - manifest_path: datasets/scattering_diffraction/phase_wrapping/phase_wrapped_noisy.npy
     label: "Noisy Gaussian (speckle robustness)"
     role: noisy_input
     description: "Gaussian + 0.20 rad Gaussian noise — tests robustness"
+    clean_reference: datasets/scattering_diffraction/phase_wrapping/phase_clean_noisy.npy
   - manifest_path: datasets/scattering_diffraction/phase_wrapping/phase_wrapped_vortex.npy
     label: "Vortex / branch-cut (residue trap)"
     role: false_positive_trap
     description: "Pure azimuthal phase with topological discontinuity"
 
-# Note: the clean reference is the **Gaussian** ground truth. Other samples
-# have their own paired clean files but the lab's metric pipeline only takes
-# one reference. We document the alternatives in the description.
+# Recipe-level fallback reference (used when a sample carries no
+# per-sample override).
 clean_reference:
   manifest_path: datasets/scattering_diffraction/phase_wrapping/phase_clean_gaussian.npy
   label: "phase_clean_gaussian.npy"

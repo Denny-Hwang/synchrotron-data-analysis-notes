@@ -292,8 +292,10 @@ def test_landing_links_to_every_interactive_stub(tmp_path, bss) -> None:
         assert f'href="{entry["slug"]}.html"' in landing, (
             f"Landing missing CTA for {entry['title']}"
         )
-        # The stat-line copy travels with the card (HTML-escaped — `<` becomes `&lt;`).
-        assert _html.escape(entry["stat_line"]) in landing
+        # The stat-line copy travels with the card (HTML-escaped — `<` becomes
+        # `&lt;`). R16 — stat lines are now templates whose {n_*} placeholders
+        # are filled with corpus-derived counts at build time.
+        assert _html.escape(bss._fill_stats(entry["stat_line"])) in landing
 
 
 def test_interactive_stub_uses_cluster_color(tmp_path, bss) -> None:

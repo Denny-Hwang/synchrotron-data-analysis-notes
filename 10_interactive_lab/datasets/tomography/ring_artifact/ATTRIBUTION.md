@@ -31,7 +31,7 @@ related: [09_noise_catalog/tomography/ring_artifact.md]
 | `large_partial_rings.tif` | 18 MB | sinogram | Large partial rings (challenging) |
 | `valid_stripes.tif` | 18 MB | sinogram | Looks like stripes but is actual sample feature — false-positive trap |
 
-All files are 16-bit unsigned TIFF, format readable by `tifffile`, `imageio`, or `skimage.io`.
+All files are 32-bit float TIFF (normalised transmission, values ≈ 0.1–1.5), readable by `tifffile`, `imageio`, or `skimage.io`.
 
 ## Required Citation
 

@@ -13,7 +13,7 @@ Ref: senior-review action item #2 (REL-E080).
 
 from __future__ import annotations
 
-from urllib.parse import unquote
+from urllib.parse import quote, unquote
 
 import streamlit as st
 
@@ -49,3 +49,30 @@ def query_param(name: str, *, decode: bool = True) -> str | None:
     else:
         value = str(raw)
     return unquote(value) if decode else value
+
+
+def note_url(doc_path: str) -> str:
+    """Map a repo-relative note path to its owning cluster page deep-link.
+
+    A bare ``?note=…`` href is relative to the *current* page, and only
+    the three cluster pages (Discover / Explore / Build) actually read
+    the ``note`` query-param — so links emitted from Search, the
+    Knowledge Graph, or the Experiment page must route through the
+    cluster that owns the note's top-level folder (same fix as the
+    Troubleshooter's ``_guide_url``, R12 B3).
+
+    Args:
+        doc_path: Repo-relative note path, e.g.
+            ``"09_noise_catalog/tomography/ring_artifact.md"``.
+
+    Returns:
+        ``"/<Cluster>?note=<quoted path>"``, or ``"#"`` when the folder
+        does not belong to any cluster.
+    """
+    from lib.ia import FOLDER_TO_CLUSTER
+
+    folder = doc_path.split("/", 1)[0] if doc_path else ""
+    cluster = FOLDER_TO_CLUSTER.get(folder)
+    if cluster is None:
+        return "#"
+    return f"/{cluster.title()}?note={quote(doc_path, safe='/')}"

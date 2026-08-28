@@ -27,15 +27,23 @@ Photon Source (APS).
 |------|-------------|
 | `README.md` | This index (you are here) |
 | `template_paper_review.md` | Standardized template for all paper reviews |
-| `ber_program_publications.md` | Tracker for BER program-attributed publications (2023-2025) |
+| `ber_program_publications.md` | Tracker for BER program-attributed publications (2023-2026) |
 | `ai_ml_synchrotron/` | Curated review collection -- AI/ML applied to synchrotron science |
 
 ---
 
-## Paper Reviews (14 total)
+## Paper Reviews (15 total)
 
 All reviews live in `ai_ml_synchrotron/` and follow the template. They are
 organized here by primary topic for quick navigation.
+
+> Hygiene note (2026-08): two earlier entries were retired —
+> `review_fullstack_tomo_2023.md` carried a fabricated citation (its DOI
+> resolves to an unrelated paper; the real full-stack pipeline paper is
+> reviewed in `review_fullstack_dl_tomo_2023.md`), and
+> `review_aiedge_ptycho_2023.md` duplicated the same DOI as
+> `review_ai_edge_ptychography_2023.md`, which is kept as the single
+> canonical review with corrected bibliographic metadata.
 
 ### Clustering & Segmentation
 
@@ -49,47 +57,48 @@ organized here by primary topic for quick navigation.
 | # | File | Short Title | Year |
 |---|------|-------------|------|
 | 3 | `ai_ml_synchrotron/review_tomogan_2020.md` | TomoGAN: GAN-based tomography denoising | 2020 |
+| 4 | `ai_ml_synchrotron/review_noise2inverse_bone_2025.md` | Noise2Inverse for low-dose micro-CT of bone | 2025 |
+| 5 | `ai_ml_synchrotron/review_selfsupervised_xrf_denoise_2026.md` | Self-supervised XRF denoising (multi-element detectors) | 2026 |
 
 ### Autonomous / Unsupervised Analysis
 
 | # | File | Short Title | Year |
 |---|------|-------------|------|
-| 4 | `ai_ml_synchrotron/review_ai_nerd_2024.md` | AI-NERD: unsupervised XPCS fingerprinting | 2024 |
-| 5 | `ai_ml_synchrotron/review_aidriven_xanes_2025.md` | AI-driven workflow for dynamic XANES | 2025 |
+| 6 | `ai_ml_synchrotron/review_ai_nerd_2024.md` | AI-NERD: unsupervised XPCS fingerprinting | 2024 |
+| 7 | `ai_ml_synchrotron/review_aidriven_xanes_2025.md` | AI-driven workflow for dynamic XANES | 2025 |
+| 8 | `ai_ml_synchrotron/review_agentic_xray_scientist_2026.md` | Agentic AI X-ray scientist (LLM beamline agent) | 2026 |
 
 ### Ptychography
 
 | # | File | Short Title | Year |
 |---|------|-------------|------|
-| 6 | `ai_ml_synchrotron/review_aiedge_ptycho_2023.md` | AI at the edge for real-time ptychography | 2023 |
-| 7 | `ai_ml_synchrotron/review_ai_edge_ptychography_2023.md` | AI edge ptychography (extended review) | 2023 |
-| 8 | `ai_ml_synchrotron/review_ptychonet_2019.md` | PtychoNet: CNN phase retrieval | 2019 |
+| 9 | `ai_ml_synchrotron/review_ai_edge_ptychography_2023.md` | Deep learning at the edge for real-time ptychography | 2023 |
+| 10 | `ai_ml_synchrotron/review_ptychonet_2019.md` | PtychoNet: CNN phase retrieval | 2019 |
 
 ### Resolution Enhancement
 
 | # | File | Short Title | Year |
 |---|------|-------------|------|
-| 9 | `ai_ml_synchrotron/review_deep_residual_xrf_2023.md` | Deep residual networks for XRF resolution | 2023 |
+| 11 | `ai_ml_synchrotron/review_deep_residual_xrf_2023.md` | Deep residual networks for XRF resolution | 2023 |
 
 ### Full-Pipeline / Infrastructure
 
 | # | File | Short Title | Year |
 |---|------|-------------|------|
-| 10 | `ai_ml_synchrotron/review_fullstack_dl_tomo_2023.md` | Full-stack DL pipeline for tomography | 2023 |
-| 11 | `ai_ml_synchrotron/review_fullstack_tomo_2023.md` | Full-stack tomography (extended review) | 2023 |
-| 12 | `ai_ml_synchrotron/review_realtime_uct_hpc_2020.md` | Real-time AI+HPC for micro-CT | 2020 |
+| 12 | `ai_ml_synchrotron/review_fullstack_dl_tomo_2023.md` | Full-stack DL pipeline for tomography | 2023 |
+| 13 | `ai_ml_synchrotron/review_realtime_uct_hpc_2020.md` | Real-time AI+HPC for micro-CT | 2020 |
 
 ### Structural Biology
 
 | # | File | Short Title | Year |
 |---|------|-------------|------|
-| 13 | `ai_ml_synchrotron/review_alphafold_2021.md` | AlphaFold & structural biology | 2021 |
+| 14 | `ai_ml_synchrotron/review_alphafold_2021.md` | AlphaFold & structural biology | 2021 |
 
 ### Workshop Reports & Surveys
 
 | # | File | Short Title | Year |
 |---|------|-------------|------|
-| 14 | `ai_ml_synchrotron/review_ai_als_workshop_2024.md` | AI@ALS Workshop Report | 2024 |
+| 15 | `ai_ml_synchrotron/review_ai_als_workshop_2024.md` | AI@ALS Workshop Report | 2024 |
 
 ---
 
@@ -126,4 +135,4 @@ To add a new review:
 ## Maintainers
 
 - APS BER program AI/ML team, Argonne National Laboratory
-- Last updated: 2026-Q1
+- Last updated: 2026-Q3

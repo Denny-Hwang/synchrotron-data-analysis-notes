@@ -17,7 +17,31 @@ import streamlit as st
 from components.breadcrumb import render_breadcrumb
 from components.footer import render_footer
 from components.header import render_header
+from lib.bibliography import collect_bibliography
 from lib.ia import CLUSTER_META
+from lib.notes import load_notes
+from lib.troubleshooter import load_troubleshooter
+
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+
+
+# R16 — the landing-page stat lines were hand-maintained ("188 notes",
+# "35 differential cases", "19 + 20 BibTeX entries") and had all drifted
+# from reality. Compute them from the corpus, cached once per process.
+@st.cache_resource(show_spinner=False)
+def _corpus_stats() -> dict[str, int]:
+    notes = load_notes(_REPO_ROOT)
+    ts = load_troubleshooter(_REPO_ROOT)
+    bib = collect_bibliography(_REPO_ROOT)
+    return {
+        "notes": len(notes),
+        "symptoms": len(ts.symptoms),
+        "diagnoses": len(ts.all_diagnoses()),
+        "bib_entries": len(bib),
+    }
+
+
+_STATS = _corpus_stats()
 
 # --- Page Config ---
 st.set_page_config(
@@ -40,7 +64,7 @@ render_breadcrumb([("Home", None)])
 
 # --- Hero (FR-001 — hero + search bar + 3 cluster cards) ---
 st.markdown(
-    """
+    f"""
     <div style="text-align: center; padding: 48px 0 24px 0;">
         <h1 style="color: var(--color-primary); font-size: 36px; margin-bottom: 12px;">
             eBERlight Research Explorer
@@ -59,7 +83,7 @@ st.markdown(
               style="display:flex;justify-content:center;gap:0;
                      max-width:540px;margin:0 auto;">
             <input type="search" name="q"
-                   placeholder="Search 188 notes — modality, method, paper, tool…"
+                   placeholder="Search {_STATS["notes"]} notes — modality, method, paper, tool…"
                    aria-label="Search query" autocomplete="off" spellcheck="false"
                    style="flex:1;padding:10px 14px;border:1px solid #C0C0C0;
                           border-radius:var(--radius-pill) 0 0 var(--radius-pill);
@@ -224,7 +248,8 @@ _FEATURE_CARDS = [
         "Symptom-driven decision tree over the noise catalog. Pick what you see "
         "in the data; get differential diagnoses with severity, conditions, and "
         "a one-click jump to the matching Lab recipe.",
-        "11 symptom categories · 35 differential cases · before/after comparisons.",
+        f"{_STATS['symptoms']} symptom categories · {_STATS['diagnoses']} differential "
+        "cases · before/after comparisons.",
     ),
     _cta_card(
         _DISCOVER_COLOR,
@@ -233,7 +258,7 @@ _FEATURE_CARDS = [
         "/Search",
         "Global full-text search across every note plus a filterable BibTeX "
         "bibliography. Title-boosted relevance, prefix matching, deep links.",
-        "<10 ms typical query · TF-IDF approx · 19 + 20 BibTeX entries indexed.",
+        f"&lt;10 ms typical query · TF-IDF approx · {_STATS['bib_entries']} BibTeX entries indexed.",
     ),
 ]
 

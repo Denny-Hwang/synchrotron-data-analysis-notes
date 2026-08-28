@@ -161,7 +161,9 @@ def test_entity_url_recipe_points_to_experiment_page() -> None:
     assert entity_url(e) == "/Experiment"
 
 
-def test_entity_url_with_doc_path_uses_query_param() -> None:
+def test_entity_url_routes_through_owning_cluster_page() -> None:
+    """Bare ``?note=…`` resolved against the KG page and was a dead link;
+    the URL must route through the cluster that handles the param."""
     e = Entity(
         id="noise:tomography/ring_artifact",
         kind="noise",
@@ -169,8 +171,18 @@ def test_entity_url_with_doc_path_uses_query_param() -> None:
         doc_path="09_noise_catalog/tomography/ring_artifact.md",
     )
     url = entity_url(e)
-    assert url.startswith("?note=")
+    assert url.startswith("/Explore?note=")
     assert "ring_artifact" in url
+
+
+def test_entity_url_build_cluster_folder() -> None:
+    e = Entity(
+        id="tool:tomopy",
+        kind="tool",
+        label="TomoPy",
+        doc_path="05_tools_and_code/tomopy/README.md",
+    )
+    assert entity_url(e).startswith("/Build?note=")
 
 
 def test_entity_url_no_doc_path_returns_hash() -> None:

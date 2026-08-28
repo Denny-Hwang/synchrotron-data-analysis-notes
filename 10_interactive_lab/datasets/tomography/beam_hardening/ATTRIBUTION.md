@@ -14,7 +14,7 @@ related: [09_noise_catalog/tomography/streak_artifact.md]
 
 The clean reference is a 512×512 centre crop of Sarepy's
 `sinogram_normal.tif`. The "hardened" variant applies a deterministic
-2nd-order polynomial non-linearity to the normalised projection
+cubic-polynomial non-linearity to the normalised projection
 values:
 
 ```

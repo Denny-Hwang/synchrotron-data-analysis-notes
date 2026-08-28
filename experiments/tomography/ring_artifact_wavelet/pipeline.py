@@ -75,7 +75,9 @@ def remove_stripe_wavelet_fft(
     new_details: list[tuple[np.ndarray, np.ndarray, np.ndarray]] = []
     for cH, cV, cD in details:
         nrows = cV.shape[0]
-        # FFT along axis 0 (the column / detector axis after rotation).
+        # FFT along axis 0 (the angle axis — damping low frequencies
+        # here suppresses features constant across projection angles,
+        # i.e. the vertical stripes).
         fV = fftshift(fft(cV, axis=0), axes=0)
         k = np.arange(nrows) - nrows // 2
         damping = 1.0 - np.exp(-(k * k) / (2.0 * sigma * sigma))

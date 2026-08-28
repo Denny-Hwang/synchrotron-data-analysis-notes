@@ -14,8 +14,10 @@ the most pedagogically useful recipe in the lab — users see *why*
 flat-field correction matters.
 
 Reference:
-    Münch, B. et al. *Optics Express* 17, 8567-8591 (2009) — discusses
-    flat-field artifacts (the zero-noise reconstruction baseline).
+    Gürsoy, D. et al. "TomoPy: a framework for the analysis of synchrotron
+    tomographic data." *J. Synchrotron Rad.* 21, 1188-1193 (2014) — the
+    pipeline whose normalisation step this recipe demonstrates (and the
+    upstream repo the bundled sample data comes from).
 """
 
 from __future__ import annotations

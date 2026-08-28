@@ -43,8 +43,10 @@ Current state: Most systems at Level 1-2; research pushing toward Level 3-4.
 |------|---------|
 | [roi_finder.md](roi_finder.md) | ML-guided ROI selection for XRF |
 | [bayesian_optimization.md](bayesian_optimization.md) | Bayesian parameter optimization |
+| [knowledge_injected_bo.md](knowledge_injected_bo.md) | Knowledge-injected Bayesian optimization |
 | [ai_nerd.md](ai_nerd.md) | Unsupervised dynamics fingerprinting |
 | [foundation_models_beamline.md](foundation_models_beamline.md) | Foundation models (LLMs, ViTs) for beamline control and autonomous operation |
+| [llm_agents_beamline.md](llm_agents_beamline.md) | LLM agents operating real beamlines (2025–2026 demonstrations) |
 
 ## Architecture diagram
 

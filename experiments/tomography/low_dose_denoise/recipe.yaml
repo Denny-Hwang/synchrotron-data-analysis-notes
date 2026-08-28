@@ -68,8 +68,8 @@ samples:
     role: noisy_input
     description: "200 photons/pixel — denoising marginal benefit"
   - manifest_path: datasets/tomography/low_dose/sinogram_clean.npy
-    label: "Clean reference (false-positive trap)"
-    role: false_positive_trap
+    label: "Clean reference (identity check)"
+    role: identity_check
     description: "Apply denoiser to clean data — should *not* over-smooth"
 
 clean_reference:

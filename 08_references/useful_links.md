@@ -70,6 +70,7 @@
 | PyNX | [http://ftp.esrf.fr/pub/scisoft/PyNX/](http://ftp.esrf.fr/pub/scisoft/PyNX/) | GPU-accelerated coherent imaging |
 | edgePtychoNN | [https://github.com/vbanakha/edgePtychoNN](https://github.com/vbanakha/edgePtychoNN) | Real-time edge inference for ptychography (TensorRT + EPICS PVA) |
 | PtychoNN | [https://github.com/mcherukara/PtychoNN](https://github.com/mcherukara/PtychoNN) | Deep learning for ptychographic imaging |
+| Pty-Chi | [https://github.com/AdvancedPhotonSource/pty-chi](https://github.com/AdvancedPhotonSource/pty-chi) | PyTorch-based ptychographic reconstruction (autodiff, GPU, multislice; arXiv:2510.20929) |
 
 ## APS GitHub Organization
 

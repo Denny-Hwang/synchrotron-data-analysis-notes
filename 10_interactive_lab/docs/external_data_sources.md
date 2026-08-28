@@ -39,7 +39,7 @@ Sizes given are approximate at time of writing (2026-05).
 - **Sarepy `/data/challenging/`** (already partially bundled) — full set ~150 MB
   - License: Apache-2.0 — fully redistributable
   - URL: https://github.com/nghia-vo/sarepy/tree/master/data/challenging
-  - All challenging cases (8 files); we bundled 7 in `datasets/tomography/ring_artifact/`
+  - Selected stripe-type cases; we bundled 7 sinograms in `datasets/tomography/ring_artifact/` (2 of them from `/data/challenging/`)
 
 ### Low-dose CT denoising — paired noisy/clean
 
@@ -292,7 +292,7 @@ Recommended pattern:
 3. Hash mismatch → automatic re-download.
 4. Streamlit Cloud: the cache lives on the ephemeral container; the recipe re-fetches on cold start.
 
-A complete `lazy_download.yaml` lives at `10_interactive_lab/models/lazy_download_recipes.yaml` and `datasets/manifest.yaml`.
+A complete lazy-download registry lives at `10_interactive_lab/models/lazy_download_recipes.yaml`; the bundled-sample inventory lives at `10_interactive_lab/manifest.yaml`.
 
 ---
 

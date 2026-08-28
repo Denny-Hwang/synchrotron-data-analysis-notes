@@ -25,6 +25,4 @@ from lib.cluster_page import render_cluster_page
 
 st.set_page_config(page_title="Discover the Program — eBERlight", page_icon="📖", layout="wide")
 
-# Discover holds heterogeneous reference material — group by folder so
-# the program overview and the reference index don't visually merge.
-render_cluster_page("discover", group_by_folder=True)
+render_cluster_page("discover")

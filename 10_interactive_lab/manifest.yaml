@@ -1,9 +1,14 @@
 # manifest.yaml — eBERlight Interactive Lab Dataset Inventory
 #
-# Machine-readable index of all bundled datasets. The Streamlit Lab page
-# (planned `4_Experiment.py`) parses this file at startup to populate
-# the sample-picker UI. Lazy-download recipes for larger external datasets
-# live in the same schema with `bundled: false` and a `url` + `sha256` field.
+# Machine-readable provenance + licensing inventory of all bundled
+# datasets, validated in CI (explorer/tests/test_lab_integrity.py: every
+# listed file must exist; every recipe sample must be listed here). The
+# shipped Lab page (`explorer/pages/4_Experiment.py`) enumerates its
+# samples from each experiment's `recipe.yaml`; this manifest is the
+# inventory those recipes are checked against, not a runtime input.
+# External (non-bundled) datasets appear with `bundled: false` and are
+# documented in docs/external_data_sources.md; model-weight downloads
+# live in models/lazy_download_recipes.yaml.
 
 schema_version: 1
 
@@ -21,31 +26,31 @@ modalities:
       samples:
         - file: datasets/tomography/ring_artifact/sinogram_normal.tif
           role: clean_reference
-          format: tiff_uint16
+          format: tiff_float32
           description: Clean reference sinogram, no visible stripes
         - file: datasets/tomography/ring_artifact/sinogram_dead_stripe.tif
           role: noisy_input
-          format: tiff_uint16
+          format: tiff_float32
           description: Dead-stripe (sensor failure) artifact
         - file: datasets/tomography/ring_artifact/sinogram_large_stripe.tif
           role: noisy_input
-          format: tiff_uint16
+          format: tiff_float32
           description: Large-amplitude vertical stripe
         - file: datasets/tomography/ring_artifact/sinogram_partial_stripe.tif
           role: noisy_input
-          format: tiff_uint16
+          format: tiff_float32
           description: Partial column-range stripe
         - file: datasets/tomography/ring_artifact/all_stripe_types_sample1.tif
           role: noisy_input
-          format: tiff_uint16
+          format: tiff_float32
           description: Multiple stripe types coexisting (challenging)
         - file: datasets/tomography/ring_artifact/large_partial_rings.tif
           role: noisy_input
-          format: tiff_uint16
+          format: tiff_float32
           description: Large partial rings (challenging)
         - file: datasets/tomography/ring_artifact/valid_stripes.tif
           role: false_positive_trap
-          format: tiff_uint16
+          format: tiff_float32
           description: Looks like stripes but is real sample feature
 
     neutron_tomography:

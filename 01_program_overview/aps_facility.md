@@ -13,10 +13,10 @@ serves thousands of researchers annually across diverse scientific disciplines.
 | **Ring Energy** | 7.0 GeV | 6.0 GeV |
 | **Circumference** | 1,104 m | 1,104 m |
 | **Lattice Type** | Double-bend achromat (DBA) | Multi-bend achromat (MBA) |
-| **Emittance** | 3.1 nm·rad | 42 pm·rad |
+| **Emittance** | 3.1 nm·rad | 42 pm·rad design; **33 pm·rad measured** (world record, 2025) |
 | **Brightness Increase** | Baseline | Up to 500× |
 | **Injection** | Top-up | Multi-bunch swap-out injection |
-| **Beamlines** | 68 | 68+ (with enhanced capabilities) |
+| **Beamlines** | 68 | 72 at completion of the beamline upgrade program |
 | **Current** | 100 mA | 200 mA (design) |
 
 ## APS-U: The Upgrade
@@ -33,7 +33,12 @@ coherent X-ray beams up to **500× brighter** than the original source.
 #### 1. Multi-Bend Achromat (MBA) Lattice
 - Replaces the original double-bend achromat design
 - Uses 7 bends per sector (vs. 2 previously) to reduce horizontal emittance
-- Achieves **42 pm·rad emittance** — approaching the diffraction limit
+- Design emittance of **42 pm·rad** — approaching the diffraction limit
+- Measured performance exceeded design: a **world-record 33 pm·rad**
+  horizontal emittance was announced in May 2025 (following a 45 pm·rad
+  measurement at 50 mA in August 2024); source emittance and beam-coherence
+  measurements are published in Shi et al., *J. Synchrotron Rad.* 32(5)
+  (2025), DOI 10.1107/S160057752500579X
 - Results in dramatically increased coherent flux
 
 #### 2. Multi-Bunch Swap-Out Injection
@@ -58,6 +63,9 @@ coherent X-ray beams up to **500× brighter** than the original source.
 | 2024 Q3 | Beam commissioning and first light at beamlines |
 | 2024 Q4 | Early user operations resume |
 | 2025 | Full user operations with enhanced capabilities |
+| 2025 May | World-record 33 pm·rad electron-beam emittance measured |
+| 2026 Jan | DOE grants final approval of the $815M APS-U project — on budget, ahead of schedule |
+| 2026 Feb | Argonne celebrates formal completion of the APS Upgrade; beamline upgrade program targets 72 operating beamlines |
 
 ## Post-Upgrade Data Challenges
 

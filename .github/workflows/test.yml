@@ -8,6 +8,10 @@ name: Test
 # Ref: explorer/tests/ — pytest suite (test_ia, test_notes, test_components,
 #       test_experiments, test_model_zoo).
 
+# R16 — `scripts/**` is included because test_build_static_site.py and
+# test_legacy_mermaid_migration.py load modules from scripts/; editing
+# the generator alone used to run no tests until the post-merge Pages
+# build. `09_noise_catalog/**` feeds the troubleshooter tests.
 on:
   push:
     branches: [main]
@@ -15,6 +19,8 @@ on:
       - 'explorer/**'
       - 'experiments/**'
       - '10_interactive_lab/**'
+      - '09_noise_catalog/**'
+      - 'scripts/**'
       - '.github/workflows/test.yml'
   pull_request:
     branches: [main]
@@ -22,6 +28,8 @@ on:
       - 'explorer/**'
       - 'experiments/**'
       - '10_interactive_lab/**'
+      - '09_noise_catalog/**'
+      - 'scripts/**'
       - '.github/workflows/test.yml'
   workflow_dispatch:
 

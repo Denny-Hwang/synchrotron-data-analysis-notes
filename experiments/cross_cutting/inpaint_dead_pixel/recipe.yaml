@@ -69,12 +69,15 @@ parameters:
     label: "Dead-pixel threshold"
     default: 0.0
     min: -1.0
-    max: 1.0
+    max: 0.5
     step: 0.05
     help: |
       A pixel is flagged dead if its value is at or below this
       threshold. Default 0.0 catches all-zero failures; raise above
-      0 to catch attenuated pixels too.
+      0 to catch attenuated pixels too. The bundled sample's values
+      run ≈0–3.15, so the range is capped at 0.5 — beyond ~0.6 the
+      mask floods (nearly every pixel flagged) and biharmonic
+      inpainting has nothing left to interpolate from.
 
 metrics:
   - psnr

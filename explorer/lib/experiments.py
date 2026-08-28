@@ -36,12 +36,32 @@ PipelineFn = Callable[..., np.ndarray]
 
 @dataclass(frozen=True)
 class Sample:
-    """One bundled sample referenced by a recipe."""
+    """One bundled sample referenced by a recipe.
+
+    ``clean_reference`` optionally names a per-sample ground-truth file
+    (manifest-relative path). When set it overrides the recipe-level
+    ``clean_reference`` for metric computation — needed when a recipe's
+    samples come from *different* synthetic scenes (e.g. the phase-
+    unwrapping recipe bundles gaussian / twobump / noisy scenes, each
+    with its own ``phase_clean_*.npy``). Without the override every
+    sample was silently scored against the first scene's ground truth.
+
+    ``role`` vocabulary (as consumed by the Lab page):
+      - ``noisy_input``          — normal degraded sample
+      - ``clean_reference``      — pristine data shown for context
+      - ``false_positive_trap``  — a *different scene* whose features
+        look like artifacts; metrics vs. the reference are meaningless
+        and are skipped
+      - ``identity_check``       — the sample *is* the clean reference;
+        a good algorithm should barely change it, and the only
+        meaningful metric is output-vs-reference
+    """
 
     manifest_path: str
     label: str
     role: str = "noisy_input"
     description: str = ""
+    clean_reference: str = ""
 
 
 @dataclass(frozen=True)
@@ -105,6 +125,7 @@ def _parse_sample(d: dict) -> Sample:
         label=str(d.get("label", d["manifest_path"])),
         role=str(d.get("role", "noisy_input")),
         description=str(d.get("description", "")),
+        clean_reference=str(d.get("clean_reference", "")),
     )
 
 
